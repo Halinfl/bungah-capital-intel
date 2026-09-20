@@ -1,0 +1,121 @@
+// Bungah Capital Intel — Capital Graph schema
+// SQLite for local demo; switch provider to "postgresql" and DATABASE_URL for production.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Market {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  region      String
+  summary     String
+  nuanceNote  String?
+  visitorsM   Float?
+  roomsK      Float?
+  occupancy   Float?
+  adr         Float?
+  midweekOcc  Float?
+  weekendOcc  Float?
+  sourceLabel String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assets    Asset[]
+  signals   Signal[]
+  findings  Finding[]
+  artifacts Artifact[]
+}
+
+model Asset {
+  id          String   @id @default(cuid())
+  marketId    String
+  name        String
+  assetClass  String
+  keys        Int?
+  submarket   String?
+  notes       String?
+  sourceLabel String
+  createdAt   DateTime @default(now())
+
+  market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model Signal {
+  id          String   @id @default(cuid())
+  marketId    String?
+  kind        String
+  title       String
+  body        String
+  magnitude   String?
+  asOf        String?
+  sourceLabel String
+  createdAt   DateTime @default(now())
+
+  market Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
+}
+
+model Radar {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  marketSlug  String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  findings Finding[]
+}
+
+model Finding {
+  id          String   @id @default(cuid())
+  radarId     String
+  marketId    String?
+  title       String
+  summary     String
+  severity    String   @default("info")
+  sourceLabel String
+  createdAt   DateTime @default(now())
+
+  radar  Radar   @relation(fields: [radarId], references: [id], onDelete: Cascade)
+  market Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
+}
+
+model Artifact {
+  id          String   @id @default(cuid())
+  marketId    String?
+  kind        String
+  title       String
+  markdown    String
+  sourceLabel String
+  createdAt   DateTime @default(now())
+
+  market Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
+}
+
+model ChatThread {
+  id        String   @id @default(cuid())
+  title     String   @default("New thread")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  role      String
+  content   String
+  citations String?
+  createdAt DateTime @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+}
