@@ -141,7 +141,7 @@ export default async function MarketDetailPage({
 
       <div className="flex flex-wrap gap-3">
         <Link
-          href={`/artifacts?market=${market.slug}`}
+          href={`/briefs?market=${market.slug}`}
           className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
         >
           Generate IC one-pager

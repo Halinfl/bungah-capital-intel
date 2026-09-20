@@ -11,6 +11,7 @@ export default async function HomePage() {
   const orlando = markets.find((m) => m.slug === "orlando");
   const vegas = markets.find((m) => m.slug === "las-vegas");
   const radarCount = await prisma.radar.count();
+  const briefCount = await prisma.artifact.count();
 
   const searchItems = markets.map((m) => ({
     slug: m.slug,
@@ -23,46 +24,101 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="space-y-12">
-      <section className="space-y-6">
-        <p className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-          Build in public · v0.1 capital intel
+    <div className="space-y-14">
+      {/* Hero — Capital Graph as the one picture (Silvia mirror) */}
+      <section className="space-y-5">
+        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Capital Graph
         </p>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Bungah Capital Intel
         </h1>
-        <p className="max-w-2xl text-lg text-slate-300">
-          Silvia-style hospitality capital intelligence for brand leaders, owners, asset managers,
-          developers, and CVBs. Capital Graph + Radars + Chat + Artifacts —{" "}
-          <strong className="text-white">propose-only</strong>, every number cited.
+        <p className="max-w-xl text-[15px] leading-relaxed text-slate-400">
+          One picture of hospitality capital — markets, assets, and signals. Ask questions, watch
+          radars, forward briefs. Propose-only; every number cited.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/markets"
-            className="rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
-          >
-            Explore markets
-          </Link>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
+          <DestinationSearch
+            markets={searchItems}
+            placeholder="Search a market on the Capital Graph…"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2.5">
           <Link
             href="/chat"
-            className="rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10"
+            className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white"
           >
-            Ask the graph
+            Ask Bungah Capital Intel
           </Link>
           <Link
-            href="/radars"
-            className="rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10"
+            href="/markets"
+            className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-medium text-slate-300 hover:border-white/20 hover:text-white"
           >
-            View {radarCount} radars
+            Browse markets
           </Link>
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-slate-400">
-          Lead with numbers
+
+      {/* Trust before tools */}
+      <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-relaxed text-slate-400">
+            <span className="font-medium text-slate-200">Trust Contract.</span> Propose-only ·
+            citations required · not booking · not meeting-sourcing.
+          </p>
+          <Link
+            href="/trust"
+            className="shrink-0 text-sm text-slate-300 underline-offset-2 hover:text-white hover:underline"
+          >
+            Read the contract
+          </Link>
+        </div>
+      </section>
+
+      {/* Work products — Radars + Briefs */}
+      <section className="space-y-4">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Work products
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/radars"
+            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="text-base font-medium text-white">Radars</h3>
+              <span className="text-xs tabular-nums text-slate-500">{radarCount} live</span>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              Quiet monitors over the graph. Material findings only — no firehose.
+            </p>
+          </Link>
+          <Link
+            href="/briefs"
+            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="text-base font-medium text-white">Briefs</h3>
+              <span className="text-xs tabular-nums text-slate-500">
+                {briefCount ? `${briefCount} recent` : "IC one-pagers"}
+              </span>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              Forwardable IC memos from the Capital Graph. Propose-only, citations embedded.
+            </p>
+          </Link>
+        </div>
+      </section>
+
+      {/* KPI strip — secondary only */}
+      <section className="space-y-3">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Snapshot · secondary
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Orlando visitors"
             value={fmtVisitorsM(orlando?.visitorsM)}
@@ -88,42 +144,6 @@ export default async function HomePage() {
             sourceLabel={vegas?.sourceLabel}
           />
         </div>
-
-        <DestinationSearch markets={searchItems} />
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
-          {
-            t: "Capital Graph",
-            d: "Markets, assets, signals, debt & talent stubs — ~50 US travel markets seeded.",
-            href: "/markets",
-          },
-          {
-            t: "Radars",
-            d: "Plain-language monitors → findings feed. Orlando scarcity, Vegas softness, debt-wall.",
-            href: "/radars",
-          },
-          {
-            t: "Chat + Artifacts",
-            d: "Deterministic cited answers from the graph. IC one-pagers on demand. No paid API keys.",
-            href: "/chat",
-          },
-        ].map((c) => (
-          <Link
-            key={c.t}
-            href={c.href}
-            className="rounded-xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-emerald-500/40 hover:bg-emerald-500/5"
-          >
-            <h3 className="font-semibold text-white">{c.t}</h3>
-            <p className="mt-2 text-sm text-slate-400">{c.d}</p>
-          </Link>
-        ))}
-      </section>
-
-      <section className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 text-sm text-amber-100/90">
-        <strong className="text-amber-200">Trust contract:</strong> citations required · no
-        auto-executing capital · not a booking or meeting-sourcing product · auth stub only for v0.1.
       </section>
     </div>
   );

@@ -27,7 +27,7 @@ export async function answerFromGraph(question: string): Promise<ChatAnswer> {
   if (!q) {
     return {
       content:
-        "Ask about Orlando, Las Vegas, scarcity vs impact, debt wall, talent greenlight, or radars. Answers are deterministic from the Capital Graph — propose-only, every number cited.",
+        "Ask the Bungah Capital Intel about the investment landscape in hotels. Try Orlando scarcity, Vegas softness, debt wall, talent greenlight, or radars. Answers are deterministic from the Capital Graph — propose-only, every number cited.",
       citations: [],
     };
   }

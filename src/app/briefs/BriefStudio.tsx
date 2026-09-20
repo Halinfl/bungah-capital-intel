@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function ArtifactStudio({
+export function BriefStudio({
   markets,
   initialSlug,
 }: {
@@ -36,8 +36,8 @@ export function ArtifactStudio({
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <label className="flex flex-col gap-1 text-xs text-slate-400">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+      <label className="flex flex-col gap-1 text-xs text-slate-500">
         Market
         <select
           value={slug}
@@ -55,7 +55,7 @@ export function ArtifactStudio({
         type="button"
         onClick={generate}
         disabled={busy || !slug}
-        className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-400 disabled:opacity-50"
+        className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-50"
       >
         {busy ? "Generating…" : "Generate IC one-pager"}
       </button>
