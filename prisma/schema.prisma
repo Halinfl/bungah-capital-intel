@@ -1,12 +1,12 @@
 // Bungah Capital Intel — Capital Graph schema
-// SQLite for local demo; switch provider to "postgresql" and DATABASE_URL for production.
+// PostgreSQL (Neon / Vercel / Docker). Set DATABASE_URL in .env.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

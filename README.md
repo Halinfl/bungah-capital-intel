@@ -12,13 +12,17 @@ Product name everywhere: **Bungah Capital Intel** (never brand as Neo).
 ## Stack
 
 - Next.js 15 App Router · TypeScript · Tailwind CSS v4
-- Prisma + **SQLite** (`prisma/dev.db`) for local demo
+- Prisma + **PostgreSQL** (Neon / Docker / any Postgres) via `DATABASE_URL`
 - Auth: stub / skipped for v0.1
 
 ## Quick start
 
+1. Copy `.env.example` → `.env` and set a Postgres `DATABASE_URL` (Neon, Docker, or other).
+2. Install, push schema, seed, run:
+
 ```bash
 cd bungah-capital-intel
+cp .env.example .env   # then edit DATABASE_URL
 npm install
 npx prisma db push
 npm run db:seed
@@ -27,17 +31,25 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+**Local Postgres options:** create a free DB at [neon.new](https://neon.new) (claimable, no login), or run Docker:
+
+```bash
+docker run --name bungah-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bungah_capital_intel -p 5432:5432 -d postgres:16
+# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/bungah_capital_intel?schema=public"
+```
+
 ### Scripts
 
 | Script | Purpose |
 | --- | --- |
 | `npm run dev` | Next.js dev server |
-| `npm run build` | `prisma generate` + production build |
+| `npm run build` | `prisma generate` + production build (no db push) |
 | `npm start` | Serve production build |
-| `npm run db:push` | Push Prisma schema to SQLite |
+| `npm run db:push` | Push Prisma schema to Postgres |
 | `npm run db:seed` | Seed Orlando + Vegas + radars/signals |
 | `npm run radars:run` | Write fresh Findings from radars |
 | `npm run db:reset` | Force-reset DB + reseed |
+| `postinstall` | `prisma generate` (runs after `npm install`) |
 
 ## Pages
 
@@ -63,26 +75,13 @@ Open [http://localhost:3000](http://localhost:3000).
 
 **National stubs:** lodging debt-wall / CMBS maturity narrative; talent staffing greenlight gate.
 
-## Switching to Postgres
+## Database (PostgreSQL)
 
-1. Change `prisma/schema.prisma` datasource:
+Prisma `provider` is **postgresql**. Set `DATABASE_URL` in `.env` (see `.env.example`).
 
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
+After changing the URL: `npx prisma db push && npm run db:seed`.
 
-2. Set `.env`:
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/bungah_capital_intel?schema=public"
-```
-
-3. Run `npx prisma db push && npm run db:seed`.
-
-SQLite remains the default for zero-config local demo.
+Do **not** commit real credentials — `.env`, `.env.local`, and `.env.production.local` are gitignored.
 
 ## Push to GitHub
 
@@ -105,11 +104,10 @@ See **HANDOFF.md** for Cursor steps.
 ## Vercel notes
 
 1. Import the GitHub repo in Vercel.
-2. Framework preset: Next.js.
-3. Env: set `DATABASE_URL` to a Postgres URL (Vercel Postgres / Neon / Supabase).
-4. Build command: `prisma generate && prisma db push && next build` (or run migrations in a release step).
-5. After first deploy, run seed once (Vercel CLI / one-off job): `npx tsx prisma/seed.ts` with `DATABASE_URL` set.
-6. SQLite file DB is **not** durable on serverless — use Postgres in production.
+2. Framework preset: Next.js (default build uses `prisma generate && next build` — **no** `db push` during build).
+3. Env: set `DATABASE_URL` to a Postgres URL (Neon pooled URL recommended for serverless).
+4. Separately (once): `npx prisma db push` and `npm run db:seed` against that URL (local machine or one-off job).
+5. Never put real `DATABASE_URL` secrets in git.
 
 ## Trust contract
 
