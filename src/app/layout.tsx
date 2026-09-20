@@ -46,6 +46,9 @@ export default function RootLayout({
               <Link href="/podcast" className="text-slate-400 hover:text-slate-200">
                 Podcast
               </Link>
+              <Link href="/pricing" className="text-slate-400 hover:text-slate-200">
+                Pricing
+              </Link>
               <Link href="/briefs" className="text-slate-400 hover:text-slate-200">
                 Briefs
               </Link>

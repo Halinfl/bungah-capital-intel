@@ -1,12 +1,13 @@
 import Link from "next/link";
 
-/** Primary nav — Silvia lock. Trust lives in footer only. Deals/Talent off until Hal ships. */
+/** Primary nav — Silvia lock. Pricing quiet jump. Trust lives in footer. Deals/Talent off. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
   { href: "/briefs", label: "Briefs" },
   { href: "/podcast", label: "Podcast" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export function Nav() {
@@ -29,7 +30,11 @@ export function Nav() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              className={
+                l.label === "Pricing"
+                  ? "rounded-md px-2.5 py-1.5 text-slate-500 transition hover:bg-white/[0.04] hover:text-slate-300"
+                  : "rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              }
             >
               {l.label}
             </Link>
