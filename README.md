@@ -46,7 +46,7 @@ docker run --name bungah-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bungah_
 | `npm run build` | `prisma generate` + production build (no db push) |
 | `npm start` | Serve production build |
 | `npm run db:push` | Push Prisma schema to Postgres |
-| `npm run db:seed` | Seed Orlando + Vegas + radars/signals |
+| `npm run db:seed` | Seed ~50 US travel markets + radars/signals |
 | `npm run radars:run` | Write fresh Findings from radars |
 | `npm run db:reset` | Force-reset DB + reseed |
 | `postinstall` | `prisma generate` (runs after `npm install`) |

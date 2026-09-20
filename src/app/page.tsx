@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
+import { DestinationSearch } from "@/components/DestinationSearch";
 import { fmtPct, fmtUsd, fmtVisitorsM } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,16 @@ export default async function HomePage() {
   const orlando = markets.find((m) => m.slug === "orlando");
   const vegas = markets.find((m) => m.slug === "las-vegas");
   const radarCount = await prisma.radar.count();
+
+  const searchItems = markets.map((m) => ({
+    slug: m.slug,
+    name: m.name,
+    region: m.region,
+    visitorsM: m.visitorsM,
+    roomsK: m.roomsK,
+    occupancy: m.occupancy,
+    adr: m.adr,
+  }));
 
   return (
     <div className="space-y-12">
@@ -77,13 +88,15 @@ export default async function HomePage() {
             sourceLabel={vegas?.sourceLabel}
           />
         </div>
+
+        <DestinationSearch markets={searchItems} />
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         {[
           {
             t: "Capital Graph",
-            d: "Markets, assets, signals, debt & talent stubs — SQLite demo, Postgres-ready.",
+            d: "Markets, assets, signals, debt & talent stubs — ~50 US travel markets seeded.",
             href: "/markets",
           },
           {
