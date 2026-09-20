@@ -73,7 +73,6 @@ gh repo create Halinfl/bungah-capital-intel --private --source=. --remote=origin
 
 1. Vercel → Import `Halinfl/bungah-capital-intel`
 2. Set `DATABASE_URL` to Postgres
-3. Switch Prisma `provider` to `postgresql` (see README)
 4. Deploy · run seed once against prod DB
 
 ## 5. Branding check
@@ -85,7 +84,7 @@ Search the repo for `Neo` as a product name — UI, README title, and metadata m
 | Item | Path |
 | --- | --- |
 | App root | `/workspace/bungah-capital-intel` |
-| SQLite DB | `/workspace/bungah-capital-intel/prisma/dev.db` |
+| Postgres | Set `DATABASE_URL` (Neon / Docker). See `.env.example` |
 | Schema | `/workspace/bungah-capital-intel/prisma/schema.prisma` |
 | Seed | `/workspace/bungah-capital-intel/prisma/seed.ts` |
 | Radar CLI | `/workspace/bungah-capital-intel/scripts/run-radars.ts` |
