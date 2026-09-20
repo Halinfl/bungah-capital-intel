@@ -1,6 +1,6 @@
 # Bungah Capital Intel
 
-Silvia-style **hospitality capital intelligence** — Capital Graph + Radars + Chat + Artifacts.
+Silvia-style **hospitality capital intelligence** — Capital Graph + Radars + Chat + Briefs.
 
 - **Propose-only** (no auto-executing capital)
 - **Citations required** on every number shown in the UI
@@ -60,7 +60,7 @@ docker run --name bungah-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bungah_
 | `/markets/[slug]` | Detail + which-Orlando nuance |
 | `/chat` | Deterministic cited chat over the graph |
 | `/radars` | 3 radars + findings (+ Run radars) |
-| `/artifacts` | Generate IC one-pager markdown |
+| `/briefs` | Generate IC one-pager markdown |
 
 ## Seed facts (cited in UI)
 

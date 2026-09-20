@@ -37,7 +37,7 @@ Must exit 0. Spot-check:
 - `/markets/orlando` — which-Orlando nuance callout
 - `/chat` — “Which Orlando is scarce?” returns cited answer
 - `/radars` — 3 radars; **Run radars** writes findings
-- `/artifacts` — generate IC one-pager for a market
+- `/briefs` — generate IC one-pager for a market
 
 ## 3. Create / push GitHub repo
 
@@ -52,7 +52,7 @@ cd /workspace/bungah-capital-intel   # or your local copy
 git init
 git add .
 git status   # confirm .env is NOT staged (should be gitignored)
-git commit -m "Initial Bungah Capital Intel v0.1 — Capital Graph, Radars, Chat, Artifacts"
+git commit -m "Initial Bungah Capital Intel v0.1 — Capital Graph, Radars, Chat, Briefs"
 
 git branch -M main
 git remote add origin https://github.com/Halinfl/bungah-capital-intel.git

@@ -1,18 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import { ArtifactStudio } from "./ArtifactStudio";
+import { BriefStudio } from "./BriefStudio";
 import { SourceChip } from "@/components/SourceChip";
 import { MarkdownLite } from "@/components/MarkdownLite";
 
 export const dynamic = "force-dynamic";
 
-export default async function ArtifactsPage({
+export default async function BriefsPage({
   searchParams,
 }: {
   searchParams: Promise<{ market?: string }>;
 }) {
   const sp = await searchParams;
   const markets = await prisma.market.findMany({ orderBy: { name: "asc" } });
-  const artifacts = await prisma.artifact.findMany({
+  const briefs = await prisma.artifact.findMany({
     orderBy: { createdAt: "desc" },
     take: 10,
     include: { market: true },
@@ -21,22 +21,27 @@ export default async function ArtifactsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Artifacts</h1>
-        <p className="mt-2 max-w-2xl text-slate-400">
-          Generate IC one-pager markdown for a market from the Capital Graph. Propose-only —
-          citations embedded.
+        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Work product
+        </p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Briefs</h1>
+        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-400">
+          Forwardable IC one-pagers from the Capital Graph. Propose-only — citations embedded.
         </p>
       </div>
 
-      <ArtifactStudio
+      <BriefStudio
         markets={markets.map((m) => ({ slug: m.slug, name: m.name }))}
         initialSlug={sp.market ?? markets[0]?.slug ?? ""}
       />
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Recent artifacts</h2>
-        {artifacts.map((a) => (
-          <article key={a.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+        <h2 className="text-sm font-medium text-slate-300">Recent briefs</h2>
+        {briefs.map((a) => (
+          <article
+            key={a.id}
+            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5"
+          >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-medium text-white">{a.title}</h3>
               <span className="text-xs text-slate-500">
@@ -61,8 +66,8 @@ export default async function ArtifactsPage({
             </details>
           </article>
         ))}
-        {!artifacts.length ? (
-          <p className="text-sm text-slate-500">No artifacts yet — generate one above.</p>
+        {!briefs.length ? (
+          <p className="text-sm text-slate-500">No briefs yet — generate one above.</p>
         ) : null}
       </section>
     </div>
