@@ -92,14 +92,7 @@ export function PricingTiers({ compactHeading = false }: PricingTiersProps) {
                 : "border border-white/[0.08]"
             }`}
           >
-            <div className="flex items-baseline justify-between gap-2">
-              <h3 className="text-base font-medium text-white">{tier.label}</h3>
-              {tier.highlight ? (
-                <span className="text-[10px] uppercase tracking-wider text-slate-400">
-                  Recommended
-                </span>
-              ) : null}
-            </div>
+            <h3 className="text-base font-medium text-white">{tier.label}</h3>
             <p className="mt-2">
               <span className="text-2xl font-semibold tracking-tight text-white tabular-nums">
                 {tier.price}
