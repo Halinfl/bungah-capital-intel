@@ -31,7 +31,7 @@ export async function POST() {
         severity = "info";
         title = "Radar refresh: lodging debt-wall / DY ≤8% stub";
         summary =
-          "Hotels ~30–35% of near-term CRE maturity narratives; lodging CMBS 2026 stub ~$18.7B. Pair refinance greenlight with staffing capacity. Propose-only.";
+          "Hotels ~30–35% of near-term CRE maturity narratives; lodging CMBS 2026 stub ~$18.7B. Pair refinance greenlight with staffing capacity. Decision support.";
         sourceLabel = "Industry debt-wall stubs (demo citation)";
       } else {
         title = `Radar refresh: ${radar.name}`;

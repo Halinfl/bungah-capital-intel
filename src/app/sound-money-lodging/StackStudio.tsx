@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function BriefStudio({
+/** Lightweight Stack memo studio — deterministic Capital Graph markdown, no paid LLM. */
+export function StackStudio({
   markets,
   initialSlug,
 }: {
@@ -23,7 +24,7 @@ export function BriefStudio({
       const res = await fetch("/api/artifacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ marketSlug: slug }),
+        body: JSON.stringify({ marketSlug: slug, kind: "stack" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
@@ -57,7 +58,7 @@ export function BriefStudio({
         disabled={busy || !slug}
         className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-50"
       >
-        {busy ? "Generating…" : "Generate IC one-pager"}
+        {busy ? "Generating…" : "Generate Stack memo"}
       </button>
       {error ? <span className="text-xs text-rose-300">{error}</span> : null}
     </div>

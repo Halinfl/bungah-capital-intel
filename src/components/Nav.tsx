@@ -1,19 +1,25 @@
 import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 
-/** Primary nav — Silvia lock. Trust lives in footer only. Deals/Talent off until Hal ships. */
+/** Primary nav — Silvia lock. Pricing quiet jump. Trust lives in footer. Clerk auth. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
-  { href: "/briefs", label: "Briefs" },
+  { href: "/sound-money-lodging", label: "Sound Asset" },
   { href: "/podcast", label: "Podcast" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
-export function Nav() {
+export async function Nav() {
+  const { userId } = await auth();
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#070a0e]/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#2f333c]/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="group flex items-center gap-2.5">
+        <Link href={userId ? "/workspace" : "/"} className="group flex items-center gap-2.5">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06] text-xs font-semibold tracking-tight text-slate-200 ring-1 ring-white/10">
             B
           </span>
@@ -29,14 +35,56 @@ export function Nav() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              className={
+                l.label === "Pricing"
+                  ? "rounded-md px-2.5 py-1.5 text-slate-500 transition hover:bg-white/[0.04] hover:text-slate-300"
+                  : "rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              }
             >
               {l.label}
             </Link>
           ))}
-          <span className="ml-2 hidden rounded-full border border-white/[0.08] px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500 sm:inline">
-            propose-only
-          </span>
+          {userId ? (
+            <>
+              <Link
+                href="/workspace"
+                className="rounded-md px-2.5 py-1.5 text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
+              >
+                Workspace
+              </Link>
+              <Link
+                href="/account/plan"
+                className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              >
+                Account
+              </Link>
+              <span className="ml-1 hidden rounded-full border border-white/[0.08] px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500 sm:inline">
+                private
+              </span>
+              <span className="ml-2 inline-flex items-center">
+                <UserButton
+                  appearance={clerkAppearance}
+                  userProfileMode="navigation"
+                  userProfileUrl="/account/plan"
+                />
+              </span>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="ml-1 rounded-md bg-slate-100 px-2.5 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
+              >
+                Start free
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>

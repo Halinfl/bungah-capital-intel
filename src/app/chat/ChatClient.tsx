@@ -1,7 +1,9 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 
@@ -11,75 +13,195 @@ type Msg = {
   citations?: string[];
 };
 
-const CAPITAL_PROMPTS = [
-  {
-    key: "deploy",
-    title: "Deploy?",
-    prompt:
-      "Should we put capital into Orlando this cycle — and which Orlando/Vegas-class layer?",
-  },
-  {
-    key: "hold",
-    title: "Hold?",
-    prompt:
-      "What would have to change before we add CapEx or refinance stress on full-service hotels?",
-  },
-  {
-    key: "flag",
-    title: "Flag?",
-    prompt:
-      "Flag the demand, supply, debt, or talent gate most likely to break Las Vegas’s thesis.",
-  },
-] as const;
+const FREE_MARKETS_KEY = "bungah_chat_free_markets";
+
+function marketLabel(slug: string): string {
+  return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function capitalPrompts(marketSlug: string) {
+  if (marketSlug) {
+    const name = marketLabel(marketSlug);
+    return [
+      {
+        key: "deploy",
+        title: "Deploy?",
+        prompt: `Should we put capital into ${name} this cycle — and which submarket / product layer?`,
+      },
+      {
+        key: "hold",
+        title: "Hold?",
+        prompt: `What would have to change in ${name} before we add CapEx or refinance stress on full-service hotels?`,
+      },
+      {
+        key: "flag",
+        title: "Flag?",
+        prompt: `Flag the demand, supply, debt, or talent gate most likely to break ${name}'s thesis.`,
+      },
+    ] as const;
+  }
+  return [
+    {
+      key: "deploy",
+      title: "Deploy?",
+      prompt:
+        "Should we put capital into a seeded lodging market this cycle — and which submarket / product layer?",
+    },
+    {
+      key: "hold",
+      title: "Hold?",
+      prompt:
+        "What would have to change before we add CapEx or refinance stress on full-service hotels?",
+    },
+    {
+      key: "flag",
+      title: "Flag?",
+      prompt:
+        "Flag the demand, supply, debt, or talent gate most likely to break a market thesis — name the market.",
+    },
+  ] as const;
+}
+
+function readUsedMarkets(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = sessionStorage.getItem(FREE_MARKETS_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((x): x is string => typeof x === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
+function markMarketUsed(slug: string) {
+  if (typeof window === "undefined" || !slug) return;
+  const used = readUsedMarkets();
+  used.add(slug);
+  sessionStorage.setItem(FREE_MARKETS_KEY, JSON.stringify([...used]));
+}
 
 export function ChatClient() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const { isLoaded: authLoaded, isSignedIn } = useAuth();
+  const searchParams = useSearchParams();
+  const marketSlug = searchParams.get("market")?.trim() ?? "";
+  const queryQuestion = searchParams.get("q")?.trim() ?? "";
+  const initialQuestion =
+    queryQuestion ||
+    (marketSlug
+      ? `Capital thesis for ${marketSlug.replaceAll("-", " ")}: RevPAR, occupancy, supply, talent gates?`
+      : "");
+  const initialQuestionKey = `${marketSlug}\u0000${queryQuestion}`;
+  const threadKeyRef = useRef<string | null>(null);
+  const autoSubmittedKey = useRef<string | null>(null);
+  const prompts = useMemo(() => capitalPrompts(marketSlug), [marketSlug]);
 
   const isEmpty = messages.length === 0;
 
-  async function send(text: string) {
-    const q = text.trim();
-    if (!q || busy) return;
-    setBusy(true);
-    setInput("");
-    setMessages((m) => [...m, { role: "user", content: q }]);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Chat failed");
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: data.content, citations: data.citations ?? [] },
-      ]);
-    } catch (e) {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          content: e instanceof Error ? e.message : "Error",
-          citations: [],
-        },
-      ]);
-    } finally {
-      setBusy(false);
-    }
-  }
+  // Fresh thread whenever marketSlug / initialQuestionKey changes so a prior
+  // auto-ask does not burn Q2 of another market CTA.
+  useEffect(() => {
+    if (threadKeyRef.current === initialQuestionKey) return;
+    threadKeyRef.current = initialQuestionKey;
+    setMessages([]);
+    setInput(initialQuestion || "");
+    setBusy(false);
+    autoSubmittedKey.current = null;
+  }, [initialQuestionKey, initialQuestion]);
+
+  const send = useCallback(
+    async (text: string) => {
+      const q = text.trim();
+      if (!q || busy) return;
+      setBusy(true);
+      setInput("");
+
+      const allowanceKey = marketSlug || "__general__";
+
+      // Unsigned: one free answered question per marketSlug (or general) per
+      // browser session. Follow-up in the same market → signup CTA. A different
+      // market CTA gets its own free answer. Signed-in: unlimited.
+      if (authLoaded && !isSignedIn) {
+        const used = readUsedMarkets();
+        if (used.has(allowanceKey)) {
+          setMessages((m) => [
+            ...m,
+            { role: "user", content: q },
+            {
+              role: "assistant",
+              content:
+                "You've used the free answer for this market in this browser session. Create an account to keep working with the Capital Graph: [Create an account](/signup)\n\n_Decision support:_ your judgment stays in control; no capital action is taken here.",
+              citations: [],
+            },
+          ]);
+          setBusy(false);
+          return;
+        }
+      }
+
+      setMessages((m) => [...m, { role: "user", content: q }]);
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: q,
+            marketSlug: marketSlug || undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Chat failed");
+        if (authLoaded && !isSignedIn) {
+          markMarketUsed(allowanceKey);
+        }
+        setMessages((m) => [
+          ...m,
+          { role: "assistant", content: data.content, citations: data.citations ?? [] },
+        ]);
+      } catch (e) {
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant",
+            content: e instanceof Error ? e.message : "Error",
+            citations: [],
+          },
+        ]);
+      } finally {
+        setBusy(false);
+      }
+    },
+    [authLoaded, busy, isSignedIn, marketSlug]
+  );
+
+  useEffect(() => {
+    if (!initialQuestion || !marketSlug) return;
+    if (autoSubmittedKey.current === initialQuestionKey) return;
+    // Wait for auth so free-allowance check is accurate before auto-ask.
+    if (!authLoaded) return;
+    autoSubmittedKey.current = initialQuestionKey;
+    void send(initialQuestion);
+  }, [authLoaded, initialQuestion, initialQuestionKey, marketSlug, send]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Quiet status row — always, before thread */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
-        <span>Private graph</span>
+        <span>Capital Graph</span>
         <span className="text-slate-700">·</span>
         <span>Cited answers</span>
         <span className="text-slate-700">·</span>
-        <span>Propose-only</span>
+        <span>Decision support</span>
+        {marketSlug ? (
+          <>
+            <span className="text-slate-700">·</span>
+            <span className="text-slate-400">{marketLabel(marketSlug)}</span>
+          </>
+        ) : null}
         <span className="text-slate-700">·</span>
         <Link href="/trust" className="text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline">
           Trust Contract
@@ -90,16 +212,15 @@ export function ChatClient() {
         <div className="space-y-5 rounded-xl border border-white/[0.08] bg-[#0a0e13] p-5 sm:p-6">
           <div className="space-y-2">
             <h2 className="text-lg font-medium tracking-tight text-white">
-              Ideate on capital here — we don’t execute.
+              Ideate on capital here — we don&apos;t execute.
             </h2>
             <p className="max-w-xl text-sm leading-relaxed text-slate-400">
-              Private to your workspace. Numbers cited or marked estimate. You ship judgment.
+              Cited from the Capital Graph. Numbers cited or marked estimate. You ship judgment.
             </p>
           </div>
 
-          {/* Three equal capital cards — not chip rail */}
           <div className="grid gap-3 sm:grid-cols-3">
-            {CAPITAL_PROMPTS.map((c) => (
+            {prompts.map((c) => (
               <button
                 key={c.key}
                 type="button"
@@ -115,7 +236,7 @@ export function ChatClient() {
           </div>
 
           <p className="text-xs leading-relaxed text-slate-500">
-            Propose-only · citations required · not booking · not meeting-sourcing.{" "}
+            Decision support · citations required · not booking · not meeting-sourcing.{" "}
             <Link href="/trust" className="text-slate-400 underline-offset-2 hover:underline">
               Trust Contract
             </Link>
@@ -177,7 +298,7 @@ export function ChatClient() {
       </form>
 
       <div className="sticky bottom-3 rounded-lg border border-white/[0.08] bg-[#0c1016]/95 px-4 py-3 text-xs leading-relaxed text-slate-400 backdrop-blur">
-        <span className="font-medium text-slate-300">Propose-only.</span> Number / so-what →
+        <span className="font-medium text-slate-300">Decision support.</span> Number / so-what →
         citations → human Approve / Edit / Dismiss. No auto-executing capital.
       </div>
     </div>

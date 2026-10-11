@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
-import { generateIcOnePager } from "@/lib/artifacts";
+import { generateIcOnePager, generateStackMemo } from "@/lib/artifacts";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const marketSlug = String(body.marketSlug ?? "");
+    const kind = String(body.kind ?? "stack");
     if (!marketSlug) {
       return NextResponse.json({ error: "marketSlug required" }, { status: 400 });
     }
-    const artifact = await generateIcOnePager(marketSlug);
+    const artifact =
+      kind === "ic-one-pager"
+        ? await generateIcOnePager(marketSlug)
+        : await generateStackMemo(marketSlug);
     return NextResponse.json({
       id: artifact.id,
       title: artifact.title,

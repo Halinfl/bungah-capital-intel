@@ -37,7 +37,7 @@ Must exit 0. Spot-check:
 - `/markets/orlando` — which-Orlando nuance callout
 - `/chat` — “Which Orlando is scarce?” returns cited answer
 - `/radars` — 3 radars; **Run radars** writes findings
-- `/briefs` — generate IC one-pager for a market
+- `/sound-money-lodging` — Sound Asset Lodging hub + Stack memo for a market
 
 ## 3. Create / push GitHub repo
 
@@ -89,3 +89,34 @@ Search the repo for `Neo` as a product name — UI, README title, and metadata m
 | Seed | `/workspace/bungah-capital-intel/prisma/seed.ts` |
 | Radar CLI | `/workspace/bungah-capital-intel/scripts/run-radars.ts` |
 | This handoff | `/workspace/bungah-capital-intel/HANDOFF.md` |
+
+
+## Memory loop vision (Phase 1)
+
+Questions logged → intents classified → graph retrieval → LLM (or deterministic fallback) → coverage learning.
+
+- Schema: `ChatQuestionLog` in `prisma/schema.prisma`
+- Local: `npx prisma db push` (already in verify steps)
+- Prod: run `prisma db push` once against prod `DATABASE_URL`; set `AI_GATEWAY_API_KEY` (or `OPENAI_API_KEY`) on Vercel for graph-grounded LLM chat. Without keys, chat stays deterministic.
+- Intent list + cross-market memo styles: `src/lib/chat-intent.ts`, `formatMarketMemo` in `src/lib/chat.ts`
+- LLM: `src/lib/chat-llm.ts` (AI SDK `generateText`)
+
+## Earnings digest RAG (allowed corpus)
+
+- Digests: `content/earnings/{hilton,host-hotels,pebblebrook}/*-digest.md`
+- Ideology excerpt: `content/ideology/talent-human-touch.md`
+- Retrieval: `src/lib/chat-retrieve.ts` (keyword + REIT/brand/capital theme triggers)
+- Wired in: `src/lib/chat-llm.ts` (graph pack + corpus → `generateText`; digest memo fallback)
+- Do **not** fine-tune. Do **not** ship `_raw/` IR HTML or licensed STR.
+- Parent deploys; local verify: `npm run build`
+
+## Training corpus export (legal + privacy)
+
+- Schema: `ChatQuestionLog` — `question`, `answerText`, `citationsJson`, `intent`, `marketSlug`, `modelUsed`, `trainEligible`, `isPrivate`, `userId?`, `createdAt`.
+- **Public vs private gate** (`auth()` from `@clerk/nextjs/server` in `/api/chat`):
+  - Signed **out** → `isPrivate=false`, `trainEligible=true`, full Q&A logged for corpus.
+  - Signed **in** → `isPrivate=true`, `trainEligible=false`; log bodies redacted; `ChatThread` still saves for the product.
+- Export: `npm run train:export` → JSONL **only** `trainEligible=true` rows (`data/train/bungah-chat-corpus.jsonl`).
+- Rules: `data/train/README.md` — public answers + graph/digests only; never private workspace bodies; no CSP / STR raw / bulk IR transcripts.
+- Do **not** run fine-tune here; RAG remains production path.
+

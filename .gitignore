@@ -44,3 +44,10 @@ next-env.d.ts
 prisma/*.db
 prisma/*.db-journal
 /src/generated/prisma
+
+.env.local
+.env*.local
+
+# train corpus exports (keep README + sample; ignore large JSONL dumps)
+/data/train/*.jsonl
+!/data/train/sample-record.jsonl

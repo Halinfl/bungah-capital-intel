@@ -1,6 +1,6 @@
 # Bungah Capital Intel
 
-Silvia-style **hospitality capital intelligence** — Capital Graph + Radars + Chat + Briefs.
+Silvia-style **hospitality capital intelligence** — Capital Graph + Radars + Chat + Sound Asset Lodging.
 
 - **Propose-only** (no auto-executing capital)
 - **Citations required** on every number shown in the UI
@@ -58,9 +58,9 @@ docker run --name bungah-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=bungah_
 | `/` | Landing — value prop, lead with numbers |
 | `/markets` | Market list |
 | `/markets/[slug]` | Detail + which-Orlando nuance |
-| `/chat` | Deterministic cited chat over the graph |
+| `/chat` | Graph + authored earnings digests RAG (LLM if keyed; else memo) |
 | `/radars` | 3 radars + findings (+ Run radars) |
-| `/briefs` | Generate IC one-pager markdown |
+| `/sound-money-lodging` | Sound Asset Lodging — hotel Bitcoin stack + memo studio |
 
 ## Seed facts (cited in UI)
 
@@ -109,8 +109,34 @@ See **HANDOFF.md** for Cursor steps.
 4. Separately (once): `npx prisma db push` and `npm run db:seed` against that URL (local machine or one-off job).
 5. Never put real `DATABASE_URL` secrets in git.
 
+
+## Memory loop (Phase 1) + graph-grounded chat LLM
+
+Vision: **questions → intents → graph coverage** so Bungah chat becomes the hotel-industry insight source.
+
+1. Every `/api/chat` POST writes `ChatQuestionLog` (`question`, `answerText`, `citationsJson`, `intent`, `marketSlug`, `modelUsed`, `trainEligible`, `isPrivate`, `createdAt`, …).
+2. **Train gating (Hal):** Clerk `auth()` — signed-out public → `trainEligible=true`, `isPrivate=false`, full Q&A logged for corpus. Signed-in private workspace → `isPrivate=true`, `trainEligible=false`, bodies redacted in the log (`question="[private]"`). Export: `npm run train:export` → JSONL **only** `trainEligible=true` (see `data/train/README.md`).
+3. Deterministic intent classifier maps text → `revpar_metrics` | `supply_pipeline` | `demand_visitation` | `which_submarket` | `talent_greenlight` | `debt_overlay` | `compare_markets` | `general_thesis` | `unknown`.
+4. Retrieval packs markets / signals / assets / national debt+talent / radars from Prisma + `content/earnings` digests / ideology via `chat-retrieve.ts`.
+5. **LLM path** (Vercel AI SDK): if `AI_GATEWAY_API_KEY` or `OPENAI_API_KEY` is set, `generateText` answers the user’s question as a hotel IC analyst citing only the pack (propose-only, never invent STR).
+6. **Fallback:** no key or LLM error → intent-branched deterministic memos (`formatMarketMemo`) — same styles work for any matched market (e.g. Nashville supply vs talent leads differ).
+7. Deep-link `/chat?market=&q=` still works; `marketSlug` is logged from query or match.
+
+Prod: after schema change, run `npx prisma db push` against the prod `DATABASE_URL` (not during Vercel build). Add `AI_GATEWAY_API_KEY` on Vercel for live LLM. Parent deploys — do not `vercel deploy` from this workspace unless asked.
+
 ## Trust contract
 
 - Citations on every seed number in UI (`sourceLabel`)
 - Chat is LLM-free retrieval + templates over DB
 - Radars write Findings only — humans decide capital actions
+
+
+## Allowed chat corpus
+
+Retrieval is **graph-grounded + authored digests only** (`src/lib/chat-retrieve.ts`):
+
+- Prisma Capital Graph (markets / signals / assets / national)
+- `content/earnings/*/…-digest.md` (Hilton, Host, Pebblebrook) — public IR digests we wrote
+- `content/ideology/talent-human-touch.md` (Hal/Neo excerpt) when talent/staffing/greenlight asked
+
+Forbidden: licensed STR/CoStar raw, customer CSP, paywalled transcript train sets. No fine-tuning — `generateText` + RAG only. Set `AI_GATEWAY_API_KEY` (preferred) or `OPENAI_API_KEY`; without keys, chat falls back to intent memos (+ digest headlines when issuer-matched).

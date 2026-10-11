@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
 import { DestinationSearch } from "@/components/DestinationSearch";
+import { PricingTiers } from "@/components/PricingTiers";
 import { fmtPct, fmtUsd, fmtVisitorsM } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export default async function HomePage() {
   const orlando = markets.find((m) => m.slug === "orlando");
   const vegas = markets.find((m) => m.slug === "las-vegas");
   const radarCount = await prisma.radar.count();
-  const briefCount = await prisma.artifact.count();
+  const stackCount = await prisma.artifact.count();
 
   const searchItems = markets.map((m) => ({
     slug: m.slug,
@@ -25,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-14">
-      {/* Hero — Capital Graph as the one picture (Silvia mirror) */}
+      {/* Hero — Capital Graph as the one picture (Silvia mirror · Quill voice) */}
       <section className="space-y-5">
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Capital Graph
@@ -34,14 +35,14 @@ export default async function HomePage() {
           Bungah Capital Intel
         </h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-slate-400">
-          One picture of hospitality capital — markets, assets, and signals. Ask questions, watch
-          radars, forward briefs. Propose-only; every number cited.
+          One picture of hospitality capital — markets, assets, debt, and talent gates. Ideate
+          safely; we cite and propose — you decide.
         </p>
 
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
           <DestinationSearch
             markets={searchItems}
-            placeholder="Search a market on the Capital Graph…"
+            placeholder="Search markets by name, region, or slug"
           />
         </div>
 
@@ -50,7 +51,7 @@ export default async function HomePage() {
             href="/chat"
             className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white"
           >
-            Ask Bungah Capital Intel
+            Ask a capital question
           </Link>
           <Link
             href="/markets"
@@ -61,13 +62,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-
-      {/* Trust before tools */}
+      {/* Quiet Trust Contract line — before pricing & tools */}
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm leading-relaxed text-slate-400">
-            <span className="font-medium text-slate-200">Trust Contract.</span> Propose-only ·
-            citations required · not booking · not meeting-sourcing.
+            <span className="font-medium text-slate-200">Trust Contract.</span> Decision support ·
+            citations · not booking · not meeting-sourcing.
           </p>
           <Link
             href="/trust"
@@ -78,7 +78,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Work products — Radars + Briefs */}
+      {/* Pricing — Free · Pro · Company (chrome mock; no Stripe) */}
+      <PricingTiers />
+
+      {/* Work products — Radars + Sound Asset Lodging (tools after trust + pricing) */}
       <section className="space-y-4">
         <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Work products
@@ -97,17 +100,18 @@ export default async function HomePage() {
             </p>
           </Link>
           <Link
-            href="/briefs"
+            href="/sound-money-lodging"
             className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
           >
             <div className="flex items-baseline justify-between gap-2">
-              <h3 className="text-base font-medium text-white">Briefs</h3>
+              <h3 className="text-base font-medium text-white">Sound Asset Lodging</h3>
               <span className="text-xs tabular-nums text-slate-500">
-                {briefCount ? `${briefCount} recent` : "IC one-pagers"}
+                {stackCount ? `${stackCount} recent` : "Stack memos"}
               </span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              Forwardable IC memos from the Capital Graph. Propose-only, citations embedded.
+              Bitcoin treasury, capital stack, and ops for hotel investors. Cited. Decision support —
+              balance-sheet appreciation beside RevPAR.
             </p>
           </Link>
         </div>

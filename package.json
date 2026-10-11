@@ -4,24 +4,29 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/embed-corpus.mjs && prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "radars:run": "tsx scripts/run-radars.ts",
-    "postinstall": "prisma generate"
+    "train:export": "tsx scripts/export-train-corpus.ts",
+    "postinstall": "prisma generate",
+    "corpus:embed": "node scripts/embed-corpus.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.88",
+    "@clerk/nextjs": "^7.9.4",
     "@prisma/client": "6.19.3",
+    "ai": "^5.0.108",
     "next": "15.5.25",
     "prisma": "6.19.3",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react": "^19.1.4",
+    "react-dom": "^19.1.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

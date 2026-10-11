@@ -57,6 +57,12 @@ function inline(s: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(
+      /\[([^\]]+)\]\((\/[^)\s]+|https?:\/\/[^)\s]+)\)/g,
+      "<a href='$2' class='text-slate-100 underline underline-offset-2 hover:text-white'>$1</a>"
+    )
     .replace(/\*\*(.+?)\*\*/g, "<strong class='text-white font-semibold'>$1</strong>")
     .replace(/_(.+?)_/g, "<em class='text-slate-400'>$1</em>");
 }

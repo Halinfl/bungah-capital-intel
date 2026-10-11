@@ -119,3 +119,38 @@ model ChatMessage {
 
   thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
+
+/// Memory-loop log: questions + answers for coverage learning and future fine-tune export.
+/// Training corpus may only use our answers + public graph/digests (see data/train/README.md).
+model ChatQuestionLog {
+  id             String   @id @default(cuid())
+  question       String
+  marketSlug     String?
+  intent         String?
+  /// Full assistant answer text (preferred for train export).
+  answerText     String?
+  /// Short preview (first ~240 chars); kept for dashboards / coverage UI.
+  answerSnippet  String?
+  /// JSON-stringified string[] of sourceLabel / digest paths.
+  citationsJson  String?
+  answeredWell   Boolean  @default(false)
+  /// "llm" | "memo" (deterministic memo fallback).
+  modelUsed      String?
+  /// Public signed-out chat → true (corpus). Clerk signed-in private workspace → false.
+  trainEligible  Boolean  @default(true)
+  /// Clerk signed-in = encrypted / private workspace path.
+  isPrivate      Boolean  @default(false)
+  /// Clerk userId when signed in; null for anonymous public chat.
+  userId         String?
+  threadId       String?
+  createdAt      DateTime @default(now())
+
+  @@index([intent])
+  @@index([marketSlug])
+  @@index([createdAt])
+  @@index([modelUsed])
+  @@index([answeredWell])
+  @@index([trainEligible])
+  @@index([isPrivate])
+  @@index([userId])
+}

@@ -1,9 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { ILLUSTRATIVE, MARKET_DEPTH } from "./seed-depth";
+import { MSA_REGISTRY, getMsaRegistryEntry } from "../src/data/msa-registry";
 
 const prisma = new PrismaClient();
-
-const ILLUSTRATIVE =
-  "Illustrative seed — replace with licensed STR/Tourism Economics";
 
 type MarketSeed = {
   slug: string;
@@ -20,7 +19,6 @@ type MarketSeed = {
   sourceLabel: string;
 };
 
-/** Top US travel / hospitality destination markets (~50). */
 const MARKETS: MarketSeed[] = [
   {
     slug: "orlando",
@@ -35,7 +33,7 @@ const MARKETS: MarketSeed[] = [
     occupancy: 71.4,
     adr: 202.71,
     sourceLabel:
-      "Visit Orlando Data & Trends YE 2025; PR Newswire 2026-05-07 (76.7M visitors)",
+      "Visit Orlando Data & Trends YE 2025 (132,685 rooms / OCC 71.4% / ADR $202.71 / 34.5M room nights; 76,663,200 visitors); PR Newswire 2026-05-07; Q3 2025 Org Highlights (Simpleview)",
   },
   {
     slug: "las-vegas",
@@ -59,7 +57,7 @@ const MARKETS: MarketSeed[] = [
     name: "New York–Newark–Jersey City MSA",
     region: "Northeast / Mid-Atlantic",
     summary:
-      "Largest US lodging MSA by rooms and ADR power. International recovery, group calendar, and Midtown vs outer-borough spreads dominate underwriting.",
+      "Largest US lodging MSA by rooms and ADR power. International recovery, group calendar, and Midtown vs outer-borough spreads dominate underwriting. NYC Finance HTX cites tax liability / taxable rent — tax ≠ RevPAR/OCC/ADR.",
     visitorsM: 64.5,
     roomsK: 135.0,
     occupancy: 82.0,
@@ -71,12 +69,13 @@ const MARKETS: MarketSeed[] = [
     name: "Miami–Fort Lauderdale–West Palm Beach MSA",
     region: "Florida / Southeast",
     summary:
-      "International gateway + leisure/group hybrid. South Beach luxury ADR vs inland select-service; hurricane and insurance cost overlays matter.",
+      "International gateway + leisure/group hybrid. South Beach luxury ADR vs inland select-service; hurricane and insurance cost overlays matter. Seed lodging metrics are Miami-Dade (GMCVB), not full tri-county MSA.",
     visitorsM: 28.0,
     roomsK: 58.0,
-    occupancy: 74.5,
-    adr: 215.0,
-    sourceLabel: ILLUSTRATIVE,
+    occupancy: 73.5,
+    adr: 220.21,
+    sourceLabel:
+      "GMCVB Miami-Dade Industry Updates Dec 2025 (STR) — Oct YTD OCC 73.5% / ADR $220.21 / RevPAR $161.85; roomsK still illustrative MSA placeholder",
   },
   {
     slug: "los-angeles",
@@ -95,12 +94,13 @@ const MARKETS: MarketSeed[] = [
     name: "Chicago–Naperville–Elgin MSA",
     region: "Midwest",
     summary:
-      "Convention + corporate spine with strong summer leisure. Loop/River North vs suburban O'Hare corridors underwrite differently.",
+      "Convention + corporate spine with strong summer leisure. Loop/River North vs suburban O'Hare corridors underwrite differently. Choose Chicago lodging color is CBD-scoped — not full MSA.",
     visitorsM: 55.0,
-    roomsK: 45.0,
-    occupancy: 71.0,
-    adr: 185.0,
-    sourceLabel: ILLUSTRATIVE,
+    roomsK: 47.1,
+    occupancy: 69.2,
+    adr: 243.1,
+    sourceLabel:
+      "Choose Chicago Hotel Performance 2025 PDF (CBD; STR) — OCC 69.2% / ADR $243.10 / RevPAR $168.15; roomsK≈47.1k from CBD supply room-nights/365",
   },
   {
     slug: "san-francisco-bay",
@@ -167,7 +167,7 @@ const MARKETS: MarketSeed[] = [
     name: "Dallas–Fort Worth–Arlington MSA",
     region: "Texas / South",
     summary:
-      "Large diversified MSA with strong corporate and leisure. Supply growth historically elevated — underwrite absorption carefully.",
+      "Large diversified MSA with strong corporate and leisure. Supply growth historically elevated — underwrite absorption carefully. City HOT tax collections are a room-revenue proxy — not RevPAR/OCC/ADR.",
     visitorsM: 50.0,
     roomsK: 55.0,
     occupancy: 69.0,
@@ -179,7 +179,7 @@ const MARKETS: MarketSeed[] = [
     name: "Houston–The Woodlands–Sugar Land MSA",
     region: "Texas / South",
     summary:
-      "Energy, medical, and international demand. Downtown Medical Center and Energy Corridor spreads; hurricane/insurance overlays.",
+      "Energy, medical, and international demand. Downtown Medical Center and Energy Corridor spreads; hurricane/insurance overlays. City HOT tax collections are a room-revenue proxy — not RevPAR/OCC/ADR.",
     visitorsM: 22.0,
     roomsK: 48.0,
     occupancy: 67.0,
@@ -251,7 +251,9 @@ const MARKETS: MarketSeed[] = [
     name: "Nashville–Davidson–Murfreesboro MSA",
     region: "Southeast",
     summary:
-      "Music leisure + corporate growth market. Downtown entertainment district ADR power; supply growth watch.",
+      "Music leisure + corporate/group growth market. Downtown Broadway entertainment-district ADR power coexists with elevated supply and a human-touch / staffing greenlight gate — underwrite submarket, not MSA averages.",
+    nuanceNote:
+      "Which Nashville: Broadway / downtown entertainment ADR is not the MSA average. Music leisure + healthcare/corporate demand support the tape, but supply pipeline and talent/GC capacity gate CapEx and refinance. Illustrative seed — replace with licensed STR / Visit Music City before underwriting.",
     visitorsM: 16.0,
     roomsK: 28.0,
     occupancy: 72.5,
@@ -263,7 +265,7 @@ const MARKETS: MarketSeed[] = [
     name: "Austin–Round Rock–Georgetown MSA",
     region: "Texas / South",
     summary:
-      "Tech + leisure + SXSW/ACL event spikes. Downtown vs Domain vs airport; supply absorption key.",
+      "Tech + leisure + SXSW/ACL event spikes. Downtown vs Domain vs airport; supply absorption key. City HOT tax collections are a room-revenue proxy — not RevPAR/OCC/ADR.",
     visitorsM: 32.0,
     roomsK: 26.0,
     occupancy: 70.0,
@@ -275,7 +277,7 @@ const MARKETS: MarketSeed[] = [
     name: "San Antonio–New Braunfels MSA",
     region: "Texas / South",
     summary:
-      "Leisure (River Walk, theme parks) + military + group. ADR below coastal peers; stable leisure spine.",
+      "Leisure (River Walk, theme parks) + military + group. ADR below coastal peers; stable leisure spine. City HOT tax collections are a room-revenue proxy — not RevPAR/OCC/ADR.",
     visitorsM: 37.0,
     roomsK: 30.0,
     occupancy: 68.0,
@@ -703,15 +705,20 @@ async function main() {
   await prisma.market.deleteMany();
 
   const created = new Map<string, { id: string; slug: string }>();
+  let deepened = 0;
 
   for (const m of MARKETS) {
+    const depth = MARKET_DEPTH[m.slug];
+    const nuanceNote = m.nuanceNote ?? depth?.nuanceNote ?? null;
+    if (depth) deepened++;
+
     const row = await prisma.market.create({
       data: {
         slug: m.slug,
         name: m.name,
         region: m.region,
         summary: m.summary,
-        nuanceNote: m.nuanceNote ?? null,
+        nuanceNote,
         visitorsM: m.visitorsM ?? null,
         roomsK: m.roomsK ?? null,
         occupancy: m.occupancy ?? null,
@@ -727,6 +734,7 @@ async function main() {
   const orlando = created.get("orlando")!;
   const vegas = created.get("las-vegas")!;
 
+  // Rich Orlando / Vegas assets (cited where public; keep depth)
   await prisma.asset.createMany({
     data: [
       {
@@ -770,6 +778,27 @@ async function main() {
     ],
   });
 
+  // Illustrative assets from MARKET_DEPTH (skip orlando/vegas — already rich)
+  const depthAssets = [];
+  for (const [slug, depth] of Object.entries(MARKET_DEPTH)) {
+    if (slug === "orlando" || slug === "las-vegas" || slug === "chicago" || slug === "miami") continue;
+    const m = created.get(slug);
+    if (!m || !depth.asset) continue;
+    depthAssets.push({
+      marketId: m.id,
+      name: depth.asset.name,
+      assetClass: depth.asset.assetClass,
+      keys: depth.asset.keys ?? null,
+      submarket: depth.asset.submarket ?? null,
+      notes: depth.asset.notes ?? null,
+      sourceLabel: ILLUSTRATIVE,
+    });
+  }
+  if (depthAssets.length) {
+    await prisma.asset.createMany({ data: depthAssets });
+  }
+
+  // Rich Orlando / Vegas signals
   await prisma.signal.createMany({
     data: [
       {
@@ -800,6 +829,15 @@ async function main() {
         sourceLabel: "Bungah Capital Intel Baseline (Visit Orlando YE corroboration)",
       },
       {
+        marketId: orlando.id,
+        kind: "talent",
+        title: "Human-touch / Epic-adjacent staffing greenlight",
+        body: "CapEx and refinance greenlights gated by staffing and GC/MEP capacity — Epic-adjacent delivery competes for trades. Demand headlines alone are not a greenlight.",
+        magnitude: "greenlight gate",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)",
+      },
+      {
         marketId: vegas.id,
         kind: "visitation",
         title: "Las Vegas visitation softness 2025",
@@ -818,6 +856,236 @@ async function main() {
         sourceLabel: "LVCVA FAQ YE 2025",
       },
       {
+        marketId: vegas.id,
+        kind: "supply",
+        title: "Hard Rock supply-return watch (2027)",
+        body: "Former Mirage (~3,600 keys) targeting late 2027 Hard Rock reopen — discrete Strip inventory-class return into a softer demand tape. Pair with midweek OCC lag.",
+        magnitude: "~3,600 keys late 2027",
+        asOf: "2026-09",
+        sourceLabel: "Review-Journal / Hard Rock public coverage",
+      },
+      {
+        marketId: vegas.id,
+        kind: "talent",
+        title: "Human-touch / Hard Rock peak-crew greenlight",
+        body: "Hard Rock peak construction crews and Strip high-touch gaming/leisure product compete for trades and staffing. CapEx and refinance greenlights clear talent capacity — not visitation headlines alone.",
+        magnitude: "greenlight gate",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)",
+      },
+      {
+        marketId: vegas.id,
+        kind: "occupancy",
+        title: "Vegas July 2026 monthly pulse (LVCVA)",
+        body: "Jul OCC 77.2% (+1.1 pp YoY); ADR $157.45; RevPAR $121.55; weighted inventory 150,608 (+0.8% YoY). Strip OCC 80.2% / Downtown 58.5%. YTD through Jul: OCC 81.3%, ADR $188.04, RevPAR $152.88. Seasonal — YE 2025 basemap still primary for underwriting.",
+        magnitude: "Jul OCC 77.2% / inv 150,608",
+        asOf: "Jul 2026",
+        sourceLabel:
+          "FOX5 Vegas 2026-08-28 citing LVCVA July 2026 Executive Summary",
+      },
+      {
+        marketId: orlando.id,
+        kind: "occupancy",
+        title: "Orlando Q3 2025 Metro lodging (Visit Orlando / STR)",
+        body: "Q3 (Jul–Sep) Metro Orlando OCC 65.4% / ADR $172.23; YTD through Q3 OCC 71.1% / ADR $200.43. Orange County Q3 OCC 67.5% / ADR $187.13; YTD OCC 72.8% / ADR $217.75. Monthlies uneven — YE 2025 Data & Trends remains basemap.",
+        magnitude: "Q3 Metro OCC 65.4% / YTD 71.1%",
+        asOf: "Q3 2025",
+        sourceLabel:
+          "Visit Orlando Q3 2025 Organization Highlights (Simpleview PDF; STR)",
+      },
+    ],
+  });
+
+  const chicago = created.get("chicago")!;
+  const miami = created.get("miami")!;
+
+  await prisma.signal.createMany({
+    data: [
+      {
+        marketId: chicago.id,
+        kind: "occupancy",
+        title: "Chicago CBD 2025 hotel performance (Choose Chicago)",
+        body: "Chicago CBD YE 2025: OCC 69.2% (+1.5% YoY), ADR $243.10 (+0.6%), RevPAR $168.15 (+2.2%). Demand +2.3% YoY with leisure record; group demand −3.0% YoY. Scope is CBD (Loop/River North class), not full MSA or suburban O'Hare.",
+        magnitude: "CBD OCC 69.2% / ADR $243.10 / RevPAR $168.15",
+        asOf: "YE 2025",
+        sourceLabel:
+          "Choose Chicago Hotel Performance 2025 PDF (cdn.choosechicago.com; STR Inc)",
+      },
+      {
+        marketId: chicago.id,
+        kind: "demand",
+        title: "Chicago CBD leisure vs group mix 2025",
+        body: "Leisure room demand hit a record in 2025 (+4.6% YoY) on a record summer; group demand fell 3.0% YoY amid meeting-planner/international concerns. Underwrite Loop/River North group calendar separately from summer leisure fill.",
+        magnitude: "leisure demand +4.6% / group −3.0%",
+        asOf: "YE 2025",
+        sourceLabel:
+          "Choose Chicago Hotel Performance 2025 PDF (STR)",
+      },
+      {
+        marketId: chicago.id,
+        kind: "nuance",
+        title: "Which Chicago — CBD metrics ≠ MSA",
+        body: "Choose Chicago lodging PDF is Central Business District. Do not underwrite suburban O'Hare or metro-wide product from CBD OCC/ADR. Ask which Chicago.",
+        magnitude: "rule",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel (Choose Chicago CBD scope)",
+      },
+      {
+        marketId: miami.id,
+        kind: "occupancy",
+        title: "Miami-Dade hotel YTD through Oct 2025 (GMCVB)",
+        body: "Miami-Dade hotels Oct YTD: OCC 73.5% (−0.3% YoY), ADR $220.21 (+0.9%), RevPAR $161.85 (+0.6%). October alone soft (OCC 66.9%, ADR $180.35). County metrics — not full Miami–Fort Lauderdale–West Palm MSA; beach vs inland spreads persist.",
+        magnitude: "Oct YTD OCC 73.5% / ADR $220.21",
+        asOf: "YTD Oct 2025",
+        sourceLabel:
+          "GMCVB Miami-Dade Industry Updates December 2025 PDF (STR)",
+      },
+      {
+        marketId: miami.id,
+        kind: "occupancy",
+        title: "Miami-Dade Jan–May 2026 hotel pulse (GMCVB)",
+        body: "Miami-Dade Jan–May 2026: OCC 79.9% (−0.1% YoY), ADR $293.67 (+11.2%), RevPAR $237.57 (+11.0%). Seasonal peak period — do not annualize into YE. Corridor spreads (Beach/Brickell vs South Dade) still dominate underwriting.",
+        magnitude: "Jan–May OCC 79.9% / ADR $293.67",
+        asOf: "YTD May 2026",
+        sourceLabel:
+          "GMCVB Miami-Dade Industry Updates June 2026 PDF (STR)",
+      },
+      {
+        marketId: miami.id,
+        kind: "nuance",
+        title: "Which Miami — county CVB ≠ MSA average",
+        body: "GMCVB reports Miami-Dade. South Beach / Surfside-Bal Harbour luxury ADR is not inland select-service or Broward spillover. Hurricane and insurance overlays remain first-class gates.",
+        magnitude: "rule",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel (GMCVB Miami-Dade scope)",
+      },
+      {
+        marketId: chicago.id,
+        kind: "talent",
+        title: "Union / full-service staffing greenlight (Chicago)",
+        body: "Unionized full-service and large-box group hotels need staffing depth. CapEx and refinance greenlights should clear talent capacity alongside CBD group calendar — not CBD OCC headlines alone.",
+        magnitude: "greenlight gate",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)",
+      },
+      {
+        marketId: miami.id,
+        kind: "talent",
+        title: "Hospitality + storm-rebuild crew gate (Miami)",
+        body: "High-touch beach/resort product and post-storm GC/MEP capacity gate CapEx. Talent depth is a refinance greenlight input alongside insurance cost trajectory.",
+        magnitude: "greenlight gate",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)",
+      },
+    ],
+  });
+
+  // Texas Local HOT + NYC HTX — tax / room-revenue proxy Signals (NOT RevPAR/OCC/ADR)
+  const austinM = created.get("austin")!;
+  const dallasM = created.get("dallas")!;
+  const houstonM = created.get("houston")!;
+  const sanAntonioM = created.get("san-antonio")!;
+  const nycM = created.get("new-york-city")!;
+
+  await prisma.signal.createMany({
+    data: [
+      {
+        marketId: austinM.id,
+        kind: "tax",
+        title: "Austin local HOT FY2025 (tax / room-revenue proxy — NOT RevPAR)",
+        body: "City of Austin FY2025 Local HOT (Tax Code Ch.351): rate 9.0%, revenue $132,150,027. Implied taxable room-revenue base ≈ $132.15M / 0.09 = ~$1.47B. Also Ch.334 venue tax rate 2.0% / revenue $29,363,083 (separate base — do not add into Ch.351 implied room rev). Caveats: self-reported municipal HOT; remitters may include hotels and STRs; city boundary ≠ Austin–Round Rock MSA; state HOT is separate. Tax collections are a room-revenue / demand proxy only — NOT RevPAR, OCC, or ADR.",
+        magnitude: "Ch.351 $132.15M @ 9% → ~$1.47B implied room base",
+        asOf: "FY2025",
+        sourceLabel:
+          "Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=Austin type=city",
+      },
+      {
+        marketId: dallasM.id,
+        kind: "tax",
+        title: "Dallas local HOT FY2025 (tax / room-revenue proxy — NOT RevPAR)",
+        body: "City of Dallas FY2025 Local HOT (Tax Code Ch.351): rate 7.0%, revenue $79,306,924. Implied taxable room-revenue base ≈ $79.31M / 0.07 = ~$1.13B. Also Ch.334 venue tax rate 2.0% / revenue $23,873,984 (separate — do not fold into Ch.351 implied room rev). Caveats: self-reported; city ≠ Dallas–Fort Worth–Arlington MSA; hotel vs STR remit scope varies; legacy SODA vmy5-jctb lacked City of Dallas rows after FY2018. Tax ≠ RevPAR/OCC/ADR.",
+        magnitude: "Ch.351 $79.31M @ 7% → ~$1.13B implied room base",
+        asOf: "FY2025",
+        sourceLabel:
+          "Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=Dallas type=city",
+      },
+      {
+        marketId: houstonM.id,
+        kind: "tax",
+        title: "Houston local HOT FY2025 (tax / room-revenue proxy — NOT RevPAR)",
+        body: "City of Houston FY2025 Local HOT (Tax Code Ch.351): rate 7.0%, revenue $111,191,706. Implied taxable room-revenue base ≈ $111.19M / 0.07 = ~$1.59B. No Ch.334 venue revenue in the FY2025 city row. Caveats: self-reported municipal HOT; city ≠ Houston–The Woodlands–Sugar Land MSA; hotel vs STR remit scope varies. Tax collections are a room-revenue proxy only — NOT RevPAR, OCC, or ADR.",
+        magnitude: "Ch.351 $111.19M @ 7% → ~$1.59B implied room base",
+        asOf: "FY2025",
+        sourceLabel:
+          "Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=Houston type=city",
+      },
+      {
+        marketId: sanAntonioM.id,
+        kind: "tax",
+        title: "San Antonio local HOT FY2025 (tax / room-revenue proxy — NOT RevPAR)",
+        body: "City of San Antonio FY2025 Local HOT (Tax Code Ch.351): rate 9.0%, revenue $104,769,601. Implied taxable room-revenue base ≈ $104.77M / 0.09 = ~$1.16B. Caveats: self-reported; city ≠ San Antonio–New Braunfels MSA; hotel vs STR remit scope varies. Tax collections are a room-revenue proxy only — NOT RevPAR, OCC, or ADR.",
+        magnitude: "Ch.351 $104.77M @ 9% → ~$1.16B implied room base",
+        asOf: "FY2025",
+        sourceLabel:
+          "Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=San Antonio type=city",
+      },
+      {
+        marketId: nycM.id,
+        kind: "tax",
+        title: "NYC HTX Tax Year 2024 (tax / room-revenue proxy — NOT RevPAR)",
+        body: "NYC Department of Finance Statistical Profile of the Hotel Room Occupancy Tax, Tax Year 2024 (published July 2025). Table 1 TOTAL (dollars in thousands): 832 hotels; rooms rented 38,647 (000s ≈ 38.65M room-nights); total rent $11,777,136 → $11.777B; daily room tax $77,275 → $77.3M; additional 5.875% tax due $691,908 → $691.9M; total liability $769,184 → $769.184M (record high). Tax year = Mar 1, 2023–Feb 28, 2024. Rate structure: flat daily fee by rent band + 5.875% of rent. Manhattan ~75.5% of liability. Caveats: city HTX liability/taxable rent — NOT licensed STR RevPAR/OCC/ADR; tourism indicators in the PDF (visitors/ADR/OCC/inventory) are from NYC Tourism + Conventions and are charted separately from DOF liability — this Signal cites DOF tax tables only.",
+        magnitude: "HTX liability $769.2M / taxable rent $11.78B",
+        asOf: "TY2024 (Mar 2023–Feb 2024)",
+        sourceLabel:
+          "NYC DOF HTX Statistical Profile TY2024 PDF (Jul 2025) https://www.nyc.gov/assets/finance/downloads/pdf/reports/reports_htx/2024_htx_report.pdf",
+      },
+      {
+        marketId: austinM.id,
+        kind: "nuance",
+        title: "Texas HOT ≠ RevPAR — municipal tax scope",
+        body: "Local HOT revenue ÷ stated Ch.351 rate estimates the taxable lodging base remitted to the city — not MSA RevPAR, OCC, or ADR. Do not overwrite seed lodging metrics from tax. Pair with licensed STR / CVB when underwriting.",
+        magnitude: "rule",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel (Texas Comptroller HOT methodology)",
+      },
+      {
+        marketId: nycM.id,
+        kind: "nuance",
+        title: "NYC HTX ≠ RevPAR — tax liability vs STR metrics",
+        body: "HTX total liability and taxable rent are DOF tax constructs (city hotel room occupancy tax year). They are room-revenue / demand proxies, not substitutes for licensed STR OCC/ADR/RevPAR. Do not invent Market.occupancy or Market.adr from HTX tables.",
+        magnitude: "rule",
+        asOf: "2026-09",
+        sourceLabel: "Bungah Capital Intel (NYC DOF HTX methodology)",
+      },
+    ],
+  });
+
+  // Depth signals for every other market (and nashville)
+  const depthSignals = [];
+  for (const [slug, depth] of Object.entries(MARKET_DEPTH)) {
+    if (slug === "orlando" || slug === "las-vegas" || slug === "chicago" || slug === "miami") continue;
+    const m = created.get(slug);
+    if (!m) continue;
+    for (const s of depth.signals) {
+      depthSignals.push({
+        marketId: m.id,
+        kind: s.kind,
+        title: s.title,
+        body: s.body,
+        magnitude: s.magnitude ?? null,
+        asOf: s.asOf ?? "2026-09 seed",
+        sourceLabel: ILLUSTRATIVE,
+      });
+    }
+  }
+  if (depthSignals.length) {
+    await prisma.signal.createMany({ data: depthSignals });
+  }
+
+  // National signals
+  await prisma.signal.createMany({
+    data: [
+      {
         marketId: null,
         kind: "debt",
         title: "National lodging debt-wall stub",
@@ -830,7 +1098,7 @@ async function main() {
         marketId: null,
         kind: "talent",
         title: "Talent / staffing greenlight note",
-        body: "CapEx and refinance greenlights increasingly gated by staffing and GC/MEP capacity — not just demand and rates. Orlando Epic-adjacent delivery and Vegas Hard Rock peak crews compete for trades.",
+        body: "CapEx and refinance greenlights increasingly gated by staffing and GC/MEP capacity — not just demand and rates. Treat human-touch / lodging labor capacity as a first-class gate across US lodging markets before underwriting CapEx or refinance.",
         magnitude: "greenlight gate",
         asOf: "2026-09",
         sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)",
@@ -903,8 +1171,42 @@ async function main() {
     ],
   });
 
-  console.log(`Seeded ${MARKETS.length} markets (incl. ${orlando.slug}, ${vegas.slug}).`);
-  console.log("Seeded 3 radars + findings, signals, assets.");
+  const registrySlugs = new Set(MSA_REGISTRY.map((e) => e.slug));
+  const marketSlugs = new Set(MARKETS.map((m) => m.slug));
+  const missingInRegistry = [...marketSlugs].filter((s) => !registrySlugs.has(s));
+  const extraInRegistry = [...registrySlugs].filter((s) => !marketSlugs.has(s));
+  if (missingInRegistry.length || extraInRegistry.length) {
+    console.warn("MSA_REGISTRY mismatch", { missingInRegistry, extraInRegistry });
+  }
+
+  const withNuance = MARKETS.filter(
+    (m) => m.nuanceNote || MARKET_DEPTH[m.slug]?.nuanceNote
+  ).length;
+  const assetCount = 4 + depthAssets.length; // orlando 3 + vegas 1 + depth
+  // rich: orlando 5 + vegas 5 (+jul) + chicago 4 + miami 4 = 18; + HOT/HTX 7; + depth + 2 national
+  const richSignalCount = 5 + 5 + 4 + 4;
+  const taxSignalCount = 7; // 4 TX HOT + 1 NYC HTX + 2 nuance rules
+  const signalCount = richSignalCount + taxSignalCount + depthSignals.length + 2;
+
+  const upgraded = ["orlando", "las-vegas", "chicago", "miami"]
+    .map((s) => ({ slug: s, reg: getMsaRegistryEntry(s)?.source_quality, src: MARKETS.find((m) => m.slug === s)?.sourceLabel }))
+    .filter(Boolean);
+  const taxAnnual = ["austin", "dallas", "houston", "san-antonio", "new-york-city"]
+    .map((s) => ({ slug: s, reg: getMsaRegistryEntry(s)?.source_quality }));
+
+  console.log(
+    `Seeded ${MARKETS.length} markets; deepened ${deepened} via MARKET_DEPTH (nuance/signals/assets).`
+  );
+  console.log(
+    `Nuance coverage: ${withNuance}/${MARKETS.length}. Assets: ${assetCount}. Market signals: ${signalCount - 2} + 2 national.`
+  );
+  console.log(
+    `MSA_REGISTRY: ${MSA_REGISTRY.length} entries (last_verified_at 2026-09-28). CVB-upgraded: ${upgraded.map((u) => u.slug).join(", ")}.`
+  );
+  console.log(
+    `Tax-annual HOT/HTX Signals: ${taxAnnual.map((u) => u.slug).join(", ")} (${taxSignalCount} rows). Tax ≠ RevPAR/OCC/ADR.`
+  );
+  console.log("Orlando/Vegas/Chicago/Miami cited CVB depth; TX/NYC tax proxies cited; remaining markets mostly illustrative/press tier.");
 }
 
 main()

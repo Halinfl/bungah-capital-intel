@@ -19,7 +19,7 @@ export default async function RadarsPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-white">Radars</h1>
           <p className="mt-2 max-w-2xl text-slate-400">
-            Plain-language monitors over the Capital Graph. Findings are propose-only — no auto capital
+            Plain-language monitors over the Capital Graph. Findings are decision support — no auto capital
             actions.
           </p>
         </div>
