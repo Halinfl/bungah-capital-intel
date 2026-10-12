@@ -124,6 +124,7 @@ const PUBLISHERS: Record<string, string> = {
   "bisnow.com": "Bisnow",
   "hoteldive.com": "Hotel Dive",
   "prnewswire.com": "PR Newswire",
+  "hotelsmag.com": "HOTELS Magazine",
   "marcusmillichap.com": "Marcus & Millichap",
   "sandiego.gov": "City of San Diego",
   "washington.org": "Destination DC",

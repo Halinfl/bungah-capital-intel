@@ -2280,11 +2280,16 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Miami — 3. Operator bench (D11). Davidson Hospitality Group (incl. Pivot): M · Cadillac Hotel & Beach Club, Autograph (357) selected by Hersha, phased reno late 2026–27; also Eden Roc Miami Beach, Nobu Hotel Miami Beach, Royal Palm South Beach, Singer Oceanfront (Curio), Le Méridien Dania Beach, Margaritaville Hollywood Beach, The Sunny Sunny Isles (Curio) debuting later 2026 | Evolution Hospitality (Aimbridge): M · Balfour Miami Beach (82, Registry Collection); asset manager FullG CRE | Club Quarters (Stamford CT): M · Sherry Frontenac Hotel (269 rooms, Miami Beach) — third-party management, branding unchanged; Club Quarters' first Miami-market hotel · John Paul Nichols, President & CEO. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "3 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "Morningstar DBRS · aimbridgehospitality.com · Hotel Online (accessed 2026-10-11)",
+    "sourceLabel": "PR Newswire · HOTELS Magazine · aimbridgehospitality.com · Hotel Online (accessed 2026-10-11)",
     "sourceUrls": [
       {
-        "url": "https://www.morningstar.com/news/pr-newswire/20260505la48357/davidson-hospitality-group-tapped-to-manage-cadillac-hotel-beach-club-autograph-collection",
-        "label": "Davidson Hospitality Group (incl. Pivot)",
+        "url": "https://www.prnewswire.com/news-releases/davidson-hospitality-group-tapped-to-manage-cadillac-hotel--beach-club-autograph-collection-302761099.html",
+        "label": "Davidson Hospitality Group (incl. Pivot) — PR Newswire",
+        "secondary": false
+      },
+      {
+        "url": "https://hotelsmag.com/news/hersha-taps-davidson-hospitality-to-manage-miamis-cadillac-hotel-beach-club/",
+        "label": "Davidson Hospitality Group (incl. Pivot) — HOTELS Magazine",
         "secondary": false
       },
       {
