@@ -6,11 +6,13 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
+import { SourceLinks } from "@/components/SourceLinks";
 
 type Msg = {
   role: "user" | "assistant";
   content: string;
   citations?: string[];
+  sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
 };
 
 const FREE_MARKETS_KEY = "bungah_chat_free_markets";
@@ -161,7 +163,7 @@ export function ChatClient() {
         }
         setMessages((m) => [
           ...m,
-          { role: "assistant", content: data.content, citations: data.citations ?? [] },
+          { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] },
         ]);
       } catch (e) {
         setMessages((m) => [
@@ -261,6 +263,12 @@ export function ChatClient() {
               ) : (
                 <p className="text-sm text-slate-200">{m.content}</p>
               )}
+              {m.sources && m.sources.length > 0 ? (
+                <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Sources (open original)</div>
+                  <SourceLinks links={m.sources} />
+                </div>
+              ) : null}
               {m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-[10px] uppercase tracking-wider text-slate-500">Citations</div>

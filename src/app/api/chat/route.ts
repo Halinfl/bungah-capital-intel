@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { answerChat } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations, scrubSeedLines } from "@/lib/format";
+import { sourcesForAnswer } from "@/lib/chat";
 
 function toModelUsed(mode: string | undefined): "llm" | "memo" {
   return mode === "llm" ? "llm" : "memo";
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
     const answer = { ...raw, content: scrubSeedLines(raw.content) };
     const modelUsed = toModelUsed(answer.mode);
     const citations = scrubSeedCitations(answer.citations ?? []);
+    const sources = await sourcesForAnswer(answer.content);
 
     // Product thread always stores full Q&A (including private workspace).
     const thread = await prisma.chatThread.create({
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content: answer.content,
       citations,
+      sources,
       threadId: thread.id,
       intent: answer.intent,
       marketSlug: answer.marketSlug ?? marketSlug,

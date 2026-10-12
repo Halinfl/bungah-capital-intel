@@ -12,6 +12,7 @@
     "db:seed:sweep-2026-10-11": "tsx prisma/seed-sweep-2026-10-11.ts",
     "db:seed:world-cup-atlas-2026-10-11": "tsx prisma/seed-world-cup-atlas-2026-10-11.ts",
     "db:seed:demand-w1-2026-10-11": "tsx prisma/seed-demand-w1-2026-10-11.ts",
+    "db:seed:depth-w1-linked-2026-10-11": "tsx prisma/seed-depth-w1-linked-2026-10-11.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "radars:run": "tsx scripts/run-radars.ts",
     "train:export": "tsx scripts/export-train-corpus.ts",

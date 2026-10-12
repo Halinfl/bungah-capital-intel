@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
@@ -8,10 +8,13 @@ import {
   isSeedMarket,
   scrubSeedCitations,
 } from "./format";
+import { parseSourceUrls } from "./source-links";
 
 export type ChatAnswer = {
   content: string;
   citations: string[];
+  /** Clickable original-article links for the signals shown in this answer. */
+  sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
   intent?: ChatIntent;
   marketSlug?: string | null;
   mode?: "llm" | "deterministic";
@@ -288,6 +291,10 @@ export function formatMarketMemo(
       `${s.kind} ${s.title}`
     );
 
+  const debtFilter = (s: MarketRow["signals"][number]) =>
+    ["debt", "deal", "transaction", "cmbs", "cap_rate", "rates", "tax"].includes(s.kind) ||
+    /debt|cmbs|loan|refinanc|transaction|deal comps|cap rate|tax|cvb funding/i.test(`${s.kind} ${s.title}`);
+
   let body: string[];
 
   if (isSeedMarket(market)) {
@@ -298,7 +305,9 @@ export function formatMarketMemo(
           ? demandFilter
           : intent === "talent_greenlight"
             ? talentFilter
-            : undefined;
+            : intent === "debt_overlay"
+              ? debtFilter
+              : undefined;
     const heading =
       intent === "supply_pipeline"
         ? `**${market.name} — supply / pipeline**`
@@ -306,7 +315,9 @@ export function formatMarketMemo(
           ? `**${market.name} — demand / visitation**`
           : intent === "talent_greenlight"
             ? `**${market.name} — talent / staffing greenlight**`
-            : `**${market.name}**`;
+            : intent === "debt_overlay"
+              ? `**${market.name} — debt / deals / tax overlay**`
+              : `**${market.name}**`;
     return {
       content: dedupeBlank(citedOnlyMemo(market, heading, focus)),
       citations: cites(...market.signals.map((s) => s.sourceLabel)),
@@ -434,13 +445,13 @@ export function formatMarketMemo(
         "",
         "Pair this market snapshot with the national lodging debt-wall / DY stress signal before CapEx or refinance greenlight.",
         "",
+        ...signalLines(market, market.signals.some(debtFilter) ? debtFilter : undefined),
+        "",
         market.summary,
         "",
         ...metricTable(market),
         "",
         market.nuanceNote ?? "",
-        "",
-        ...signalLines(market),
         ...assetLines(market),
         ...dataNote(market),
         "",
@@ -886,4 +897,30 @@ export async function answerFromGraph(
     intent,
     mode: "deterministic",
   };
+}
+
+/**
+ * Clickable sources for an answer: every cited signal whose title appears in the answer,
+ * each original URL as its own link (seed rows never included).
+ */
+export async function sourcesForAnswer(
+  content: string
+): Promise<NonNullable<ChatAnswer["sources"]>> {
+  const rows = citedOnly(
+    await prisma.signal.findMany({
+      where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
+      select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
+    })
+  );
+  const out: NonNullable<ChatAnswer["sources"]> = [];
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (!content.includes(`**${r.title}**`)) continue;
+    for (const l of parseSourceUrls(r.sourceUrls)) {
+      if (seen.has(l.url)) continue;
+      seen.add(l.url);
+      out.push({ ...l, signal: r.title });
+    }
+  }
+  return out.slice(0, 60);
 }

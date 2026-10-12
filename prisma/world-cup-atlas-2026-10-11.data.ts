@@ -20,7 +20,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "marketSlug": "new-york-city",
     "kind": "event",
     "title": "World Cup 2026 post-Cup demand read — New York / NJ (host)",
-    "body": "World Cup 2026 (Jun 11–Jul 19) — host market. Key numbers (lift vs hype): HVS match-week: OCC ~flat, ADR +$62.27, RevPAR +$55.51 / +23.5%, $339.2M incremental (largest $). Final added ~$123M (TE). CoStar Jul RevPAR +27.1% to $305.74; Jul 18 ADR $610.48 / OCC 95.7% (host single-day record). Aug ADR −3.3% to $275.07. 2027 Jun–Jul comp: Hard ADR comp. Airlift / international: No market-specific public airlift read; national applies. Underwriting (Ledger): Normalize Jun 11–Jul 19 2026 out of T12; DY roll-off risk Jun–Jul 2027 (Piccard, secondary). Brand / REIT / labor: HST/H/PK named NY as a lead Cup market (third-party transcript, unverified; verify vs webcast). PK 2027 NY group pace double-digit.",
+    "body": "World Cup 2026 (Jun 11–Jul 19) — host market. Key numbers (lift vs hype): HVS match-week: OCC ~flat, ADR +$62.27, RevPAR +$55.51 / +23.5%, $339.2M incremental (largest $). Final added ~$123M (TE). CoStar Jul RevPAR +27.1% to $305.74; Jul 18 ADR $610.48 / OCC 95.7% (host single-day record). Aug ADR −3.3% to $275.07. 2027 Jun–Jul comp: Hard ADR comp. Airlift / international: No market-specific public airlift read; national applies. Underwriting (Ledger): Normalize Jun 11–Jul 19 2026 out of T12; DY roll-off risk Jun–Jul 2027 (Piccard, secondary). Brand / REIT / labor: HST/H/PK named NY as a lead Cup market (third-party transcript, unverified). PK 2027 NY group pace double-digit.",
     "magnitude": "host",
     "asOf": "2026-10-11 (event Jun 11–Jul 19, 2026)",
     "sourceLabel": "HVS https://www.hvs.com/article/10529-how-the-2026-fifa-world-cup-changed-us-hotel-markets 2026-08-06; CoStar Jul https://www.costar.com/products/str-benchmark/resources/press-releases/us-hotel-performance-july-2026 2026-08-25; CoStar record https://www.costar.com/article/1261496447/world-cup-concludes-with-record-host-market-hotel-rates; CoStar Aug https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-performance-august-2026 2026-09-28; TE https://www.tourismeconomics.com/wp-content/uploads/2026/09/20260730-US-World-Cup-Bump-to-Overseas-Arrivals-and-Hotel-Performance.pdf 2026-09; Piccard https://piccardfinancial.com/insights/hotel-bridge-loans-2026"
@@ -555,17 +555,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "2026-10-11 (event Jun 11–Jul 19, 2026)",
     "sourceLabel": "Quill post-Cup demand matrix 2026-10-11; CoStar 2026-07 https://www.costar.com/article/1466462996/world-cup-fuels-record-us-hotel-rates-as-demand-shifts-beyond-host-cities; Tourism Economics 2026-09 https://www.tourismeconomics.com/wp-content/uploads/2026/09/20260730-US-World-Cup-Bump-to-Overseas-Arrivals-and-Hotel-Performance.pdf; CoStar Aug 2026-09-28 https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-performance-august-2026; Callbook World Cup deep dive 2026-10-11"
   },
-  {
-    "id": "w1-hou-supply-score",
-    "marketSlug": "houston",
-    "kind": "supply",
-    "title": "Houston supply pressure 2/5 (Atlas wave 1) — low pressure ≠ ground-up",
-    "body": "Atlas supply-pressure score 2/5: supply tailwind, demand headwind. Not in Lodging Econometrics' public top-5 under-construction, starts or early-planning lists; #1 U.S. renovation + conversion market at 35 projects / 4,841 rooms (reflag ≠ net supply). Cornovus: supply growth 'limited', concentrated in CBD and southern submarkets. Metro inventory '>100,000 rooms' (Houston First); ~106,941 implied rooms (C&W Q2 supply room-nights ÷ 91, Atlas derivation). Build-talent friction: no public read. Call: pipeline pressure is low but the risk is demand (59–61% OCC), so even a 2 doesn't greenlight ground-up; value-add conversion is the play.",
-    "magnitude": "2/5",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (markets/depth-w1-houston-supply.md); LE Summer 2026 https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/; Cornovus Q1 2026 https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/; Houston First http://www.houstonfirst.com/news/houston-hotel-market-posts-record-breaking-q1?news_type=PRESS_RELEASE; C&W MarketBeat Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
-  },
-  {
+    {
     "id": "w1-hou-rule",
     "marketSlug": "houston",
     "kind": "nuance",
@@ -585,17 +575,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "Aug 2026",
     "sourceLabel": "Houston First 2026-09-28 https://www.houstonfirst.com/news/houston-hotels-showed-modest-demand-growth-in-august; Houston First 2026-08-24 https://www.houstonfirst.com/news/houston-hotels-showed-solid-rates-and-demand-in-july; Houston First 2026-07-13 https://www.houstonfirst.com/news/houston-hotels-saw-flat-occupancy-but-higher-rates-and-revenue-in-june; Houston First 2026-01-23 https://www.houstonfirst.com/news/hotel-occupancy-finished-2025-at-59"
   },
-  {
-    "id": "w1-hou-submarkets",
-    "marketSlug": "houston",
-    "kind": "occupancy",
-    "title": "Houston submarket split (Houston First, Aug + Jul 2026, Dec 2025)",
-    "body": "Aug 2026 / Jul 2026: Downtown/CBD OCC 52%, ADR $191, RevPAR $100 / OCC 53%, ADR $205, RevPAR $108 (+17%) — Dec 2025 OCC 45% on supply growth while demand rose 1.7%; new 275-key HIE/Staybridge opened Apr 2026. Uptown/Galleria OCC 54% (−7%), RevPAR $85 (−5%) / OCC 56%, RevPAR $93 — weakest Aug trend. Medical Center/NRG OCC 57%, ADR $136, RevPAR $77 / OCC 58%, ADR $145 — TMC is the steady base, NRG for events. North/Woodlands OCC 58% (+4 pts), RevPAR $68 (+7%) — corporate suburban. Katy Fwy West OCC 59%, RevPAR $61 (+7%) — energy corridor. Hobby/NASA Jul OCC 65% (+6%), highest Jul OCC. Bush IAH Dec 2025 OCC 53%. City tax-registry rooms 68,260 (TexasHotelSearch, 2026).",
-    "magnitude": "Downtown Aug RevPAR $100",
-    "asOf": "Aug 2026",
-    "sourceLabel": "Houston First Aug 2026 (2026-09-28) https://www.houstonfirst.com/news/houston-hotels-showed-modest-demand-growth-in-august; Houston First Jul 2026 (2026-08-24) https://www.houstonfirst.com/news/houston-hotels-showed-solid-rates-and-demand-in-july; Houston First YE 2025 (2026-01-23) https://www.houstonfirst.com/news/hotel-occupancy-finished-2025-at-59; TexasHotelSearch https://www.texashotelsearch.com/markets/houston; Atlas depth-w1 2026-10-11 (markets/depth-w1-houston-supply.md)"
-  },
-  {
+    {
     "id": "w1-hou-cw-q2",
     "marketSlug": "houston",
     "kind": "occupancy",
@@ -605,27 +585,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "Q2 2026",
     "sourceLabel": "C&W MarketBeat U.S. Hospitality Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
   },
-  {
-    "id": "w1-hou-pipeline",
-    "marketSlug": "houston",
-    "kind": "supply",
-    "title": "Houston pipeline: named projects (Atlas wave 1)",
-    "body": "Holiday Inn Express + Staybridge Suites, 1319 Texas Ave. (17 stories, 275 keys) opened Apr 2026, Downtown/ballpark. Canopy by Hilton, Scanlan Building, 405 Main St. (conversion, 138 keys) broke ground, opening fall/winter 2027. George R. Brown convention district transformation (demand anchor) under construction, opens May 2028. Renovation + conversion: 35 projects / 4,841 rooms (#1 U.S.). No cancellations or slips found in free sources for 2026.",
-    "magnitude": "+275 opened; +138 conversion",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (pipeline/depth-w1-houston-pipeline.md); Houston Chronicle https://www.houstonchronicle.com/business/real-estate/article/downtown-hotel-staybridge-holiday-inn-express-open-22220406.php; Hoodline https://hoodline.com/2026/04/new-downtown-hotel-muscles-into-minute-maid-park-s-backyard/; Houston Chronicle https://www.houstonchronicle.com/business/article/hilton-canopy-scanlan-houston-22290048.php; Houston First https://www.houstonfirst.com/convention-district-transformation-1/; LE https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/"
-  },
-  {
-    "id": "w1-nash-supply-score",
-    "marketSlug": "nashville",
-    "kind": "supply",
-    "title": "Nashville supply pressure 4/5 (Atlas wave 1) — downtown dilution",
-    "body": "Atlas supply-pressure score 4/5. Lodging Econometrics Q2 2026: #3 total pipeline 122 projects / 16,281 rooms; #4 starts next 12 months 49 / 6,623; #5 early planning 53 / 7,023; NPAs 7 / 844; 2027e openings 16 / 1,853. Supply +3.4% (2025), +2.4% Q2 2026 (top-25 high, tied with Phoenix), +2.6% forecast for 2026. Downtown: 1,515 rooms under construction; planned rooms ~55% of current downtown stock. Build-talent friction: no public read. Call: demand is real (record room nights, +5% YTD) but supply keeps pace and ADR is flat to down; downtown ground-up needs a hard barrier — a true luxury slot with an in-MSA leadership bench, or a campus anchor.",
-    "magnitude": "4/5",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (markets/depth-w1-nashville-supply.md); LE Summer 2026 https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/; NCVC in Metro Tourism & Convention Commission minutes 2025-12-02 https://www.nashville.gov/sites/default/files/2026-02/Tourism-and-Convention-Commission-Minutes-120225.pdf; Nashville Downtown Partnership Q2 2026 https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf; C&W MarketBeat Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
-  },
-  {
+      {
     "id": "w1-nash-rule",
     "marketSlug": "nashville",
     "kind": "nuance",
@@ -645,17 +605,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "Dec 2025",
     "sourceLabel": "NCVC report in Metro Tourism & Convention Commission minutes 2025-12-02 https://www.nashville.gov/sites/default/files/2026-02/Tourism-and-Convention-Commission-Minutes-120225.pdf; Nashville Downtown Partnership Q2 2026 https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf"
   },
-  {
-    "id": "w1-nash-pulse",
-    "marketSlug": "nashville",
-    "kind": "occupancy",
-    "title": "Nashville 2026 pulse: county YTD OCC 69.4% through Sep 12",
-    "body": "County YTD through Sep 12 2026: OCC 69.4% (+3.2%); demand +5% (~3x supply growth); room revenue ~$1.5B (+5.9%). YE 2025 county: OCC 67.0%, ADR $199.20 (−1.3%), demand +2.6% (record), RevPAR −2.1%. CoStar week ending Jun 6: RevPAR −7.5% to $138.99 despite CMA Fest. Week ending Aug 8: ADR −4.1% to $158.12 (Top-25 largest drop).",
-    "magnitude": "YTD OCC 69.4% (+3.2%)",
-    "asOf": "2026-09-12",
-    "sourceLabel": "NCVC via RoadGenius https://roadgenius.com/statistics/tourism/usa/tennessee/nashville/; CoStar w/e 6 Jun https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-6-june; CoStar w/e 8 Aug https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-8-august"
-  },
-  {
+    {
     "id": "w1-nash-cw-q2",
     "marketSlug": "nashville",
     "kind": "occupancy",
@@ -665,27 +615,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "Q2 2026",
     "sourceLabel": "C&W MarketBeat U.S. Hospitality Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
   },
-  {
-    "id": "w1-nash-pipeline",
-    "marketSlug": "nashville",
-    "kind": "supply",
-    "title": "Nashville pipeline: named projects (Atlas wave 1)",
-    "body": "Tempo by Hilton Nashville Midtown 161 keys (opening Mar 2026 per NCVC). Dolly Parton's Songteller Hotel 245, under construction, 'fall' 2026 opening per NDP (NCVC said Jun 2026 — slipped). Pendry Nashville 180, spring 2027. Moxy Nashville – Capitol 185, planned 2027. Nashville Bonvoy 144 rooms + 168 hybrid units, under construction, 2027. InnCahoots 17, under construction, 2027. Nashville Downtown EDITION 282, planned 2029 (The Gulch). Sports Illustrated Resorts Nashville 52, listed for 2026. Downtown (NDP): 1,515 rooms UC; 31 planned hotels / 7,907 rooms.",
-    "magnitude": "Downtown 1,515 UC / 7,907 planned",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (pipeline/depth-w1-nashville-pipeline.md); NCVC https://www.nashville.gov/sites/default/files/2026-02/Tourism-and-Convention-Commission-Minutes-120225.pdf; Nashville Downtown Partnership Q2 2026 https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf; Visit Music City https://www.visitmusiccity.com/about/nashville-developments-renovations; LE https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/"
-  },
-  {
-    "id": "w1-phx-supply-score",
-    "marketSlug": "phoenix",
-    "kind": "supply",
-    "title": "Phoenix supply pressure 5/5 (Atlas wave 1) — 2026 delivery peak, no ground-up",
-    "body": "Atlas supply-pressure score 5/5. #2 U.S. under construction: 31 projects / 4,621 rooms (most rooms UC of any market except NYC); 4,200 rooms UC = 5.7% of inventory at YE 2025 (10-year high, Cornovus). Pipeline 115 / 16,136 (#5); NPAs 8 / 1,641 (#3); LE Q1 2026 had UC projects +19% YoY. Openings: 2026e #1 at 26 / 3,615; 2027e 16 / 1,989. Q2 2026 supply +2.4% (tied highest in top 25). Delivery concentrated in Mesa, Black Canyon, Chandler/Airport and downtown full-service. Build-talent: competes with TSMC/semiconductor construction labor (not quantified). Call: no ground-up; buy stabilized resort product in Scottsdale or Paradise Valley. Cornovus: 11 Phoenix hotel CMBS loans mature within 2 years, 9 at-risk — Ledger owns that read.",
-    "magnitude": "5/5",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (markets/depth-w1-phoenix-supply.md); LE Summer 2026 https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/; LE Q1 2026 https://lodgingeconometrics.com/dallas-pheonix-top-us-hotel-pipeline-q1-2026/; Cornovus Southwest Q1 2026 (broker publication) https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/; C&W MarketBeat Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
-  },
-  {
+      {
     "id": "w1-phx-rule",
     "marketSlug": "phoenix",
     "kind": "nuance",
@@ -695,27 +625,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "2026-10-11",
     "sourceLabel": "Atlas depth-w1 2026-10-11; Cornovus Southwest Q1 2026 https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/"
   },
-  {
-    "id": "w1-phx-pulse",
-    "marketSlug": "phoenix",
-    "kind": "occupancy",
-    "title": "Phoenix Q2 2026 (C&W): OCC 66.2%; only Top-25 RevPAR decline w/e Sep 26",
-    "body": "C&W MarketBeat Q2 2026 (STR/CoStar): OCC 66.2% (+1.2%), ADR $164 (+2.0%), RevPAR $108 (+3.3%); supply +2.4%. CoStar week ending 2026-09-26: only Top-25 market with RevPAR down (−0.5% to $99.09). T12 Nov 2025 (Cornovus): OCC 66.0% (−3.3 pts), RevPAR −3.0%, transient demand −2.3%. No free Visit Phoenix monthly STR print found.",
-    "magnitude": "OCC 66.2% / RevPAR $108",
-    "asOf": "Q2 2026",
-    "sourceLabel": "C&W MarketBeat Q2 2026 https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf; CoStar w/e 26 Sep https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-26-september; Cornovus https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/"
-  },
-  {
-    "id": "w1-phx-pipeline",
-    "marketSlug": "phoenix",
-    "kind": "supply",
-    "title": "Phoenix pipeline: named projects (Atlas wave 1)",
-    "body": "Denū Hotel & Spa (Meritage Collection) 236 keys, Downtown, opening Sep 16 2026. Fairmont Phoenix (25 stories) 225 rooms + 34 suites, under construction, Downtown, early 2027. Hyatt Studios Phoenix (TSMC-oriented) 114, under construction, North/TSMC, Q2 2027. Hyatt Place @ Arizona Boardwalk 142, pipeline, Scottsdale (Talking Stick), late 2027. Scottsdale Golf Retreat @ Troon North 26 suites, fall 2026. No cancellations or slips found in free sources for 2026.",
-    "magnitude": "Downtown full-service wave",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (pipeline/depth-w1-phoenix-pipeline.md); azcentral 2026-07-21 https://www.azcentral.com/story/travel/arizona/2026/07/21/denu-hotel-downtown-phoenix-opening-september/90949505007/; newhotels.io https://www.newhotels.io/hotels/fairmont-phoenix; Caliber https://www.caliberco.com/assets/hyatt-studios-tsmc-fundco-llc/; Stay in the New https://www.stayinthenew.com/new-hotels-scottsdale"
-  },
-  {
+      {
     "id": "w1-phx-transactions",
     "marketSlug": "phoenix",
     "kind": "transaction",
@@ -725,17 +635,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "2025",
     "sourceLabel": "Cornovus Southwest Q1 2026 https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/"
   },
-  {
-    "id": "w1-dc-supply-score",
-    "marketSlug": "washington-dc",
-    "kind": "supply",
-    "title": "Washington DC supply pressure 3/5 (Atlas wave 1) — conversion-led",
-    "body": "Atlas supply-pressure score 3/5 (mixed). Not in LE public top-5 under construction. LE renovation + conversion 33 projects / 4,669 rooms (top-5 U.S.); office-to-hotel conversions add net keys. DC pipeline incl. conversions/renovations 98 projects / 12,335 rooms (LE via Hotel Business); Destination DC city pipeline 25 new or renovated hotels, >3,600 rooms; STR pipeline >13,000 rooms (mid-2025). DC Metro openings past 24 months 32 / 4,756 (Lodging Development). Ground-up deterred by costs (construction inputs +6.2% Jan–Apr 2026, ABC via Bisnow). Build-talent: no public read. Call: pipeline ~11% of implied inventory (12.3k on ~114k), conversion-heavy and spread across the region; ground-up only with a hard barrier; conversion basis below replacement cost is the default play (Ledger owns $/key).",
-    "magnitude": "3/5",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (markets/depth-w1-washington-dc-supply.md); LE Summer 2026 https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/; Hotel Business https://hotelbusiness.com/five-gateway-markets-have-234-companies-driving-1200-hotel-projects-worldwide/; Destination DC https://washington.org/press/journalist-newsletter/hotel-happenings; Hotel Investment Today https://www.hotelinvestmenttoday.com/Regions/North-America/Robust-March-America250-point-to-DC-recovery; Lodging Development https://www.lodgingdevelopment.com/hotel-development/dc-metro; Bisnow https://www.bisnow.com/news/washington-dc/hotel/hotel-execs-bullish-on-dc-market-but-opt-for-conversions-not-new-builds-134715; C&W https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf"
-  },
-  {
+    {
     "id": "w1-dc-rule",
     "marketSlug": "washington-dc",
     "kind": "nuance",
@@ -745,17 +645,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "2026-10-11",
     "sourceLabel": "Atlas depth-w1 2026-10-11; CoStar Jan 2026 https://www.costar.com/products/str-benchmark/resources/press-releases/us-hotel-performance-january-2026; Destination DC https://washington.org/press/journalist-newsletter/hotel-happenings"
   },
-  {
-    "id": "w1-dc-pulse",
-    "marketSlug": "washington-dc",
-    "kind": "occupancy",
-    "title": "Washington DC 2026 pulse: Q2 RevPAR +9.0% (C&W); event-skewed weeks",
-    "body": "C&W MarketBeat Q2 2026 (STR/CoStar, DC-MD-VA): OCC 77.2%, ADR $212, RevPAR $164 (+9.0%); ~114,265 implied rooms (Atlas derivation). CoStar Jan 2026: ADR −25.8% to $151.99, RevPAR −31.3% to $76.36 (inauguration comp). Week ending Apr 18: ADR +30.7% to $231.77, RevPAR +57.7% to $184.25. Week ending Jul 4: ADR +34.8% to $209.40, RevPAR +57.3% to $149.78 (America250). Week ending Jul 18: OCC +7.0% to 78.3%. Week ending Sep 19: OCC +10.7% to 82.3%, RevPAR +23.9% to $194.23.",
-    "magnitude": "Q2 RevPAR $164 (+9.0%)",
-    "asOf": "Q2 2026 / w/e 2026-09-19",
-    "sourceLabel": "C&W https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf; CoStar Jan 2026 https://www.costar.com/products/str-benchmark/resources/press-releases/us-hotel-performance-january-2026; CoStar w/e 18 Apr https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-18-april; w/e 4 Jul https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-4-july; w/e 18 Jul https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-18-july; w/e 19 Sep https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/resources/press-releases/us-hotel-results-week-ending-19-september"
-  },
-  {
+    {
     "id": "w1-dc-visitation",
     "marketSlug": "washington-dc",
     "kind": "visitation",
@@ -765,17 +655,7 @@ export const WORLD_CUP_ATLAS_2026_10_11: SweepSignal[] = [
     "asOf": "2025",
     "sourceLabel": "Destination DC via Bisnow https://www.bisnow.com/news/washington-dc/hotel/hotel-execs-bullish-on-dc-market-but-opt-for-conversions-not-new-builds-134715; Hotel Investment Today https://www.hotelinvestmenttoday.com/Regions/North-America/Robust-March-America250-point-to-DC-recovery"
   },
-  {
-    "id": "w1-dc-pipeline",
-    "marketSlug": "washington-dc",
-    "kind": "supply",
-    "title": "Washington DC pipeline: named projects (Atlas wave 1)",
-    "body": "Tempo by Hilton Washington DC Downtown, 1776 K St NW (office conversion) 278 keys, opened Apr 2026. citizenM Washington DC Georgetown, 3401 Water St NW (conversion) 230, opened Jun 2026. The Hoya Hotel at Georgetown, opening Aug 2026 (key count unverified in source excerpt). WaterWalk by Wyndham Capitol Hill / Navy Yard 100, under construction, late 2026. MOB Hotel and an Aloft, pipeline, mid-2028. Redbrick Bridge District hotel 160, proposed, construction target 2027. No cancellations or slips found in free sources for 2026.",
-    "magnitude": "Conversions lead deliveries",
-    "asOf": "2026-10-11",
-    "sourceLabel": "Atlas depth-w1 2026-10-11 (pipeline/depth-w1-washington-dc-pipeline.md); Destination DC https://washington.org/press/journalist-newsletter/hotel-happenings; Lodging Development https://www.lodgingdevelopment.com/hotel-development/dc-metro; Bisnow https://www.bisnow.com/news/washington-dc/hotel/hotel-execs-bullish-on-dc-market-but-opt-for-conversions-not-new-builds-134715"
-  },
-  {
+    {
     "id": "w1-dal-cw-q2",
     "marketSlug": "dallas",
     "kind": "occupancy",

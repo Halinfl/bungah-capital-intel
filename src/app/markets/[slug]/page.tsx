@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
 import { SourceChip } from "@/components/SourceChip";
+import { SourceLinks } from "@/components/SourceLinks";
+import { parseSourceUrls } from "@/lib/source-links";
 import {
   fmtPct,
   fmtUsd,
@@ -162,9 +164,23 @@ export default async function MarketDetailPage({
                 </div>
                 <h3 className="mt-2 font-medium text-white">{s.title}</h3>
                 <p className="mt-1 text-sm text-slate-300">{s.body}</p>
-                <div className="mt-2">
-                  <SourceChip label={s.sourceLabel} />
-                </div>
+                {(() => {
+                  const links = parseSourceUrls(s.sourceUrls);
+                  return links.length ? (
+                    <div className="mt-2 space-y-1">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500">Sources</div>
+                      <SourceLinks links={links} />
+                    </div>
+                  ) : /no public read/i.test(s.body) && !/https?:\/\//.test(s.sourceLabel) ? (
+                    <div className="mt-2">
+                      <SourceLinks links={[]} noPublicRead />
+                    </div>
+                  ) : (
+                    <div className="mt-2">
+                      <SourceChip label={s.sourceLabel} />
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>
