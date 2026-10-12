@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
-import { parseSourceUrls } from "@/lib/source-links";
+import { parseSourceUrls, URL_RE, isOriginalUrl } from "@/lib/source-links";
+import { SignalCard } from "@/components/SignalCard";
+import { scrubInternal, briefLine } from "@/lib/public-text";
 import {
   fmtPct,
   fmtUsd,
@@ -151,38 +153,44 @@ export default async function MarketDetailPage({
         </div>
         {market.signals.length ? (
           <div className="grid gap-3">
-            {market.signals.map((s) => (
-              <div key={s.id} className="rounded-lg border border-white/10 p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
-                    {s.kind}
-                  </span>
-                  {s.magnitude ? (
-                    <span className="text-sm font-semibold tabular-nums text-emerald-300">{s.magnitude}</span>
-                  ) : null}
-                  {s.asOf ? <span className="text-xs text-slate-500">as of {s.asOf}</span> : null}
-                </div>
-                <h3 className="mt-2 font-medium text-white">{s.title}</h3>
-                <p className="mt-1 text-sm text-slate-300">{s.body}</p>
-                {(() => {
-                  const links = parseSourceUrls(s.sourceUrls);
-                  return links.length ? (
-                    <div className="mt-2 space-y-1">
-                      <div className="text-[10px] uppercase tracking-wider text-slate-500">Sources</div>
-                      <SourceLinks links={links} />
-                    </div>
-                  ) : /no public read/i.test(s.body) && !/https?:\/\//.test(s.sourceLabel) ? (
-                    <div className="mt-2">
+            {market.signals.map((s, i) => {
+              const links = parseSourceUrls(s.sourceUrls);
+              const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
+              const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
+              const title = scrubInternal(s.title);
+              const npr = !links.length && /no public read/i.test(s.body) && !labelUrl;
+              return (
+                <SignalCard
+                  key={`sig-${i}`}
+                  primaryUrl={primary}
+                  title={title}
+                  meta={
+                    <>
+                      <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+                        {s.kind}
+                      </span>
+                      {s.magnitude ? (
+                        <span className="text-xs font-semibold tabular-nums text-emerald-300">
+                          {scrubInternal(s.magnitude)}
+                        </span>
+                      ) : null}
+                      {s.asOf ? <span className="text-[11px] text-slate-500">as of {s.asOf}</span> : null}
+                    </>
+                  }
+                >
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-300">{briefLine(title, s.body)}</p>
+                  <div className="mt-2">
+                    {links.length ? (
+                      <SourceLinks links={links} limit={3} />
+                    ) : npr ? (
                       <SourceLinks links={[]} noPublicRead />
-                    </div>
-                  ) : (
-                    <div className="mt-2">
+                    ) : (
                       <SourceChip label={s.sourceLabel} />
-                    </div>
-                  );
-                })()}
-              </div>
-            ))}
+                    )}
+                  </div>
+                </SignalCard>
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
@@ -228,18 +236,27 @@ export default async function MarketDetailPage({
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-white">Linked findings</h2>
           <div className="space-y-2">
-            {market.findings.map((f) => (
-              <div key={f.id} className={`rounded-lg border p-4 ${severityClass(f.severity)}`}>
-                <div className="text-[11px] uppercase tracking-wider opacity-80">
-                  {f.severity} · {f.radar.name}
-                </div>
-                <div className="mt-1 font-medium">{f.title}</div>
-                <p className="mt-1 text-sm opacity-90">{f.summary}</p>
-                <div className="mt-2">
-                  <SourceChip label={f.sourceLabel} />
-                </div>
-              </div>
-            ))}
+            {market.findings.map((f) => {
+              const u = f.sourceLabel.match(URL_RE)?.[0];
+              return (
+                <SignalCard
+                  key={f.id}
+                  primaryUrl={u && isOriginalUrl(u) ? u : null}
+                  tone={severityClass(f.severity)}
+                  title={scrubInternal(f.title)}
+                  meta={
+                    <span className="text-[11px] uppercase tracking-wider opacity-80">
+                      {f.severity} · {f.radar.name}
+                    </span>
+                  }
+                >
+                  <p className="mt-1 line-clamp-2 text-sm opacity-90">{briefLine(f.title, f.summary, 180)}</p>
+                  <div className="mt-2">
+                    <SourceChip label={f.sourceLabel} />
+                  </div>
+                </SignalCard>
+              );
+            })}
           </div>
         </section>
       ) : (

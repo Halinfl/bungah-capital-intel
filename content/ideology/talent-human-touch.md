@@ -1,6 +1,6 @@
 # Talent / human-touch ideology notes (excerpt)
 
-**Source:** neo-capital-intel deepen/talent (Hal/Neo authored)  
+**Source:** deepen/talent (editor-authored)  
 **Shipped:** excerpt only — no guest outreach lists.  
 **Use:** cite as `content/ideology/talent-human-touch.md` when answering talent / staffing / greenlight questions.
 
@@ -8,11 +8,11 @@
 
 # Ideology Gaps to Deepen + Guest Pipeline (Internal)
 
-**Path:** `/workspace/neo-capital-intel/deepen/talent/ideology-gaps-and-guest-pipeline.md`  
-**Owner:** Herald → Neo / Hal  
+**Path:** deepen/talent/ideology-gaps-and-guest-pipeline.md  
+**Owner:** talent → editorial / Hal  
 **Date:** 2026-09-19 ET  
-**Parents:** `people/_synthesis.md`, `orgs/_synthesis.md`, `stacks/herald-kickoff.md`, `deepen/talent/stakeholder-graph.md`  
-**Internal Hal/Neo-authored ideology notes (talent/human-touch gates). Propose-only.**
+**Parents:** `people/_synthesis.md`, `orgs/_synthesis.md`, `stacks/talent-kickoff.md`, `deepen/talent/stakeholder-graph.md`  
+**Internal editor-authored ideology notes (talent/human-touch gates). decision support.**
 
 ---
 
@@ -28,7 +28,7 @@ From people synthesis §6 — still unanswered; every gap below gets sharper onc
 5. Concrete **agent-ready hospitality** (24 months)  
 6. Most dangerous over-index: Nassetta owner externalities / Conley soft economics / Visser macro poetry  
 
-**Herald action:** Keep these as open gates on every deepen note; do not paper over with more dossiers.
+**talent note:** Keep these as open gates on every deepen note; do not paper over with more dossiers.
 
 ### A2. Missing *people* layers (beyond the ideology nine)
 | Gap | Why it matters for capital | Deepen target |
@@ -37,7 +37,7 @@ From people synthesis §6 — still unanswered; every gap below gets sharper onc
 | Brand development / franchise ops leaders | Who greenlights conversions, key money, quality culls (C5/F1) | Named SVP-dev stubs under brand orgs |
 | Soft-brand curators | Conversion engine without ground-up fantasy | `brand-network-politics.md` |
 | CVB / DMO CEOs (beyond org dossiers) | Agenda shifts move group CapEx | I3 people stubs for P0 MSAs |
-| GC / construction talent | I4 — who can deliver on time (hand Atlas spatial; Herald names people) | Later with Atlas |
+| GC / construction talent | I4 — who can deliver on time (hand supply spatial; talent names people) | Later with supply |
 
 ### A3. Missing *org / brand politics* layers
 | Gap | Org synthesis tell | Deepen |
@@ -49,13 +49,13 @@ From people synthesis §6 — still unanswered; every gap below gets sharper onc
 | International brands absent | Fine for U.S. wedge | P2 unless Hal expands geography |
 
 ### A4. Ideology tensions that need *evidence*, not more prose
-| Tension (people §3) | Evidence Herald should add |
+| Tension (people §3) | Evidence talent should add |
 | --- | --- |
 | Brand tax vs owner survival | Dated AAHOA heat + APLE margin + FDD fee moves |
 | Scale vs soul | Soft-brand growth vs quality cull anecdotes |
 | Spreadsheet ROI vs system CapEx | Kirby/D’Amaro parallels → hotel CapEx case studies |
 | Loyalty points vs relationships | Honors/Bonvoy density vs Rosewood RH language in IC memos |
-| PMS/OS vs RMS | Valtr vs Fitzpatrick — Neo stack implication (choose/complement) |
+| PMS/OS vs RMS | Valtr vs Fitzpatrick — stack implication (choose/complement) |
 | Culture as underwriting | Labor/talent metrics that predict NOI — ties to operator benches |
 
 ### A5. Kickoff vs library (status check 2026-09-19)

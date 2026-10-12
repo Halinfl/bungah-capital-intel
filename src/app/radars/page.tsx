@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { SourceChip } from "@/components/SourceChip";
+import { SignalCard } from "@/components/SignalCard";
+import { URL_RE, isOriginalUrl } from "@/lib/source-links";
+import { scrubInternal } from "@/lib/public-text";
 import { severityClass } from "@/lib/format";
 import { RunRadarsButton } from "./RunRadarsButton";
 
@@ -48,16 +51,23 @@ export default async function RadarsPage() {
               Recent findings
             </h3>
             <div className="mt-2 space-y-2">
-              {r.findings.map((f) => (
-                <div key={f.id} className={`rounded-lg border p-3 ${severityClass(f.severity)}`}>
-                  <div className="text-[11px] uppercase tracking-wider opacity-80">{f.severity}</div>
-                  <div className="mt-0.5 font-medium">{f.title}</div>
-                  <p className="mt-1 text-sm opacity-90">{f.summary}</p>
-                  <div className="mt-2">
-                    <SourceChip label={f.sourceLabel} />
-                  </div>
-                </div>
-              ))}
+              {r.findings.map((f) => {
+                const u = f.sourceLabel.match(URL_RE)?.[0];
+                return (
+                  <SignalCard
+                    key={f.id}
+                    primaryUrl={u && isOriginalUrl(u) ? u : null}
+                    tone={severityClass(f.severity)}
+                    title={scrubInternal(f.title)}
+                    meta={<span className="text-[11px] uppercase tracking-wider opacity-80">{f.severity}</span>}
+                  >
+                    <p className="mt-1 text-sm opacity-90">{scrubInternal(f.summary)}</p>
+                    <div className="mt-2">
+                      <SourceChip label={f.sourceLabel} />
+                    </div>
+                  </SignalCard>
+                );
+              })}
               {!r.findings.length ? (
                 <p className="text-sm text-slate-500">No findings yet — run radars.</p>
               ) : null}

@@ -4,6 +4,7 @@ import { answerChat } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations, scrubSeedLines } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
+import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
 
 function toModelUsed(mode: string | undefined): "llm" | "memo" {
   return mode === "llm" ? "llm" : "memo";
@@ -32,10 +33,11 @@ export async function POST(req: Request) {
 
     const raw = await answerChat(question, { marketSlug });
     // Last-line guard: seed / illustrative wording never reaches a user, a stored thread, or the corpus.
-    const answer = { ...raw, content: scrubSeedLines(raw.content) };
+    // Internal team / agent labels never reach a user either (display-time guard; DB rows are clean).
+    const answer = { ...raw, content: scrubInternal(scrubSeedLines(raw.content)) };
     const modelUsed = toModelUsed(answer.mode);
-    const citations = scrubSeedCitations(answer.citations ?? []);
-    const sources = await sourcesForAnswer(answer.content);
+    const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
+    const sources = (await sourcesForAnswer(answer.content)).map((l) => ({ ...l, label: scrubInternal(l.label) }));
 
     // Product thread always stores full Q&A (including private workspace).
     const thread = await prisma.chatThread.create({

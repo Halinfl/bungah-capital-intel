@@ -1,12 +1,14 @@
 import { splitUrls } from "@/lib/source-links";
+import { cleanSourceLabel } from "@/lib/public-text";
 
-/** Source label; any original URL inside it is clickable (new tab). */
+/** Source label; any original URL inside it is clickable (new tab). Internal labels are stripped. */
 export function SourceChip({ label }: { label: string }) {
-  const parts = splitUrls(label);
+  const clean = cleanSourceLabel(label);
+  const parts = splitUrls(clean);
   return (
     <span
-      className="inline-flex max-w-full items-start gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] leading-snug text-slate-400"
-      title={label}
+      className="relative z-10 inline-flex max-w-full items-start gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px] leading-snug text-slate-400"
+      title={clean}
     >
       <span className="shrink-0 font-medium text-emerald-400/90">src</span>
       <span className="min-w-0 break-words">

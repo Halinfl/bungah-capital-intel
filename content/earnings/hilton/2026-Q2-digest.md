@@ -1,6 +1,6 @@
 # Hilton Worldwide Holdings Inc. (HLT) — Q2 2026 Earnings Digest
 
-**Classification:** Hal/Neo authored digest of public IR — propose-only  
+**Classification:** editor-authored digest of public IR — decision support  
 **Prepared:** 2026-09-20 ET  
 **Period:** Quarter ended 2026-06-30  
 **Call / release date:** 2026-07-28 (release + call ~09:00 ET)
@@ -78,7 +78,7 @@ CFO note: Q2 NI / Adj. EBITDA benefited from better-than-expected RevPAR and **$
 - Q2 CapEx + contract acquisition costs: **$88M** (CapEx $37M + contract acquisition $51M net) (`company release`)  
 - System size: **9,332 hotels / 1,363,441 rooms** (+ HGV timeshare system total 9,453 / 1,384,842) (`company release`)
 
-**Atlas handoff:** pipeline conversion rate + Undergraduate / Apartment Collection absorption; conversion vs new-build mix.
+**supply note:** pipeline conversion rate + Undergraduate / Apartment Collection absorption; conversion vs new-build mix.
 
 ## Balance sheet / debt / refinancing
 
@@ -92,7 +92,7 @@ CFO note: Q2 NI / Adj. EBITDA benefited from better-than-expected RevPAR and **$
 - Dividend $0.15/share; Sep 30, 2026 payment authorized (`company release`)  
 - Shares out ~**225.1M** as of 2026-07-23 (`company release`)
 
-**Ledger handoff:** 2027 $600M notes refinance path; leverage stable IG fee model; buyback pace vs net unit growth reinvestment (key money / contract acquisition).
+**capital note:** 2027 $600M notes refinance path; leverage stable IG fee model; buyback pace vs net unit growth reinvestment (key money / contract acquisition).
 
 ## Labor / talent / cost
 
@@ -100,7 +100,7 @@ CFO note: Q2 NI / Adj. EBITDA benefited from better-than-expected RevPAR and **$
 - Wage/staffing dollar metrics: **not disclosed** in release tables beyond G&A guide (~$400M FY)  
 - Risk factors cite labor shortages/disputes (`company release` forward-looking section)
 
-**Herald handoff:** soft talent brand signal only; no wage inflation quantification in this release.
+**talent note:** soft talent brand signal only; no wage inflation quantification in this release.
 
 ## Segment / brand / geography mix
 
@@ -109,43 +109,43 @@ CFO note: Q2 NI / Adj. EBITDA benefited from better-than-expected RevPAR and **$
 - Brand standouts (RevPAR y/y): Graduate +8.8%, Tapestry +6.6%, Home2 +5.9%, LXR +5.8%, Tru +5.1%, Embassy +5.2%; Waldorf Astoria −1.1%, Conrad flat (`company release`)  
 - U.S. (+5.4% RevPAR) carries the system; MEA (−29.5%) is the stress geography (`company release`)
 
-## Capital Graph signal proposals (propose-only)
+## Capital Graph signal proposals (decision support)
 
 1. **Signal:** Hilton system RevPAR growth mid-single-digit with fee growth outpacing RevPAR (fees +6.4% vs RevPAR +3.9%).  
    **Domain:** D1 (KPIs) / F* (brand fees)  
    **Evidence:** company release Q2 2026  
    **Implication:** Fee platforms still extract growth via mix/net units even when unit RevPAR is mid-single digit — underwrite franchisee cash-flow capacity, not just brand RevPAR.  
-   **Handoff:** Vectra (demand) | none for STR invent
+   **Lane:** demand | none for STR invent
 
 2. **Signal:** Pipeline at record 541,300 rooms; NUG guide 6–7%; approvals +50% seq.  
    **Domain:** C2 / C5 (supply / brand network)  
    **Evidence:** company release + slides  
    **Implication:** Near-term fee CAGR visibility high; watch conversion share vs ground-up as construction costs bite owners.  
-   **Handoff:** Atlas
+   **Lane:** supply
 
 3. **Signal:** Undergraduate by Hilton + Apartment Collection — midscale/lifestyle/extended product expansion.  
    **Domain:** C5 / F*  
    **Evidence:** company release / slides  
    **Implication:** Hilton competing harder for owner capital in upper-midscale & residential-adjacent — franchisee CapEx and PIP standards matter for AAHOA-type owners.  
-   **Handoff:** Atlas | Herald
+   **Lane:** supply | talent
 
 4. **Signal:** MEA RevPAR −29.5% — geopolitical / regional demand shock inside an otherwise healthy system.  
    **Domain:** A* (demand color)  
    **Evidence:** company release regional table  
    **Implication:** Do not use global system RevPAR as a uniform capital signal; region-weight underwriting.  
-   **Handoff:** Vectra
+   **Lane:** demand
 
 5. **Signal:** ~$3.5B FY capital return + net debt/EBITDA 3.2x + 2031 notes issue.  
    **Domain:** E2 (debt / capital structure)  
    **Evidence:** company release  
    **Implication:** IG feeco continues to run leverage for buybacks; 2027 maturity is manageable but schedule it.  
-   **Handoff:** Ledger
+   **Lane:** capital
 
 6. **Signal:** Q3 RevPAR guide ~+4% aided by World Cup / calendar; Q4 guide soft factors (elections/calendar).  
    **Domain:** D1 / A*  
    **Evidence:** company release Outlook  
    **Implication:** 2H is not linear — event/calendar residual risk for owner REITs sharing the calendar.  
-   **Handoff:** Vectra | Host/Park digests
+   **Lane:** demand | Host/Park digests
 
 ## What Hal should decide / watch
 

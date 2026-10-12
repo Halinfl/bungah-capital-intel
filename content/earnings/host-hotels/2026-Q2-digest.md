@@ -1,6 +1,6 @@
 # Host Hotels & Resorts, Inc. (HST) — Q2 2026 Earnings Digest
 
-**Classification:** Hal/Neo authored digest of public IR — propose-only  
+**Classification:** editor-authored digest of public IR — decision support  
 **Prepared:** 2026-09-20 ET  
 **Period:** Quarter ended 2026-06-30  
 **Call / release date:** Release 2026-08-05; supplemental on IR
@@ -87,7 +87,7 @@ Note: Release CapEx table also breaks out Marriott/Hyatt Transformational vs oth
 - Dispositions: sale of six hotels in 2025–2026 weighs on Adj. EBITDAre comps; Sheraton Parsippany sold in Q2 (footnote in reconciliations) (`company release`)  
 - Four Seasons Orlando adjacent condo: seven villas sold contributed **$8M** to Q2 NI and Adj. EBITDAre (`company release`)
 
-**Atlas handoff:** transformational CapEx ROI vs disruption; Hawaii remediation; disposition recycling pace.
+**supply note:** transformational CapEx ROI vs disruption; Hawaii remediation; disposition recycling pace.
 
 ## Balance sheet / debt / refinancing
 
@@ -100,7 +100,7 @@ As of **2026-06-30** (`company release`):
 - Dividend: Q2 **$0.92**/share paid Jul 15, 2026 (includes **$0.72** special ≈ **$500M** taxable gain distribution from Four Seasons sales completed 1Q 2026)  
 - Shares: ~685.0M outstanding at quarter-end (`company release` balance sheet)
 
-**Ledger handoff:** IG credit unchanged narrative; special dividend vs dry powder for acquisitions; no 2026 wall.
+**capital note:** IG credit unchanged narrative; special dividend vs dry powder for acquisitions; no 2026 wall.
 
 ## Labor / talent / cost
 
@@ -109,7 +109,7 @@ As of **2026-06-30** (`company release`):
 - FY guide: 1H rate gains offset wage expense; 2H y/y rate growth expected to **moderate** (`company release`)  
 - No discrete wage % or staffing FTE metrics disclosed in the release tables
 
-**Herald handoff:** qualitative wage inflation confirmed; quantify via 10-Q expense lines if needed.
+**talent note:** qualitative wage inflation confirmed; quantify via 10-Q expense lines if needed.
 
 ## Segment / brand / geography mix
 
@@ -118,43 +118,43 @@ As of **2026-06-30** (`company release`):
 - Soft spots: New Orleans, Denver, Seattle, Orlando (comparable RevPAR down) — group/city calendar and local idiosyncratic (`company release` tables)  
 - International (5 hotels): RevPAR +6.4%, Total RevPAR +6.7% (`company release`)
 
-## Capital Graph signal proposals (propose-only)
+## Capital Graph signal proposals (decision support)
 
 1. **Signal:** U.S. luxury/upper-upscale owner RevPAR +7% with guide raised to ~5% FY — rate over occupancy.  
    **Domain:** D1  
    **Evidence:** company release comparable RevPAR +7.0%; FY guide 4.75–5.25%  
    **Implication:** Deploy/redeploy into rate-elastic resort + CBD assets still clearing; underwrite ADR durability post-World Cup.  
-   **Handoff:** Vectra
+   **Lane:** demand
 
 2. **Signal:** Group room revenue +7.4% / room nights +3.5% — group recovery alive at Host quality tier.  
    **Domain:** A* / D1  
    **Evidence:** company release business mix table  
    **Implication:** Convention CBD residual value supported near-term; still market-selective (contrast New Orleans −6.9%).  
-   **Handoff:** Vectra | Atlas
+   **Lane:** demand | supply
 
 3. **Signal:** $525–$600M R&R+ROI CapEx with Marriott/Hyatt transformational guarantees ($19M 2026).  
    **Domain:** C2 (supply/renovation)  
    **Evidence:** company release CapEx table + guarantees commentary  
    **Implication:** CapEx is the growth CapEx — ROI underwriting must net disruption + guarantee offsets.  
-   **Handoff:** Atlas | Ledger
+   **Lane:** supply | capital
 
 4. **Signal:** IG BS — $5.1B debt, no 2026 maturities, ~$3.6B liquidity after funding ~$500M special dividend.  
    **Domain:** E2  
    **Evidence:** company release Balance Sheet / Dividends  
    **Implication:** Dry powder for selective M&A remains; special dividend shows willingness to return disposition gains.  
-   **Handoff:** Ledger
+   **Lane:** capital
 
 5. **Signal:** Wage inflation visible but margin expansion (+60 bps hotel EBITDA margin) via rate.  
-   **Domain:** D1 / Herald labor  
+   **Domain:** D1 / talent labor  
    **Evidence:** company release Highlights  
    **Implication:** If 2H rate decelerates as guided, margin defense becomes the swing factor for FFO.  
-   **Handoff:** Herald | Vectra
+   **Lane:** talent | demand
 
 6. **Signal:** World Cup / July ~+10% RevPAR — event residual into Q3 guide.  
    **Domain:** A*  
    **Evidence:** company release Outlook  
    **Implication:** Separate event uplift from run-rate when comparing Host to non-host-city REITs.  
-   **Handoff:** Vectra
+   **Lane:** demand
 
 ## What Hal should decide / watch
 

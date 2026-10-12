@@ -2,7 +2,7 @@
  * Allowed-corpus retrieval for Bungah Capital Intel chat.
  *
  * ALLOWED: Prisma Capital Graph + authored digests under content/earnings +
- *          Hal/Neo ideology notes under content/ideology.
+ *          editor-authored ideology notes under content/ideology.
  * FORBIDDEN: licensed STR/CoStar raw, customer CSP, paywalled transcript training sets.
  *
  * Digests ship with the app (content/) so Vercel has the files at runtime.
@@ -10,6 +10,7 @@
 import { readFile, readdir } from "fs/promises";
 import path from "path";
 import corpusJson from "@/generated/allowed-corpus.json";
+import { scrubInternal } from "@/lib/public-text";
 
 export type DigestHit = {
   /** Relative path used as citation, e.g. content/earnings/hilton/2026-Q2-digest.md */
@@ -165,7 +166,10 @@ function truncateMarkdown(md: string, maxChars: number): string {
   );
 }
 
-const BUNDLED = corpusJson as Record<string, string>;
+// Display-time guard: internal team / agent labels never reach chat answers.
+const BUNDLED = Object.fromEntries(
+  Object.entries(corpusJson as Record<string, string>).map(([k, v]) => [k, scrubInternal(v)])
+) as Record<string, string>;
 
 function readBundled(key: string): string | null {
   const v = BUNDLED[key];
@@ -293,7 +297,7 @@ export async function retrieveAllowedCorpus(
   }
 
   if (ideology.length) {
-    chunks.push("### Hal/Neo ideology notes (talent / human-touch)");
+    chunks.push("### Editorial ideology notes (talent / human-touch)");
     for (const i of ideology) {
       citations.push(i.citePath);
       chunks.push(`Citation path: ${i.citePath}\n\n${i.excerpt}`);
@@ -354,6 +358,6 @@ export function formatDigestFallbackMemo(hits: DigestHit[]): string | null {
   return [
     ...parts,
     "",
-    "_Decision support:_ digest facts are Hal/Neo authored summaries of public IR — not licensed STR. Pair with Capital Graph markets/signals before underwriting.",
+    "_Decision support:_ digest facts are editor-authored summaries of public IR — not licensed STR. Pair with Capital Graph markets/signals before underwriting.",
   ].join("\n\n");
 }

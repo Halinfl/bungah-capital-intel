@@ -1,6 +1,6 @@
 # Pebblebrook Hotel Trust (PEB) — Q2 2026 Earnings Digest
 
-**Classification:** Hal/Neo authored digest of public IR — propose-only  
+**Classification:** editor-authored digest of public IR — decision support  
 **Prepared:** 2026-09-20 ET  
 **Period:** Quarter ended 2026-06-30  
 **Call / release date:** Release 2026-07-29; conference call 2026-07-30 09:00 ET
@@ -16,14 +16,14 @@ Clearest public Same-Property RevPAR / ADR / OCC package among {PEB, RHP, APLE, 
   Mirrored: `_raw/PEB_Q2_2026_release.html`
 - **EDGAR:** CIK 1474098 — seek companion 8-K Item 2.02 / Ex. 99.1 filed ~2026-07-29 (`8-K`)  
   https://www.sec.gov/cgi-bin/browse-edgar?CIK=1474098
-- **Org dossier:** `/workspace/neo-capital-intel/orgs/pebblebrook.md` (capital lens only — no STR invented)
+- **Org dossier:** orgs/pebblebrook.md (capital lens only — no STR invented)
 - **Transcript:** not opened (call replay may be on IR webcast archive)
 
 ---
 
 ## Capital headline
 
-Pebblebrook printed a **beat-and-raise owner quarter** driven by Same-Property RevPAR **+6.5%** (ADR +4.7%, OCC +1.7 pts) and Hotel EBITDA **+7.1%** with **67 bps** margin expansion — expense growth (+3.8%) lagged revenue (+4.8%). Resorts (+12.0% RevPAR) and San Francisco (+16.0%) carried growth; **Washington, DC (−9.9%)** and urban San Diego (−9.1%) were the known weak spots. Balance-sheet de-lever continues (net debt / TTM corporate EBITDA **5.3x**), Dec-2026 converts **fully reserved**, and capital return mixes buybacks with preferred retirement at a discount via the Chamberlain West Hollywood sale. For Capital Graph: this is a **lifestyle urban + resort** beta with SF recovery and DC government softness as the paired A*/Atlas signals — not a Host-like group CBD bellwether.
+Pebblebrook printed a **beat-and-raise owner quarter** driven by Same-Property RevPAR **+6.5%** (ADR +4.7%, OCC +1.7 pts) and Hotel EBITDA **+7.1%** with **67 bps** margin expansion — expense growth (+3.8%) lagged revenue (+4.8%). Resorts (+12.0% RevPAR) and San Francisco (+16.0%) carried growth; **Washington, DC (−9.9%)** and urban San Diego (−9.1%) were the known weak spots. Balance-sheet de-lever continues (net debt / TTM corporate EBITDA **5.3x**), Dec-2026 converts **fully reserved**, and capital return mixes buybacks with preferred retirement at a discount via the Chamberlain West Hollywood sale. For Capital Graph: this is a **lifestyle urban + resort** beta with SF recovery and DC government softness as the paired A* / supply signals — not a Host-like group CBD bellwether.
 
 ## Operating KPIs (company-reported only)
 
@@ -65,7 +65,7 @@ Pebblebrook printed a **beat-and-raise owner quarter** driven by Same-Property R
 | Adjusted FFO / diluted share | **$1.69** | **$1.76** | midpoint **+$0.08** |
 | Free Cash Flow / diluted share | **$1.04** | **$1.11** | midpoint **+$0.08** |
 
-Also cited: Same-Property Hotel EBITDA **$377–$385M**; U.S. hotel industry RevPAR growth assumption **3.5%–4.5%** (industry assumption — labeled as company outlook assumption, **not** Neo STR) (`company release`).
+Also cited: Same-Property Hotel EBITDA **$377–$385M**; U.S. hotel industry RevPAR growth assumption **3.5%–4.5%** (industry assumption — labeled as company outlook assumption, **not** editorial STR) (`company release`).
 
 **Q3 2026 outlook** (`company release`): Adj. EBITDAre $92.5–$96.5M; Adj. FFO/share $0.48–$0.52; Same-Property RevPAR $239–$244; Same-Property RevPAR variance vs 2025 implied in outlook tables (low/high bands in release).
 
@@ -80,7 +80,7 @@ Management: raising FY for Q2 outperformance while **holding prior 2H assumption
 - Guestroom renovations substantially completed: Chaminade Resort & Spa; Revere Hotel Boston Common (`company release`)  
 - Same-Property set excludes Chamberlain after sale (Q1 only for YTD Same-Property) (`company release` notes)
 
-**Atlas handoff:** SF recovery + resort CapEx light; urban San Diego convention supply/calendar; disposition cap-rate evidence vs public NAV.
+**supply note:** SF recovery + resort CapEx light; urban San Diego convention supply/calendar; disposition cap-rate evidence vs public NAV.
 
 ## Balance sheet / debt / refinancing
 
@@ -96,7 +96,7 @@ As of **2026-06-30** (`company release`):
 - Preferred: repurchased **1.5M** preferred for **$28.6M** (incl. Chamberlain-linked retirement); preferred outstanding **$717.2M**  
 - Common dividend **$0.01**/share (token) + regular preferred dividends declared Jun 15, 2026
 
-**Ledger handoff:** Dec-2026 convert takeout execution; 5.3x leverage trend; preferred discount retirement as NAV arb.
+**capital note:** Dec-2026 convert takeout execution; 5.3x leverage trend; preferred discount retirement as NAV arb.
 
 ## Labor / talent / cost
 
@@ -104,7 +104,7 @@ As of **2026-06-30** (`company release`):
 - Property insurance renewal (Jun 1, 2026): **−27%** premium (**~$6.1M** annual savings) (`company release`)  
 - No discrete wage-rate or FTE metrics in the release — productivity/efficiency narrative only
 
-**Herald handoff:** opex discipline story; wage line needs 10-Q drill if material.
+**talent note:** opex discipline story; wage line needs 10-Q drill if material.
 
 ## Segment / brand / geography mix
 
@@ -113,43 +113,43 @@ As of **2026-06-30** (`company release`):
 - Resort F&B **~+11%** Same-Property (`company release`)  
 - Geographic winners: SF, resorts, Chicago, LA, Boston rate lift; losers: DC government, San Diego urban convention (`company release`)
 
-## Capital Graph signal proposals (propose-only)
+## Capital Graph signal proposals (decision support)
 
 1. **Signal:** Same-Property RevPAR +6.5% with ADR-led growth and 67 bps Hotel EBITDA margin expansion.  
    **Domain:** D1  
    **Evidence:** company release Same-Property tables  
    **Implication:** Lifestyle/resort owners still clearing rate; underwrite expense leverage persistence into 2H (company kept 2H assumptions unchanged).  
-   **Handoff:** Vectra
+   **Lane:** demand
 
 2. **Signal:** San Francisco RevPAR +16.0% / Hotel EBITDA +24.6% — urban recovery concentration.  
    **Domain:** A* / C2  
    **Evidence:** company release market commentary  
    **Implication:** SF beta is a PEB-specific deploy signal; do not generalize to all CBDs (contrast DC −9.9%).  
-   **Handoff:** Vectra | Atlas
+   **Lane:** demand | supply
 
 3. **Signal:** Washington, DC RevPAR −9.9% on government demand weakness.  
    **Domain:** A*  
    **Evidence:** company release  
    **Implication:** Policy/government travel remains a negative factor for DC exposure — weight portfolios accordingly.  
-   **Handoff:** Vectra
+   **Lane:** demand
 
 4. **Signal:** Disposition at ~4.6% NOI cap / 15.4x EBITDA vs public trading — private NAV > public.  
    **Domain:** E2 / C2  
    **Evidence:** company release disposition section  
    **Implication:** Supports selective asset sales + buybacks/preferred retirement over equity issuance.  
-   **Handoff:** Ledger
+   **Lane:** capital
 
 5. **Signal:** Dec 2026 $350M converts fully reserved; leverage 5.3x; CapEx cut to $65–75M.  
    **Domain:** E2  
    **Evidence:** company release Balance Sheet / CapEx  
    **Implication:** Near-term refinancing risk contained; FCF prioritizes debt/equity return over growth CapEx.  
-   **Handoff:** Ledger
+   **Lane:** capital
 
 6. **Signal:** World Cup only 60–100 bps RevPAR / $0.5–1.0M EBITDA — modest for PEB markets.  
    **Domain:** A*  
    **Evidence:** company release management estimate  
    **Implication:** Unlike Host’s larger World Cup callout, PEB’s beat is mostly organic demand — higher quality signal for run-rate.  
-   **Handoff:** Vectra | compare Host digest
+   **Lane:** demand | compare Host digest
 
 ## What Hal should decide / watch
 
