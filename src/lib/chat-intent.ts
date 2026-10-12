@@ -52,7 +52,10 @@ const RULES: Rule[] = [
       /\bcrew\b/.test(q) ||
       /\bhuman[- ]touch\b/.test(q) ||
       /\bgc\/mep\b/.test(q) ||
-      /\blabor\b/.test(q),
+      /\blabou?r\b/.test(q) ||
+      /\bstrikes?\b/.test(q) ||
+      /\bunion\b/.test(q) ||
+      /\bwages?\b/.test(q),
   },
   {
     intent: "debt_overlay",
@@ -75,7 +78,9 @@ const RULES: Rule[] = [
       /\broom(s)? (stock|growth|delivery)\b/.test(q) ||
       /\bconstruction\b/.test(q) ||
       /\bhard rock\b/.test(q) ||
-      /\babsorption\b/.test(q),
+      /\babsorption\b/.test(q) ||
+      /\bcancell?(ed|ation)\b/.test(q) ||
+      /\bgroundbreak|\bbroke ground\b/.test(q),
   },
   {
     intent: "demand_visitation",
@@ -85,7 +90,10 @@ const RULES: Rule[] = [
       /\bvisit(or|ation|s)\b/.test(q) ||
       /\bleisure\b/.test(q) ||
       /\btouris[mt]\b/.test(q) ||
-      /\battendance\b/.test(q),
+      /\battendance\b/.test(q) ||
+      /\bairlift\b/.test(q) ||
+      /\bpassengers?\b/.test(q) ||
+      /\bcitywides?\b/.test(q),
   },
   {
     intent: "revpar_metrics",

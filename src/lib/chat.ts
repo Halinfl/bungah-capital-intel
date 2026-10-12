@@ -38,23 +38,23 @@ function cites(...labels: (string | null | undefined)[]): string[] {
 /** Extra search aliases beyond slug/name tokens. */
 const MARKET_ALIASES: Record<string, string[]> = {
   nashville: ["nashville", "music city", "davidson", "murfreesboro"],
-  orlando: ["orlando", "kissimmee", "sanford", "grande lakes", "gaylord", "i-drive"],
-  "las-vegas": ["vegas", "las vegas", "lvcva", "hard rock", "strip"],
-  miami: ["miami", "south beach"],
-  "new-york-city": ["nyc", "new york", "manhattan", "midtown"],
+  orlando: ["orlando", "kissimmee", "sanford", "grande lakes", "gaylord", "i-drive", "mco"],
+  "las-vegas": ["vegas", "las vegas", "lvcva", "hard rock", "strip", "harry reid"],
+  miami: ["miami", "south beach", "wynwood"],
+  "new-york-city": ["nyc", "new york", "manhattan", "midtown", "jersey city"],
   austin: ["austin", "sxsw"],
   "new-orleans": ["nola", "new orleans", "french quarter"],
   honolulu: ["honolulu", "waikiki", "oahu", "hawaii"],
   "san-francisco-bay": ["san francisco", "sf bay", "bay area"],
-  "los-angeles": ["los angeles", "la ", " lax"],
-  chicago: ["chicago", "ohare"],
+  "los-angeles": ["los angeles", "la ", " lax", "santa monica"],
+  chicago: ["chicago", "ohare", "palmer house"],
   atlanta: ["atlanta", "hartsfield"],
   denver: ["denver"],
   phoenix: ["phoenix", "scottsdale"],
   seattle: ["seattle"],
   boston: ["boston"],
   "washington-dc": ["washington dc", "dc ", "d.c."],
-  dallas: ["dallas", "dfw", "fort worth"],
+  dallas: ["dallas", "dfw", "fort worth", "roanoke"],
   houston: ["houston"],
   "san-diego": ["san diego"],
   tampa: ["tampa"],
@@ -115,6 +115,38 @@ function nationalTalentOneLiner(body: string): string {
   // Keep secondary overlay short.
   const first = scrubbed.split(/(?<=\.)\s+/)[0] ?? scrubbed;
   return first.length > 220 ? first.slice(0, 217) + "…" : first;
+}
+
+/**
+ * Dated national sweep signals (rates, CMBS, cap rates, performance, group pace…).
+ * Legacy national stubs keep kinds "debt" / "talent"; sweep rows use other kinds.
+ */
+const NATIONAL_KIND_TRIGGERS: Record<string, RegExp> = {
+  rates: /\b10[- ]?y(ear)?\b|\btreasur|\byields?\b|\bfomc\b|\binterest rates?\b|\brates\b/,
+  cmbs: /\bcmbs\b|\bdelinquen|\bdq\b|\bspecial servic|\bdistress/,
+  cap_rate: /\bcap(italization)? rates?\b|\bcaps\b|\bper key\b|\btransactions?\b|\bpricing\b/,
+  performance: /\boccupanc|\badr\b|\brevpar\b|\bperformance\b|\bnational\b|\bu\.?s\.? hotels?\b|\bnationwide\b/,
+  group_pace: /\bgroup\b|\bpace\b|\bconvention|\bmeetings?\b|\bunsold\b/,
+  drive: /\bgas\b|\bfuel\b|\bdrive\b/,
+  franchise_climate: /\bowners?\b|\bfranchis|\bconfidence\b|\bihg\b/,
+  brand_dev: /\baccor\b|\brandall\b|\bdevelopment exec|\bcdo\b/,
+  leadership: /\bchoice\b|\bceo\b|\bdragisich\b/,
+  earnings_calendar: /\bearnings\b|\bq3\b|\bcalendar\b|\breport dates?\b/,
+  capital_markets: /\brevolver\b|\bliquidity\b/,
+  supply_economics: /\bbuild(ing)? costs?\b|\bconstruction costs?\b|\bnew[- ]build\b|\bhyatt place\b/,
+  labor_stress_test: /\baihg\b|\bsloan\b|\bai[- ]native\b|\bjobs\b/,
+};
+
+function isSweepNational(s: NationalSignal): boolean {
+  return s.kind !== "debt" && s.kind !== "talent";
+}
+
+function selectNationalSweep(q: string, signals: NationalSignal[]): NationalSignal[] {
+  return signals.filter((s) => isSweepNational(s) && NATIONAL_KIND_TRIGGERS[s.kind]?.test(q));
+}
+
+function nationalSignalLine(s: NationalSignal): string {
+  return `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body} _Source: ${s.sourceLabel}_`;
 }
 
 function derivedRevpar(
@@ -433,11 +465,13 @@ export async function retrieveGraphContext(
   const slug = preferredMarketSlug?.trim().toLowerCase() || null;
 
   const markets = await prisma.market.findMany({
-    include: { assets: true, signals: true },
+    // Newest signals first so dated sweeps lead over older seed baselines.
+    include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
     orderBy: { name: "asc" },
   });
   const nationalSignals = await prisma.signal.findMany({
     where: { marketId: null },
+    orderBy: { createdAt: "desc" },
   });
   const radars = await prisma.radar.findMany({
     include: { findings: { orderBy: { createdAt: "desc" }, take: 3 } },
@@ -646,11 +680,17 @@ export async function answerFromGraph(
   // National debt (no market or debt-led)
   if (intent === "debt_overlay" && !matched) {
     const debt = nationalSignals.find((s) => s.kind === "debt");
+    const debtSweep = nationalSignals.filter(
+      (s) => s.kind === "rates" || s.kind === "cmbs" || s.kind === "cap_rate"
+    );
     return {
       content: [
         "**National lodging debt-wall / DY stress (stub)**",
         "",
         debt?.body ?? "No debt signal seeded.",
+        ...(debtSweep.length
+          ? ["", "Latest cited debt / rate signals:", ...debtSweep.map(nationalSignalLine)]
+          : []),
         "",
         footer(),
         "",
@@ -663,6 +703,7 @@ export async function answerFromGraph(
       ].join("\n"),
       citations: cites(
         debt?.sourceLabel,
+        ...debtSweep.map((s) => s.sourceLabel),
         ...radars.flatMap((r) => r.findings.map((f) => f.sourceLabel))
       ),
       intent,
@@ -676,6 +717,7 @@ export async function answerFromGraph(
     const body = talent?.body
       ? scrubNationalTalentBody(talent.body)
       : "No talent signal seeded.";
+    const stress = nationalSignals.filter((s) => s.kind === "labor_stress_test");
     return {
       content: [
         "**Talent / staffing greenlight**",
@@ -683,10 +725,28 @@ export async function answerFromGraph(
         body,
         "",
         "Implication: pair demand thesis with staffing + GC/MEP capacity before CapEx or refinance greenlight.",
+        ...(stress.length ? ["", ...stress.map(nationalSignalLine)] : []),
         "",
         footer(),
       ].join("\n"),
-      citations: cites(talent?.sourceLabel),
+      citations: cites(talent?.sourceLabel, ...stress.map((s) => s.sourceLabel)),
+      intent,
+      mode: "deterministic",
+    };
+  }
+
+  // National cited sweep signals (rates, CMBS, cap rates, US performance, group pace…)
+  const nationalHits = selectNationalSweep(q, nationalSignals);
+  if (nationalHits.length) {
+    return {
+      content: [
+        "**National hotel capital signals (cited)**",
+        "",
+        ...nationalHits.map(nationalSignalLine),
+        "",
+        footer(),
+      ].join("\n"),
+      citations: cites(...nationalHits.map((s) => s.sourceLabel)),
       intent,
       mode: "deterministic",
     };
