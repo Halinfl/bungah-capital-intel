@@ -54,8 +54,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-atlanta-2-build-talent",
     "marketSlug": "atlanta",
     "kind": "talent",
-    "title": "Atlanta talent: 2. Build talent (summary — detail in atlanta-build.md)",
-    "body": "Atlanta — 2. Build talent (summary — detail in atlanta-build.md). MSA construction jobs: 158,300 → 154,900 (−3,400, −2%) · Aug 2025 → Aug 2026 | Atlanta–Sandy Springs–Roswell division: 109,900 → 105,000 (−4,900, −4%; largest loss of 360) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Atlanta talent: 2. Build talent (summary)",
+    "body": "Atlanta — 2. Build talent (summary). MSA construction jobs: 158,300 → 154,900 (−3,400, −2%) · Aug 2025 → Aug 2026 | Atlanta–Sandy Springs–Roswell division: 109,900 → 105,000 (−4,900, −4%; largest loss of 360) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "3 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -128,7 +128,23 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "connectcre.com · atlanta.urbanize.city · stories.hilton.com (accessed 2026-10-11)",
-    "sourceUrls": null
+    "sourceUrls": [
+      {
+        "url": "https://www.connectcre.com/stories/trio-constructing-atlanta-hotel-apartments/",
+        "label": "The Pursuit at The Henry @ The Battery",
+        "secondary": false
+      },
+      {
+        "url": "https://atlanta.urbanize.city/post/waldos-project-old-fourth-ward-development-not-dead-despite-crane-removal-officials",
+        "label": "Motto by Hilton Old Fourth Ward",
+        "secondary": false
+      },
+      {
+        "url": "https://stories.hilton.com/releases/motto-by-hilton-announces-first-us-hotel-signing-in-atlantas-old-fourth-ward-neighborhood",
+        "label": "Motto by Hilton Old Fourth Ward",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-atlanta-5-gaps",
@@ -334,8 +350,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-boston-2-build-talent",
     "marketSlug": "boston",
     "kind": "talent",
-    "title": "Boston talent: 2. Build talent (summary — detail in boston-build.md)",
-    "body": "Boston — 2. Build talent (summary — detail in boston-build.md). Boston–Cambridge–Nashua NECTA construction (mining/logging/construction): 123,500 → 126,000 (+2,500, +2%) · Aug 2025 → Aug 2026 | Cambridge–Newton–Framingham division: 60,500 → 63,200 (+4%, rank 18/360) · same | Boston division: 52,100 → 52,100 (0%) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Boston talent: 2. Build talent (summary)",
+    "body": "Boston — 2. Build talent (summary). Boston–Cambridge–Nashua NECTA construction (mining/logging/construction): 123,500 → 126,000 (+2,500, +2%) · Aug 2025 → Aug 2026 | Cambridge–Newton–Framingham division: 60,500 → 63,200 (+4%, rank 18/360) · same | Boston division: 52,100 → 52,100 (0%) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -662,8 +678,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-chicago-2-build-talent",
     "marketSlug": "chicago",
     "kind": "talent",
-    "title": "Chicago talent: 2. Build talent (summary — detail in chicago-build.md)",
-    "body": "Chicago — 2. Build talent (summary — detail in chicago-build.md). Chicago–Naperville–Elgin construction: 193,900 → 199,700 (+5,800, +3%) · Aug 2025 → Aug 2026 | Chicago–Naperville–Schaumburg div.: +4% (rank 8 by % among divisions per AGC) · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Chicago talent: 2. Build talent (summary)",
+    "body": "Chicago — 2. Build talent (summary). Chicago–Naperville–Elgin construction: 193,900 → 199,700 (+5,800, +3%) · Aug 2025 → Aug 2026 | Chicago–Naperville–Schaumburg div.: +4% (rank 8 by % among divisions per AGC) · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -710,8 +726,14 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Chicago — 3.2 Pre-open / transition risk. Marriott Marquis operator transition (if incumbent not renewed): 1,205 · QMA ends 2027-09-20 · Key personnel subject to MPEA approval; no public read of award · Medium–high — convention HQ transition + renovation + Local 1 successor contract in same window | Ground-up openings 2026–28: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "govcb.com (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.govcb.com/government-bids/HOTEL-OPERATOR-23514963.htm",
+        "label": "Marriott Marquis operator transition",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-chicago-5-gaps",
@@ -959,8 +981,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-dallas-2-build-talent",
     "marketSlug": "dallas",
     "kind": "talent",
-    "title": "Dallas talent: 2. Build talent (summary — detail in dallas-build.md)",
-    "body": "Dallas — 2. Build talent (summary — detail in dallas-build.md). DFW–Arlington construction: 268,100 → 276,200 (+8,100, +3%) · Aug 2025 → Aug 2026 | Dallas–Plano–Irving div.: +2% · same | Fort Worth–Arlington–Grapevine div.: +5% · same | Americana by Loews GC: JE Dunn Construction (Dallas office) — confirmed by OSHA Fort Worth Area Office strategic partnership agreement #1458 covering the \"Loews American[a] Project in Arlington\"; JE Dunn project executive Jason Parker · agreement file dated 2026-04-07 (posted 2026-05). Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Dallas talent: 2. Build talent (summary)",
+    "body": "Dallas — 2. Build talent (summary). DFW–Arlington construction: 268,100 → 276,200 (+8,100, +3%) · Aug 2025 → Aug 2026 | Dallas–Plano–Irving div.: +2% · same | Fort Worth–Arlington–Grapevine div.: +5% · same | Americana by Loews GC: JE Dunn Construction (Dallas office) — confirmed by OSHA Fort Worth Area Office strategic partnership agreement #1458 covering the \"Loews American[a] Project in Arlington\"; JE Dunn project executive Jason Parker · agreement file dated 2026-04-07 (posted 2026-05). Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America · osha.gov (accessed 2026-10-11)",
@@ -1022,8 +1044,39 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Dallas — 3.2 Pre-open risk — named openings. The Knox (Auberge): 140 · ~Dec 2026 · Auberge; GM Rick Fidel named Nov 2025 · Low–med — GM ~13 mo ahead; dept heads no public read | Dallas EDITION @ Chalk Hill: 214 · End 2028 · Marriott (EDITION) · Leadership no public read — early | Americana by Loews (Arlington): 507 · Late 2028 / early 2029 · Loews · Leadership no public read; GC JE Dunn (OSHA partnership, Apr 2026) | Washburne 1,000-key: ≥2030 · No public read · Concept only. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "oftmw.com · auberge.com · wincwire.com · loewshotels.com · osha.gov · Bisnow (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.oftmw.com/projects/the-knox/",
+        "label": "The Knox (Auberge)",
+        "secondary": false
+      },
+      {
+        "url": "https://auberge.com/the-knox/press/",
+        "label": "The Knox (Auberge)",
+        "secondary": false
+      },
+      {
+        "url": "https://wincwire.com/edition-hotels-makes-texas-debut-with-214-key-hotel-and-branded-residences-at-uptown-dallas/",
+        "label": "Dallas EDITION @ Chalk Hill",
+        "secondary": false
+      },
+      {
+        "url": "https://www.loewshotels.com/press/news/dallas-morning-news-loews-details-americana-arlington-hotel",
+        "label": "Americana by Loews (Arlington)",
+        "secondary": false
+      },
+      {
+        "url": "https://www.osha.gov/sites/default/files/2026-05/1458-agreement-20260407.pdf",
+        "label": "Americana by Loews — GC (OSHA partnership)",
+        "secondary": false
+      },
+      {
+        "url": "https://www.bisnow.com/news/dallas-ft-worth/hospitality-entertainment/ray-washburne-wants-to-build-800m-hotel-near-dallas-convention-center-project-133583",
+        "label": "Washburne 1,000-key",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-dallas-5-gaps",
@@ -1276,8 +1329,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-honolulu-2-build-talent",
     "marketSlug": "honolulu",
     "kind": "talent",
-    "title": "Honolulu talent: 2. Build talent (summary — detail in honolulu-build.md)",
-    "body": "Honolulu — 2. Build talent (summary — detail in honolulu-build.md). Urban Honolulu construction: 29,300 → 29,500 (+1%) · Aug 2025 → Aug 2026. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Honolulu talent: 2. Build talent (summary)",
+    "body": "Honolulu — 2. Build talent (summary). Urban Honolulu construction: 29,300 → 29,500 (+1%) · Aug 2025 → Aug 2026. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "1 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -1532,8 +1585,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-houston-2-build-talent",
     "marketSlug": "houston",
     "kind": "talent",
-    "title": "Houston talent: 2. Build talent (summary — detail in houston-build.md)",
-    "body": "Houston — 2. Build talent (summary — detail in houston-build.md). MSA construction jobs: 254,900 → 269,000 (+14,100, +6%; #1 of 360 in absolute gain) · Aug 2025 → Aug 2026 | Driver: AGC: gains concentrated in data centers, power, factories nationally · 2026-09-30 | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03 | Hotel-specific Houston trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Houston talent: 2. Build talent (summary)",
+    "body": "Houston — 2. Build talent (summary). MSA construction jobs: 254,900 → 269,000 (+14,100, +6%; #1 of 360 in absolute gain) · Aug 2025 → Aug 2026 | Driver: AGC: gains concentrated in data centers, power, factories nationally · 2026-09-30 | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03 | Hotel-specific Houston trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -1595,8 +1648,19 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Houston — 3.2 Pre-open risk — named openings. HIE + Staybridge, 1319 Texas Ave: 275 · Opened Apr 2026 · No public read · Ramp risk only. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "1 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "Houston Chronicle · Hoodline (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.houstonchronicle.com/business/real-estate/article/downtown-hotel-staybridge-holiday-inn-express-open-22220406.php",
+        "label": "HIE + Staybridge, 1319 Texas Ave",
+        "secondary": false
+      },
+      {
+        "url": "https://hoodline.com/2026/04/new-downtown-hotel-muscles-into-minute-maid-park-s-backyard/",
+        "label": "HIE + Staybridge, 1319 Texas Ave",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-houston-5-gaps",
@@ -1889,8 +1953,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-los-angeles-2-build-talent",
     "marketSlug": "los-angeles",
     "kind": "talent",
-    "title": "Los Angeles talent: 2. Build talent (summary — detail in los-angeles-build.md)",
-    "body": "Los Angeles — 2. Build talent (summary — detail in los-angeles-build.md). LA–Long Beach–Anaheim construction: 254,500 → 252,600 (−1%) · Aug 2025 → Aug 2026 | LA–Long Beach–Glendale div.: −0.1% · same | Anaheim–Santa Ana–Irvine div.: −2% · same | Hotel development trend: AHLA (Apr 2026): LA hotel development slowed; layoffs reported (industry claim) · 2026-05-21. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Los Angeles talent: 2. Build talent (summary)",
+    "body": "Los Angeles — 2. Build talent (summary). LA–Long Beach–Anaheim construction: 254,500 → 252,600 (−1%) · Aug 2025 → Aug 2026 | LA–Long Beach–Glendale div.: −0.1% · same | Anaheim–Santa Ana–Irvine div.: −2% · same | Hotel development trend: AHLA (Apr 2026): LA hotel development slowed; layoffs reported (industry claim) · 2026-05-21. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America · Hotel Dive (accessed 2026-10-11)",
@@ -2190,8 +2254,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-miami-2-build-talent",
     "marketSlug": "miami",
     "kind": "talent",
-    "title": "Miami talent: 2. Build talent (summary — detail in miami-build.md)",
-    "body": "Miami — 2. Build talent (summary — detail in miami-build.md). Miami–Ft Laud–WPB construction: 160,200 → 159,700 (−0.3%) · Aug 2025 → Aug 2026 | Miami–Miami Beach–Kendall div.: −1% · same | Fort Lauderdale div.: +1% · same | West Palm Beach div.: −2% · same | Grand Hyatt Miami Beach GC: Balfour Beatty; architect Arquitectonica (Bernardo Fort-Brescia) · 2026-07-27. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Miami talent: 2. Build talent (summary)",
+    "body": "Miami — 2. Build talent (summary). Miami–Ft Laud–WPB construction: 160,200 → 159,700 (−0.3%) · Aug 2025 → Aug 2026 | Miami–Miami Beach–Kendall div.: −1% · same | Fort Lauderdale div.: +1% · same | West Palm Beach div.: −2% · same | Grand Hyatt Miami Beach GC: Balfour Beatty; architect Arquitectonica (Bernardo Fort-Brescia) · 2026-07-27. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "5 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America · Miami Beach Convention Center (accessed 2026-10-11)",
@@ -2243,8 +2307,19 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Miami — 3.2 Pre-open risk — named openings. Grand Hyatt Miami Beach (MBCC HQ, 1701 Convention Center Dr): 800 (50–52 suites) · Late 2027 per MBCC release (2026-07-27); Nov 2027 per GMCVB listing · Hyatt brand; developers Terra + Turnberry; management agreement holder, GM and pre-open team: no public read · No public read (no job count published) · High — 800 keys + 110,000 sf meeting space + skybridge group ops; ~13 mo to open with no named GM; Miami Beach line labor shared with Fontainebleau/Eden Roc/Cadillac (Cadillac under reno same window); MBCC F&B newly unionized next door | The Sunny Miami Sunny Isles Beach (Curio): no public read · later 2026 · Davidson · no public read · Medium. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "Miami Beach Convention Center · Greater Miami CVB (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.miamibeachconvention.com/center-info/press/grand-hyatt-miami-beach-topping-off",
+        "label": "Grand Hyatt Miami Beach",
+        "secondary": false
+      },
+      {
+        "url": "https://www.miamiandbeaches.com/l/hotels/grand-hyatt-miami-beach/59878",
+        "label": "Grand Hyatt Miami Beach — GMCVB listing",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-miami-5-gaps",
@@ -2479,8 +2554,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-nashville-2-build-talent",
     "marketSlug": "nashville",
     "kind": "talent",
-    "title": "Nashville talent: 2. Build talent (summary — detail in nashville-build.md)",
-    "body": "Nashville — 2. Build talent (summary — detail in nashville-build.md). Nashville MSA construction: 67,400 → 65,600 (−1,800, −3%; rank 350/360) · Aug 2025 → Aug 2026 | Hotel GC example: Crain Construction (Nashville) — Hilton at BNA (292 keys; 2022 release) · 2022-07-25 | SongTeller project manager: AOA (design/production/PM, with Herschend) · 2026-10-06. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Nashville talent: 2. Build talent (summary)",
+    "body": "Nashville — 2. Build talent (summary). Nashville MSA construction: 67,400 → 65,600 (−1,800, −3%; rank 350/360) · Aug 2025 → Aug 2026 | Hotel GC example: Crain Construction (Nashville) — Hilton at BNA (292 keys; 2022 release) · 2022-07-25 | SongTeller project manager: AOA (design/production/PM, with Herschend) · 2026-10-06. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "3 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America · chartwellhospitality.com · dollyparton.com (accessed 2026-10-11)",
@@ -2542,8 +2617,19 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Nashville — 3.2 Pre-open risk — named openings. Pendry Nashville: 180 · 2028 per pendry.com (earlier pipeline read: spring 2027) · Pendry/Montage; GM no public read · Schedule slip → flag for pipeline update | Moxy Capitol / Nashville Bonvoy-branded 144: 185 / 144 · 2027 · No public read of operator · Medium. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "pendry.com · ctycms.com (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.pendry.com/nashville/",
+        "label": "Pendry Nashville",
+        "secondary": false
+      },
+      {
+        "url": "https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf",
+        "label": "Moxy Capitol / Nashville",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-nashville-5-gaps",
@@ -2779,8 +2865,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-new-york-city-2-build-talent",
     "marketSlug": "new-york-city",
     "kind": "talent",
-    "title": "New York City talent: 2. Build talent (summary — detail in new-york-city-build.md)",
-    "body": "New York City — 2. Build talent (summary — detail in new-york-city-build.md). NY–Newark–Jersey City construction: 390,100 → 383,700 (−6,400, −2%) · Aug 2025 → Aug 2026 | New York City div.: 138,000 → 139,500 (+1%) · same | Jersey City–White Plains div.: −4,300 (−6%) · same | Newark div.: +3% · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "New York City talent: 2. Build talent (summary)",
+    "body": "New York City — 2. Build talent (summary). NY–Newark–Jersey City construction: 390,100 → 383,700 (−6,400, −2%) · Aug 2025 → Aug 2026 | New York City div.: 138,000 → 139,500 (+1%) · same | Jersey City–White Plains div.: −4,300 (−6%) · same | Newark div.: +3% · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -3018,8 +3104,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-phoenix-2-build-talent",
     "marketSlug": "phoenix",
     "kind": "talent",
-    "title": "Phoenix talent: 2. Build talent (summary — detail in phoenix-build.md)",
-    "body": "Phoenix — 2. Build talent (summary — detail in phoenix-build.md). MSA construction jobs: 178,800 → 185,600 (+6,800, +4%; rank 5/360 by gain) · Aug 2025 → Aug 2026 | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Phoenix talent: 2. Build talent (summary)",
+    "body": "Phoenix — 2. Build talent (summary). MSA construction jobs: 178,800 → 185,600 (+6,800, +4%; rank 5/360 by gain) · Aug 2025 → Aug 2026 | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -3086,8 +3172,19 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Phoenix — 3.2 Pre-open risk — named openings. Hyatt Studios Phoenix (TSMC-oriented): 114 · Q2 2027 · No public read · Low: lean ES model | Hyatt Place @ Arizona Boardwalk: 142 · late 2027 · No public read · Low. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "2 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "caliberco.com · stayinthenew.com (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.caliberco.com/assets/hyatt-studios-tsmc-fundco-llc/",
+        "label": "Hyatt Studios Phoenix (TSMC-oriented)",
+        "secondary": false
+      },
+      {
+        "url": "https://www.stayinthenew.com/new-hotels-scottsdale",
+        "label": "Hyatt Place @ Arizona Boardwalk",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-phoenix-5-gaps",
@@ -3330,8 +3427,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-san-diego-2-build-talent",
     "marketSlug": "san-diego",
     "kind": "talent",
-    "title": "San Diego talent: 2. Build talent (summary — detail in san-diego-build.md)",
-    "body": "San Diego — 2. Build talent (summary — detail in san-diego-build.md). MSA construction jobs: 89,800 → 86,600 (−3,200, −4%; rank 354/360) · Aug 2025 → Aug 2026 | National craft difficulty: 88% as hard/harder to fill; electricians 81% · AGC/NCCER rel. 2026-09-03 | SD hotel-specific trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "San Diego talent: 2. Build talent (summary)",
+    "body": "San Diego — 2. Build talent (summary). MSA construction jobs: 89,800 → 86,600 (−3,200, −4%; rank 354/360) · Aug 2025 → Aug 2026 | National craft difficulty: 88% as hard/harder to fill; electricians 81% · AGC/NCCER rel. 2026-09-03 | SD hotel-specific trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "3 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -3399,7 +3496,28 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "magnitude": "6 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "San Diego Tourism Authority · buildsd.org · City of San Diego (accessed 2026-10-11)",
-    "sourceUrls": null
+    "sourceUrls": [
+      {
+        "url": "https://www.sandiego.org/members/le-meridien-pinnacle-san-diego/7952",
+        "label": "Le Méridien San Diego Pinnacle / Downtown",
+        "secondary": false
+      },
+      {
+        "url": "https://buildsd.org/projects/columbia-a",
+        "label": "Le Méridien San Diego — BuildSD",
+        "secondary": false
+      },
+      {
+        "url": "https://www.sandiego.gov/sites/default/files/2026-06/hmwo-faqs.pdf",
+        "label": "City of San Diego HMWO FAQ",
+        "secondary": false
+      },
+      {
+        "url": "https://www.sandiego.gov/sites/default/files/2026-06/july-2026_final.pdf",
+        "label": "Tru + Home2 Suites, 5th & Ash",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-san-diego-5-gaps",
@@ -3677,8 +3795,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-san-francisco-bay-2-build-talent",
     "marketSlug": "san-francisco-bay",
     "kind": "talent",
-    "title": "SF Bay Area talent: 2. Build talent (summary — detail in san-francisco-bay-build.md)",
-    "body": "SF Bay Area — 2. Build talent (summary — detail in san-francisco-bay-build.md). SF–Oakland–Fremont construction: 119,000 → 116,000 (−3,000, −3%) · Aug 2025 → Aug 2026 | Oakland–Fremont–Berkeley div.: 72,800 → 68,800 (−4,000, −5%; rank 357/360) · same | SF–San Mateo–Redwood City div.: 38,600 → 39,700 (+3%) · same | San Jose–Sunnyvale–Santa Clara: 54,100 → 58,300 (+4,200, +8%) · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "SF Bay Area talent: 2. Build talent (summary)",
+    "body": "SF Bay Area — 2. Build talent (summary). SF–Oakland–Fremont construction: 119,000 → 116,000 (−3,000, −3%) · Aug 2025 → Aug 2026 | Oakland–Fremont–Berkeley div.: 72,800 → 68,800 (−4,000, −5%; rank 357/360) · same | SF–San Mateo–Redwood City div.: 38,600 → 39,700 (+3%) · same | San Jose–Sunnyvale–Santa Clara: 54,100 → 58,300 (+4,200, +8%) · same. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -4013,8 +4131,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-seattle-2-build-talent",
     "marketSlug": "seattle",
     "kind": "talent",
-    "title": "Seattle talent: 2. Build talent (summary — detail in seattle-build.md)",
-    "body": "Seattle — 2. Build talent (summary — detail in seattle-build.md). MSA construction: 124,300 → 124,000 (−300, −0.2%) · Aug 2025 → Aug 2026 | Seattle–Bellevue–Kent division: 71,900 → 70,900 (−1%) · same | Tacoma–Lakewood division: 26,100 → 26,900 (+3%) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Seattle talent: 2. Build talent (summary)",
+    "body": "Seattle — 2. Build talent (summary). MSA construction: 124,300 → 124,000 (−300, −0.2%) · Aug 2025 → Aug 2026 | Seattle–Bellevue–Kent division: 71,900 → 70,900 (−1%) · same | Tacoma–Lakewood division: 26,100 → 26,900 (+3%) · same | National craft difficulty: 88% as hard/harder; electricians 81% · 2026-09-03. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -4330,8 +4448,8 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "id": "w1t-washington-dc-2-build-talent",
     "marketSlug": "washington-dc",
     "kind": "talent",
-    "title": "Washington DC talent: 2. Build talent (summary — detail in washington-dc-build.md)",
-    "body": "Washington DC — 2. Build talent (summary — detail in washington-dc-build.md). MSA construction jobs (mining/logging/construction, NSA): 175,400 → 172,300 (−3,100, −2%) · Aug 2025 → Aug 2026 | Arlington–Alexandria–Reston division: 95,600 → 92,800 (−3%, rank 353/360) · same | Frederick–Gaithersburg–Bethesda division: 32,300 → 31,800 (−2%) · same | National craft difficulty: 88% of firms with craft openings: as hard/harder to fill; electricians hardest (81%) · AGC/NCCER survey Jul–Aug 2026, rel. 2026-09-03 | DC-specific hotel trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
+    "title": "Washington DC talent: 2. Build talent (summary)",
+    "body": "Washington DC — 2. Build talent (summary). MSA construction jobs (mining/logging/construction, NSA): 175,400 → 172,300 (−3,100, −2%) · Aug 2025 → Aug 2026 | Arlington–Alexandria–Reston division: 95,600 → 92,800 (−3%, rank 353/360) · same | Frederick–Gaithersburg–Bethesda division: 32,300 → 31,800 (−2%) · same | National craft difficulty: 88% of firms with craft openings: as hard/harder to fill; electricians hardest (81%) · AGC/NCCER survey Jul–Aug 2026, rel. 2026-09-03 | DC-specific hotel trade shortage: No public read. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "5 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "AGC of America (accessed 2026-10-11)",
@@ -4408,8 +4526,19 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     "body": "Washington DC — 3.2 Pre-open risk — named openings. The Hoya Hotel at Georgetown: 146 · Opening Aug 2026 · Crestline · Low–med: campus hotel, operator with 4 prior university hotels; opening status post-Aug no public read | WaterWalk by Wyndham Navy Yard: 100 · Late 2026 · No public read · Extended-stay, lean staffing model; operator unnamed | MOB Hotel; Aloft Washington: Mid-2028 · No public read · Too early for named leadership | Redbrick Bridge District hotel (Anacostia): 160 · Construction target 2027 · No public read · Ground-up east of river: in-MSA hiring possible, but GM/DOS unnamed. Decision support. Labor underwritten at the new floors with no staff cuts (human touch first).",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)",
-    "sourceUrls": null
+    "sourceLabel": "GlobeNewswire · hotelmanagement-network.com (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.globenewswire.com/news-release/2025/11/18/3189784/19716/en/Crestline-to-Manage-the-Hoya-Hotel-at-Georgetown.html",
+        "label": "The Hoya Hotel at Georgetown",
+        "secondary": false
+      },
+      {
+        "url": "https://www.hotelmanagement-network.com/news/the-hoya-hotel-at-georgetown-open-in-august/",
+        "label": "The Hoya Hotel at Georgetown",
+        "secondary": false
+      }
+    ]
   },
   {
     "id": "w1t-washington-dc-5-gaps",

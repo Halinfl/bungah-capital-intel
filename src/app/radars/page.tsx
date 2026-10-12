@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { SourceChip } from "@/components/SourceChip";
 import { SignalCard } from "@/components/SignalCard";
+import { SourceNote } from "@/components/SourceNote";
 import { URL_RE, isOriginalUrl } from "@/lib/source-links";
 import { scrubInternal } from "@/lib/public-text";
 import { severityClass } from "@/lib/format";
@@ -63,7 +64,7 @@ export default async function RadarsPage() {
                   >
                     <p className="mt-1 text-sm opacity-90">{scrubInternal(f.summary)}</p>
                     <div className="mt-2">
-                      <SourceChip label={f.sourceLabel} />
+                      {u && isOriginalUrl(u) ? <SourceChip label={f.sourceLabel} /> : <SourceNote label={f.sourceLabel} />}
                     </div>
                   </SignalCard>
                 );

@@ -75,7 +75,9 @@ const RULES: [RegExp, string][] = [
   [/\*\*(Atlas|Ledger|Herald|Vectra) (?:handoff|action):\*\*/g, "**\uE000$1 note:**"],
   [/\b(?:Vectra) \(demand\)/g, "demand"],
   [/\*\*Handoff:\*\*/g, "**Lane:**"],
-  // Internal workspace paths
+  // Internal workspace paths / library file references
+  [/ \(summary — detail in [\w-]+\.md\)/g, " (summary)"],
+  [/\b(?:notes|markets|pipeline|demand|capital|deepen|people|product|orgs|stacks)\/[\w./-]+\.md\s*/g, ""],
   [/`?(?:\/workspace\/)?neo-capital-intel\/?([\w./-]*)`?/gi, "$1"],
   // Generic fallbacks
   [/\bdepth-w1-?/gi, ""],

@@ -6,6 +6,7 @@ import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
 import { parseSourceUrls, URL_RE, isOriginalUrl } from "@/lib/source-links";
 import { SignalCard } from "@/components/SignalCard";
+import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
 import {
   fmtPct,
@@ -182,10 +183,10 @@ export default async function MarketDetailPage({
                   <div className="mt-2">
                     {links.length ? (
                       <SourceLinks links={links} limit={3} />
-                    ) : npr ? (
-                      <SourceLinks links={[]} noPublicRead />
-                    ) : (
+                    ) : primary ? (
                       <SourceChip label={s.sourceLabel} />
+                    ) : (
+                      <SourceNote label={s.sourceLabel} noPublicRead={npr} />
                     )}
                   </div>
                 </SignalCard>
@@ -252,7 +253,7 @@ export default async function MarketDetailPage({
                 >
                   <p className="mt-1 line-clamp-2 text-sm opacity-90">{briefLine(f.title, f.summary, 180)}</p>
                   <div className="mt-2">
-                    <SourceChip label={f.sourceLabel} />
+                    {u && isOriginalUrl(u) ? <SourceChip label={f.sourceLabel} /> : <SourceNote label={f.sourceLabel} />}
                   </div>
                 </SignalCard>
               );

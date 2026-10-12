@@ -6,6 +6,7 @@
  * - Upserts by stable id: Vectra demand (w1d/w1x/w1-), Herald talent (w1t), Atlas supply/pipeline (w1s/w1p),
  *   Ledger capital (w1c), incl. `sourceUrls`. Safe to re-run; never wipes (unlike prisma/seed.ts).
  * - Backfills `sourceUrls` on already-loaded cited rows by fixed id (no other column touched).
+ * - Applies verified links (SOURCE_URLS_VERIFIED_2026_10_11) to previously unlinked cited rows.
  * - Deletes only the explicitly retired Atlas summary rows superseded by full-file rows (RETIRED_2026_10_11).
  * - Illustrative seed rows are never touched.
  */
@@ -14,6 +15,7 @@ import { DEMAND_W1_2026_10_11 } from "./demand-w1-2026-10-11.data";
 import { DEPTH_W1_TSP_2026_10_11 } from "./depth-w1-tsp-2026-10-11.data";
 import { CAPITAL_W1_2026_10_11 } from "./capital-w1-2026-10-11.data";
 import { SOURCE_URLS_BACKFILL_2026_10_11 } from "./source-urls-backfill-2026-10-11.data";
+import { SOURCE_URLS_VERIFIED_2026_10_11 } from "./source-urls-verified-2026-10-11.data";
 import { RETIRED_2026_10_11 } from "./retired-2026-10-11.data";
 import { WORLD_CUP_ATLAS_2026_10_11 } from "./world-cup-atlas-2026-10-11.data";
 
@@ -53,8 +55,16 @@ async function main() {
     });
     backfilled += r.count;
   }
+  // Verified links for previously unlinked cited rows: fixed id first, exact title as fallback (baseline rows).
+  let verified = 0;
+  for (const v of SOURCE_URLS_VERIFIED_2026_10_11) {
+    const notSeed = { NOT: { sourceLabel: { contains: "illustrative", mode: "insensitive" as const } } };
+    let r = await prisma.signal.updateMany({ where: { id: v.id, ...notSeed }, data: { sourceUrls: v.sourceUrls as Prisma.InputJsonValue } });
+    if (!r.count) r = await prisma.signal.updateMany({ where: { title: v.title, ...notSeed }, data: { sourceUrls: v.sourceUrls as Prisma.InputJsonValue } });
+    verified += r.count;
+  }
   const del = await prisma.signal.deleteMany({ where: { id: { in: Object.keys(RETIRED_2026_10_11) } } });
-  console.log(`Upserted ${rows.length}; backfilled sourceUrls on ${backfilled}; retired ${del.count}.`);
+  console.log(`Upserted ${rows.length}; backfilled sourceUrls on ${backfilled}; verified links on ${verified}; retired ${del.count}.`);
 }
 
 main()

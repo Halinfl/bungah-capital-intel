@@ -159,7 +159,7 @@ export const SWEEP_2026_10_11: SweepSignal[] = [
     "body": "Arlo Wynwood: $44.3M (~$204K per key) with a $43M BMO loan. No cap rate disclosed.",
     "magnitude": "$44.3M / $204K per key",
     "asOf": "2026-10-11 sweep",
-    "sourceLabel": "No linked public source (reviewed 2026-10-11)"
+    "sourceLabel": "Commercial Observer (2026-09-29)"
   },
   {
     "id": "sweep-20261011-chi-unite-here-strike",

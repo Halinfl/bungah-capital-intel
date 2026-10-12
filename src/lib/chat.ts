@@ -198,12 +198,29 @@ function signalLine(s: SignalRow): string {
  * Seed-snapshot market: answer only from cited rows, plus one plain coverage line.
  * Summary, OCC/ADR/visitors and nuance on these markets are placeholders and are never shown.
  */
+/** Talent answers lead with wage floors / ordinances / contract terms; gap tables go last. */
+function talentRank(s: SignalRow): number {
+  const t = `${s.title} ${s.body}`;
+  if (/gaps?\b.*no public read|\bgaps\b/i.test(s.title)) return 9;
+  if (/wage floor|ordinance|\bOrd\.|minimum wage|contract|UNITE HERE|Local \d+/i.test(s.title)) return 0;
+  if (/\bOrd\. \d|\$\d+(\.\d+)?\/hr|Local \d+ .*\$/i.test(t)) return 1;
+  if (/operator bench|build talent|OEWS/i.test(s.title)) return 3;
+  return 2;
+}
+export function orderTalent<T extends SignalRow>(list: T[]): T[] {
+  return list
+    .map((s, i) => ({ s, i, r: talentRank(s) }))
+    .sort((a, b) => a.r - b.r || a.i - b.i)
+    .map((x) => x.s);
+}
+
 function citedOnlyMemo(
   market: MarketRow,
   heading: string,
   focus?: (s: SignalRow) => boolean
 ): string[] {
-  const focused = focus ? market.signals.filter(focus) : [];
+  const focusedRaw = focus ? market.signals.filter(focus) : [];
+  const focused = heading.includes("talent / staffing greenlight") ? orderTalent(focusedRaw) : focusedRaw;
   const list = focused.length ? focused : market.signals;
   return [
     heading,
@@ -354,7 +371,7 @@ export function formatMarketMemo(
       break;
     }
     case "talent_greenlight": {
-      const talent = market.signals.filter(talentFilter);
+      const talent = orderTalent(market.signals.filter(talentFilter));
       body = [
         `**${market.name} — talent / staffing greenlight**`,
         "",
