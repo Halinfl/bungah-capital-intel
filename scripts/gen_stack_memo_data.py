@@ -502,9 +502,13 @@ def operations(slug):
                 ops.append(x)
     s31 = section(txt, r"^3\.1", 3)
     change = None
+    change_inline = []
     bl = [b for b in s31.split("\n") if b.strip().startswith("-")]
     if bl:
-        change = clean(bl[0].lstrip("- "))
+        raw31 = bl[0].lstrip("- ")
+        change_inline = [u for u in urls_in(raw31) if u not in DEAD and "/_src/" not in u]
+        # inline source links move to the link list; keep the line's own text unchanged
+        change = clean(re.sub(r";?\s*\[[^\]]*\]\((https?://[^)]+)\)", "", raw31))
         if not check_team(change, f"{slug} 3.1"):
             change = None
     change_links = []
@@ -515,6 +519,8 @@ def operations(slug):
         for r in ops:
             if ptoks and any(re.search(r"\b" + re.escape(t) + r"\b", r["t"]) for t in ptoks):
                 change_links += [u for u in r["u"][:1] if u not in change_links]
+    if change:
+        change_links += [u for u in change_inline if u not in change_links]
     pre = []
     s32 = section(txt, r"^3\.2", 3)
     s32_src = urls_in("\n".join(l for l in s32.split("\n") if l.startswith("Sources:")))

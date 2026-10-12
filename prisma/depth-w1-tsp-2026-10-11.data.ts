@@ -2305,6 +2305,28 @@ export const DEPTH_W1_TSP_2026_10_11: LinkedSignal[] = [
     ]
   },
   {
+    "id": "w1t-miami-3-1-management-changes",
+    "marketSlug": "miami",
+    "kind": "talent",
+    "title": "Miami talent: 3.1 Notable recent management changes",
+    "body": "Miami — 3.1 Notable recent management changes. Balfour Miami Beach → Evolution (Jan 2026); Cadillac → Davidson (May 2026). Decision support.",
+    "magnitude": "2 changes",
+    "asOf": "2026-10-11",
+    "sourceLabel": "aimbridgehospitality.com · PR Newswire (accessed 2026-10-11)",
+    "sourceUrls": [
+      {
+        "url": "https://www.aimbridgehospitality.com/news/evolution-hospitality-selected-to-manage-balfour-miami-beach/",
+        "label": "Balfour Miami Beach → Evolution — aimbridgehospitality.com",
+        "secondary": false
+      },
+      {
+        "url": "https://www.prnewswire.com/news-releases/davidson-hospitality-group-tapped-to-manage-cadillac-hotel--beach-club-autograph-collection-302761099.html",
+        "label": "Cadillac → Davidson — PR Newswire",
+        "secondary": false
+      }
+    ]
+  },
+  {
     "id": "w1t-miami-3-2-pre-open-risk-named-openings",
     "marketSlug": "miami",
     "kind": "talent",
