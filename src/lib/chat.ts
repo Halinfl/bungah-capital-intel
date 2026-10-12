@@ -135,6 +135,9 @@ const NATIONAL_KIND_TRIGGERS: Record<string, RegExp> = {
   capital_markets: /\brevolver\b|\bliquidity\b/,
   supply_economics: /\bbuild(ing)? costs?\b|\bconstruction costs?\b|\bnew[- ]build\b|\bhyatt place\b/,
   labor_stress_test: /\baihg\b|\bsloan\b|\bai[- ]native\b|\bjobs\b/,
+  world_cup: /\bworld cup\b|\bfifa\b/,
+  budget_baseline: /\bbudget|\bbaseline\b|\b2027\b/,
+  labor_rule: /\bfte\b|\bheadcount\b|\bsoft june\b|\blayoffs?\b/,
 };
 
 function isSweepNational(s: NationalSignal): boolean {
@@ -179,6 +182,41 @@ function metricTable(market: MarketRow): string[] {
   return rows;
 }
 
+type SignalRow = MarketRow["signals"][number];
+
+/** One signal bullet; illustrative seed rows are tagged so they never read as cited. */
+function signalLine(s: SignalRow): string {
+  const tag = isIllustrativeSource(s.sourceLabel) ? "_(illustrative seed — not cited)_ " : "";
+  return `- ${tag}**${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`;
+}
+
+/** Cited (non-illustrative) rows first; keeps newest-first order within each group. */
+function citedFirst<T extends { sourceLabel: string | null }>(list: T[]): T[] {
+  return [...list].sort(
+    (a, b) => Number(isIllustrativeSource(a.sourceLabel)) - Number(isIllustrativeSource(b.sourceLabel))
+  );
+}
+
+/** Illustrative market snapshot with cited signals available → cited rows lead, seed block demoted. */
+function leadsWithCited(market: MarketRow): boolean {
+  return (
+    isIllustrativeSource(market.sourceLabel) &&
+    market.signals.some((s) => !isIllustrativeSource(s.sourceLabel))
+  );
+}
+
+function demotedSeedBlock(market: MarketRow): string[] {
+  return [
+    "",
+    "_Seed placeholder (illustrative, demoted — the cited signals above lead; do not underwrite these numbers):_",
+    market.summary,
+    "",
+    ...metricTable(market),
+    "",
+    market.nuanceNote ?? "",
+  ];
+}
+
 function signalLines(
   market: MarketRow,
   filter?: (s: MarketRow["signals"][number]) => boolean
@@ -192,10 +230,7 @@ function signalLines(
   }
   return [
     "Key signals:",
-    ...list.map(
-      (s) =>
-        `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`
-    ),
+    ...list.map(signalLine),
   ];
 }
 
@@ -219,7 +254,11 @@ function dataNote(market: MarketRow): string[] {
       `_CVB / source map:_ **${reg.cvb_name}** · quality **${reg.source_quality}** · lodging **${reg.lodging_report_kind}** · [research](${reg.cvb_research_url})${reg.lodging_report_url ? ` · [lodging report](${reg.lodging_report_url})` : ""} (registry verified ${reg.last_verified_at}).`
     );
   }
-  if (isIllustrativeSource(market.sourceLabel)) {
+  if (leadsWithCited(market)) {
+    lines.push(
+      `_Thin / illustrative seed:_ the market snapshot (summary, OCC/ADR/visitors, seed assets) is labeled **${market.sourceLabel}** — placeholders only. The cited, dated signals lead this answer; rows tagged "illustrative seed" are not cited.`
+    );
+  } else if (isIllustrativeSource(market.sourceLabel)) {
     lines.push(
       `_Thin / illustrative seed:_ source labeled **${market.sourceLabel}**. Numbers are graph placeholders for IC-memo drafting — do not treat as licensed STR/Tourism Economics. Ask for richer seed or licensed feeds before underwriting.`
     );
@@ -268,10 +307,7 @@ export function formatMarketMemo(
         "",
         supply.length > 0
           ? supply
-              .map(
-                (s) =>
-                  `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`
-              )
+              .map(signalLine)
               .join("\n")
           : "_No dedicated supply signal seeded — watch rooms stock and pipeline narratives below._",
         "",
@@ -296,10 +332,7 @@ export function formatMarketMemo(
         "",
         talent.length > 0
           ? talent
-              .map(
-                (s) =>
-                  `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`
-              )
+              .map(signalLine)
               .join("\n")
           : "_No market talent signal seeded — apply national human-touch greenlight gate before CapEx / refinance._",
         "",
@@ -317,6 +350,19 @@ export function formatMarketMemo(
       break;
     }
     case "revpar_metrics": {
+      if (leadsWithCited(market)) {
+        body = [
+          `**${market.name} — OCC / ADR / RevPAR**`,
+          "",
+          ...signalLines(market),
+          ...demotedSeedBlock(market),
+          ...assetLines(market),
+          ...dataNote(market),
+          "",
+          footer(),
+        ];
+        break;
+      }
       body = [
         `**${market.name} — OCC / ADR / RevPAR**`,
         "",
@@ -335,6 +381,19 @@ export function formatMarketMemo(
       break;
     }
     case "which_submarket": {
+      if (leadsWithCited(market)) {
+        body = [
+          `**${market.name} — which submarket / nuance**`,
+          "",
+          ...signalLines(market),
+          ...demotedSeedBlock(market),
+          ...assetLines(market),
+          ...dataNote(market),
+          "",
+          footer(),
+        ];
+        break;
+      }
       body = [
         `**${market.name} — which submarket / nuance**`,
         "",
@@ -362,10 +421,7 @@ export function formatMarketMemo(
         "",
         demand.length > 0
           ? demand
-              .map(
-                (s) =>
-                  `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`
-              )
+              .map(signalLine)
               .join("\n")
           : "_No dedicated demand signal — see summary and metrics._",
         "",
@@ -382,6 +438,21 @@ export function formatMarketMemo(
       break;
     }
     case "debt_overlay": {
+      if (leadsWithCited(market)) {
+        body = [
+          `**${market.name} — debt / refinance overlay**`,
+          "",
+          "Pair this market snapshot with the national lodging debt-wall / DY stress signal before CapEx or refinance greenlight.",
+          "",
+          ...signalLines(market),
+          ...demotedSeedBlock(market),
+          ...assetLines(market),
+          ...dataNote(market),
+          "",
+          footer(),
+        ];
+        break;
+      }
       body = [
         `**${market.name} — debt / refinance overlay**`,
         "",
@@ -403,6 +474,19 @@ export function formatMarketMemo(
     }
     default: {
       // general_thesis, compare_markets (single market), unknown
+      if (leadsWithCited(market)) {
+        body = [
+          `**${market.name}**`,
+          "",
+          ...signalLines(market),
+          ...demotedSeedBlock(market),
+          ...assetLines(market),
+          ...dataNote(market),
+          "",
+          footer(),
+        ];
+        break;
+      }
       body = [
         `**${market.name}**`,
         "",
@@ -424,8 +508,9 @@ export function formatMarketMemo(
   return {
     content: dedupeBlank(body),
     citations: cites(
-      market.sourceLabel,
+      // Cited signal sources lead; the (possibly illustrative) market label follows.
       ...market.signals.map((s) => s.sourceLabel),
+      market.sourceLabel,
       ...market.assets.map((a) => a.sourceLabel)
     ),
     intent,
@@ -469,6 +554,8 @@ export async function retrieveGraphContext(
     include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
     orderBy: { name: "asc" },
   });
+  // Cited rows lead; illustrative seed rows are demoted (kept, never deleted).
+  for (const m of markets) m.signals = citedFirst(m.signals);
   const nationalSignals = await prisma.signal.findMany({
     where: { marketId: null },
     orderBy: { createdAt: "desc" },
@@ -717,7 +804,9 @@ export async function answerFromGraph(
     const body = talent?.body
       ? scrubNationalTalentBody(talent.body)
       : "No talent signal seeded.";
-    const stress = nationalSignals.filter((s) => s.kind === "labor_stress_test");
+    const stress = nationalSignals.filter(
+      (s) => s.kind === "labor_stress_test" || s.kind === "labor_rule"
+    );
     return {
       content: [
         "**Talent / staffing greenlight**",
