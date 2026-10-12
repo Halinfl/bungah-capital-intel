@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { citedOnly, citedFindings, coverageInProgressLine, isSeedMarket } from "./format";
 import { splitTaxSeries } from "./tax-series";
+import { buildStackMemo, STACK_MEMO_KIND, type MemoPurpose } from "./stack-memo";
 
 export async function generateIcOnePager(marketSlug: string) {
   const market = await loadMarket(marketSlug);
@@ -47,105 +48,31 @@ export async function generateIcOnePager(marketSlug: string) {
   });
 }
 
-/** Sound Asset Lodging stack memo — hotel-native pillars, deterministic, no LLM. */
-export async function generateStackMemo(marketSlug: string) {
+/** Sound Asset Lodging Stack memo — checked Tier 1 market data, deterministic, no LLM. */
+export async function generateStackMemo(marketSlug: string, purpose: MemoPurpose = "acquisition") {
   const market = await loadMarket(marketSlug);
-  const occ = market.occupancy?.toFixed(1) ?? "—";
-  const adr = market.adr != null ? `$${market.adr.toFixed(2)}` : "—";
-  const rooms = market.roomsK != null ? `${market.roomsK.toFixed(1)}k` : "—";
-
-  const markdown = [
-    `# Sound Asset Lodging — Stack memo · ${market.name}`,
-    ``,
-    `**Product:** Bungah Capital Intel · Sound Asset Lodging (decision support · educational)`,
-    `**Source spine:** ${spine(market)}`,
-    `**Disclaimer:** Not financial, tax, legal, lending, or real-estate advice. Decision support only.`,
-    ``,
-    `## Market thesis (one line)`,
-    ``,
-    thesis(market),
-    ``,
-    `## Fifth return driver`,
-    ``,
-    `Balance-sheet appreciation via strategic BTC — compounding **independent of RevPAR**, local values, and refi conditions. Signature KPIs (decision support): **Bitcoin per key**; **months of debt service / PIP runway covered by strategic BTC**. Never starve PIP or debt service.`,
-    ``,
-    ...headlineNumbers(market),
-    `## Hotel underwriting lens`,
-    ``,
-    (market.seed ? null : market.nuanceNote) ??
-      "_Stress RevPAR, fee stack, and product class — not MSA headline alone._",
-    ``,
-    `## Three pillars (hotel-native)`,
-    ``,
-    `### 01 · Treasury`,
-    ``,
-    `- Free cash flow **after** franchise / management fees is the allocation base — not gross rooms revenue.`,
-    `- Segment by horizon: short USD ops cash · intermediate liquid reserves (e.g. T-bills / digital credit as *category education*) · long strategic spot BTC for purchasing-power reserve.`,
-    `- Size DCA to **seasonality + group-book risk**, not smooth NNN rent. Stress **RevPAR −x% for N months** before sizing Tranche 3.`,
-    market.seed
-      ? null
-      : `- Market snapshot: OCC ${occ} · ADR ${adr} · rooms ${rooms} (_${market.sourceLabel}_).`,
-    ``,
-    `### 02 · Capital stack`,
-    ``,
-    `- Map **debt-wall / maturity** clocks per asset; ask months of debt service a strategic BTC reserve could cover (decision-support KPI).`,
-    `- Refi / cash-out proceeds → policy-governed strategic reserve is a *framework*, not a trade recommendation.`,
-    `- Dual-collateral / creative structures are **category education** only — not product endorsement or brokerage.`,
-    `- Signature metric to track: **Bitcoin per key** (parallel to sats/SF in storage CRE).`,
-    ``,
-    `### 03 · Operations`,
-    ``,
-    `- **PIP / FF&E** runway (7–10y wear; flag change CapEx) before consumer rails or mining experiments.`,
-    `- Labor intensity is a hotel delta vs generic CRE — wage stress scenarios belong in the memo.`,
-    `- Brand politics: owner · brand · manager clocks differ; proposals die in committee if framed as owner speculation alone.`,
-    `- Mining / mine-to-heat: only where climate + mechanical + **brand policy** allow — not the first win.`,
-    ``,
-    `## What not to do`,
-    ``,
-    `1. Never starve **PIP** or **debt service** to buy BTC.`,
-    `2. Do not ignore flag / brand constraints on payments UX or mechanical experiments.`,
-    `3. Do not lead with mining before treasury discipline and CapEx realism.`,
-    `4. Do not treat MSA averages as scarce submarket truth — ask *which* product class.`,
-    ``,
-    ...competitiveSet(market),
-    ...signalsBlock(market),
-    ...findingsBlock(market),
-    `## Decision-support next steps`,
-    ``,
-    `1. Human decision required — no auto CapEx, outreach, refinance, or BTC buys.`,
-    `2. Draft a written treasury policy (conviction band + rebalance triggers) before any allocation.`,
-    `3. Put PIP countdown and debt maturity on one calendar with the Capital Graph read.`,
-    `4. Role-check talking points for Owner / Brand / GM before any IC.`,
-    ``,
-    `## Lineage (education)`,
-    ``,
-    `Hotel-native adaptation of CRE × Bitcoin framing associated with Chris Drzyzga / TFTC CRE guide — [tftc.io/cre](https://www.tftc.io/cre). **No affiliation claimed.**`,
-    ``,
-    `---`,
-    `## Hotel structuring checklist (Esner / RES Ep.11 — opinion)
-
-- Land vs ops / building sleeves; land-lease creativity where applicable
-- Sats per key DCA after fees + debt service + PIP escrow
-- Medium-term CapEx reserve (digital credit / STRC-class) vs long spot BTC
-- Brand-policy gate before guest BTC payments or loyalty experiments
-- Stress / receivership window: liquidity + creative structure (thesis, not forecast)
-
-Cite: Justin Esner, The Real Estate Standard Ep.11 (Mar 2026). Decision support only.
-
-*Sound Asset Lodging · Bungah Capital Intel · decision support · citations required*`,
-  ]
-    .filter((line) => line !== null)
-    .join("\n");
-
+  const all = await prisma.signal.findMany({ where: { marketId: market.id }, orderBy: { createdAt: "desc" } });
+  const { markdown, tier1 } = buildStackMemo({
+    slug: market.slug,
+    name: market.name,
+    // Tier 1 memos read the full cited set (incl. the whole tax series for the latest print).
+    signals: tier1Signals(all, market.signals),
+    purpose,
+  });
   return prisma.artifact.create({
     data: {
       marketId: market.id,
-      kind: "stack",
+      kind: STACK_MEMO_KIND,
       title: `Sound Asset Lodging — ${market.name}`,
       markdown,
-      sourceLabel: spine(market),
+      sourceLabel: tier1 ? "Checked market read · linked original sources" : "Cited signals only · no checked read yet",
     },
   });
+}
+
+function tier1Signals<T extends { id: string }>(all: T[], cited: T[]): T[] {
+  const ids = new Set(cited.map((s) => s.id));
+  return citedOnly(all as never[]).filter((s: T) => ids.has(s.id) || /^tax-/.test(s.id)) as T[];
 }
 
 async function loadMarket(marketSlug: string) {

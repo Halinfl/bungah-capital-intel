@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Lightweight Stack memo studio — deterministic Capital Graph markdown, no paid LLM. */
+/** Stack memo studio — deterministic memo from checked market data, no paid LLM. */
 export function StackStudio({
   markets,
   initialSlug,
@@ -13,6 +13,7 @@ export function StackStudio({
 }) {
   const router = useRouter();
   const [slug, setSlug] = useState(initialSlug || markets[0]?.slug || "");
+  const [purpose, setPurpose] = useState<"acquisition" | "build">("acquisition");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +25,7 @@ export function StackStudio({
       const res = await fetch("/api/artifacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ marketSlug: slug, kind: "stack" }),
+        body: JSON.stringify({ marketSlug: slug, kind: "stack", purpose }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
@@ -50,6 +51,17 @@ export function StackStudio({
               {m.name}
             </option>
           ))}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 text-xs text-slate-500">
+        Memo type
+        <select
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value === "build" ? "build" : "acquisition")}
+          className="rounded-lg border border-white/15 bg-[#0b0f14] px-3 py-2 text-sm text-white"
+        >
+          <option value="acquisition">Acquisition / hold</option>
+          <option value="build">Build or renovation</option>
         </select>
       </label>
       <button

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const artifact =
       kind === "ic-one-pager"
         ? await generateIcOnePager(marketSlug)
-        : await generateStackMemo(marketSlug);
+        : await generateStackMemo(marketSlug, body.purpose === "build" ? "build" : "acquisition");
     return NextResponse.json({
       id: artifact.id,
       title: artifact.title,

@@ -1,3 +1,4 @@
+import { STACK_MEMO_KIND } from "@/lib/stack-memo";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
@@ -12,7 +13,7 @@ export default async function HomePage() {
   const orlando = markets.find((m) => m.slug === "orlando");
   const vegas = markets.find((m) => m.slug === "las-vegas");
   const radarCount = await prisma.radar.count();
-  const stackCount = await prisma.artifact.count();
+  const stackCount = await prisma.artifact.count({ where: { kind: STACK_MEMO_KIND } });
 
   const searchItems = markets.map((m) => ({
     slug: m.slug,
