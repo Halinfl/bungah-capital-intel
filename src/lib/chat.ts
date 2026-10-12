@@ -2,6 +2,12 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
+import {
+  citedOnly,
+  coverageInProgressLine,
+  isSeedMarket,
+  scrubSeedCitations,
+} from "./format";
 
 export type ChatAnswer = {
   content: string;
@@ -32,7 +38,8 @@ export type GraphContext = {
 };
 
 function cites(...labels: (string | null | undefined)[]): string[] {
-  return [...new Set(labels.filter(Boolean) as string[])];
+  // Seed / illustrative source labels never reach users.
+  return scrubSeedCitations([...new Set(labels.filter(Boolean) as string[])]);
 }
 
 /** Extra search aliases beyond slug/name tokens. */
@@ -93,11 +100,6 @@ function scoreMarketMatch(q: string, m: { slug: string; name: string }): number 
   }
   if (q.includes(m.slug)) score += 6;
   return score;
-}
-
-function isIllustrativeSource(label: string | null | undefined): boolean {
-  if (!label) return true;
-  return /illustrative/i.test(label);
 }
 
 /** Prefer generic lodging-labor wording when national talent seed names only Orlando/Vegas. */
@@ -184,36 +186,31 @@ function metricTable(market: MarketRow): string[] {
 
 type SignalRow = MarketRow["signals"][number];
 
-/** One signal bullet; illustrative seed rows are tagged so they never read as cited. */
+/** One signal bullet (seed rows are filtered out before formatting). */
 function signalLine(s: SignalRow): string {
-  const tag = isIllustrativeSource(s.sourceLabel) ? "_(illustrative seed — not cited)_ " : "";
-  return `- ${tag}**${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`;
+  return `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`;
 }
 
-/** Cited (non-illustrative) rows first; keeps newest-first order within each group. */
-function citedFirst<T extends { sourceLabel: string | null }>(list: T[]): T[] {
-  return [...list].sort(
-    (a, b) => Number(isIllustrativeSource(a.sourceLabel)) - Number(isIllustrativeSource(b.sourceLabel))
-  );
-}
-
-/** Illustrative market snapshot with cited signals available → cited rows lead, seed block demoted. */
-function leadsWithCited(market: MarketRow): boolean {
-  return (
-    isIllustrativeSource(market.sourceLabel) &&
-    market.signals.some((s) => !isIllustrativeSource(s.sourceLabel))
-  );
-}
-
-function demotedSeedBlock(market: MarketRow): string[] {
+/**
+ * Seed-snapshot market: answer only from cited rows, plus one plain coverage line.
+ * Summary, OCC/ADR/visitors and nuance on these markets are placeholders and are never shown.
+ */
+function citedOnlyMemo(
+  market: MarketRow,
+  heading: string,
+  focus?: (s: SignalRow) => boolean
+): string[] {
+  const focused = focus ? market.signals.filter(focus) : [];
+  const list = focused.length ? focused : market.signals;
   return [
+    heading,
     "",
-    "_Seed placeholder (illustrative, demoted — the cited signals above lead; do not underwrite these numbers):_",
-    market.summary,
+    ...(list.length ? list.map(signalLine) : []),
+    ...(list.length ? [""] : []),
+    coverageInProgressLine(market.name),
+    ...dataNote(market),
     "",
-    ...metricTable(market),
-    "",
-    market.nuanceNote ?? "",
+    footer(),
   ];
 }
 
@@ -251,16 +248,7 @@ function dataNote(market: MarketRow): string[] {
   const lines: string[] = [];
   if (reg) {
     lines.push(
-      `_CVB / source map:_ **${reg.cvb_name}** · quality **${reg.source_quality}** · lodging **${reg.lodging_report_kind}** · [research](${reg.cvb_research_url})${reg.lodging_report_url ? ` · [lodging report](${reg.lodging_report_url})` : ""} (registry verified ${reg.last_verified_at}).`
-    );
-  }
-  if (leadsWithCited(market)) {
-    lines.push(
-      `_Thin / illustrative seed:_ the market snapshot (summary, OCC/ADR/visitors, seed assets) is labeled **${market.sourceLabel}** — placeholders only. The cited, dated signals lead this answer; rows tagged "illustrative seed" are not cited.`
-    );
-  } else if (isIllustrativeSource(market.sourceLabel)) {
-    lines.push(
-      `_Thin / illustrative seed:_ source labeled **${market.sourceLabel}**. Numbers are graph placeholders for IC-memo drafting — do not treat as licensed STR/Tourism Economics. Ask for richer seed or licensed feeds before underwriting.`
+      `_CVB / source map:_ **${reg.cvb_name}**${reg.source_quality === "illustrative" ? "" : ` · quality **${reg.source_quality}**`} · lodging **${reg.lodging_report_kind}** · [research](${reg.cvb_research_url})${reg.lodging_report_url ? ` · [lodging report](${reg.lodging_report_url})` : ""} (registry verified ${reg.last_verified_at}).`
     );
   }
   return lines.length ? ["", ...lines] : [];
@@ -290,6 +278,9 @@ export function formatMarketMemo(
   const demandFilter = (s: MarketRow["signals"][number]) =>
     s.kind === "demand" ||
     s.kind === "visitation" ||
+    s.kind === "airlift" ||
+    s.kind === "citywide_calendar" ||
+    s.kind === "drive" ||
     /demand|visit|leisure|tourism|attendance/i.test(`${s.kind} ${s.title}`);
   const talentFilter = (s: MarketRow["signals"][number]) =>
     s.kind === "talent" ||
@@ -298,6 +289,32 @@ export function formatMarketMemo(
     );
 
   let body: string[];
+
+  if (isSeedMarket(market)) {
+    const focus =
+      intent === "supply_pipeline"
+        ? supplyFilter
+        : intent === "demand_visitation"
+          ? demandFilter
+          : intent === "talent_greenlight"
+            ? talentFilter
+            : undefined;
+    const heading =
+      intent === "supply_pipeline"
+        ? `**${market.name} — supply / pipeline**`
+        : intent === "demand_visitation"
+          ? `**${market.name} — demand / visitation**`
+          : intent === "talent_greenlight"
+            ? `**${market.name} — talent / staffing greenlight**`
+            : `**${market.name}**`;
+    return {
+      content: dedupeBlank(citedOnlyMemo(market, heading, focus)),
+      citations: cites(...market.signals.map((s) => s.sourceLabel)),
+      intent,
+      marketSlug: market.slug,
+      mode: "deterministic",
+    };
+  }
 
   switch (intent) {
     case "supply_pipeline": {
@@ -350,19 +367,6 @@ export function formatMarketMemo(
       break;
     }
     case "revpar_metrics": {
-      if (leadsWithCited(market)) {
-        body = [
-          `**${market.name} — OCC / ADR / RevPAR**`,
-          "",
-          ...signalLines(market),
-          ...demotedSeedBlock(market),
-          ...assetLines(market),
-          ...dataNote(market),
-          "",
-          footer(),
-        ];
-        break;
-      }
       body = [
         `**${market.name} — OCC / ADR / RevPAR**`,
         "",
@@ -381,24 +385,11 @@ export function formatMarketMemo(
       break;
     }
     case "which_submarket": {
-      if (leadsWithCited(market)) {
-        body = [
-          `**${market.name} — which submarket / nuance**`,
-          "",
-          ...signalLines(market),
-          ...demotedSeedBlock(market),
-          ...assetLines(market),
-          ...dataNote(market),
-          "",
-          footer(),
-        ];
-        break;
-      }
       body = [
         `**${market.name} — which submarket / nuance**`,
         "",
         market.nuanceNote ??
-          "_No nuanceNote seeded — do not underwrite MSA averages as a single asset thesis._",
+          "_No nuance note yet — underwrite by submarket and product class, not MSA averages._",
         "",
         market.summary,
         "",
@@ -438,21 +429,6 @@ export function formatMarketMemo(
       break;
     }
     case "debt_overlay": {
-      if (leadsWithCited(market)) {
-        body = [
-          `**${market.name} — debt / refinance overlay**`,
-          "",
-          "Pair this market snapshot with the national lodging debt-wall / DY stress signal before CapEx or refinance greenlight.",
-          "",
-          ...signalLines(market),
-          ...demotedSeedBlock(market),
-          ...assetLines(market),
-          ...dataNote(market),
-          "",
-          footer(),
-        ];
-        break;
-      }
       body = [
         `**${market.name} — debt / refinance overlay**`,
         "",
@@ -474,19 +450,6 @@ export function formatMarketMemo(
     }
     default: {
       // general_thesis, compare_markets (single market), unknown
-      if (leadsWithCited(market)) {
-        body = [
-          `**${market.name}**`,
-          "",
-          ...signalLines(market),
-          ...demotedSeedBlock(market),
-          ...assetLines(market),
-          ...dataNote(market),
-          "",
-          footer(),
-        ];
-        break;
-      }
       body = [
         `**${market.name}**`,
         "",
@@ -508,7 +471,6 @@ export function formatMarketMemo(
   return {
     content: dedupeBlank(body),
     citations: cites(
-      // Cited signal sources lead; the (possibly illustrative) market label follows.
       ...market.signals.map((s) => s.sourceLabel),
       market.sourceLabel,
       ...market.assets.map((a) => a.sourceLabel)
@@ -554,12 +516,17 @@ export async function retrieveGraphContext(
     include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
     orderBy: { name: "asc" },
   });
-  // Cited rows lead; illustrative seed rows are demoted (kept, never deleted).
-  for (const m of markets) m.signals = citedFirst(m.signals);
-  const nationalSignals = await prisma.signal.findMany({
-    where: { marketId: null },
-    orderBy: { createdAt: "desc" },
-  });
+  // Seed / illustrative rows stay in the DB but never reach an answer.
+  for (const m of markets) {
+    m.signals = citedOnly(m.signals);
+    m.assets = citedOnly(m.assets);
+  }
+  const nationalSignals = citedOnly(
+    await prisma.signal.findMany({
+      where: { marketId: null },
+      orderBy: { createdAt: "desc" },
+    })
+  );
   const radars = await prisma.radar.findMany({
     include: { findings: { orderBy: { createdAt: "desc" }, take: 3 } },
   });
@@ -596,6 +563,24 @@ export function serializeGraphPack(ctx: GraphContext): {
   const chunks: string[] = [];
 
   const pushMarket = (m: MarketRow, label: string) => {
+    if (isSeedMarket(m)) {
+      // Seed snapshot: pass only cited rows; no placeholder summary/metrics.
+      chunks.push(
+        [
+          `### ${label}: ${m.name} (slug: ${m.slug})`,
+          `Region: ${m.region}`,
+          "Signals:",
+          ...(m.signals.length
+            ? m.signals.map((s) => {
+                citationSet.add(s.sourceLabel);
+                return `- [${s.kind}] ${s.title} | ${s.magnitude ?? "—"} | ${s.asOf ?? "—"} | ${s.body} (source: ${s.sourceLabel})`;
+              })
+            : ["- (none)"]),
+          `Coverage: ${coverageInProgressLine(m.name)}`,
+        ].join("\n")
+      );
+      return;
+    }
     citationSet.add(m.sourceLabel);
     const revpar = derivedRevpar(m.occupancy, m.adr);
     chunks.push(
@@ -605,7 +590,7 @@ export function serializeGraphPack(ctx: GraphContext): {
         `Summary: ${m.summary}`,
         m.nuanceNote ? `Nuance: ${m.nuanceNote}` : "",
         `Metrics: visitorsM=${m.visitorsM ?? "null"}, roomsK=${m.roomsK ?? "null"}, OCC%=${m.occupancy ?? "null"}, ADR=${m.adr ?? "null"}, RevPAR_derived=${revpar != null ? revpar.toFixed(2) : "null"}, midweekOcc=${m.midweekOcc ?? "null"}, weekendOcc=${m.weekendOcc ?? "null"}`,
-        `Source: ${m.sourceLabel}${isIllustrativeSource(m.sourceLabel) ? " [ILLUSTRATIVE — say so]" : ""}`,
+        `Source: ${m.sourceLabel}`,
         "Signals:",
         ...(m.signals.length
           ? m.signals.map((s) => {
@@ -656,7 +641,7 @@ export function serializeGraphPack(ctx: GraphContext): {
     }
   }
 
-  return { pack: chunks.join("\n\n"), citations: [...citationSet] };
+  return { pack: chunks.join("\n\n"), citations: scrubSeedCitations([...citationSet]) };
 }
 
 /**
@@ -674,7 +659,7 @@ export async function answerFromGraph(
   if (!q) {
     return {
       content:
-        "Ask the Bungah Capital Intel about the investment landscape in hotels. Name any seeded market (or open a market page → Ask about this market), or ask about the national debt wall, talent / staffing greenlight, or radars. Answers are deterministic from the Capital Graph — decision support, every number cited.",
+        "Ask the Bungah Capital Intel about the investment landscape in hotels. Name any market (or open a market page → Ask about this market), or ask about the national debt wall, talent / staffing greenlight, or radars. Answers are deterministic from the Capital Graph — decision support, every number cited.",
       citations: [],
       intent: "unknown",
       mode: "deterministic",
@@ -691,9 +676,34 @@ export async function answerFromGraph(
     if (unique.length >= 2) {
       const a = unique[0]!;
       const b = unique[1]!;
+      if (isSeedMarket(a) || isSeedMarket(b)) {
+        const side = (m: MarketRow): string[] =>
+          isSeedMarket(m)
+            ? [
+                `**${m.name}**`,
+                ...m.signals.slice(0, 4).map(signalLine),
+                coverageInProgressLine(m.name),
+              ]
+            : [
+                `**${m.name}** — OCC ${m.occupancy?.toFixed(1) ?? "—"}% · ADR $${m.adr?.toFixed(2) ?? "—"} · rooms ${m.roomsK?.toFixed(1) ?? "—"}k`,
+                ...m.signals.slice(0, 4).map(signalLine),
+              ];
+        return {
+          content: [`**${a.name} vs ${b.name} (cited rows)**`, "", ...side(a), "", ...side(b), "", footer()].join("\n"),
+          citations: cites(
+            isSeedMarket(a) ? null : a.sourceLabel,
+            isSeedMarket(b) ? null : b.sourceLabel,
+            ...a.signals.slice(0, 4).map((s) => s.sourceLabel),
+            ...b.signals.slice(0, 4).map((s) => s.sourceLabel)
+          ),
+          intent,
+          marketSlug: a.slug,
+          mode: "deterministic",
+        };
+      }
       return {
         content: [
-          `**${a.name} vs ${b.name} (seed snapshot)**`,
+          `**${a.name} vs ${b.name} (cited snapshot)**`,
           "",
           `| | ${a.name} | ${b.name} |`,
           `| --- | --- | --- |`,

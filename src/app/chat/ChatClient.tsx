@@ -45,7 +45,7 @@ function capitalPrompts(marketSlug: string) {
       key: "deploy",
       title: "Deploy?",
       prompt:
-        "Should we put capital into a seeded lodging market this cycle — and which submarket / product layer?",
+        "Should we put capital into a lodging market this cycle — and which submarket / product layer?",
     },
     {
       key: "hold",

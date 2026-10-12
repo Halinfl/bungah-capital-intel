@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { answerChat } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
+import { scrubSeedCitations, scrubSeedLines } from "@/lib/format";
 
 function toModelUsed(mode: string | undefined): "llm" | "memo" {
   return mode === "llm" ? "llm" : "memo";
@@ -28,9 +29,11 @@ export async function POST(req: Request) {
         ? body.marketSlug.trim().toLowerCase()
         : null;
 
-    const answer = await answerChat(question, { marketSlug });
+    const raw = await answerChat(question, { marketSlug });
+    // Last-line guard: seed / illustrative wording never reaches a user, a stored thread, or the corpus.
+    const answer = { ...raw, content: scrubSeedLines(raw.content) };
     const modelUsed = toModelUsed(answer.mode);
-    const citations = answer.citations ?? [];
+    const citations = scrubSeedCitations(answer.citations ?? []);
 
     // Product thread always stores full Q&A (including private workspace).
     const thread = await prisma.chatThread.create({

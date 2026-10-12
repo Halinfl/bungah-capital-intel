@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { isSeedMarket } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
 import { SourceChip } from "@/components/SourceChip";
 import { MarkdownLite } from "@/components/MarkdownLite";
@@ -60,12 +61,21 @@ export default async function SoundMoneyLodgingPage({
 }) {
   const sp = await searchParams;
   const markets = await prisma.market.findMany({ orderBy: { name: "asc" } });
-  const memos = await prisma.artifact.findMany({
-    where: { kind: { in: ["stack", "ic-one-pager"] } },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-    include: { market: true },
-  });
+  // Hide stored memos built from seed / illustrative snapshots (rows kept in the DB, never rendered).
+  const memos = (
+    await prisma.artifact.findMany({
+      where: { kind: { in: ["stack", "ic-one-pager"] } },
+      orderBy: { createdAt: "desc" },
+      take: 40,
+      include: { market: true },
+    })
+  )
+    .filter(
+      (a) =>
+        !/illustrative/i.test(`${a.title}\n${a.markdown}\n${a.sourceLabel}`) &&
+        !(a.market && isSeedMarket(a.market) && /As of seed/.test(a.markdown))
+    )
+    .slice(0, 10);
 
   return (
     <div className="space-y-12">
@@ -261,7 +271,12 @@ export default async function SoundMoneyLodgingPage({
         {memos.map((a) => {
           // Existing persisted memos may use the former product name; keep the public surface consistent.
           const displayTitle = a.title.replaceAll("Sound Money Lodging", "Sound Asset Lodging");
-          const displayMarkdown = a.markdown.replaceAll("Sound Money Lodging", "Sound Asset Lodging");
+          const displayMarkdown = a.markdown
+            .replaceAll("Sound Money Lodging", "Sound Asset Lodging")
+            // Older memos used seed-era template wording over cited figures; relabel for display.
+            .replace(/\*\*As of seed:\*\*[^\n]*\n/g, "")
+            .replaceAll("Seed snapshot for this market", "Market snapshot")
+            .replaceAll("Competitive set (seed assets)", "Competitive set");
 
           return (
           <article

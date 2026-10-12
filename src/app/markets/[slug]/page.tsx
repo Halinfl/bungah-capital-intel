@@ -10,7 +10,9 @@ import {
   fmtRoomsK,
   fmtRevpar,
   severityClass,
-  isIllustrativeSource,
+  isSeedMarket,
+  citedOnly,
+  coverageInProgressLine,
 } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -42,9 +44,13 @@ export default async function MarketDetailPage({
   });
 
   if (!market) notFound();
+  // Seed / illustrative rows stay in the DB but are never rendered.
+  market.signals = citedOnly(market.signals);
+  market.assets = citedOnly(market.assets);
+  market.findings = market.findings.filter((f) => !/illustrative/i.test(`${f.title} ${f.summary} ${f.sourceLabel}`));
 
   const isOrlando = market.slug === "orlando";
-  const thin = isIllustrativeSource(market.sourceLabel);
+  const thin = isSeedMarket(market);
   const short = shortMarketLabel(market.name, market.slug);
   const hasRevpar = market.occupancy != null && market.adr != null;
 
@@ -56,11 +62,7 @@ export default async function MarketDetailPage({
         </Link>
         <div className="mt-2 flex flex-wrap items-baseline gap-3">
           <h1 className="text-3xl font-semibold tracking-tight text-white">{market.name}</h1>
-          {thin ? (
-            <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-200">
-              Illustrative seed
-            </span>
-          ) : (
+          {thin ? null : (
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-200">
               Cited snapshot
             </span>
@@ -71,19 +73,19 @@ export default async function MarketDetailPage({
           <span className="mx-2 text-slate-600">·</span>
           Destination dashboard
         </p>
-        <p className="mt-4 max-w-3xl text-slate-300">{market.summary}</p>
-        <div className="mt-3">
-          <SourceChip label={market.sourceLabel} />
-        </div>
         {thin ? (
-          <p className="mt-3 max-w-3xl text-xs leading-relaxed text-amber-200/80">
-            Metrics and signals below are illustrative Capital Graph placeholders for IC-memo drafting —
-            replace with licensed STR / Tourism Economics before underwriting. Human-touch / talent capacity
-            remains a CapEx and refinance greenlight gate.
-          </p>
-        ) : null}
+          <p className="mt-4 max-w-3xl text-slate-300">{coverageInProgressLine(market.name)}</p>
+        ) : (
+          <>
+            <p className="mt-4 max-w-3xl text-slate-300">{market.summary}</p>
+            <div className="mt-3">
+              <SourceChip label={market.sourceLabel} />
+            </div>
+          </>
+        )}
       </div>
 
+      {thin ? null : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Visitors" value={fmtVisitorsM(market.visitorsM)} sourceLabel={market.sourceLabel} />
         <StatCard label="Rooms" value={fmtRoomsK(market.roomsK)} sourceLabel={market.sourceLabel} />
@@ -102,8 +104,9 @@ export default async function MarketDetailPage({
           <StatCard label="Weekend OCC" value={fmtPct(market.weekendOcc)} sourceLabel={market.sourceLabel} />
         ) : null}
       </div>
+      )}
 
-      {market.nuanceNote ? (
+      {thin ? null : market.nuanceNote ? (
         isOrlando ? (
           <section className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-200">
@@ -131,7 +134,7 @@ export default async function MarketDetailPage({
             Underwriting nuance
           </h2>
           <p className="mt-3 text-sm text-slate-400">
-            No submarket nuance note seeded yet for {short}. Underwrite by corridor and product class — not MSA
+            No submarket nuance note yet for {short}. Underwrite by corridor and product class — not MSA
             averages alone. Talent / staffing remains a CapEx greenlight gate.
           </p>
         </section>
@@ -141,7 +144,7 @@ export default async function MarketDetailPage({
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Signals</h2>
           <span className="text-xs text-slate-500">
-            {market.signals.length ? `${market.signals.length} seeded` : "none yet"}
+            {market.signals.length ? `${market.signals.length} cited` : "none yet"}
           </span>
         </div>
         {market.signals.length ? (
@@ -167,8 +170,7 @@ export default async function MarketDetailPage({
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
-            No market signals seeded yet. Metrics and summary above are the Capital Graph snapshot. Demand,
-            supply/pipeline, and talent gates will appear here when enriched.
+            No cited market signals yet. {coverageInProgressLine(market.name)}
           </div>
         )}
       </section>
@@ -177,7 +179,7 @@ export default async function MarketDetailPage({
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Assets</h2>
           <span className="text-xs text-slate-500">
-            {market.assets.length ? `${market.assets.length} illustrative / cited` : "none yet"}
+            {market.assets.length ? `${market.assets.length} cited` : "none yet"}
           </span>
         </div>
         {market.assets.length ? (
@@ -200,7 +202,7 @@ export default async function MarketDetailPage({
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
-            No illustrative assets seeded for this destination. Underwrite by submarket and product class —
+            No cited assets yet for this destination. Underwrite by submarket and product class —
             MSA averages are not a substitute for a competitive set.
           </div>
         )}

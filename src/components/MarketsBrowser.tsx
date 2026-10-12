@@ -112,6 +112,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
               </span>
             </div>
             <p className="mt-3 text-sm text-slate-300">{m.summary}</p>
+            {m.occupancy == null && m.adr == null && m.visitorsM == null && m.roomsK == null ? null : (
             <div className="mt-4 flex flex-wrap gap-4 text-sm tabular-nums text-slate-200">
               <span>
                 <span className="text-slate-500">Visitors </span>
@@ -136,9 +137,12 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
                 </span>
               ) : null}
             </div>
-            <div className="mt-3">
-              <SourceChip label={m.sourceLabel} />
-            </div>
+            )}
+            {m.sourceLabel ? (
+              <div className="mt-3">
+                <SourceChip label={m.sourceLabel} />
+              </div>
+            ) : null}
           </Link>
         ))}
         {!filtered.length ? (

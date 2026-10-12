@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { citedOnly, coverageInProgressLine, isSeedMarket } from "./format";
 
 export async function generateIcOnePager(marketSlug: string) {
   const market = await loadMarket(marketSlug);
@@ -7,17 +8,17 @@ export async function generateIcOnePager(marketSlug: string) {
     `# IC One-Pager — ${market.name}`,
     ``,
     `**Product:** Bungah Capital Intel (decision support)`,
-    `**As of seed:** public YE 2025 / 2026 stubs`,
-    `**Source spine:** ${market.sourceLabel}`,
+    `**Source spine:** ${spine(market)}`,
     ``,
     `## Thesis in one line`,
     ``,
-    market.summary,
+    thesis(market),
     ``,
     ...headlineNumbers(market),
     `## Nuance / underwriting rule`,
     ``,
-    market.nuanceNote ?? "_No nuance note seeded._",
+    (market.seed ? null : market.nuanceNote) ??
+      "_Underwrite by submarket and product class, not MSA averages._",
     ``,
     ...competitiveSet(market),
     ...signalsBlock(market),
@@ -40,7 +41,7 @@ export async function generateIcOnePager(marketSlug: string) {
       kind: "ic-one-pager",
       title: `IC One-Pager — ${market.name}`,
       markdown,
-      sourceLabel: market.sourceLabel,
+      sourceLabel: spine(market),
     },
   });
 }
@@ -56,13 +57,12 @@ export async function generateStackMemo(marketSlug: string) {
     `# Sound Asset Lodging — Stack memo · ${market.name}`,
     ``,
     `**Product:** Bungah Capital Intel · Sound Asset Lodging (decision support · educational)`,
-    `**As of seed:** public YE 2025 / 2026 stubs`,
-    `**Source spine:** ${market.sourceLabel}`,
+    `**Source spine:** ${spine(market)}`,
     `**Disclaimer:** Not financial, tax, legal, lending, or real-estate advice. Decision support only.`,
     ``,
     `## Market thesis (one line)`,
     ``,
-    market.summary,
+    thesis(market),
     ``,
     `## Fifth return driver`,
     ``,
@@ -71,7 +71,7 @@ export async function generateStackMemo(marketSlug: string) {
     ...headlineNumbers(market),
     `## Hotel underwriting lens`,
     ``,
-    market.nuanceNote ??
+    (market.seed ? null : market.nuanceNote) ??
       "_Stress RevPAR, fee stack, and product class — not MSA headline alone._",
     ``,
     `## Three pillars (hotel-native)`,
@@ -81,7 +81,9 @@ export async function generateStackMemo(marketSlug: string) {
     `- Free cash flow **after** franchise / management fees is the allocation base — not gross rooms revenue.`,
     `- Segment by horizon: short USD ops cash · intermediate liquid reserves (e.g. T-bills / digital credit as *category education*) · long strategic spot BTC for purchasing-power reserve.`,
     `- Size DCA to **seasonality + group-book risk**, not smooth NNN rent. Stress **RevPAR −x% for N months** before sizing Tranche 3.`,
-    `- Seed snapshot for this market: OCC ${occ} · ADR ${adr} · rooms ${rooms} (_${market.sourceLabel}_).`,
+    market.seed
+      ? null
+      : `- Market snapshot: OCC ${occ} · ADR ${adr} · rooms ${rooms} (_${market.sourceLabel}_).`,
     ``,
     `### 02 · Capital stack`,
     ``,
@@ -140,7 +142,7 @@ Cite: Justin Esner, The Real Estate Standard Ep.11 (Mar 2026). Decision support 
       kind: "stack",
       title: `Sound Asset Lodging — ${market.name}`,
       markdown,
-      sourceLabel: market.sourceLabel,
+      sourceLabel: spine(market),
     },
   });
 }
@@ -159,12 +161,34 @@ async function loadMarket(marketSlug: string) {
     },
   });
   if (!market) throw new Error(`Market not found: ${marketSlug}`);
-  return market;
+  // Seed / illustrative rows and snapshots are never written into an artifact.
+  return {
+    ...market,
+    seed: isSeedMarket(market),
+    assets: citedOnly(market.assets),
+    signals: citedOnly(market.signals),
+    findings: market.findings.filter(
+      (f) => !/illustrative/i.test(`${f.title} ${f.summary} ${f.sourceLabel}`)
+    ),
+  };
 }
 
-function headlineNumbers(
-  market: Awaited<ReturnType<typeof loadMarket>>
-): (string | null)[] {
+type LoadedMarket = Awaited<ReturnType<typeof loadMarket>>;
+
+function spine(market: LoadedMarket): string {
+  if (!market.seed) return market.sourceLabel;
+  const labels = [...new Set(market.signals.map((s) => s.sourceLabel))];
+  return labels.length
+    ? `Cited Capital Graph rows (${labels.length} sources)`
+    : "Cited Capital Graph rows";
+}
+
+function thesis(market: LoadedMarket): string {
+  return market.seed ? coverageInProgressLine(market.name) : market.summary;
+}
+
+function headlineNumbers(market: LoadedMarket): (string | null)[] {
+  if (market.seed) return [];
   return [
     `## Headline numbers`,
     ``,
@@ -188,8 +212,9 @@ function competitiveSet(
   market: Awaited<ReturnType<typeof loadMarket>>
 ): string[] {
   return [
-    `## Competitive set (seed assets)`,
+    `## Competitive set`,
     ``,
+    ...(market.assets.length ? [] : ["_No cited assets yet._"]),
     ...market.assets.map(
       (a) =>
         `- **${a.name}** — ${a.assetClass}${a.keys ? `, ${a.keys} keys` : ""}${a.submarket ? ` · ${a.submarket}` : ""}\n  - ${a.notes ?? ""}\n  - _Source:_ ${a.sourceLabel}`
@@ -204,6 +229,7 @@ function signalsBlock(
   return [
     `## Signals`,
     ``,
+    ...(market.signals.length ? [] : ["_No cited signals yet._"]),
     ...market.signals.map(
       (s) =>
         `- **${s.title}** (${s.magnitude ?? "—"}, ${s.asOf ?? "n/a"}) — ${s.body}\n  - _Source:_ ${s.sourceLabel}`

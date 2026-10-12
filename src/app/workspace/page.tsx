@@ -67,7 +67,7 @@ export default async function WorkspacePage() {
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { href: "/markets", label: "Markets", desc: "Browse seed markets" },
+          { href: "/markets", label: "Markets", desc: "Browse markets" },
           { href: "/chat", label: "Chat", desc: "IC whiteboard ideate" },
           { href: "/radars", label: "Radars", desc: "Quiet monitors" },
           { href: "/sound-money-lodging", label: "Sound Asset", desc: "Hotel Bitcoin stack memos" },

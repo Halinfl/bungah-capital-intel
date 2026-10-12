@@ -13,7 +13,7 @@ const tiers = [
     period: "",
     forWhom: "Try the public Capital Graph and safe ideation",
     includes: [
-      "Markets search (public seed)",
+      "Markets search (public sources)",
       "Chat with cite-backed answers (rate-limited)",
       "Radars (public demos)",
       "Trust Contract access",

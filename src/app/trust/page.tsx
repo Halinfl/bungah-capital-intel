@@ -28,7 +28,7 @@ const promises = [
 
 const dataRows = [
   {
-    title: "Public seed — still cited",
+    title: "Public sources — always cited",
     body: "CVB stats, filings, and press are treated as public; answers and Sound Asset Lodging memos still carry source labels.",
   },
   {
