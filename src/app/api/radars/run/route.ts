@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { citedOnly, isPlaceholderText } from "@/lib/format";
 
 export async function POST() {
   try {
@@ -28,16 +29,26 @@ export async function POST() {
         summary = `Total OCC ${vegas.occupancy?.toFixed(1)}% / weekend ${vegas.weekendOcc?.toFixed(1)}%. Watch Hard Rock ~3.6k-key late-2027 return into softer demand.`;
         sourceLabel = vegas.sourceLabel;
       } else if (radar.slug === "national-lodging-debt-wall") {
+        // Cited national debt / rate rows only — never placeholder or demo copy.
+        const cited = citedOnly(
+          await prisma.signal.findMany({
+            where: { marketId: null, kind: { in: ["debt", "rates", "cmbs", "cap_rate"] } },
+            orderBy: { createdAt: "desc" },
+            take: 10,
+          })
+        );
+        const top = cited[0];
+        if (!top) continue;
         severity = "info";
-        title = "Radar refresh: lodging debt-wall / DY ≤8% stub";
-        summary =
-          "Hotels ~30–35% of near-term CRE maturity narratives; lodging CMBS 2026 stub ~$18.7B. Pair refinance greenlight with staffing capacity. Decision support.";
-        sourceLabel = "Industry debt-wall stubs (demo citation)";
+        title = `Radar refresh: ${top.title}`;
+        summary = `${top.body} Pair refinance greenlight with staffing capacity. Decision support.`;
+        sourceLabel = top.sourceLabel;
       } else {
         title = `Radar refresh: ${radar.name}`;
         summary = radar.description;
       }
 
+      if (isPlaceholderText(title, summary, sourceLabel)) continue;
       await prisma.finding.create({
         data: { radarId: radar.id, marketId, title, summary, severity, sourceLabel },
       });

@@ -4,11 +4,14 @@ import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import {
   citedOnly,
+  citedFindings,
+  publicRadarDescription,
   coverageInProgressLine,
   isSeedMarket,
   scrubSeedCitations,
 } from "./format";
 import { parseSourceUrls } from "./source-links";
+import { scrubInternal } from "./public-text";
 
 export type ChatAnswer = {
   content: string;
@@ -555,9 +558,11 @@ export async function retrieveGraphContext(
       orderBy: { createdAt: "desc" },
     })
   );
-  const radars = await prisma.radar.findMany({
-    include: { findings: { orderBy: { createdAt: "desc" }, take: 3 } },
-  });
+  const radars = (
+    await prisma.radar.findMany({
+      include: { findings: { orderBy: { createdAt: "desc" }, take: 10 } },
+    })
+  ).map((r) => ({ ...r, description: scrubInternal(publicRadarDescription(r.description)), findings: citedFindings(r.findings).slice(0, 3) }));
 
   let matched: MarketRow | null = null;
   if (slug) {
@@ -810,12 +815,13 @@ export async function answerFromGraph(
     );
     return {
       content: [
-        "**National lodging debt-wall / DY stress (stub)**",
+        "**National lodging debt / refinance overlay**",
         "",
-        debt?.body ?? "No debt signal seeded.",
+        // Cited rows only (placeholder / demo rows are filtered on read).
+        ...(debt ? [debt.body, ""] : []),
         ...(debtSweep.length
-          ? ["", "Latest cited debt / rate signals:", ...debtSweep.map(nationalSignalLine)]
-          : []),
+          ? ["Latest cited debt / rate signals:", ...debtSweep.map(nationalSignalLine)]
+          : ["_No cited national debt signal yet — pair market-level debt & deals rows before refinance greenlight._"]),
         "",
         footer(),
         "",
@@ -829,7 +835,9 @@ export async function answerFromGraph(
       citations: cites(
         debt?.sourceLabel,
         ...debtSweep.map((s) => s.sourceLabel),
-        ...radars.flatMap((r) => r.findings.map((f) => f.sourceLabel))
+        ...radars
+          .filter((r) => r.slug.includes("debt"))
+          .flatMap((r) => r.findings.map((f) => f.sourceLabel))
       ),
       intent,
       mode: "deterministic",

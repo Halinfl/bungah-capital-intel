@@ -56,10 +56,25 @@ export function isIllustrativeSource(label: string | null | undefined): boolean 
 }
 
 /**
- * Seed / placeholder content is never shown to users (Hal, 2026-10-11).
+ * Seed / demo / placeholder / stub content is never shown to users (Hal, 2026-10-11).
  * Rows stay in the DB; every read path filters them out with these helpers.
  */
-const SEED_TEXT = /illustrative/i;
+const SEED_TEXT = /illustrative|\bdemo\b|\bplaceholder\b|\bstubs?\b|\bdummy\b|lorem ipsum/i;
+
+/** True when any text carries seed / demo / placeholder / stub wording (never shown publicly). */
+export function isPlaceholderText(...parts: (string | null | undefined)[]): boolean {
+  return parts.some((t) => typeof t === "string" && SEED_TEXT.test(t));
+}
+
+/** Findings (radar output) filtered the same way as signals. */
+export function citedFindings<T extends { title: string; summary: string; sourceLabel: string }>(rows: T[]): T[] {
+  return rows.filter((f) => !isPlaceholderText(f.title, f.summary, f.sourceLabel));
+}
+
+/** Radar descriptions are config copy; drop placeholder wording rather than the radar. */
+export function publicRadarDescription(d: string): string {
+  return d.replace(/^\s*stub\s+radar\b/i, "Radar").replace(/\bstubs?\b\s*/gi, "").replace(/\bdemo\b\s*/gi, "").trim();
+}
 
 type SeedCheckable = {
   sourceLabel?: string | null;

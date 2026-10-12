@@ -77,6 +77,7 @@ const RULES: [RegExp, string][] = [
   [/\*\*Handoff:\*\*/g, "**Lane:**"],
   // Internal workspace paths / library file references
   [/ \(summary — detail in [\w-]+\.md\)/g, " (summary)"],
+  [/\bcontent\/earnings\/[\w-]+\/(\d{4})-(Q\d)-digest\.md/g, "company $2 $1 earnings release (editor digest)"],
   [/\b(?:notes|markets|pipeline|demand|capital|deepen|people|product|orgs|stacks)\/[\w./-]+\.md\s*/g, ""],
   [/`?(?:\/workspace\/)?neo-capital-intel\/?([\w./-]*)`?/gi, "$1"],
   // Generic fallbacks

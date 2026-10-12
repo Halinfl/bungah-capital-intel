@@ -4,7 +4,7 @@ import { SignalCard } from "@/components/SignalCard";
 import { SourceNote } from "@/components/SourceNote";
 import { URL_RE, isOriginalUrl } from "@/lib/source-links";
 import { scrubInternal } from "@/lib/public-text";
-import { severityClass } from "@/lib/format";
+import { severityClass, citedFindings, publicRadarDescription } from "@/lib/format";
 import { RunRadarsButton } from "./RunRadarsButton";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ export default async function RadarsPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-white">{r.name}</h2>
-                <p className="mt-1 text-sm text-slate-400">{r.description}</p>
+                <p className="mt-1 text-sm text-slate-400">{scrubInternal(publicRadarDescription(r.description))}</p>
               </div>
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-300">
                 {r.status}
@@ -52,7 +52,7 @@ export default async function RadarsPage() {
               Recent findings
             </h3>
             <div className="mt-2 space-y-2">
-              {r.findings.map((f) => {
+              {citedFindings(r.findings).map((f) => {
                 const u = f.sourceLabel.match(URL_RE)?.[0];
                 return (
                   <SignalCard
@@ -69,7 +69,7 @@ export default async function RadarsPage() {
                   </SignalCard>
                 );
               })}
-              {!r.findings.length ? (
+              {!citedFindings(r.findings).length ? (
                 <p className="text-sm text-slate-500">No findings yet — run radars.</p>
               ) : null}
             </div>

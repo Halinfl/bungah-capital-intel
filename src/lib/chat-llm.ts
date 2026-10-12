@@ -207,7 +207,10 @@ export async function answerChat(
 
   // Deterministic fallback: prefer digest headline memo when issuer-matched
   const digestMemo = formatDigestFallbackMemo(corpus.digests);
-  if (digestMemo && !ctx.matched) {
+  // National debt questions answer from cited graph rows, not REIT digest soft-pulls.
+  const nationalDebtFromGraph =
+    ctx.intent === "debt_overlay" && !corpus.digests.some((d) => d.score >= 5);
+  if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
     const answer: ChatAnswer = {
       content: digestMemo,
       citations: corpus.citations,

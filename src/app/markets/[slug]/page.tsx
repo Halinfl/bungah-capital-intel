@@ -17,6 +17,7 @@ import {
   severityClass,
   isSeedMarket,
   citedOnly,
+  citedFindings,
   coverageInProgressLine,
 } from "@/lib/format";
 
@@ -52,7 +53,7 @@ export default async function MarketDetailPage({
   // Seed / illustrative rows stay in the DB but are never rendered.
   market.signals = citedOnly(market.signals);
   market.assets = citedOnly(market.assets);
-  market.findings = market.findings.filter((f) => !/illustrative/i.test(`${f.title} ${f.summary} ${f.sourceLabel}`));
+  market.findings = citedFindings(market.findings);
 
   const isOrlando = market.slug === "orlando";
   const thin = isSeedMarket(market);

@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { citedOnly, coverageInProgressLine, isSeedMarket } from "./format";
+import { citedOnly, citedFindings, coverageInProgressLine, isSeedMarket } from "./format";
 
 export async function generateIcOnePager(marketSlug: string) {
   const market = await loadMarket(marketSlug);
@@ -167,9 +167,7 @@ async function loadMarket(marketSlug: string) {
     seed: isSeedMarket(market),
     assets: citedOnly(market.assets),
     signals: citedOnly(market.signals),
-    findings: market.findings.filter(
-      (f) => !/illustrative/i.test(`${f.title} ${f.summary} ${f.sourceLabel}`)
-    ),
+    findings: citedFindings(market.findings),
   };
 }
 

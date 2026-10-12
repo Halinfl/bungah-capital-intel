@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { isSeedMarket } from "@/lib/format";
+import { isSeedMarket, isPlaceholderText } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
 import { SourceChip } from "@/components/SourceChip";
 import { MarkdownLite } from "@/components/MarkdownLite";
@@ -72,7 +72,7 @@ export default async function SoundMoneyLodgingPage({
   )
     .filter(
       (a) =>
-        !/illustrative/i.test(`${a.title}\n${a.markdown}\n${a.sourceLabel}`) &&
+        !isPlaceholderText(a.title, a.markdown, a.sourceLabel) &&
         !(a.market && isSeedMarket(a.market) && /As of seed/.test(a.markdown))
     )
     .slice(0, 10);
