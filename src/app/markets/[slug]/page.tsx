@@ -6,6 +6,7 @@ import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
 import { parseSourceUrls, URL_RE, isOriginalUrl } from "@/lib/source-links";
 import { SignalCard } from "@/components/SignalCard";
+import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
 import {
@@ -54,11 +55,54 @@ export default async function MarketDetailPage({
   market.signals = citedOnly(market.signals);
   market.assets = citedOnly(market.assets);
   market.findings = citedFindings(market.findings);
+  // Hotel-tax collection series render as their own newest-first section (Orlando-style cards).
+  const { other: nonTax, tax: taxSeries } = splitTaxSeries(market.signals);
+  market.signals = nonTax;
+  const TAX_SHOWN = 6;
 
   const isOrlando = market.slug === "orlando";
   const thin = isSeedMarket(market);
   const short = shortMarketLabel(market.name, market.slug);
   const hasRevpar = market.occupancy != null && market.adr != null;
+
+  const renderSignal = (s: (typeof market.signals)[number], i: number, prefix = "sig") => {
+    const links = parseSourceUrls(s.sourceUrls);
+    const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
+    const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
+    const title = scrubInternal(s.title);
+    const npr = !links.length && /no public read/i.test(s.body) && !labelUrl;
+    return (
+      <SignalCard
+        key={`${prefix}-${i}`}
+        primaryUrl={primary}
+        title={title}
+        meta={
+          <>
+            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+              {s.kind}
+            </span>
+            {s.magnitude ? (
+              <span className="text-xs font-semibold tabular-nums text-emerald-300">
+                {scrubInternal(s.magnitude)}
+              </span>
+            ) : null}
+            {s.asOf ? <span className="text-[11px] text-slate-500">as of {s.asOf}</span> : null}
+          </>
+        }
+      >
+        <p className="mt-1 line-clamp-2 text-sm text-slate-300">{briefLine(title, s.body)}</p>
+        <div className="mt-2">
+          {links.length ? (
+            <SourceLinks links={links} limit={3} />
+          ) : primary ? (
+            <SourceChip label={s.sourceLabel} />
+          ) : (
+            <SourceNote label={s.sourceLabel} noPublicRead={npr} />
+          )}
+        </div>
+      </SignalCard>
+    );
+  };
 
   return (
     <div className="space-y-10">
@@ -155,44 +199,7 @@ export default async function MarketDetailPage({
         </div>
         {market.signals.length ? (
           <div className="grid gap-3">
-            {market.signals.map((s, i) => {
-              const links = parseSourceUrls(s.sourceUrls);
-              const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
-              const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
-              const title = scrubInternal(s.title);
-              const npr = !links.length && /no public read/i.test(s.body) && !labelUrl;
-              return (
-                <SignalCard
-                  key={`sig-${i}`}
-                  primaryUrl={primary}
-                  title={title}
-                  meta={
-                    <>
-                      <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
-                        {s.kind}
-                      </span>
-                      {s.magnitude ? (
-                        <span className="text-xs font-semibold tabular-nums text-emerald-300">
-                          {scrubInternal(s.magnitude)}
-                        </span>
-                      ) : null}
-                      {s.asOf ? <span className="text-[11px] text-slate-500">as of {s.asOf}</span> : null}
-                    </>
-                  }
-                >
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-300">{briefLine(title, s.body)}</p>
-                  <div className="mt-2">
-                    {links.length ? (
-                      <SourceLinks links={links} limit={3} />
-                    ) : primary ? (
-                      <SourceChip label={s.sourceLabel} />
-                    ) : (
-                      <SourceNote label={s.sourceLabel} noPublicRead={npr} />
-                    )}
-                  </div>
-                </SignalCard>
-              );
-            })}
+            {market.signals.map((s, i) => renderSignal(s, i))}
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
@@ -200,6 +207,26 @@ export default async function MarketDetailPage({
           </div>
         )}
       </section>
+
+      {taxSeries.length ? (
+        <section className="space-y-4">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold text-white">Hotel-tax collections</h2>
+            <span className="text-xs text-slate-500">newest first · {taxSeries.length} periods</span>
+          </div>
+          <div className="grid gap-3">{taxSeries.slice(0, TAX_SHOWN).map((s, i) => renderSignal(s, i, "tax"))}</div>
+          {taxSeries.length > TAX_SHOWN ? (
+            <details>
+              <summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-200">
+                +{taxSeries.length - TAX_SHOWN} earlier periods
+              </summary>
+              <div className="mt-3 grid gap-3">
+                {taxSeries.slice(TAX_SHOWN).map((s, i) => renderSignal(s, i, "taxm"))}
+              </div>
+            </details>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">

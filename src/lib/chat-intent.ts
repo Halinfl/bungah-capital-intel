@@ -10,6 +10,7 @@ export const CHAT_INTENTS = [
   "which_submarket",
   "talent_greenlight",
   "debt_overlay",
+  "tax_collections",
   "compare_markets",
   "general_thesis",
   "unknown",
@@ -20,6 +21,16 @@ export type ChatIntent = (typeof CHAT_INTENTS)[number];
 type Rule = { intent: ChatIntent; weight: number; test: (q: string) => boolean };
 
 const RULES: Rule[] = [
+  {
+    intent: "tax_collections",
+    weight: 9,
+    test: (q) =>
+      /\b(hotel|occupancy|lodging|room|bed|tourist|transient|accommodations?|excise)[- ]+(occupancy |development |accommodations? )?tax(es)?\b/.test(q) ||
+      /\b(hot|tot|tat|tdt|cdt|hmt)\b/.test(q) && /\btax|collections?|revenue|receipts?|series\b/.test(q) ||
+      /\btax (collections?|receipts?|revenue|series)\b/.test(q) ||
+      /\bhotel[- ]motel tax\b/.test(q) ||
+      /\b(tat|tot|tdt)\b/.test(q),
+  },
   {
     intent: "compare_markets",
     weight: 10,
@@ -124,6 +135,8 @@ const RULES: Rule[] = [
 export function classifyIntent(question: string): ChatIntent {
   const q = question.toLowerCase().trim();
   if (!q) return "unknown";
+  // Uppercase acronyms (HOT / TOT / TAT / TDT) are tax questions even without the word "tax".
+  if (/\b(HOT|TOT|TAT|TDT)\b/.test(question)) return "tax_collections";
 
   let best: ChatIntent = "unknown";
   let bestWeight = 0;

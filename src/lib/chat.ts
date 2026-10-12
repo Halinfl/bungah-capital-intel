@@ -12,6 +12,7 @@ import {
 } from "./format";
 import { parseSourceUrls } from "./source-links";
 import { scrubInternal } from "./public-text";
+import { splitTaxSeries } from "./tax-series";
 
 export type ChatAnswer = {
   content: string;
@@ -287,14 +288,72 @@ function dedupeBlank(lines: string[]): string {
     .join("\n");
 }
 
+
+/** Primary original link for a signal (first sourceUrls entry). */
+function primaryLink(s: SignalRow): { url: string; label: string } | null {
+  const l = parseSourceUrls(s.sourceUrls)[0];
+  return l ? { url: l.url, label: l.label } : null;
+}
+
+/** One tax-series bullet: title, magnitude (basis label), period, linked publisher. */
+function taxLine(s: SignalRow): string {
+  const link = primaryLink(s);
+  const pub = (link?.label ?? s.sourceLabel).split(" — ")[0];
+  const tail = link ? ` — [${pub} ↗](${link.url})` : /no public read/i.test(s.magnitude ?? "") ? "" : " — _no public read_";
+  return `- **${s.title}** — ${s.magnitude ?? "—"}${tail}`;
+}
+
+const TAX_TEXT = /\b(hotel|occupancy|lodging|tourist development|transient|accommodations?|bed|room)[- ]+(occupancy |development )?tax|\b(TDT|TOT|TAT|HOT|CDT)\b|hotel-motel tax/i;
+
+/** Hotel-tax answer for one market: the published series newest first, each row linked to its source. */
+export function formatTaxMemo(market: MarketRow): ChatAnswer {
+  const { other, tax } = splitTaxSeries(market.signals);
+  const figures = tax.filter((s) => !/gaps$/.test(s.id));
+  const gaps = tax.filter((s) => /gaps$/.test(s.id));
+  const related = other.filter((s) => s.kind === "tax" || TAX_TEXT.test(`${s.title} ${s.body}`));
+  const latest = figures.find((s) => primaryLink(s));
+  const at = latest ? latest.body.indexOf("Basis:") : -1;
+  const caveat = latest && at >= 0 ? latest.body.slice(at + 7).replace(/\s*Decision support\.?$/, "") : "";
+  const lines: string[] = figures.length
+    ? [
+        `**${market.name} — hotel-tax collections (newest first)**`,
+        "",
+        ...figures.map(taxLine),
+        ...(caveat ? ["", `_Basis & caveats:_ ${caveat}`] : []),
+        ...gaps.map((g) => `\n_Gaps:_ ${g.body.replace(/^[^:]*:\s*/, "").replace(/\s*Decision support\.?$/, "")}`),
+        ...(related.length ? ["", "Related tax / CVB signals:", ...related.map(signalLine)] : []),
+      ]
+    : [
+        `**${market.name} — hotel-tax signals (newest first)**`,
+        "",
+        ...(related.length
+          ? related.map(signalLine)
+          : ["_No published hotel-tax collection series loaded for this market yet._"]),
+      ];
+  return {
+    content: dedupeBlank([...lines, "", footer()]),
+    citations: cites(...figures.map((s) => s.sourceLabel), ...related.map((s) => s.sourceLabel)),
+    intent: "tax_collections",
+    marketSlug: market.slug,
+    mode: "deterministic",
+  };
+}
+
 /**
  * Intent-branched market memo — same intents work for ANY matched market.
  * Used as deterministic fallback when LLM keys are absent.
  */
 export function formatMarketMemo(
-  market: MarketRow,
+  marketIn: MarketRow,
   intent: ChatIntent = "general_thesis"
 ): ChatAnswer {
+  if (intent === "tax_collections") return formatTaxMemo(marketIn);
+  // Other intents carry only the latest hotel-tax print (full series answers tax questions).
+  const split = splitTaxSeries(marketIn.signals);
+  const market: MarketRow = {
+    ...marketIn,
+    signals: [...split.other, ...split.tax.filter((s) => !/gaps$/.test(s.id) && parseSourceUrls(s.sourceUrls).length).slice(0, 1)],
+  };
   const supplyFilter = (s: MarketRow["signals"][number]) =>
     s.kind === "supply" ||
     /supply|pipeline|new keys|construction|absorption/i.test(`${s.kind} ${s.title}`);
@@ -766,6 +825,27 @@ export async function answerFromGraph(
         footer(),
       ].join("\n"),
       citations: [],
+      intent,
+      mode: "deterministic",
+    };
+  }
+
+  // Hotel-tax question without a market: latest published print per market, newest first, linked.
+  if (intent === "tax_collections" && !matched) {
+    const latest = ctx.markets
+      .map((m) => ({ m, s: splitTaxSeries(m.signals).tax.find((x) => !/gaps$/.test(x.id) && parseSourceUrls(x.sourceUrls).length) }))
+      .filter((x): x is { m: MarketRow; s: SignalRow } => Boolean(x.s));
+    return {
+      content: dedupeBlank([
+        "**Hotel-tax collections — latest published print by market**",
+        "",
+        ...(latest.length ? latest.map((x) => taxLine(x.s)) : ["_No hotel-tax collection series loaded yet._"]),
+        "",
+        "Name a market (e.g. NYC, Honolulu, Chicago) for its full series, newest first. Tax ≠ RevPAR: collections move with rate changes, base changes and collection timing.",
+        "",
+        footer(),
+      ]),
+      citations: cites(...latest.map((x) => x.s.sourceLabel)),
       intent,
       mode: "deterministic",
     };

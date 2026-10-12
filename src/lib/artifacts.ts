@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { citedOnly, citedFindings, coverageInProgressLine, isSeedMarket } from "./format";
+import { splitTaxSeries } from "./tax-series";
 
 export async function generateIcOnePager(marketSlug: string) {
   const market = await loadMarket(marketSlug);
@@ -166,7 +167,11 @@ async function loadMarket(marketSlug: string) {
     ...market,
     seed: isSeedMarket(market),
     assets: citedOnly(market.assets),
-    signals: citedOnly(market.signals),
+    // Memos carry the latest four hotel-tax prints, not the full series (that lives on the market page / chat).
+    signals: (() => {
+      const { other, tax } = splitTaxSeries(citedOnly(market.signals));
+      return [...other, ...tax.filter((t) => !/gaps$/.test(t.id)).slice(0, 4)];
+    })(),
     findings: citedFindings(market.findings),
   };
 }
