@@ -36,8 +36,10 @@ export type SleeveOutputs = {
 };
 
 export function dyStatus(dy: number): SleeveOutputs["dyStatus"] {
-  if (dy <= 0.09) return "flag";
-  if (dy < 0.1) return "below-floor";
+  // Compare at the displayed precision (two decimals of a percent) so 9.00% always flags.
+  const r = Math.round(dy * 10000) / 10000;
+  if (r <= 0.09) return "flag";
+  if (r < 0.1) return "below-floor";
   return "pass";
 }
 
