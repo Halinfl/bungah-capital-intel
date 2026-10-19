@@ -8,11 +8,16 @@ export const MGMT_CHANGES_2026_10_19 = [
     "body": "Chicago — 3.1 Notable recent management changes. Marriott Marquis Chicago: operator re-bid (RFP Mar 2026; QMA expiry Sep 2027) — winner no public read. | Hotel Lincoln → Pivot (Dec 2025); Sofitel Mag Mile → Remington (May 2025). Decision support.",
     "magnitude": "3 changes",
     "asOf": "2026-10-19",
-    "sourceLabel": "GovCB MPEA RFP listing · TravelDailyNews · Hotel Online (accessed 2026-10-19)",
+    "sourceLabel": "GovCB MPEA RFP listing · PR Newswire · TravelDailyNews · Hotel Online (accessed 2026-10-19)",
     "sourceUrls": [
       {
         "url": "https://www.govcb.com/government-bids/HOTEL-OPERATOR-23514963.htm",
         "label": "Marriott Marquis Chicago: operator re-bid — GovCB MPEA RFP listing",
+        "secondary": false
+      },
+      {
+        "url": "https://www.prnewswire.com/news-releases/pivot-tapped-to-manage-hotel-lincoln-jdv-by-hyatt-in-chicagos-old-town-neighborhood-302637879.html",
+        "label": "Hotel Lincoln → Pivot (Dec 11, 2025) — PR Newswire",
         "secondary": false
       },
       {
