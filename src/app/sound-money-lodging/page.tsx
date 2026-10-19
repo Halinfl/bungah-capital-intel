@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isPlaceholderText } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
+import { SleeveCarryCheck } from "./SleeveCarryCheck";
+import { GroundRentCoverage } from "./GroundRentCoverage";
 import { SourceChip } from "@/components/SourceChip";
 import { StackMemoView } from "@/components/StackMemoView";
 import { STACK_MEMO_KIND } from "@/lib/stack-memo";
@@ -50,10 +52,154 @@ const pillars = [
 
 const notToDo = [
   "Never starve PIP or debt service to accumulate BTC.",
+  "Never size a hotel loan on the BTC.",
+  "Never buy BTC with construction draws.",
+  "Never balance coverage on staffing.",
   "Do not ignore flag / brand policy on payments UX or mechanical experiments.",
   "Do not lead with mine-to-heat before treasury discipline and CapEx realism.",
   "Do not treat MSA averages as scarce submarket truth — ask which product class.",
 ] as const;
+
+
+type SourceCard = { title: string; line: string; href?: string };
+
+const SRC = {
+  battery: "https://www.batteryfinance.io/",
+  bankStreet:
+    "https://www.nasdaq.com/articles/newmarket-capital-launches-battery-finance-bitcoin-collateralized-loan-strategy",
+  slp630: "https://www.stephanlivera.com/630",
+  foldBoard: "https://www.sec.gov/Archives/edgar/data/1889123/000119312526147945/424b3_pro.supp._no.23.htm",
+  safe10k: "https://www.sec.gov/Archives/edgar/data/1095651/000109565126000010/safe-20251231x10k.htm",
+  gsTax: "https://perspectives.goulstonstorrs.com/insights/article/tax-considerations-for-ground-leases",
+  lev: "https://www.lev.com/blog/ground-lease",
+  res11: "https://youtu.be/KzuqdOxFers",
+} as const;
+
+const sleeveScenarios: SourceCard[] = [
+  {
+    title: "Cash-out refi",
+    line: "Size the loan on hotel NOI alone; the BTC dollars still count in the debt yield.",
+    href: SRC.bankStreet,
+  },
+  {
+    title: "New build",
+    line: "Build with conventional debt; add a BTC sleeve only at stabilized takeout.",
+    href: SRC.battery,
+  },
+  {
+    title: "Acquisition",
+    line: "Equity-funded BTC keeps the keys; loan-funded BTC trades upside and liquidity for leverage.",
+    href: SRC.battery,
+  },
+];
+
+const batteryFacts: SourceCard[] = [
+  {
+    title: "Collateral, not cash",
+    line: "BTC bought with loan proceeds sits in the lender's collateral package; no margin calls on price.",
+    href: SRC.battery,
+  },
+  {
+    title: "Four-year lock",
+    line: "The BTC stays pledged at least four years, even if the loan is repaid early.",
+    href: SRC.slp630,
+  },
+  {
+    title: "Upside share",
+    line: "In the lender's own example it keeps 80% of BTC gain in year 4, falling to 50% by year 10.",
+    href: SRC.battery,
+  },
+  {
+    title: "One public deal",
+    line: "Bank Street Court, Philadelphia, Nov 2024: $12.5M loan, about 20 BTC. No hotel deal disclosed.",
+    href: SRC.bankStreet,
+  },
+  {
+    title: "Custodian not named",
+    line: "Described as institutionally custodied; the custodian is not disclosed. You do not hold the keys.",
+    href: SRC.battery,
+  },
+  {
+    title: "Board seats",
+    line: "CEO Andrew Hohns is a director of Fold Holdings and BTC Development Corp.",
+    href: SRC.foldBoard,
+  },
+];
+
+const landSplit: SourceCard[] = [
+  {
+    title: "Internal split",
+    line: "A land entity collects ground rent; the hotel keeps operating. No new capital, cleaner treasury lines.",
+    href: SRC.safe10k,
+  },
+  {
+    title: "Land sale-leaseback",
+    line: "Releases capital now, adds a rent that rises every year.",
+    href: SRC.gsTax,
+  },
+  {
+    title: "Land entity treasury",
+    line: "An unlevered land entity can buy BTC from rent without touching hotel loan covenants.",
+    href: SRC.res11,
+  },
+  {
+    title: "Financeability first",
+    line: "Unsubordinated leases protect the land and cost the hotel leverage.",
+    href: SRC.lev,
+  },
+  {
+    title: "Leases end",
+    line: "At expiry the building goes with the land; two Park Hotels leases were not extended past 2025.",
+    href: SRC.safe10k,
+  },
+];
+
+const beforeYouSign = [
+  "Who holds the keys, where, and can the BTC be re-lent?",
+  "How long is the BTC locked, including after early repayment?",
+  "What share of the BTC gain do you keep, and from which year?",
+  "What happens to the BTC if you prepay, default, or BTC falls?",
+  "Who is the lender affiliated with?",
+  "How many months of debt service and PIP will you hold in USD, outside the BTC?",
+] as const;
+
+function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: SourceCard[]; cols?: string }) {
+  return (
+    <div className={`grid gap-2 ${cols}`}>
+      {cards.map((c) => {
+        const inner = (
+          <>
+            <span className="block text-sm font-medium text-slate-200">
+              {c.title}
+              {c.href ? <span className="ml-1 text-xs text-slate-500">↗</span> : null}
+            </span>
+            <span className="mt-1 block text-sm leading-relaxed text-slate-400">{c.line}</span>
+          </>
+        );
+        const cls =
+          "block rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3";
+        return c.href ? (
+          <a
+            key={c.title}
+            href={c.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${cls} hover:border-white/20 hover:bg-white/[0.04]`}
+          >
+            {inner}
+          </a>
+        ) : (
+          <div key={c.title} className={cls}>
+            {inner}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const NOT_ADVICE =
+  "Not legal, tax or investment advice. Consult a lawyer and a CPA before structuring anything.";
 
 export default async function SoundMoneyLodgingPage({
   searchParams,
@@ -178,6 +324,36 @@ export default async function SoundMoneyLodgingPage({
         </div>
       </section>
 
+      {/* Financing a BTC sleeve */}
+      <section id="btc-sleeve" className="scroll-mt-24 space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Financing a BTC sleeve
+          </h2>
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+            Decision support for owners weighing loan-funded Bitcoin on a refinance, a new build or
+            an acquisition. The hotel has to carry the whole loan on its own NOI.
+          </p>
+        </div>
+        <CardGrid cards={sleeveScenarios} />
+        <div className="space-y-2 pt-2">
+          <h3 className="text-sm font-medium text-slate-300">
+            One cited lender example: Battery Finance
+          </h3>
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+            An affiliate of Newmarket Capital that lends against commercial real estate plus
+            Bitcoin. Named for its public facts, not as an endorsement.
+          </p>
+          <CardGrid cards={batteryFacts} />
+          <p className="max-w-3xl text-sm leading-relaxed text-amber-200/80">
+            Custody and counterparty risk: the BTC sits with the lender&apos;s custodian, not with
+            you, and the loan stays a USD obligation the hotel must carry if BTC falls.
+          </p>
+        </div>
+        <SleeveCarryCheck />
+        <p className="text-xs leading-relaxed text-slate-500">{NOT_ADVICE}</p>
+      </section>
+
       {/* Signature metrics */}
       <section className="space-y-3">
         <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
@@ -191,6 +367,8 @@ export default async function SoundMoneyLodgingPage({
             "RevPAR-shock survival months",
             "% FCF → intermediate vs strategic after fees",
             "Loyalty / payment signal status",
+            "Debt yield excluding BTC",
+            "Ground rent coverage",
           ].map((m) => (
             <div
               key={m}
@@ -230,6 +408,43 @@ export default async function SoundMoneyLodgingPage({
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Land / hotel split */}
+      <section id="land-split" className="scroll-mt-24 space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Land / hotel split
+          </h2>
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+            For fee-simple owners and owners already on a ground lease: the same coverage test
+            applies to the rent you would pay or pay today.
+          </p>
+        </div>
+        <CardGrid cards={landSplit} />
+        <GroundRentCoverage />
+        <p className="text-xs leading-relaxed text-slate-500">{NOT_ADVICE}</p>
+      </section>
+
+      {/* Before you sign */}
+      <section id="before-you-sign" className="scroll-mt-24 space-y-3">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Before you sign
+        </h2>
+        <p className="max-w-3xl text-sm text-slate-400">
+          Six questions on keys, locks, upside share and liquidity.
+        </p>
+        <ol className="grid gap-2 sm:grid-cols-2">
+          {beforeYouSign.map((q, i) => (
+            <li
+              key={q}
+              className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
+            >
+              <span className="shrink-0 tabular-nums text-slate-500">{i + 1}</span>
+              <span>{q}</span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* What not to do */}
