@@ -55,6 +55,8 @@ def clean(s):
     s = re.sub(r"\[([^\]]+)\]\((https?://[^)]+)\)", r"\1", s)        # md links -> label
     s = re.sub(r"\((?:via |per |see )?`[^`]*`[^)]*\)", "", s)        # (via `path`)
     s = re.sub(r"`[^`]*`", "", s)                                      # bare `paths`
+    s = re.sub(r"\.?\s*Debt yield is held until the cash-flow figures reconcile\s*\(QA [^)]*\)", ". No debt yield is shown until the cash-flow figures reconcile", s)
+    s = re.sub(r"\s*\((?:[A-Z][a-z]+ )?QA \d{4}-\d{2}-\d{2}\)", "", s)        # internal QA stamps
     s = URL_RE.sub("", s)
     s = re.sub(r"\(via [^)]*\)", "", s)
     s = re.sub(r"\bAtlas derivation\b", "derivation", s)
@@ -512,15 +514,21 @@ def operations(slug):
         if not check_team(change, f"{slug} 3.1"):
             change = None
     change_links = []
-    if change and not re.search(r"^no |no public read", change, re.I):
+    if change and not re.search(r"^no ", change, re.I) and (change_inline or not re.search(r"no public read", change, re.I)):
         city = {"Dallas", "Houston", "Seattle", "Miami", "Chicago", "Boston", "Atlanta", "Phoenix", "Nashville", "Honolulu", "Diego", "Francisco", "Angeles", "York", "Washington", "Beach", "Center", "Market", "Downtown"}
-        first = re.split(r"→|:", change)[0]
-        ptoks = [t for t in re.findall(r"[A-Z][A-Za-z]{3,}|\b\d{3,}\b", first) if t not in city and t not in ("Hotel", "Hotels")]
-        for r in ops:
-            if ptoks and any(re.search(r"\b" + re.escape(t) + r"\b", r["t"]) for t in ptoks):
-                change_links += [u for u in r["u"][:1] if u not in change_links]
+        # per item: its own inline link if it has one, else the operator-row link matched by property tokens
+        for item in re.split(r"(?<=\))\s*;\s+(?=[A-Z])", raw31):
+            own = [u for u in urls_in(item) if u not in DEAD and "/_src/" not in u]
+            if own:
+                change_links += [u for u in own if u not in change_links]
+                continue
+            first = re.split(r"→|:", clean(item))[0]
+            ptoks = [t for t in re.findall(r"[A-Z][A-Za-z]{3,}|\b\d{3,}\b", first) if t not in city and t not in ("Hotel", "Hotels")]
+            for r in ops:
+                if ptoks and any(re.search(r"\b" + re.escape(t) + r"\b", r["t"]) for t in ptoks):
+                    change_links += [u for u in r["u"][:1] if u not in change_links]
     if change:
-        change_links += [u for u in change_inline if u not in change_links]
+        change = re.sub(r";\s*see above", "", change)
     pre = []
     s32 = section(txt, r"^3\.2", 3)
     s32_src = urls_in("\n".join(l for l in s32.split("\n") if l.startswith("Sources:")))
@@ -564,7 +572,7 @@ def operations(slug):
             if len(flag_links) >= 3:
                 break
     return {"caution": cau, "flag": flag, "flagLinks": flag_links, "wage": wage, "oews": oews, "build": build,
-            "operators": ops[:3], "change": change, "changeLinks": change_links[:2], "preopen": pre[:3], "gaps": gaps[:4]}
+            "operators": ops[:3], "change": change, "changeLinks": change_links[:4], "preopen": pre[:3], "gaps": gaps[:4]}
 
 data = {"generated": date.today().isoformat(), "markets": {}}
 for slug in TIER1:

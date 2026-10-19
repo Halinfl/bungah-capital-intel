@@ -17,13 +17,12 @@ export function parseSourceUrls(value: unknown): SourceLink[] {
     if (!v || typeof v !== "object") continue;
     const o = v as Record<string, unknown>;
     const url = typeof o.url === "string" ? o.url.trim() : "";
-    if (!isOriginalUrl(url) || seen.has(url)) continue;
-    seen.add(url);
-    out.push({
-      url,
-      label: typeof o.label === "string" && o.label.trim() ? o.label.trim() : hostLabel(url),
-      secondary: o.secondary === true,
-    });
+    const label = typeof o.label === "string" && o.label.trim() ? o.label.trim() : hostLabel(url);
+    // Dedupe by url + label: two items citing one article each keep their own link.
+    const key = `${url}\u0000${label}`;
+    if (!isOriginalUrl(url) || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ url, label, secondary: o.secondary === true });
   }
   return out;
 }

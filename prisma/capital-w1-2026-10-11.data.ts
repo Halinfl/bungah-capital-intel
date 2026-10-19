@@ -643,8 +643,8 @@ export const CAPITAL_W1_2026_10_11: LinkedSignal[] = [
     "marketSlug": "honolulu",
     "kind": "debt",
     "title": "Honolulu debt & deals: CMBS / SASB loans",
-    "body": "Honolulu — debt & deals: CMBS / SASB loans. Hilton Hawaiian Village (Park; 2,860± keys), HHV 2016 CMBS: $1.275B · Repaid in full 2026-09-30, ahead of the 2026-11-01 maturity. Funded with $700M Bonnet Creek delayed-draw mortgage + $600M unsecured delayed-draw term loan; the resort is now unencumbered · 2026-09-30 | Named Oʻahu hotel SS/DQ/foreclosure 2026: no public read (Trepp's free PDFs name none) · checked 2026-10-11 (source: no public read). Decision support; labor underwritten at the new floors with no staff cuts.",
-    "magnitude": "2 rows",
+    "body": "Honolulu — debt & deals: CMBS / SASB loans. Hilton Hawaiian Village (Park; 2,860± keys), HHV 2016 CMBS: $1.275B · Repaid in full 2026-09-30, ahead of the 2026-11-01 maturity. Funded with $700M Bonnet Creek delayed-draw mortgage + $600M unsecured delayed-draw term loan; the resort is now unencumbered · 2026-09-30. Decision support; labor underwritten at the new floors with no staff cuts.",
+    "magnitude": "1 row",
     "asOf": "2026-10-11",
     "sourceLabel": "SEC EDGAR · nasdaq.com (accessed 2026-10-11)",
     "sourceUrls": [

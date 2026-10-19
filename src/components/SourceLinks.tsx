@@ -41,7 +41,7 @@ export function SourceLinks({
     <div className="relative z-10 text-[11px] leading-snug">
       <ul className="flex flex-wrap gap-x-3 gap-y-1">
         {shown.map((l) => (
-          <Item key={l.url} l={l} />
+          <Item key={`${l.url}|${l.label}`} l={l} />
         ))}
       </ul>
       {rest.length ? (
@@ -51,7 +51,7 @@ export function SourceLinks({
           </summary>
           <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
             {rest.map((l) => (
-              <Item key={l.url} l={l} />
+              <Item key={`${l.url}|${l.label}`} l={l} />
             ))}
           </ul>
         </details>

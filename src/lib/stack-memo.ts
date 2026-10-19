@@ -54,14 +54,16 @@ export function isTier1(slug: string): boolean {
   return Object.prototype.hasOwnProperty.call(TIER1, slug);
 }
 
-/** House rate pack (capital conditions pack, as of 2026-10-05; rate pack locked 2026-09-28). */
+/** House rate pack (capital conditions pack, as of 2026-10-19; rate pack locked 2026-09-28). */
 const RATE = {
-  asOf: "2026-10-05",
+  asOf: "2026-10-19",
   locked: "2026-09-28",
+  treasury: "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
   tenY: "https://fred.stlouisfed.org/series/DGS10",
   sofr: "https://fred.stlouisfed.org/series/SOFR",
+  fed: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
   dq: "https://www.trepp.com/trepptalk/cmbs-delinquency-report-sept-2026",
-  ss: "https://www.trepp.com/trepptalk/cmbs-special-servicing-rate-climbs-in-august-2026",
+  ss: "https://www.trepp.com/trepptalk/cmbs-special-servicing-rate-september-2026",
 };
 const HOLD_YEARS = 5;
 const SECONDARY = "{tag: secondary}";
@@ -302,9 +304,11 @@ export function buildStackMemo(opts: {
     ``,
     `> **Refinance test (house frame, not a quote or appraisal; as of ${RATE.asOf}):** takeout at ≥7.5–8.0%+ off 10Y ~5.18% / SOFR ~3.90% (locked ${RATE.locked}). Debt yield on a normalized T12: target ≥10%, flag ≤9%, hard watch ≤8%. This test outranks every other block in the memo.`,
     ``,
-    `- 10-year Treasury 5.24% (2026-10-01; 5.18% at the lock) · ${links([RATE.tenY])}`,
-    `- SOFR 3.88% (2026-10-02; 3.90% at the lock) · ${links([RATE.sofr])}`,
-    `- National lodging CMBS delinquency 6.18% (Sep 2026) and special servicing 8.74% (Aug 2026) — national, not ${name} · ${links([RATE.dq, RATE.ss])} {tag: national}`,
+    `- 10-year Treasury 5.09% (2026-10-16 close; 5.18% at the lock) · ${links([RATE.treasury, RATE.tenY])}`,
+    `- SOFR 3.88% (2026-10-16; 3.90% at the lock) · ${links([RATE.sofr])}`,
+    `- Fed funds target 3.75–4.00% (since the 2026-09-16 FOMC) · ${links([RATE.fed])}`,
+    `- National lodging CMBS delinquency 6.18% (Sep 2026) · ${links([RATE.dq])} {tag: national}`,
+    `- National lodging CMBS special servicing 8.95% (Sep 2026; 8.74% in Aug; 9.91% a year earlier; published 2026-10-13) — national, not ${name} · ${links([RATE.ss])} {tag: national}`,
     ``
   );
   if (c.caution) push(`> **Capital caution:** ${c.caution}${c.cautionSecondary ? " {tag: secondary}" : ""}`, ``);
@@ -361,6 +365,11 @@ export function buildStackMemo(opts: {
     `## Supply`,
     ``,
     `> **Supply pressure ${s.score ?? "—"}/5** (${supplyMeaning(s.score)}). **Supply caution:** ${s.caution}`,
+    ``,
+    // Honolulu: score 1 sits beside a loan in special servicing; say so next to the score.
+    slug === "honolulu" && m.capital.loans.some((l) => l.watch && l.u.length)
+      ? `> **Low new supply is not low risk.** Read this score together with the loan watch above before treating it as a tailwind.`
+      : null,
     ``,
     ...s.rows.map((r) => rowLine(r))
   );

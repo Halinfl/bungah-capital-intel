@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-11",
+ "generated": "2026-10-19",
  "markets": {
   "washington-dc": {
    "supply": {
@@ -403,7 +403,7 @@
       "d": ""
      }
     ],
-    "change": "Salamander DC → The Potomac (Pyramid), Aug 2026 (above). Transition = commercial + union-status diligence item.",
+    "change": "Salamander DC → The Potomac (Pyramid) (Aug 2026). Transition = commercial + union-status diligence item.",
     "changeLinks": [
      "https://www.prweb.com/releases/introducing-the-potomac-hotel-autograph-collection-a-new-chapter-for-washington-dcs-acclaimed-waterfront-destination-302843372.html"
     ],
@@ -824,7 +824,9 @@
      }
     ],
     "change": "Hotel Z → Stellen (Evolution; announced Aug 2026; opening early 2027).",
-    "changeLinks": [],
+    "changeLinks": [
+     "https://www.hoteldive.com/news/series-by-marriott-adds-san-diego-boutique-lifestyle-hotel/827993/"
+    ],
     "preopen": [
      {
       "t": "Le Méridien San Diego Pinnacle / Downtown · 231 keys · Not open — \"Opening January 2027\" per San Diego Tourism Authority member listing (accessed 2026-10-11); BuildSD (2026-07-25) reports slip from Oct 2026 to Jan 2027 · leadership: Operator / GM no public read",
@@ -1173,10 +1175,11 @@
       "d": ""
      }
     ],
-    "change": "Dreamscape takes Hyatt Regency Houston West (Mar 2025); Oldham Goodwin adds Element Katy (2026); Frontera named for Canopy Scanlan (Feb 2025).",
+    "change": "Dreamscape takes Hyatt Regency Houston West (Mar 2025); Oldham Goodwin adds Element Katy (eff. Jan 1 2026); Frontera named for Canopy Scanlan (Feb 2025).",
     "changeLinks": [
-     "https://www.hotelmanagement.net/operate/frontera-manage-houston-canopy-hilton",
-     "https://www.hotelmanagement.net/operate/dreamscape-manage-houston-hyatt-regency"
+     "https://www.hotelmanagement.net/operate/dreamscape-manage-houston-hyatt-regency",
+     "https://oldhamgoodwin.com/oldham-goodwin-welcomes-element-by-westin-houston-katy-to-third-party-management-portfolio/",
+     "https://www.hotelmanagement.net/operate/frontera-manage-houston-canopy-hilton"
     ],
     "preopen": [],
     "gaps": [
@@ -2254,8 +2257,7 @@
     ],
     "change": "Arizona Biltmore + Wrigley Mansion unified under Pyramid (Oct 2026).",
     "changeLinks": [
-     "https://azbigmedia.com/business/arizona-biltmore-wrigley-mansion-reunite-under-ownership/",
-     "https://cms.meritagecollection.com/content/denu/denu-hotel-spa-to-debut-september-2026-as-downtown-phoenixs-first-upscale-urban-retreat"
+     "https://azbigmedia.com/business/arizona-biltmore-wrigley-mansion-reunite-under-ownership/"
     ],
     "preopen": [],
     "gaps": [
@@ -2593,7 +2595,9 @@
      }
     ],
     "change": "Hotel 1000 → Columbia Hospitality + Unbound by Hyatt (Feb 2026).",
-    "changeLinks": [],
+    "changeLinks": [
+     "https://lodgingmagazine.com/columbia-hospitality-adds-seattles-hotel-1000-to-its-portfolio/"
+    ],
     "preopen": [],
     "gaps": [
      "Local 8 contracts at other downtown Seattle hotels (Motif, Westin, Sheraton Grand etc.)",
@@ -3283,7 +3287,9 @@
      }
     ],
     "change": "HGI Dallas/Market Center → Dreamscape (Aug 2026).",
-    "changeLinks": [],
+    "changeLinks": [
+     "https://hotelsmag.com/news/dreamscape-hospitality-adds-dallas-hilton-garden-inn/"
+    ],
     "preopen": [],
     "gaps": [
      "Any DFW hotel union contract / Local 23 Dallas unit",
@@ -4134,7 +4140,8 @@
     ],
     "change": "Georgian → Dreamscape (Feb 2026); Anthem Inglewood → Stonebridge (Jun 2026).",
     "changeLinks": [
-     "https://www.hotelmanagement.net/operate/dreamscape-manage-californias-georgian-hotel"
+     "https://www.hotelmanagement.net/operate/dreamscape-manage-californias-georgian-hotel",
+     "https://www.hotel-online.com/news/stonebridge-adds-the-anthem-los-angeles-stadium-district-tapestry-by-hilton-to-management-portfolio"
     ],
     "preopen": [],
     "gaps": [
@@ -4359,11 +4366,13 @@
       "watch": false
      },
      {
-      "t": "Named Oʻahu hotel SS/DQ/foreclosure 2026 · no public read (Trepp's free PDFs name none)",
-      "u": [],
+      "t": "Hyatt Regency Waikiki Beach Resort & Spa (1,230 keys), HONO 2021-LULU · $302.2M · Watch. Special servicing, Oct 2026, after missing its extended final maturity. No debt yield is shown until the cash-flow figures reconcile",
+      "u": [
+       "https://commercialobserver.com/2026/10/cmbs-loan-hyatt-regency-waikiki-beach-resort-special-servicing/"
+      ],
       "sec": false,
-      "d": "checked 2026-10-11",
-      "watch": false
+      "d": "2026-10-16",
+      "watch": true
      }
     ],
     "holdability": "Without an operating-hotel cap print, holdability can't be benchmarked to the ≥7.5–8.0% takeout. The visible capital is long-dated: fee and land buyers, plus Park choosing to refinance HHV off CMBS rather than roll it. Underwrite from a T12 at the current tax load: TAT rose to 11% on 2026-01-01, so the guest-facing total is now 18.712%. Treat any normalized DY ≤9% as the flag, with labor at contract. No greenlight."
@@ -5912,7 +5921,9 @@
      }
     ],
     "change": "Marriott Marquis Chicago: operator re-bid (RFP Mar 2026; QMA expiry Sep 2027) — winner no public read.",
-    "changeLinks": [],
+    "changeLinks": [
+     "https://www.govcb.com/government-bids/HOTEL-OPERATOR-23514963.htm"
+    ],
     "preopen": [],
     "gaps": [
      "Local 1 settlement terms / strike end date",
