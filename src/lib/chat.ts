@@ -841,7 +841,7 @@ export async function answerFromGraph(
         "",
         ...(latest.length ? latest.map((x) => taxLine(x.s)) : ["_No hotel-tax collection series loaded yet._"]),
         "",
-        "Name a market (e.g. NYC, Honolulu, Chicago) for its full series, newest first. Tax ≠ RevPAR: collections move with rate changes, base changes and collection timing.",
+        "Name a market (e.g. NYC, Honolulu, Chicago) for its full series, newest first. Tax receipts are not the same as RevPAR: collections move with rate changes, base changes and collection timing.",
         "",
         footer(),
       ]),

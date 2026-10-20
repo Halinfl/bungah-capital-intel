@@ -179,7 +179,7 @@ export default async function MarketDetailPage({
         isOrlando ? (
           <section className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-200">
-              Which Orlando: record visitors don&apos;t mean rooms are scarce
+              Orlando&apos;s hotel areas differ: record visitors don&apos;t mean rooms are scarce
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-amber-50">{scrubInternal(market.nuanceNote)}</p>
             <div className="mt-3">
