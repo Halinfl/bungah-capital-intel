@@ -92,7 +92,7 @@ export default async function RadarsPage() {
   const radars = userId ? allRadars : allRadars.filter((r) => citedFindings(r.findings).length > 0);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5 sm:space-y-8">
       <div>
         <div className="flex items-center justify-between gap-3">
           <h1 className="t-h1">Radars</h1>
@@ -126,12 +126,12 @@ export default async function RadarsPage() {
                 </span>
                 <StatusPill status={r.status} />
               </div>
-              <h2 className="mt-3 text-xl font-semibold text-white">{r.name}</h2>
+              <h2 className="mt-2 text-xl font-semibold text-white sm:mt-3">{r.name}</h2>
               <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-300">
                 {scrubInternal(publicRadarDescription(r.description))}
               </p>
 
-              <h3 className="mt-5 text-xs font-medium uppercase tracking-wider text-slate-300">Recent findings</h3>
+              <h3 className="mt-4 text-xs font-medium sm:mt-5 uppercase tracking-wider text-slate-300">Recent findings</h3>
               <div className="mt-4 grid gap-3 lg:grid-cols-2">
                 {findings.map((f) => {
                   const stat = unverifiedFiguresIn(r.marketSlug, f.title).length
@@ -150,7 +150,7 @@ export default async function RadarsPage() {
                       ) : null}
                       <h4 className="mt-3 text-base font-medium leading-snug text-white">{scrubInternal(f.title)}</h4>
                       <p className="mt-1 text-[14px] leading-[1.5] text-slate-200">{scrubInternal(f.summary)}</p>
-                      <div className="mt-auto pt-4">
+                      <div className="mt-auto pt-3 sm:pt-4">
                         <div className="border-t border-white/10 pt-3">
                           <Sources label={f.sourceLabel} />
                         </div>
