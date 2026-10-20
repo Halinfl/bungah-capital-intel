@@ -222,46 +222,65 @@ export default async function SoundMoneyLodgingPage({
 
   return (
     <div className="space-y-12">
-      {/* Hero */}
+      {/* Hero — short summary, then the two calculators; the full doctrine follows below */}
       <section className="space-y-4">
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Doctrine · work product
-        </p>
-        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Sound Asset Lodging
+        <p className="text-sm font-medium text-slate-300">Sound Asset Lodging</p>
+        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+          Bitcoin on a hotel balance sheet, without starving the hotel.
         </h1>
-        <p className="max-w-2xl text-[15px] leading-relaxed text-slate-400">
-          Bitcoin treasury, capital stack, and operations for hotel investors —
-          hotel-native, decision support, and educational. Balance-sheet appreciation as a fifth
-          return driver beside NOI, CapEx quality, leverage, and cap rates.
+        <p className="max-w-2xl text-lg leading-relaxed text-slate-200">
+          A cited guide for hotel owners and investors weighing a Bitcoin reserve: treasury, capital
+          stack and operations. Start with the two calculators below; the full doctrine, sources and
+          memo studio follow.
         </p>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-500">
+        <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
           Not financial, tax, legal, lending, or real-estate advice. We cite and propose — you
           decide. Inspired by CRE × Bitcoin education associated with Chris Drzyzga /{" "}
           <a
             href="https://www.tftc.io/cre"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-300 underline-offset-2 hover:text-white hover:underline"
+            className="text-slate-100 underline underline-offset-2 hover:text-white"
           >
             TFTC CRE guide
           </a>
-          . <span className="text-slate-400">No affiliation claimed.</span>
+          . No affiliation claimed.
         </p>
-        <div className="flex flex-wrap gap-2.5 pt-1">
-          <a
-            href="#studio"
-            className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white"
-          >
-            Generate Stack memo
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1 text-base">
+          <a href="#calculators" className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white">
+            Open the calculators
           </a>
-          <Link
-            href="/markets"
-            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-medium text-slate-300 hover:border-white/20 hover:text-white"
-          >
+          <a href="#studio" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+            Generate a Stack memo
+          </a>
+          <Link href="/markets" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Browse markets
           </Link>
         </div>
+      </section>
+
+      {/* The two calculators, near the top */}
+      <section id="calculators" className="scroll-mt-24 space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-white">Two calculators</h2>
+        <div className="grid min-w-0 gap-4">
+          <SleeveCarryCheck />
+          <GroundRentCoverage />
+        </div>
+        <p className="text-sm leading-relaxed text-slate-300">
+          {NOT_ADVICE} The context for each calculator is below:{" "}
+          <a href="#btc-sleeve" className="underline underline-offset-2 hover:text-white">financing a BTC sleeve</a> and{" "}
+          <a href="#land-split" className="underline underline-offset-2 hover:text-white">land / hotel split</a>.
+        </p>
+      </section>
+
+      {/* Doctrine — long form */}
+      <section className="space-y-3 border-t border-white/[0.1] pt-10">
+        <h2 className="text-2xl font-semibold tracking-tight text-white">The doctrine</h2>
+        <p className="max-w-2xl text-[15px] leading-relaxed text-slate-200">
+          Bitcoin treasury, capital stack, and operations for hotel investors —
+          hotel-native, decision support, and educational. Balance-sheet appreciation as a fifth
+          return driver beside NOI, CapEx quality, leverage, and cap rates.
+        </p>
       </section>
 
       {/* Why hotel playbook */}
@@ -350,8 +369,11 @@ export default async function SoundMoneyLodgingPage({
             you, and the loan stays a USD obligation the hotel must carry if BTC falls.
           </p>
         </div>
-        <SleeveCarryCheck />
-        <p className="text-xs leading-relaxed text-slate-500">{NOT_ADVICE}</p>
+        <p className="text-sm leading-relaxed text-slate-300">
+          Run the numbers in the{" "}
+          <a href="#sleeve-carry-check" className="underline underline-offset-2 hover:text-white">sleeve carry check</a>{" "}
+          above. {NOT_ADVICE}
+        </p>
       </section>
 
       {/* Signature metrics */}
@@ -422,8 +444,11 @@ export default async function SoundMoneyLodgingPage({
           </p>
         </div>
         <CardGrid cards={landSplit} />
-        <GroundRentCoverage />
-        <p className="text-xs leading-relaxed text-slate-500">{NOT_ADVICE}</p>
+        <p className="text-sm leading-relaxed text-slate-300">
+          Run the numbers in the{" "}
+          <a href="#ground-rent-coverage" className="underline underline-offset-2 hover:text-white">ground rent coverage</a>{" "}
+          calculator above. {NOT_ADVICE}
+        </p>
       </section>
 
       {/* Before you sign */}

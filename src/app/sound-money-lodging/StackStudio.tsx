@@ -39,12 +39,12 @@ export function StackStudio({
 
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
-      <label className="flex flex-col gap-1 text-xs text-slate-500">
+      <label className="flex w-full min-w-0 flex-col gap-1 text-sm text-slate-200 sm:w-auto">
         Market
         <select
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
-          className="rounded-lg border border-white/15 bg-[#0b0f14] px-3 py-2 text-sm text-white"
+          className="w-full min-w-0 max-w-full rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white sm:w-auto"
         >
           {markets.map((m) => (
             <option key={m.slug} value={m.slug}>
@@ -53,12 +53,12 @@ export function StackStudio({
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-500">
+      <label className="flex min-w-0 flex-col gap-1 text-sm text-slate-200">
         Memo type
         <select
           value={purpose}
           onChange={(e) => setPurpose(e.target.value === "build" ? "build" : "acquisition")}
-          className="rounded-lg border border-white/15 bg-[#0b0f14] px-3 py-2 text-sm text-white"
+          className="rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white"
         >
           <option value="acquisition">Acquisition / hold</option>
           <option value="build">Build or renovation</option>

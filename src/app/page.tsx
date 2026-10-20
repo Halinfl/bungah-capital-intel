@@ -1,150 +1,201 @@
-import { STACK_MEMO_KIND } from "@/lib/stack-memo";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { StatCard } from "@/components/StatCard";
-import { DestinationSearch } from "@/components/DestinationSearch";
 import { PricingTiers } from "@/components/PricingTiers";
-import { citedOnly, fmtPct, fmtUsd, fmtVisitorsM, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { citedFindings, citedOnly, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { parseSourceUrls } from "@/lib/source-links";
+import { publisherName, scrubInternal } from "@/lib/public-text";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const allMarkets = await prisma.market.findMany({
-    orderBy: { name: "asc" },
-    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
-  });
-  const markets = allMarkets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length));
-  const orlando = markets.find((m) => m.slug === "orlando");
-  const vegas = markets.find((m) => m.slug === "las-vegas");
-  const radarCount = await prisma.radar.count();
-  const stackCount = await prisma.artifact.count({ where: { kind: STACK_MEMO_KIND } });
+/** "Chicago–Naperville–Elgin MSA" → "Chicago"; adds "CBD" when the cited source is CBD-scoped. */
+function shortName(name: string, sourceLabel: string): string {
+  const base = name.split(/[–(]/)[0].replace(/\bMSA\b/, "").trim();
+  return /\bCBD\b/.test(sourceLabel) ? `${base} CBD` : base;
+}
 
-  const searchItems = markets.map((m) => ({
-    slug: m.slug,
-    name: m.name,
-    region: m.region,
-    // Seed snapshots are never shown publicly.
-    visitorsM: isSeedMarket(m) ? null : m.visitorsM,
-    roomsK: isSeedMarket(m) ? null : m.roomsK,
-    occupancy: isSeedMarket(m) ? null : m.occupancy,
-    adr: isSeedMarket(m) ? null : m.adr,
-  }));
+function period(sourceLabel: string): string {
+  return sourceLabel.match(/\b(?:YE )?20\d\d\b/)?.[0] ?? "";
+}
+
+export default async function HomePage() {
+  const markets = await prisma.market.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      signals: {
+        select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true },
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+  const coveredCount = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length)).length;
+
+  // Hero card: only markets whose snapshot is cited (no seed numbers). Source links come from the
+  // market's own cited occupancy / visitation rows, which carry the same publisher documents.
+  const snapshot = markets
+    .filter((m) => !isSeedMarket(m) && m.occupancy != null && m.adr != null)
+    .map((m) => {
+      const urls = citedOnly(m.signals)
+        .filter((s) => s.kind === "occupancy" || s.kind === "visitation")
+        .flatMap((s) => parseSourceUrls(s.sourceUrls).slice(0, 1));
+      const seen = new Set<string>();
+      const links = urls
+        .filter((u) => (seen.has(u.url) ? false : (seen.add(u.url), true)))
+        .slice(0, 2)
+        .map((u) => ({ url: u.url, label: publisherName(u.url) }));
+      return {
+        slug: m.slug,
+        name: shortName(m.name, m.sourceLabel),
+        period: period(m.sourceLabel),
+        occupancy: m.occupancy,
+        adr: m.adr,
+        revpar: derivedRevpar(m.occupancy, m.adr),
+        links,
+      };
+    })
+    .filter((r) => r.links.length > 0);
+
+  const radars = await prisma.radar.findMany({
+    include: { findings: { orderBy: { createdAt: "desc" }, take: 5 } },
+  });
+  const latestFinding = radars
+    .flatMap((r) => citedFindings(r.findings))
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+  const liveRadars = radars.filter((r) => citedFindings(r.findings).length > 0).length;
+
+  const tools = [
+    {
+      href: "/markets",
+      title: "Markets",
+      kicker: "Capital Graph",
+      body: `${coveredCount} US hotel markets with cited coverage: occupancy, ADR, supply, debt and labor, each with its source.`,
+    },
+    {
+      href: "/chat",
+      title: "Chat",
+      kicker: "Deploy · Hold · Flag",
+      body: "Start from the decision in front of you and get a short, cited memo back. You make the call.",
+    },
+    {
+      href: "/radars",
+      title: "Radars",
+      kicker: `${liveRadars} with cited findings`,
+      body: latestFinding
+        ? `Quiet monitors over the graph. Latest: ${scrubInternal(latestFinding.title.replace(/^Radar refresh:\s*/i, ""))}`
+        : "Quiet monitors over the graph. Material, cited findings only.",
+    },
+    {
+      href: "/sound-money-lodging",
+      title: "Sound Asset",
+      kicker: "Two calculators",
+      body: "Bitcoin treasury and capital-stack guide for hotels, with a sleeve carry check and a ground rent coverage calculator.",
+    },
+  ];
 
   return (
-    <div className="space-y-14">
-      {/* Hero — Capital Graph as the one picture (Silvia mirror · Quill voice) */}
-      <section className="space-y-5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Capital Graph
-        </p>
-        <h1 className="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Bungah Capital Intel
-        </h1>
-        <p className="max-w-xl text-[15px] leading-relaxed text-slate-400">
-          One picture of hospitality capital — markets, assets, debt, and talent gates. Ideate
-          safely; we cite and propose — you decide.
-        </p>
-
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
-          <DestinationSearch
-            markets={searchItems}
-            placeholder="Search a market — e.g. Orlando, Nashville"
-          />
+    <div className="space-y-16">
+      {/* Hero */}
+      <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
+        <div className="space-y-5 pt-2">
+          <h1 className="max-w-xl text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
+            See where hotel capital is moving, and what to do about it.
+          </h1>
+          <p className="max-w-lg text-lg leading-relaxed text-slate-200">
+            For hotel owners, investors, asset managers and developers. Market numbers, debt and
+            supply signals in one place, every figure linked to its source.
+          </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
+            <Link
+              href="/chat"
+              className="rounded-lg bg-slate-100 px-5 py-3 text-base font-medium text-slate-900 hover:bg-white"
+            >
+              Ask a capital question
+            </Link>
+            <Link
+              href="/markets"
+              className="text-base text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white"
+            >
+              Browse markets
+            </Link>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
-          <Link
-            href="/chat"
-            className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white"
-          >
-            Ask a capital question
-          </Link>
-          <Link
-            href="/markets"
-            className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-medium text-slate-300 hover:border-white/20 hover:text-white"
-          >
-            Browse markets
-          </Link>
-        </div>
+        {snapshot.length ? (
+          <figure className="rounded-2xl border border-white/[0.12] bg-[#383d47] p-5 sm:p-6">
+            <figcaption className="flex items-baseline justify-between gap-3">
+              <span className="text-sm font-medium text-white">Capital Graph · cited snapshot</span>
+              <span className="text-sm text-slate-300">Live data</span>
+            </figcaption>
+            <table className="mt-4 w-full text-left text-sm tabular-nums">
+              <thead>
+                <tr className="border-b border-white/10 text-slate-300">
+                  <th scope="col" className="pb-2 font-normal">Market</th>
+                  <th scope="col" className="pb-2 text-right font-normal">OCC</th>
+                  <th scope="col" className="pb-2 text-right font-normal">ADR</th>
+                  <th scope="col" className="pb-2 text-right font-normal">RevPAR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshot.map((r) => (
+                  <tr key={r.slug} className="border-b border-white/[0.07] align-top last:border-0">
+                    <td className="py-3 pr-2">
+                      <Link href={`/markets/${r.slug}`} className="font-medium text-white hover:underline">
+                        {r.name}
+                      </Link>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300">
+                        {r.period ? <span>{r.period}</span> : null}
+                        {r.links.map((l) => (
+                          <a
+                            key={l.url}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-300 underline-offset-2 hover:underline"
+                          >
+                            {l.label} ↗
+                          </a>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-3 text-right text-white">{fmtPct(r.occupancy)}</td>
+                    <td className="py-3 text-right text-white">{fmtUsd(r.adr, 0)}</td>
+                    <td className="py-3 text-right text-white">{fmtUsd(r.revpar, 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-3 text-[13px] leading-relaxed text-slate-300">
+              OCC and ADR as published by each source; RevPAR = OCC × ADR.
+            </p>
+          </figure>
+        ) : null}
       </section>
 
       {/* One quiet trust line */}
       <p className="text-sm text-slate-300">
         Private · Cited · Decision support ·{" "}
-        <Link href="/trust" className="text-slate-100 underline underline-offset-4 decoration-white/30 hover:decoration-white">
+        <Link href="/trust" className="text-slate-100 underline decoration-white/30 underline-offset-4 hover:decoration-white">
           Read the Trust Contract
         </Link>
       </p>
 
-      {/* Pricing — Free · Pro · Company */}
       <PricingTiers />
 
-      {/* Work products — Radars + Sound Asset Lodging (tools after trust + pricing) */}
+      {/* Tools — four equal cards */}
       <section className="space-y-4">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Work products
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/radars"
-            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <h3 className="text-base font-medium text-white">Radars</h3>
-              <span className="text-xs tabular-nums text-slate-500">{radarCount} live</span>
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              Quiet monitors over the graph. Material findings only — no firehose.
-            </p>
-          </Link>
-          <Link
-            href="/sound-money-lodging"
-            className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <h3 className="text-base font-medium text-white">Sound Asset Lodging</h3>
-              <span className="text-xs tabular-nums text-slate-500">
-                {stackCount ? `${stackCount} recent` : "Stack memos"}
-              </span>
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              Bitcoin treasury, capital stack, and ops for hotel investors, with cited sources and two
-              calculators.
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      {/* KPI strip — secondary only */}
-      <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Snapshot · secondary
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-white">What&apos;s inside</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Orlando visitors"
-            value={fmtVisitorsM(orlando?.visitorsM)}
-            hint="YE 2025 · impact ≠ scarcity"
-            sourceLabel={orlando?.sourceLabel}
-          />
-          <StatCard
-            label="Orlando OCC / ADR"
-            value={`${fmtPct(orlando?.occupancy)} · ${fmtUsd(orlando?.adr, 0)}`}
-            hint="MSA average — ask which Orlando"
-            sourceLabel={orlando?.sourceLabel}
-          />
-          <StatCard
-            label="Vegas visitors"
-            value={fmtVisitorsM(vegas?.visitorsM)}
-            hint="Soft vs 2024 (−7.5%)"
-            sourceLabel={vegas?.sourceLabel}
-          />
-          <StatCard
-            label="Vegas OCC / midweek"
-            value={`${fmtPct(vegas?.occupancy)} / ${fmtPct(vegas?.midweekOcc)}`}
-            hint="Weekend strength masks midweek lag"
-            sourceLabel={vegas?.sourceLabel}
-          />
+          {tools.map((t) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              className="flex flex-col rounded-xl border border-white/[0.1] bg-white/[0.03] p-5 transition hover:border-white/25 hover:bg-white/[0.05]"
+            >
+              <span className="text-sm text-slate-300">{t.kicker}</span>
+              <h3 className="mt-1 text-lg font-medium text-white">{t.title}</h3>
+              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-slate-200">{t.body}</p>
+              <span className="mt-4 text-sm text-slate-100">Open {t.title} →</span>
+            </Link>
+          ))}
         </div>
       </section>
     </div>

@@ -26,7 +26,7 @@ export default async function MarketsPage() {
       name: m.name,
       region: m.region,
       summary: seed
-        ? `${signalCount} cited signals on demand, supply, debt and labor. Open the market for sources.`
+        ? "Cited signals on demand, supply, debt and labor. Open the market for sources."
         : m.summary,
       visitorsM: seed ? null : m.visitorsM,
       roomsK: seed ? null : m.roomsK,
