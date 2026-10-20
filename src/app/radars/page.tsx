@@ -101,7 +101,7 @@ export default async function RadarsPage() {
           ) : (
             <Link
               href="/signup"
-              className="shrink-0 rounded-lg bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-white sm:px-4"
+              className="shrink-0 rounded-md border border-white/25 px-3 py-1.5 text-sm font-medium text-slate-100 hover:border-white/50 hover:bg-white/5"
             >
               Get radar alerts
             </Link>
