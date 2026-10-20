@@ -30,7 +30,7 @@ const CAPITAL_PROMPTS = [
     key: "flag",
     title: "Flag?",
     href: "/chat",
-    hint: "Flag the demand, supply, debt, or talent gate most likely to break.",
+    hint: "Flag the demand, supply, debt, or labor risk most likely to break.",
   },
 ] as const;
 
@@ -113,8 +113,7 @@ export default async function WorkspacePage() {
       </section>
 
       <p className="text-xs leading-relaxed text-slate-600">
-        Decision support · citations · never write bookings ·{" "}
-        <Link href="/trust" className="hover:text-slate-400">
+                <Link href="/trust" className="hover:text-slate-400">
           Trust Contract
         </Link>
       </p>

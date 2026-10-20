@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
-import { citedOnly, coverageInProgressLine, isSeedMarket } from "@/lib/format";
+import { citedOnly, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -13,15 +13,21 @@ export default async function MarketsPage() {
     },
   });
 
-  // Seed / illustrative snapshots are never rendered; seed markets show cited counts + a coverage line.
-  const items = markets.map((m) => {
+  // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed
+  // (a cited snapshot, or enough cited signals); thin markets are counted in a "more coming" line.
+  const covered = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length));
+  const comingCount = markets.length - covered.length;
+  const items = covered.map((m) => {
     const seed = isSeedMarket(m);
+    const signalCount = citedOnly(m.signals).length;
     return {
       id: m.id,
       slug: m.slug,
       name: m.name,
       region: m.region,
-      summary: seed ? coverageInProgressLine(m.name) : m.summary,
+      summary: seed
+        ? `${signalCount} cited signals on demand, supply, debt and labor. Open the market for sources.`
+        : m.summary,
       visitorsM: seed ? null : m.visitorsM,
       roomsK: seed ? null : m.roomsK,
       occupancy: seed ? null : m.occupancy,
@@ -29,7 +35,7 @@ export default async function MarketsPage() {
       midweekOcc: seed ? null : m.midweekOcc,
       sourceLabel: seed ? "" : m.sourceLabel,
       assetCount: citedOnly(m.assets).length,
-      signalCount: citedOnly(m.signals).length,
+      signalCount,
     };
   });
 
@@ -38,12 +44,18 @@ export default async function MarketsPage() {
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-white">Markets</h1>
         <p className="mt-2 max-w-2xl text-slate-400">
-          Capital Graph market spines — {markets.length} US travel & hospitality destinations.
-          Numbers lead; every figure carries a source label.
+          {items.length} US hotel markets with cited coverage today. Numbers lead; every figure
+          carries its source.
         </p>
       </div>
 
       <MarketsBrowser markets={items} />
+
+      {comingCount > 0 ? (
+        <p className="text-sm text-slate-300">
+          More markets coming: {comingCount} more are listed here once their sources are checked.
+        </p>
+      ) : null}
     </div>
   );
 }

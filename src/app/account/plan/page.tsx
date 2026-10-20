@@ -32,8 +32,7 @@ export default async function PlanPage() {
         <Link href="/trust" className="hover:text-slate-400">
           Trust Contract
         </Link>
-        {" · "}decision support · citations · never write bookings
-      </p>
+              </p>
     </div>
   );
 }

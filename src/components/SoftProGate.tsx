@@ -32,7 +32,7 @@ export function SoftProGate() {
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-      <p>Go Pro for downloadable Sound Asset Lodging memos and higher chat limits — billing Phase 1b.</p>
+      <p>Go Pro for downloadable Sound Asset Lodging memos and higher chat limits. Billing opens soon; no charge until then.</p>
       <div className="flex shrink-0 items-center gap-3">
         <Link
           href="/account/plan"

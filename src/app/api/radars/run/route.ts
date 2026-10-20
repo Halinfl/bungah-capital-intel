@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { citedOnly, isPlaceholderText } from "@/lib/format";
 
 export async function POST() {
+  // Writes findings: signed-in workspaces only (the public page no longer shows the run control).
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Sign in to run radars" }, { status: 401 });
   try {
     const orlando = await prisma.market.findUnique({ where: { slug: "orlando" } });
     const vegas = await prisma.market.findUnique({ where: { slug: "las-vegas" } });

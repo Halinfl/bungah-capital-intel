@@ -2,7 +2,7 @@ import Link from "next/link";
 
 /**
  * Pricing — Free · Pro $10/mo · Company $100/mo (20 seats).
- * CTAs → /signup (Clerk). Spec: product/public-drafts/ux/2026-09-20-pricing-tiers-vDRAFT.md
+ * CTAs → /signup.
  */
 
 const tiers = [
@@ -11,14 +11,14 @@ const tiers = [
     label: "Free",
     price: "$0",
     period: "",
-    forWhom: "Try the public Capital Graph and safe ideation",
+    forWhom: "Try the public Capital Graph",
     includes: [
-      "Markets search (public sources)",
-      "Chat with cite-backed answers (rate-limited)",
-      "Radars (public demos)",
-      "Trust Contract access",
+      "Capital Graph: market search, every figure cited",
+      "Chat: cited answers (rate-limited)",
+      "Radars: public market monitors",
+      "Sound Asset Lodging: guide and calculators",
     ],
-    notIncluded: "Private workspace graph · shared org seats · downloadable Sound Asset Lodging vault",
+    notIncluded: "Private workspace graph · shared org seats · downloadable Sound Asset Lodging memos",
     cta: "Start free",
     href: "/signup",
     highlight: false,
@@ -28,13 +28,12 @@ const tiers = [
     label: "Pro",
     price: "$10",
     period: "/ month",
-    forWhom: "Owner, asset manager, or brand lead ideating alone",
+    forWhom: "Owner, asset manager, or brand lead working alone",
     includes: [
       "Everything in Free",
       "Private Capital Graph workspace",
-      "Full Chat IC whiteboard (Deploy / Hold / Flag)",
-      "Forwardable Sound Asset Lodging memos (download/share)",
-      "Higher chat limits",
+      "Full Chat IC whiteboard (Deploy / Hold / Flag) with higher limits",
+      "Forwardable Sound Asset Lodging memos (download / share)",
     ],
     notIncluded: null,
     cta: "Go Pro",
@@ -46,12 +45,12 @@ const tiers = [
     label: "Company",
     price: "$100",
     period: "/ month · up to 20 seats",
-    forWhom: "Brand / owner / AM teams who need one shared picture",
+    forWhom: "Brand, owner, and asset-management teams who need one shared picture",
     includes: [
       "Everything in Pro",
       "Shared org Capital Graph",
-      "Seat invites (cap 20)",
-      "Shared Sound Asset Lodging memos · audit-friendly workspace (as Phase 1 controls land)",
+      "Seat invites (up to 20)",
+      "Shared Sound Asset Lodging memos",
     ],
     notIncluded: null,
     cta: "Start Company",
@@ -74,8 +73,7 @@ export function PricingTiers({ compactHeading = false }: PricingTiersProps) {
             Pricing
           </h2>
           <p className="text-sm text-slate-400">
-            Same plan family. Upgrade anytime. We stay decision-support — plans never unlock booking
-            writes or outbound spam.
+            Start free. Upgrade when you need a private workspace or shared seats.
           </p>
         </div>
       ) : null}
@@ -130,15 +128,8 @@ export function PricingTiers({ compactHeading = false }: PricingTiersProps) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-dashed border-white/[0.1] bg-white/[0.015] px-4 py-3 text-sm text-slate-500">
-        <span className="font-medium text-slate-400">Clerk auth live.</span> Sign
-        in / sign up via Clerk. Stripe billing Phase 1b — no fake charges. Not claiming SOC2 or
-        full institutional encryption yet. Cancel anytime lands with Customer Portal when Stripe ships.
-      </div>
-
-      <p className="text-xs leading-relaxed text-slate-500">
-        Same plan family. Upgrade anytime. Cancel in Customer Portal. We stay decision-support — plans
-        never unlock booking writes or outbound spam.
+      <p className="text-sm leading-relaxed text-slate-300">
+        Billing opens soon; you won&apos;t be charged until it does.
       </p>
     </section>
   );

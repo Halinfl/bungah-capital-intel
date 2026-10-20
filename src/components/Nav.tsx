@@ -2,90 +2,75 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { MobileMenu } from "./MobileMenu";
 
-/** Primary nav — Silvia lock. Pricing quiet jump. Trust lives in footer. Clerk auth. */
+/** Primary nav. Pricing lives on the homepage and in the footer; Trust lives in the footer. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
   { href: "/sound-money-lodging", label: "Sound Asset" },
   { href: "/podcast", label: "Podcast" },
-  { href: "/pricing", label: "Pricing" },
 ];
+
+const linkCls =
+  "rounded-md px-2.5 py-1.5 text-slate-200 transition hover:bg-white/[0.05] hover:text-white";
 
 export async function Nav() {
   const { userId } = await auth();
+  const mobileItems = userId
+    ? [...links, { href: "/workspace", label: "Workspace" }, { href: "/account/plan", label: "Account" }]
+    : [...links, { href: "/login", label: "Sign in" }];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#2f333c]/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link href={userId ? "/workspace" : "/"} className="group flex items-center gap-2.5">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06] text-xs font-semibold tracking-tight text-slate-200 ring-1 ring-white/10">
+    <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#2f333c]/95 backdrop-blur-md">
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <Link href={userId ? "/workspace" : "/"} className="group flex shrink-0 items-center gap-2.5">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.08] text-xs font-semibold tracking-tight text-white ring-1 ring-white/15">
             B
           </span>
-          <div className="leading-tight">
-            <div className="text-sm font-medium tracking-tight text-slate-100 group-hover:text-white">
-              Bungah Capital Intel
-            </div>
-            <div className="text-[11px] text-slate-500">Hospitality capital intelligence</div>
-          </div>
+          <span className="whitespace-nowrap text-[15px] font-medium tracking-tight text-white">
+            Bungah<span className="hidden lg:inline"> Capital Intel</span>
+          </span>
         </Link>
-        <nav className="flex flex-wrap items-center gap-0.5 text-sm">
+
+        <nav className="hidden items-center gap-0.5 text-sm md:flex">
           {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={
-                l.label === "Pricing"
-                  ? "rounded-md px-2.5 py-1.5 text-slate-500 transition hover:bg-white/[0.04] hover:text-slate-300"
-                  : "rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
-              }
-            >
+            <Link key={l.href} href={l.href} className={linkCls}>
               {l.label}
             </Link>
           ))}
           {userId ? (
             <>
-              <Link
-                href="/workspace"
-                className="rounded-md px-2.5 py-1.5 text-slate-300 transition hover:bg-white/[0.04] hover:text-white"
-              >
+              <Link href="/workspace" className={linkCls}>
                 Workspace
               </Link>
-              <Link
-                href="/account/plan"
-                className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
-              >
+              <Link href="/account/plan" className={linkCls}>
                 Account
               </Link>
-              <span className="ml-1 hidden rounded-full border border-white/[0.08] px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500 sm:inline">
-                private
-              </span>
-              <span className="ml-2 inline-flex items-center">
-                <UserButton
-                  appearance={clerkAppearance}
-                  userProfileMode="navigation"
-                  userProfileUrl="/account/plan"
-                />
-              </span>
             </>
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="rounded-md px-2.5 py-1.5 text-slate-400 transition hover:bg-white/[0.04] hover:text-slate-100"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/signup"
-                className="ml-1 rounded-md bg-slate-100 px-2.5 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
-              >
-                Start free
-              </Link>
-            </>
+            <Link href="/login" className={linkCls}>
+              Sign in
+            </Link>
           )}
         </nav>
+
+        <div className="flex items-center gap-2">
+          {userId ? (
+            <span className="inline-flex items-center">
+              <UserButton appearance={clerkAppearance} userProfileMode="navigation" userProfileUrl="/account/plan" />
+            </span>
+          ) : (
+            <Link
+              href="/signup"
+              className="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
+            >
+              Start free
+            </Link>
+          )}
+          <MobileMenu items={mobileItems} />
+        </div>
       </div>
     </header>
   );

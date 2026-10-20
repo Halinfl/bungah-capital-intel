@@ -17,7 +17,7 @@ export function SessionStatus({ profile, showUpsell = false }: Props) {
             Private workspace
           </span>
           <span className="text-slate-700">·</span>
-          <span>Clerk session</span>
+          <span>Signed in</span>
           <span className="text-slate-700">·</span>
           <span>Decision support</span>
           <span className="text-slate-700">·</span>

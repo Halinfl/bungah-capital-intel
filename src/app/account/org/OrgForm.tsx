@@ -70,7 +70,7 @@ export function OrgForm() {
         {busy ? "Creating…" : "Create org workspace"}
       </button>
       <p className="text-xs text-slate-500">
-        Seats don’t unlock booking writes or spam outreach. Billing Phase 1b — chrome preview only.
+        Billing opens soon; you won’t be charged until it does.
       </p>
     </form>
   );

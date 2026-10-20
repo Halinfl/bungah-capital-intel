@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
@@ -38,7 +37,7 @@ function capitalPrompts(marketSlug: string) {
       {
         key: "flag",
         title: "Flag?",
-        prompt: `Flag the demand, supply, debt, or talent gate most likely to break ${name}'s thesis.`,
+        prompt: `Flag the demand, supply, debt, or labor risk most likely to break ${name}'s thesis.`,
       },
     ] as const;
   }
@@ -59,7 +58,7 @@ function capitalPrompts(marketSlug: string) {
       key: "flag",
       title: "Flag?",
       prompt:
-        "Flag the demand, supply, debt, or talent gate most likely to break a market thesis — name the market.",
+        "Flag the demand, supply, debt, or labor risk most likely to break a market thesis — name the market.",
     },
   ] as const;
 }
@@ -95,7 +94,7 @@ export function ChatClient() {
   const initialQuestion =
     queryQuestion ||
     (marketSlug
-      ? `Capital thesis for ${marketSlug.replaceAll("-", " ")}: RevPAR, occupancy, supply, talent gates?`
+      ? `Capital thesis for ${marketSlug.replaceAll("-", " ")}: RevPAR, occupancy, supply, labor?`
       : "");
   const initialQuestionKey = `${marketSlug}\u0000${queryQuestion}`;
   const threadKeyRef = useRef<string | null>(null);
@@ -192,32 +191,25 @@ export function ChatClient() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
-        <span>Capital Graph</span>
-        <span className="text-slate-700">·</span>
-        <span>Cited answers</span>
-        <span className="text-slate-700">·</span>
-        <span>Decision support</span>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-300">
+        <span>Private · Cited · Decision support</span>
         {marketSlug ? (
           <>
-            <span className="text-slate-700">·</span>
-            <span className="text-slate-400">{marketLabel(marketSlug)}</span>
+            <span aria-hidden>·</span>
+            <span className="text-slate-100">{marketLabel(marketSlug)}</span>
           </>
         ) : null}
-        <span className="text-slate-700">·</span>
-        <Link href="/trust" className="text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline">
-          Trust Contract
-        </Link>
       </div>
 
       {isEmpty ? (
-        <div className="space-y-5 rounded-xl border border-white/[0.08] bg-[#0a0e13] p-5 sm:p-6">
+        <div className="space-y-4 rounded-xl border border-white/[0.08] bg-[#262a32] p-4 sm:space-y-5 sm:p-6">
           <div className="space-y-2">
             <h2 className="text-lg font-medium tracking-tight text-white">
-              Ideate on capital here — we don&apos;t execute.
+              Start with the decision in front of you.
             </h2>
-            <p className="max-w-xl text-sm leading-relaxed text-slate-400">
-              Cited from the Capital Graph. Numbers cited or marked estimate. You ship judgment.
+            <p className="max-w-xl text-sm leading-relaxed text-slate-300">
+              Pick one to fill the question box, then edit it. Every number is cited or marked as an
+              estimate; you make the call.
             </p>
           </div>
 
@@ -229,20 +221,14 @@ export function ChatClient() {
                 onClick={() => {
                   setInput(c.prompt);
                 }}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
+                className="rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-left transition hover:border-white/20 hover:bg-white/[0.05] sm:p-4"
               >
                 <div className="text-sm font-medium text-white">{c.title}</div>
-                <p className="mt-2 text-xs leading-relaxed text-slate-400">{c.prompt}</p>
+                <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-slate-300 sm:line-clamp-none">{c.prompt}</p>
               </button>
             ))}
           </div>
 
-          <p className="text-xs leading-relaxed text-slate-500">
-            Decision support · citations required · not booking · not meeting-sourcing.{" "}
-            <Link href="/trust" className="text-slate-400 underline-offset-2 hover:underline">
-              Trust Contract
-            </Link>
-          </p>
         </div>
       ) : (
         <div className="min-h-[280px] space-y-4 rounded-xl border border-white/[0.08] bg-[#0a0e13] p-4 sm:p-5">
@@ -284,7 +270,7 @@ export function ChatClient() {
       )}
 
       <form
-        className="flex gap-2"
+        className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-white/[0.08] bg-[#2f333c]/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0"
         onSubmit={(e) => {
           e.preventDefault();
           send(input);
@@ -305,10 +291,6 @@ export function ChatClient() {
         </button>
       </form>
 
-      <div className="sticky bottom-3 rounded-lg border border-white/[0.08] bg-[#0c1016]/95 px-4 py-3 text-xs leading-relaxed text-slate-400 backdrop-blur">
-        <span className="font-medium text-slate-300">Decision support.</span> Number / so-what →
-        citations → human Approve / Edit / Dismiss. No auto-executing capital.
-      </div>
     </div>
   );
 }

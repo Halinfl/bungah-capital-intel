@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { SourceChip } from "@/components/SourceChip";
 import { SignalCard } from "@/components/SignalCard";
@@ -9,13 +10,21 @@ import { RunRadarsButton } from "./RunRadarsButton";
 
 export const dynamic = "force-dynamic";
 
+function marketName(slug: string): string {
+  return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default async function RadarsPage() {
-  const radars = await prisma.radar.findMany({
+  const { userId } = await auth();
+  const allRadars = await prisma.radar.findMany({
     orderBy: { name: "asc" },
     include: {
       findings: { orderBy: { createdAt: "desc" }, take: 5 },
     },
   });
+  // Signed-out visitors only see radars with cited findings; empty radars and the run control are
+  // for signed-in workspaces.
+  const radars = userId ? allRadars : allRadars.filter((r) => citedFindings(r.findings).length > 0);
 
   return (
     <div className="space-y-8">
@@ -23,11 +32,11 @@ export default async function RadarsPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-white">Radars</h1>
           <p className="mt-2 max-w-2xl text-slate-400">
-            Plain-language monitors over the Capital Graph. Findings are decision support — no auto capital
-            actions.
+            Quiet monitors over the Capital Graph. Material, cited findings only, so you see what
+            changed without a firehose.
           </p>
         </div>
-        <RunRadarsButton />
+        {userId ? <RunRadarsButton /> : null}
       </div>
 
       <div className="grid gap-6">
@@ -43,7 +52,7 @@ export default async function RadarsPage() {
               </span>
             </div>
             {r.marketSlug ? (
-              <p className="mt-2 text-xs text-slate-500">Market focus: {r.marketSlug}</p>
+              <p className="mt-2 text-xs text-slate-500">Market focus: {marketName(r.marketSlug)}</p>
             ) : (
               <p className="mt-2 text-xs text-slate-500">National / cross-market</p>
             )}
@@ -70,7 +79,7 @@ export default async function RadarsPage() {
                 );
               })}
               {!citedFindings(r.findings).length ? (
-                <p className="text-sm text-slate-500">No findings yet — run radars.</p>
+                <p className="text-sm text-slate-500">No cited findings yet.</p>
               ) : null}
             </div>
           </section>

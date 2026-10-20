@@ -5,7 +5,7 @@ import {
   type Plan,
 } from "@/lib/workspace-profile";
 
-/** Plan chrome — never charges. Stripe Phase 1b. Auth via Clerk. */
+/** Plan selection — never charges. */
 export async function POST(req: Request) {
   const existing = await getWorkspaceProfile();
   if (!existing) {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       waitlist: true,
-      message: "Billing comes in Phase 1b — you’re on the waitlist. No charge.",
+      message: "Billing opens soon — you’re on the waitlist. No charge.",
     });
   }
 
@@ -40,6 +40,6 @@ export async function POST(req: Request) {
     message:
       plan === "free"
         ? "Staying on Free."
-        : "Chrome preview only — billing Phase 1b. No charge.",
+        : "Billing opens soon; you won’t be charged until it does.",
   });
 }

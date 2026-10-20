@@ -311,7 +311,7 @@ export default async function MarketDetailPage({
         </Link>
         <Link
           href={`/chat?market=${market.slug}&q=${encodeURIComponent(
-            `Capital thesis for ${market.name}: RevPAR, occupancy, supply, talent gates?`
+            `Capital thesis for ${market.name}: RevPAR, occupancy, supply, labor?`
           )}`}
           className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
         >

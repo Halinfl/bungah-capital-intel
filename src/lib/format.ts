@@ -118,3 +118,15 @@ export function scrubSeedLines(text: string): string {
 export function scrubSeedCitations(labels: string[]): string[] {
   return labels.filter((l) => !SEED_TEXT.test(l));
 }
+
+/** Minimum cited signals for a market without a cited snapshot to be listed publicly. */
+export const PUBLIC_MIN_CITED_SIGNALS = 5;
+
+/**
+ * Public market list rule (Hal, 2026-10-20): list only markets with real cited data —
+ * a cited snapshot, or at least PUBLIC_MIN_CITED_SIGNALS cited signals. Thin markets stay
+ * reachable by URL but are not listed; the page says more markets are coming.
+ */
+export function hasPublicCoverage(m: { sourceLabel: string | null }, citedSignalCount: number): boolean {
+  return !isSeedMarket(m) || citedSignalCount >= PUBLIC_MIN_CITED_SIGNALS;
+}

@@ -11,8 +11,8 @@ export default function ChatPage() {
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Chat</h1>
         <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-slate-400">
-          Ask the Bungah Capital Intel about the investment landscape in hotels. Ideate on capital
-          here — we don’t execute. Number / so-what first, then citations.
+          Put a capital question to the Capital Graph: hotel markets, debt, supply and labor. You get
+          the number and the so-what first, then the sources.
         </p>
       </div>
       <ChatClient />

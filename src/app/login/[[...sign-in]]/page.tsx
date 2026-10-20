@@ -21,7 +21,7 @@ export default async function LoginPage() {
           Sign in to your Capital Graph
         </h1>
         <p className="text-sm leading-relaxed text-slate-400">
-          Private workspace for hotel investors — cite-backed ideation, decision support.
+          Your private workspace for cited hotel capital research.
         </p>
       </div>
       <div className="flex justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
@@ -33,11 +33,10 @@ export default async function LoginPage() {
           appearance={clerkAppearance}
         />
       </div>
-      <p className="text-center text-xs text-slate-600">
-        <Link href="/trust" className="hover:text-slate-400">
+      <p className="text-center text-sm text-slate-300">
+        <Link href="/trust" className="underline decoration-white/30 underline-offset-4 hover:text-white">
           Trust Contract
         </Link>
-        {" · "}we never write bookings
       </p>
     </div>
   );

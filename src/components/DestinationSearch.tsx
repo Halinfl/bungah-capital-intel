@@ -99,6 +99,7 @@ export function DestinationSearch({
                       <div className="truncate font-medium text-white">{m.name}</div>
                       <div className="text-xs text-slate-400">{m.region}</div>
                     </div>
+                    {m.visitorsM == null && m.roomsK == null && m.occupancy == null && m.adr == null ? null : (
                     <div className="flex flex-wrap gap-3 text-xs tabular-nums text-slate-300">
                       <span>
                         <span className="text-slate-500">Vis </span>
@@ -117,6 +118,7 @@ export function DestinationSearch({
                         {fmtUsd(m.adr)}
                       </span>
                     </div>
+                    )}
                   </Link>
                 </li>
               ))}
@@ -137,7 +139,7 @@ export function DestinationSearch({
         </div>
       ) : (
         <p className="text-xs text-slate-500">
-          Search {markets.length} US travel & hospitality markets by name, region, or slug.
+          Search {markets.length} US markets with cited coverage by name or region.
         </p>
       )}
     </div>

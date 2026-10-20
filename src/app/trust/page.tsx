@@ -22,7 +22,7 @@ const promises = [
   {
     label: "Never write bookings",
     meaning:
-      "Not a booking engine. Not a meeting-sourcing marketplace. No writes to PMS / CRS / OTA guest systems.",
+      "No writes to PMS / CRS / OTA guest systems.",
   },
 ] as const;
 
@@ -37,7 +37,7 @@ const dataRows = [
   },
   {
     title: "Encryption",
-    body: "TLS in transit; encryption at rest on primary store and backups via cloud KMS. We mirror Silvia’s trust model — not proprietary crypto theater.",
+    body: "TLS in transit; encryption at rest on the primary store and backups via cloud KMS. Standard, proven encryption — no proprietary crypto.",
   },
   {
     title: "Access",
@@ -59,8 +59,8 @@ export default function TrustPage() {
       <div className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight text-white">Trust Contract</h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-slate-400">
-          Decision support for hospitality capital — cited. Not a broker, booking
-          engine, or meeting-sourcing marketplace.
+          What we promise about your data, our sources, and who makes the decisions. Plain
+          words, no badges we haven&apos;t earned.
         </p>
         <p className="text-sm text-slate-500">
           <Link href="/chat" className="text-slate-300 underline-offset-2 hover:underline">
@@ -137,11 +137,22 @@ export default function TrustPage() {
       </section>
 
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
-        <h2 className="text-base font-medium text-white">Backend trust roadmap</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-400">
-          Phase 0 harden live → Phase 1 Clerk auth live → Phase 2 read-only connectors →
-          Phase 3 attestation. Phase 0 practices are what you see on this site today; later phases
-          ship before we claim them in chrome. No SOC2 theater until attested.
+        <h2 className="text-base font-medium text-white">What&apos;s live today, and what comes next</h2>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-300">
+          <li>
+            <span className="font-medium text-slate-100">Live today:</span> encrypted connections and
+            storage, secrets kept out of code, and private sign-in for workspaces.
+          </li>
+          <li>
+            <span className="font-medium text-slate-100">Next:</span> read-only links to your own data,
+            which you authorize and can switch off.
+          </li>
+          <li>
+            <span className="font-medium text-slate-100">Later:</span> an independent security review.
+          </li>
+        </ul>
+        <p className="mt-3 text-sm leading-relaxed text-slate-300">
+          We only describe a safeguard here once it is actually in place.
         </p>
       </section>
 
@@ -160,10 +171,6 @@ export default function TrustPage() {
         </Link>
       </div>
 
-      <p className="text-xs leading-relaxed text-slate-600">
-        Decision support · citations required · TLS + encryption at rest · read-only links first · never
-        writes bookings
-      </p>
     </div>
   );
 }

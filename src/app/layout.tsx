@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bungah Capital Intel",
   description:
-    "Hospitality capital intelligence — Capital Graph, Radars, Sound Asset Lodging, Chat. Decision support. Citations required.",
+    "Cited hotel capital intelligence for owners, investors, asset managers and developers: Capital Graph, Chat, Radars and Sound Asset Lodging.",
 };
 
 export default function RootLayout({
@@ -36,26 +36,26 @@ export default function RootLayout({
           <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_rgba(148,163,184,0.12),_transparent_60%)]" />
           <Nav />
           <main className="mx-auto max-w-6xl px-4 py-10">{children}</main>
-          <footer className="mx-auto max-w-6xl border-t border-white/[0.06] px-4 py-8 text-xs text-slate-500">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <footer className="mx-auto max-w-6xl border-t border-white/[0.08] px-4 py-8 text-sm text-slate-300 sm:px-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
-                <div className="text-slate-400">Bungah Capital Intel</div>
-                <div>Decision support · citations required · not booking · not meeting-sourcing</div>
+                <div className="font-medium text-slate-100">Bungah Capital Intel</div>
+                <div className="text-slate-300">Decision support for hotel capital. Every number cited; you make the call.</div>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/trust" className="text-slate-400 hover:text-slate-200">
+              <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+                <Link href="/trust" className="text-slate-200 hover:text-white">
                   Trust Contract
                 </Link>
-                <Link href="/podcast" className="text-slate-400 hover:text-slate-200">
-                  Podcast
-                </Link>
-                <Link href="/pricing" className="text-slate-400 hover:text-slate-200">
+                <Link href="/pricing" className="text-slate-200 hover:text-white">
                   Pricing
                 </Link>
-                <Link href="/sound-money-lodging" className="text-slate-400 hover:text-slate-200">
-                  Sound Asset Lodging
+                <Link href="/podcast" className="text-slate-200 hover:text-white">
+                  Podcast
                 </Link>
-              </div>
+                <Link href="/sound-money-lodging" className="text-slate-200 hover:text-white">
+                  Sound Asset
+                </Link>
+              </nav>
             </div>
           </footer>
         </ClerkProvider>

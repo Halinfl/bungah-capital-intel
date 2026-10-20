@@ -5,7 +5,7 @@ import { PricingTiers } from "@/components/PricingTiers";
 export const metadata: Metadata = {
   title: "Pricing · Bungah Capital Intel",
   description:
-    "Free, Pro $10/mo, Company $100/mo for 20 seats. Decision-support hospitality capital intelligence.",
+    "Free, Pro $10/mo, Company $100/mo for up to 20 seats. Cited hotel capital intelligence.",
 };
 
 export default function PricingPage() {
@@ -17,8 +17,8 @@ export default function PricingPage() {
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-white">Pricing</h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-slate-400">
-          Free to try the public Capital Graph. Pro for private workspace and Sound Asset Lodging. Company for
-          shared org seats — up to 20. No SOC2 theater; Trust Contract first.
+          Free to try the public Capital Graph. Pro for a private workspace. Company for shared
+          seats, up to 20.
         </p>
         <p className="text-sm text-slate-500">
           <Link href="/trust" className="text-slate-300 underline-offset-2 hover:underline">
@@ -28,8 +28,6 @@ export default function PricingPage() {
           <Link href="/signup" className="text-slate-300 underline-offset-2 hover:underline">
             Start free
           </Link>
-          {" · "}
-          auth chrome Phase 1 · Stripe later
         </p>
       </div>
 

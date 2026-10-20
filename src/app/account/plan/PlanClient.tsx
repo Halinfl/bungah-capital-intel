@@ -64,7 +64,7 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed");
-        setToast(data.message || "Billing comes in Phase 1b — join the waitlist. No charge.");
+        setToast(data.message || "Billing opens soon — you're on the waitlist. No charge.");
         return;
       }
       const res = await fetch("/api/auth/plan", {
@@ -144,7 +144,7 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
       </div>
 
       <p className="text-xs leading-relaxed text-slate-500">
-        Until Stripe: upgrades join the waitlist — never Buy / Charge now.{" "}
+        Billing opens soon; you won&apos;t be charged until it does.{" "}
         <Link href="/workspace" className="text-slate-400 underline-offset-2 hover:underline">
           Back to workspace
         </Link>

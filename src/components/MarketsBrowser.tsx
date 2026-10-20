@@ -50,7 +50,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
     const needle = q.trim().toLowerCase();
     if (!needle) return markets;
     return markets.filter((m) => {
-      const hay = `${m.name} ${m.region} ${m.slug} ${m.summary}`.toLowerCase();
+      const hay = `${m.name} ${m.region} ${m.slug}`.toLowerCase();
       return needle.split(/\s+/).every((tok) => hay.includes(tok));
     });
   }, [markets, q]);
@@ -108,7 +108,12 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
                 <p className="text-sm text-slate-400">{m.region}</p>
               </div>
               <span className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-slate-400">
-                {m.assetCount} assets · {m.signalCount} signals
+                {[
+                  m.assetCount ? `${m.assetCount} ${m.assetCount === 1 ? "asset" : "assets"}` : null,
+                  `${m.signalCount} cited ${m.signalCount === 1 ? "signal" : "signals"}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </span>
             </div>
             <p className="mt-3 text-sm text-slate-300">{m.summary}</p>

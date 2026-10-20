@@ -4,12 +4,16 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
 import { DestinationSearch } from "@/components/DestinationSearch";
 import { PricingTiers } from "@/components/PricingTiers";
-import { fmtPct, fmtUsd, fmtVisitorsM } from "@/lib/format";
+import { citedOnly, fmtPct, fmtUsd, fmtVisitorsM, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const markets = await prisma.market.findMany({ orderBy: { name: "asc" } });
+  const allMarkets = await prisma.market.findMany({
+    orderBy: { name: "asc" },
+    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+  });
+  const markets = allMarkets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length));
   const orlando = markets.find((m) => m.slug === "orlando");
   const vegas = markets.find((m) => m.slug === "las-vegas");
   const radarCount = await prisma.radar.count();
@@ -19,10 +23,11 @@ export default async function HomePage() {
     slug: m.slug,
     name: m.name,
     region: m.region,
-    visitorsM: m.visitorsM,
-    roomsK: m.roomsK,
-    occupancy: m.occupancy,
-    adr: m.adr,
+    // Seed snapshots are never shown publicly.
+    visitorsM: isSeedMarket(m) ? null : m.visitorsM,
+    roomsK: isSeedMarket(m) ? null : m.roomsK,
+    occupancy: isSeedMarket(m) ? null : m.occupancy,
+    adr: isSeedMarket(m) ? null : m.adr,
   }));
 
   return (
@@ -43,7 +48,7 @@ export default async function HomePage() {
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
           <DestinationSearch
             markets={searchItems}
-            placeholder="Search markets by name, region, or slug"
+            placeholder="Search a market — e.g. Orlando, Nashville"
           />
         </div>
 
@@ -63,23 +68,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Quiet Trust Contract line — before pricing & tools */}
-      <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm leading-relaxed text-slate-400">
-            <span className="font-medium text-slate-200">Trust Contract.</span> Decision support ·
-            citations · not booking · not meeting-sourcing.
-          </p>
-          <Link
-            href="/trust"
-            className="shrink-0 text-sm text-slate-300 underline-offset-2 hover:text-white hover:underline"
-          >
-            Read the contract
-          </Link>
-        </div>
-      </section>
+      {/* One quiet trust line */}
+      <p className="text-sm text-slate-300">
+        Private · Cited · Decision support ·{" "}
+        <Link href="/trust" className="text-slate-100 underline underline-offset-4 decoration-white/30 hover:decoration-white">
+          Read the Trust Contract
+        </Link>
+      </p>
 
-      {/* Pricing — Free · Pro · Company (chrome mock; no Stripe) */}
+      {/* Pricing — Free · Pro · Company */}
       <PricingTiers />
 
       {/* Work products — Radars + Sound Asset Lodging (tools after trust + pricing) */}
@@ -111,8 +108,8 @@ export default async function HomePage() {
               </span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              Bitcoin treasury, capital stack, and ops for hotel investors. Cited. Decision support —
-              balance-sheet appreciation beside RevPAR.
+              Bitcoin treasury, capital stack, and ops for hotel investors, with cited sources and two
+              calculators.
             </p>
           </Link>
         </div>

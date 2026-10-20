@@ -1,19 +1,6 @@
+// Order: hotel-capital conversations first. The Erik Cason episode stays on the page (title unchanged)
+// but is never the first card or above the fold (Hal, 2026-10-20).
 const episodes = [
-  {
-    title:
-      "F**k the State: Bitcoin, Open-Source AI, and Ending the Pedo-Cabal | Erik Cason",
-    guest: "Erik Cason · THE Bitcoin Podcast with Walker",
-    why: "Sound-money ideology for capital allocators — Crypto Sovereignty, open-source AI that stays yours, and why Bitcoin is political with a capital P. Natural shelf-mate for Sound Asset Lodging.",
-    links: [
-      ["Spotify", "https://open.spotify.com/episode/4Jcjv7KJ3iGT4rkWGBuq4R"],
-      ["YouTube", "https://www.youtube.com/watch?v=9C1gBr40Hh0"],
-      ["Fountain", "https://fountain.fm/episode/u4FB6afx6ZwNcCrIWHjO"],
-      [
-        "Apple",
-        "https://podcasts.apple.com/us/podcast/the-bitcoin-podcast/id1694392423",
-      ],
-    ],
-  },
   {
     title: "CIO of Host Hotels, Nate Tyrrell, on Creating Value in the Hotel Industry",
     guest: "Nate Tyrrell · CIO, Host Hotels & Resorts",
@@ -51,6 +38,21 @@ const episodes = [
       ],
     ],
   },
+  {
+    title:
+      "F**k the State: Bitcoin, Open-Source AI, and Ending the Pedo-Cabal | Erik Cason",
+    guest: "Erik Cason · THE Bitcoin Podcast with Walker",
+    why: "Sound-money ideology for capital allocators — Crypto Sovereignty, open-source AI that stays yours, and why Bitcoin is political with a capital P. Natural shelf-mate for Sound Asset Lodging.",
+    links: [
+      ["Spotify", "https://open.spotify.com/episode/4Jcjv7KJ3iGT4rkWGBuq4R"],
+      ["YouTube", "https://www.youtube.com/watch?v=9C1gBr40Hh0"],
+      ["Fountain", "https://fountain.fm/episode/u4FB6afx6ZwNcCrIWHjO"],
+      [
+        "Apple",
+        "https://podcasts.apple.com/us/podcast/the-bitcoin-podcast/id1694392423",
+      ],
+    ],
+  },
 ] as const;
 
 export default function PodcastPage() {
@@ -58,7 +60,7 @@ export default function PodcastPage() {
     <div className="mx-auto max-w-5xl space-y-10">
       <header className="max-w-2xl">
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Relationship engine
+          Listening
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Podcast</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-slate-400">
