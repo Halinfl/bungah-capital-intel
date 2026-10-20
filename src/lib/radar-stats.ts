@@ -53,7 +53,7 @@ const VERIFIED: VerifiedStat[] = [
   },
   {
     market: "las-vegas",
-    pattern: /\bmidweek OCC 76\.6%/i,
+    pattern: /\bmidweek (?:OCC|occupancy) 76\.6%/i,
     label: "Midweek occupancy, 2025",
     value: "76.6%",
     hint: "Weekends 88.8% · LVCVA",
