@@ -291,7 +291,7 @@ def supply(slug):
     return {"score": score, "caution": caution, "rows": rows, "projects": projects, "rollup": rollup}
 
 # ---------------- demand ----------------
-CTF = "ctfassets.net/qiecpoxp4bka"  # Las Vegas airport traffic PDFs: never outside Las Vegas
+CTF = "ctfassets.net/2pnrhs9eukyp"  # Harry Reid (LAS) traffic PDFs: never outside Las Vegas (qiecpoxp4bka is GOAA / Orlando)
 def demand_rows(body, slug, where, limit=None):
     out = []
     for hdr, trs in tables(body):
@@ -577,6 +577,17 @@ def operations(slug):
 data = {"generated": date.today().isoformat(), "markets": {}}
 for slug in TIER1:
     data["markets"][slug] = {"supply": supply(slug), "demand": demand(slug), "capital": capital(slug), "ops": operations(slug)}
+# Orlando + Las Vegas: checked blocks assembled from their own research files (re-verified 2026-10-20).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from stack_memo_orl_lv import MARKETS as ORL_LV
+for slug, blocks in ORL_LV.items():
+    for b in ("supply", "demand", "capital", "ops"):
+        txt = json.dumps(blocks[b], ensure_ascii=False)
+        if TEAM.search(txt) or re.search(r"illustrative|propose-only|placeholder|\bDY\b|\.md\b|/_src/", txt, re.I):
+            raise SystemExit(f"internal term in {slug} {b}")
+        if slug != "las-vegas" and (CTF in txt or "4,149,332" in txt):
+            raise SystemExit(f"Las Vegas airport PDF outside Las Vegas: {slug}")
+    data["markets"][slug] = blocks
 data["omitted"] = OMITTED
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as f:

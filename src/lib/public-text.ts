@@ -253,10 +253,43 @@ const PUBLISHERS: Record<string, string> = {
   "piccardfinancial.com": "Piccard Financial",
   "quilts.com": "International Quilt Festival",
   "collectaconusa.com": "Collect-A-Con",
+  "occompt.com": "Orange County Comptroller",
+  "flymco.com": "Orlando International Airport",
+  "reviewjournal.com": "Las Vegas Review-Journal",
+  "yahoo.com": "Yahoo Finance",
+  "growthspotter.com": "GrowthSpotter",
+  "disneyparksblog.com": "Disney Parks Blog",
+  "theapopkavoice.com": "The Apopka Voice",
+  "natlawreview.com": "National Law Review",
+  "uniteherelocal737.org": "UNITE HERE Local 737",
+  "orlandoweekly.com": "Orlando Weekly",
+  "enr.com": "ENR",
+  "mortenson.com": "Mortenson",
+  "hotelrealtor.biz": "Hotel Realtor",
+  "theiacpconference.org": "IACP",
+  "money2020.com": "Money20/20",
+  "supplysideglobal.com": "SupplySide Global",
+  "sema.org": "SEMA",
+  "hlth.com": "HLTH",
+  "re-plus.events": "RE+",
+  "issashow.com": "ISSA",
+  "f1lasvegasgp.com": "Las Vegas Grand Prix",
+  "awsevents.com": "AWS re:Invent",
+  "mjbizconference.com": "MJBizCon",
+  "nacsshow.com": "NACS",
 };
+
+/** Hosts that serve many publishers: name them by path (Contentful space / Simpleview client). */
+const PATH_PUBLISHERS: [RegExp, string][] = [
+  [/^https?:\/\/assets\.ctfassets\.net\/qiecpoxp4bka\//, "Orlando International Airport (GOAA)"],
+  [/^https?:\/\/assets\.ctfassets\.net\/2pnrhs9eukyp\//, "Harry Reid International Airport"],
+  [/^https?:\/\/assets\.ctfassets\.net\/m2p70vmwc019\//, "DFW Airport"],
+  [/^https?:\/\/assets\.simpleviewcms\.com\/simpleview\/image\/upload\/v1\/clients\/lasvegas\//, "LVCVA"],
+];
 
 /** Real publisher name for a URL (falls back to the registrable domain). */
 export function publisherName(url: string): string {
+  for (const [re, name] of PATH_PUBLISHERS) if (re.test(url)) return name;
   let host = "";
   try {
     host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
