@@ -42,8 +42,8 @@ export default async function MarketsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Markets</h1>
-        <p className="mt-2 max-w-2xl text-slate-400">
+        <h1 className="t-h1">Markets</h1>
+        <p className="mt-2 max-w-2xl t-lead">
           {items.length} US hotel markets with cited coverage today. Numbers lead; every figure
           carries its source.
         </p>

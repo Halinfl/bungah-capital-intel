@@ -78,7 +78,7 @@ export default async function MarketDetailPage({
         title={title}
         meta={
           <>
-            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+            <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-slate-300">
               {s.kind}
             </span>
             {s.magnitude ? (
@@ -86,7 +86,7 @@ export default async function MarketDetailPage({
                 {scrubInternal(s.magnitude)}
               </span>
             ) : null}
-            {s.asOf ? <span className="text-[11px] text-slate-500">as of {s.asOf}</span> : null}
+            {s.asOf ? <span className="text-xs text-slate-400">as of {s.asOf}</span> : null}
           </>
         }
       >
@@ -107,20 +107,20 @@ export default async function MarketDetailPage({
   return (
     <div className="space-y-10">
       <div>
-        <Link href="/markets" className="text-xs text-slate-500 hover:text-emerald-300">
+        <Link href="/markets" className="text-xs text-slate-400 hover:text-emerald-300">
           ← Markets
         </Link>
         <div className="mt-2 flex flex-wrap items-baseline gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight text-white">{market.name}</h1>
+          <h1 className="t-h1">{market.name}</h1>
           {thin ? null : (
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-200">
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-emerald-200">
               Cited snapshot
             </span>
           )}
         </div>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mt-1 text-sm text-slate-300">
           <span className="text-slate-300">{market.region}</span>
-          <span className="mx-2 text-slate-600">·</span>
+          <span className="mx-2 text-slate-400">·</span>
           Destination dashboard
         </p>
         {thin ? (
@@ -180,10 +180,10 @@ export default async function MarketDetailPage({
         )
       ) : (
         <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
             Underwriting nuance
           </h2>
-          <p className="mt-3 text-sm text-slate-400">
+          <p className="mt-3 text-sm text-slate-300">
             No submarket nuance note yet for {short}. Underwrite by corridor and product class — not MSA
             averages alone. Talent / staffing remains a CapEx greenlight gate.
           </p>
@@ -193,7 +193,7 @@ export default async function MarketDetailPage({
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Signals</h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-400">
             {market.signals.length ? `${market.signals.length} cited` : "none yet"}
           </span>
         </div>
@@ -202,7 +202,7 @@ export default async function MarketDetailPage({
             {market.signals.map((s, i) => renderSignal(s, i))}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
+          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
             No cited market signals yet. {coverageInProgressLine(market.name)}
           </div>
         )}
@@ -212,12 +212,12 @@ export default async function MarketDetailPage({
         <section className="space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Hotel-tax collections</h2>
-            <span className="text-xs text-slate-500">newest first · {taxSeries.length} periods</span>
+            <span className="text-xs text-slate-400">newest first · {taxSeries.length} periods</span>
           </div>
           <div className="grid gap-3">{taxSeries.slice(0, TAX_SHOWN).map((s, i) => renderSignal(s, i, "tax"))}</div>
           {taxSeries.length > TAX_SHOWN ? (
             <details>
-              <summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-200">
+              <summary className="cursor-pointer text-xs text-slate-300 hover:text-slate-200">
                 +{taxSeries.length - TAX_SHOWN} earlier periods
               </summary>
               <div className="mt-3 grid gap-3">
@@ -231,7 +231,7 @@ export default async function MarketDetailPage({
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Assets</h2>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-400">
             {market.assets.length ? `${market.assets.length} cited` : "none yet"}
           </span>
         </div>
@@ -241,7 +241,7 @@ export default async function MarketDetailPage({
               <div key={a.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="font-medium text-white">{a.name}</h3>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-300">
                     {a.keys ? `${a.keys.toLocaleString()} keys` : "keys n/a"} · {a.assetClass}
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export default async function MarketDetailPage({
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
+          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
             No cited assets yet for this destination. Underwrite by submarket and product class —
             MSA averages are not a substitute for a competitive set.
           </div>
@@ -274,7 +274,7 @@ export default async function MarketDetailPage({
                   tone={severityClass(f.severity)}
                   title={scrubInternal(f.title)}
                   meta={
-                    <span className="text-[11px] uppercase tracking-wider opacity-80">
+                    <span className="text-xs uppercase tracking-wider opacity-80">
                       {f.severity} · {f.radar.name}
                     </span>
                   }
@@ -291,7 +291,7 @@ export default async function MarketDetailPage({
       ) : (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-white">Linked findings</h2>
-          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-400">
+          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
             No radar findings linked to this market yet. National debt-wall and talent radars may still apply —
             see{" "}
             <Link href="/radars" className="text-emerald-300 hover:underline">

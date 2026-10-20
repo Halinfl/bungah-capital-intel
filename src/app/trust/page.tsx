@@ -55,18 +55,18 @@ const dataRows = [
 
 export default function TrustPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-12">
+    <div className="space-y-12">
       <div className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Trust Contract</h1>
-        <p className="max-w-2xl text-[15px] leading-relaxed text-slate-400">
+        <h1 className="t-h1">Trust Contract</h1>
+        <p className="max-w-2xl t-lead">
           What we promise about your data, our sources, and who makes the decisions. Plain
           words, no badges we haven&apos;t earned.
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           <Link href="/chat" className="text-slate-300 underline-offset-2 hover:underline">
             Continue in Chat
           </Link>
-          <span className="mx-2 text-slate-600">·</span>
+          <span className="mx-2 text-slate-400">·</span>
           <Link href="/" className="text-slate-300 underline-offset-2 hover:underline">
             Return home
           </Link>
@@ -74,7 +74,7 @@ export default function TrustPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           How we earn confidence
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -84,7 +84,7 @@ export default function TrustPage() {
               className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4"
             >
               <p className="text-sm font-medium text-white">{p.label}</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">{p.meaning}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">{p.meaning}</p>
             </div>
           ))}
         </div>
@@ -93,7 +93,7 @@ export default function TrustPage() {
       <section className="grid gap-6 md:grid-cols-2">
         <div className="space-y-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
           <h2 className="text-base font-medium text-white">What it is</h2>
-          <ul className="space-y-2 text-sm leading-relaxed text-slate-400">
+          <ul className="space-y-2 text-sm leading-relaxed text-slate-300">
             <li>Capital Graph · Radars · Chat · Sound Asset Lodging for hotel investors and operators</li>
             <li>Every material number cited — or marked as an estimate</li>
             <li>Humans Approve / Edit / Dismiss — we never auto-execute</li>
@@ -101,7 +101,7 @@ export default function TrustPage() {
         </div>
         <div className="space-y-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
           <h2 className="text-base font-medium text-white">What we never do</h2>
-          <ul className="space-y-2 text-sm leading-relaxed text-slate-400">
+          <ul className="space-y-2 text-sm leading-relaxed text-slate-300">
             <li>Auto-execute capital, debt, or franchise decisions</li>
             <li>Write to PMS / CRS / OTA booking systems</li>
             <li>Sell scraped outreach lists or spam from this product</li>
@@ -112,7 +112,7 @@ export default function TrustPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           How we handle data
         </h2>
         <div className="space-y-2">
@@ -124,11 +124,11 @@ export default function TrustPage() {
               <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-200 marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-3">
                   {row.title}
-                  <span className="text-xs text-slate-600 group-open:hidden">+</span>
-                  <span className="hidden text-xs text-slate-600 group-open:inline">−</span>
+                  <span className="text-xs text-slate-400 group-open:hidden">+</span>
+                  <span className="hidden text-xs text-slate-400 group-open:inline">−</span>
                 </span>
               </summary>
-              <p className="border-t border-white/[0.06] px-4 py-3 text-sm leading-relaxed text-slate-500">
+              <p className="border-t border-white/[0.06] px-4 py-3 text-sm leading-relaxed text-slate-400">
                 {row.body}
               </p>
             </details>

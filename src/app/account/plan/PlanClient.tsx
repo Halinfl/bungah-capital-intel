@@ -106,7 +106,7 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-base font-medium text-white">{tier.label}</h3>
                 {active ? (
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-emerald-300/90">
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs uppercase tracking-wider text-emerald-300/90">
                     Current
                   </span>
                 ) : null}
@@ -115,9 +115,9 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
                 <span className="text-2xl font-semibold tracking-tight text-white tabular-nums">
                   {tier.price}
                 </span>
-                <span className="ml-1 text-sm text-slate-500">{tier.period}</span>
+                <span className="ml-1 text-sm text-slate-400">{tier.period}</span>
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{tier.forWhom}</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">{tier.forWhom}</p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-slate-300">
                 {tier.includes.map((item) => (
                   <li key={item} className="flex gap-2">
@@ -143,9 +143,9 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
         })}
       </div>
 
-      <p className="text-xs leading-relaxed text-slate-500">
+      <p className="text-xs leading-relaxed text-slate-400">
         Billing opens soon; you won&apos;t be charged until it does.{" "}
-        <Link href="/workspace" className="text-slate-400 underline-offset-2 hover:underline">
+        <Link href="/workspace" className="text-slate-300 underline-offset-2 hover:underline">
           Back to workspace
         </Link>
       </p>

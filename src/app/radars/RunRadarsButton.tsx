@@ -26,7 +26,7 @@ export function RunRadarsButton() {
 
   return (
     <div className="flex items-center gap-3">
-      {msg ? <span className="text-xs text-slate-400">{msg}</span> : null}
+      {msg ? <span className="text-xs text-slate-300">{msg}</span> : null}
       <button
         type="button"
         onClick={run}

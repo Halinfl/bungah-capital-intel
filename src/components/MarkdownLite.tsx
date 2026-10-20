@@ -64,7 +64,7 @@ function inline(s: string): string {
       "<a href='$2' class='text-slate-100 underline underline-offset-2 hover:text-white'>$1</a>"
     )
     .replace(/\*\*(.+?)\*\*/g, "<strong class='text-white font-semibold'>$1</strong>")
-    .replace(/_(.+?)_/g, "<em class='text-slate-400'>$1</em>");
+    .replace(/_(.+?)_/g, "<em class='text-slate-300'>$1</em>");
 }
 
 function Table({ lines }: { lines: string[] }) {
@@ -81,7 +81,7 @@ function Table({ lines }: { lines: string[] }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-white/10">
       <table className="min-w-full text-left text-xs">
-        <thead className="bg-white/5 text-slate-400">
+        <thead className="bg-white/5 text-slate-300">
           <tr>
             {cells(header).map((c, i) => (
               <th key={i} className="px-3 py-2 font-medium" dangerouslySetInnerHTML={{ __html: inline(c) }} />

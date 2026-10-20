@@ -55,12 +55,12 @@ export function InviteForm({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-slate-300">
         Remaining seats: {left} of {seatsMax}
       </p>
       <form onSubmit={onSubmit} className="space-y-4">
         <label className="block space-y-1.5">
-          <span className="text-xs text-slate-500">Email</span>
+          <span className="text-xs text-slate-400">Email</span>
           <input
             type="email"
             required
@@ -71,11 +71,11 @@ export function InviteForm({
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-slate-500">Role</span>
+          <span className="text-xs text-slate-400">Role</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as "Member" | "Admin")}
-            className="w-full rounded-lg border border-white/10 bg-[#0a0e13] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-white/25"
+            className="w-full rounded-lg border border-white/10 bg-[#262a32] px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-white/25"
           >
             <option value="Member">Member</option>
             <option value="Admin">Admin</option>
@@ -101,9 +101,9 @@ export function InviteForm({
           ) : null}
         </div>
       </form>
-      {note ? <p className="text-sm text-slate-400">{note}</p> : null}
+      {note ? <p className="text-sm text-slate-300">{note}</p> : null}
       {link ? (
-        <p className="break-all rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02] px-3 py-2 text-xs text-slate-400">
+        <p className="break-all rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02] px-3 py-2 text-xs text-slate-300">
           {link}
         </p>
       ) : null}

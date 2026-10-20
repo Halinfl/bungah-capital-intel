@@ -57,13 +57,13 @@ const episodes = [
 
 export default function PodcastPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-10">
+    <div className="space-y-10">
       <header className="max-w-2xl">
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-sm font-medium text-slate-400">
           Listening
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Podcast</h1>
-        <p className="mt-3 text-[15px] leading-relaxed text-slate-400">
+        <h1 className="mt-2 t-h1">Podcast</h1>
+        <p className="mt-3 t-lead">
           Conversations with people who move hospitality capital — not influencer travel chat.
           Listening shelf for operator and capital voices we respect — clearly marked external until Bungah records its own.
         </p>
@@ -73,11 +73,11 @@ export default function PodcastPage() {
         <div className="max-w-2xl">
           <h2
             id="worth-hearing"
-            className="text-xl font-medium tracking-tight text-white sm:text-2xl"
+            className="t-h2"
           >
             Worth hearing in the space
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-400">
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">
             External conversations on hotel capital, ownership, and sound money — not Bungah episodes. We link
             them because they speak the language of deploy, hold, and underwrite.
           </p>
@@ -90,18 +90,18 @@ export default function PodcastPage() {
               className="flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 transition hover:border-white/15 hover:bg-white/[0.03]"
             >
               <div className="flex items-start justify-between gap-3">
-                <span className="rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-sky-200/80">
+                <span className="rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-2 py-1 text-xs font-medium uppercase tracking-[0.12em] text-sky-200/80">
                   External
                 </span>
-                <span className="text-[11px] text-slate-600">Not Bungah</span>
+                <span className="text-xs text-slate-400">Not Bungah</span>
               </div>
               <h3 className="mt-4 text-base font-medium leading-snug text-white">{episode.title}</h3>
-              <p className="mt-2 text-xs font-medium leading-relaxed text-slate-400">{episode.guest}</p>
+              <p className="mt-2 text-xs font-medium leading-relaxed text-slate-300">{episode.guest}</p>
               <div className="mt-5 border-t border-white/[0.06] pt-4">
-                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500">
+                <p className="text-sm font-medium text-slate-400">
                   Why listen
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{episode.why}</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">{episode.why}</p>
               </div>
               <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2">
                 {episode.links.map(([label, href]) => (
@@ -116,7 +116,7 @@ export default function PodcastPage() {
                   </a>
                 ))}
               </div>
-              <p className="mt-auto border-t border-white/[0.06] pt-4 text-[10px] leading-relaxed text-slate-600">
+              <p className="mt-auto border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-400">
                 External · Not produced by Bungah Capital Intel
               </p>
             </article>

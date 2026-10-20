@@ -69,7 +69,7 @@ export function PricingTiers({ compactHeading = false }: PricingTiersProps) {
     <section id="pricing" className="scroll-mt-20 space-y-5">
       {!compactHeading ? (
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight text-white">Pricing</h2>
+          <h2 className="t-h2">Pricing</h2>
           <p className="text-[15px] text-slate-200">
             Start free. Upgrade when you need a private workspace or shared seats.
           </p>

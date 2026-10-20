@@ -35,7 +35,7 @@ export default function RootLayout({
         <ClerkProvider appearance={clerkAppearance} afterSignOutUrl="/">
           <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_rgba(148,163,184,0.12),_transparent_60%)]" />
           <Nav />
-          <main className="mx-auto max-w-6xl px-4 py-10">{children}</main>
+          <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">{children}</main>
           <footer className="mx-auto max-w-6xl border-t border-white/[0.08] px-4 py-8 text-sm text-slate-300 sm:px-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">

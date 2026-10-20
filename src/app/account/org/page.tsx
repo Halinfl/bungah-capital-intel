@@ -23,10 +23,10 @@ export default async function OrgPage() {
     <div className="mx-auto max-w-lg space-y-6">
       <SessionStatus profile={profile} />
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="t-h2">
           {hasOrg ? profile.orgName : "Create an org Capital Graph"}
         </h1>
-        <p className="text-sm leading-relaxed text-slate-400">
+        <p className="text-sm leading-relaxed text-slate-300">
           Shared picture for your brand, owner, AM, developer, or CVB team — up to {SEATS_MAX}{" "}
           seats.
         </p>
@@ -37,7 +37,7 @@ export default async function OrgPage() {
           <p className="text-sm text-slate-300">
             Role: <span className="text-white">{profile.orgRole || "Owner"}</span>
           </p>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-300">
             {profile.seatsUsed ?? 1} of {profile.seatsMax ?? SEATS_MAX} seats used
           </p>
           <div className="flex flex-wrap gap-3">
@@ -61,8 +61,8 @@ export default async function OrgPage() {
         </div>
       )}
 
-      <p className="text-xs text-slate-600">
-        <Link href="/trust" className="hover:text-slate-400">
+      <p className="text-xs text-slate-400">
+        <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>
       </p>

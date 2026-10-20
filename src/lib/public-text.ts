@@ -140,6 +140,8 @@ const PUBLISHERS: Record<string, string> = {
   "visitorlando.org": "Visit Orlando",
   "lvcva.com": "LVCVA",
   "news3lv.com": "News 3 Las Vegas",
+  "fox5vegas.com": "FOX5 Las Vegas",
+  "simpleviewinc.com": "Simpleview",
   "bizjournals.com": "Business Journals",
   "commercialobserver.com": "Commercial Observer",
   "hvs.com": "HVS",

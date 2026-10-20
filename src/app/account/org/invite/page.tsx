@@ -26,16 +26,16 @@ export default async function InvitePage() {
     <div className="mx-auto max-w-lg space-y-6">
       <SessionStatus profile={profile} />
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="t-h2">
           Invite people to the org graph
         </h1>
-        <p className="text-sm text-slate-500">{profile.orgName}</p>
+        <p className="text-sm text-slate-400">{profile.orgName}</p>
       </div>
       <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
         <InviteForm remaining={remaining} seatsMax={seatsMax} />
       </div>
-      <p className="text-xs text-slate-600">
-        <Link href="/account/org" className="hover:text-slate-400">
+      <p className="text-xs text-slate-400">
+        <Link href="/account/org" className="hover:text-slate-300">
           Back to org
         </Link>
       </p>

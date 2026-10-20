@@ -30,7 +30,7 @@ export function StackMemoView({ text }: { text: string }) {
     } else if (first.startsWith("## ")) {
       out.push(<h2 key={i} className="pt-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-slate-300">{first.slice(3)}</h2>);
     } else if (first.startsWith("### ")) {
-      out.push(<h3 key={i} className="text-xs font-medium text-slate-400">{first.slice(4)}</h3>);
+      out.push(<h3 key={i} className="text-xs font-medium text-slate-300">{first.slice(4)}</h3>);
     } else if (first.startsWith("> ")) {
       out.push(
         <div key={i} className="rounded-md border-l-2 border-amber-400/60 bg-amber-400/[0.06] px-3 py-2 text-[13px] leading-snug text-amber-100"
@@ -44,9 +44,9 @@ export function StackMemoView({ text }: { text: string }) {
       );
     } else if (first === "---") {
       out.push(<hr key={i} className="border-white/10" />);
-      if (lines.length > 1) out.push(<p key={`${i}f`} className="text-[11px] text-slate-500" dangerouslySetInnerHTML={{ __html: inline(lines.slice(1).join(" ")) }} />);
+      if (lines.length > 1) out.push(<p key={`${i}f`} className="text-xs text-slate-400" dangerouslySetInnerHTML={{ __html: inline(lines.slice(1).join(" ")) }} />);
     } else {
-      out.push(<p key={i} className="text-[13px] leading-snug text-slate-400" dangerouslySetInnerHTML={{ __html: inline(block) }} />);
+      out.push(<p key={i} className="text-[13px] leading-snug text-slate-300" dangerouslySetInnerHTML={{ __html: inline(block) }} />);
     }
   }
   return <div className="space-y-2.5">{out.map((n, k) => <Fragment key={k}>{n}</Fragment>)}</div>;
@@ -97,9 +97,9 @@ function inline(s: string, raised = false): string {
         ? "border-rose-400/40 text-rose-200"
         : /secondary|self-reported/i.test(t)
           ? "border-amber-400/40 text-amber-200"
-          : "border-white/15 text-slate-400";
-      return `<span class='ml-1 inline-block rounded border px-1 py-px text-[10px] uppercase tracking-wide ${tone}'>${t}</span>`;
+          : "border-white/15 text-slate-300";
+      return `<span class='ml-1 inline-block rounded border px-1 py-px text-xs uppercase tracking-wide ${tone}'>${t}</span>`;
     })
     .replace(/\*\*(.+?)\*\*/g, "<strong class='font-semibold text-white'>$1</strong>")
-    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-500'>$2</em>");
+    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-400'>$2</em>");
 }

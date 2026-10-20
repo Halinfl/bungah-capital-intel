@@ -46,21 +46,21 @@ export default async function WorkspacePage() {
       <SessionStatus profile={profile} showUpsell />
 
       <section className="space-y-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <p className="text-sm font-medium text-slate-400">
           Capital Graph
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <h1 className="t-h1">
           {profile.orgName
             ? `${profile.orgName} · shared org graph`
             : `Welcome, ${profile.name.split(" ")[0] || "investor"}`}
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-2xl t-lead">
           Your Capital Graph · decision support · citations ·{" "}
           <Link href="/trust" className="text-slate-300 underline-offset-2 hover:underline">
             Trust
           </Link>
         </p>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-500">
+        <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
           Markets, assets, debt, and talent/operator quality — humans make hospitality feel right.
         </p>
       </section>
@@ -78,17 +78,17 @@ export default async function WorkspacePage() {
             className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 transition hover:border-white/15 hover:bg-white/[0.03]"
           >
             <div className="text-sm font-medium text-white">{l.label}</div>
-            <p className="mt-1 text-xs text-slate-500">{l.desc}</p>
+            <p className="mt-1 text-xs text-slate-400">{l.desc}</p>
           </Link>
         ))}
       </section>
 
-      <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#0a0e13] p-5 sm:p-6">
+      <section className="space-y-4 rounded-xl border border-white/[0.08] bg-[#262a32] p-5 sm:p-6">
         <div className="space-y-1">
           <h2 className="text-lg font-medium tracking-tight text-white">
             Ideate on capital here — we don’t execute.
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-300">
             Deploy / Hold / Flag · private to your workspace.
           </p>
         </div>
@@ -100,7 +100,7 @@ export default async function WorkspacePage() {
               className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 transition hover:border-white/15 hover:bg-white/[0.04]"
             >
               <div className="text-sm font-medium text-white">{c.title}</div>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">{c.hint}</p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-300">{c.hint}</p>
             </Link>
           ))}
         </div>
@@ -112,8 +112,8 @@ export default async function WorkspacePage() {
         </Link>
       </section>
 
-      <p className="text-xs leading-relaxed text-slate-600">
-                <Link href="/trust" className="hover:text-slate-400">
+      <p className="text-xs leading-relaxed text-slate-400">
+                <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>
       </p>

@@ -17,19 +17,19 @@ export default async function PlanPage() {
   if (!profile) redirect(requireLoginRedirect("/account/plan"));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <SessionStatus profile={profile} />
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <h1 className="t-h1">
           Choose how you use the Capital Graph
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-2xl t-lead">
           Same plan family. Upgrade anytime. Plans never unlock booking writes or outreach.
         </p>
       </div>
       <PlanClient currentPlan={profile.plan} />
-      <p className="text-xs text-slate-600">
-        <Link href="/trust" className="hover:text-slate-400">
+      <p className="text-xs text-slate-400">
+        <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>
               </p>

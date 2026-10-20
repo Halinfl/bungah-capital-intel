@@ -24,13 +24,13 @@ export default async function AcceptInvitePage({ params }: Props) {
   return (
     <div className="mx-auto max-w-md space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="t-h2">
           Join {org}’s Capital Graph on Bungah
         </h1>
-        <p className="text-sm leading-relaxed text-slate-400">
+        <p className="text-sm leading-relaxed text-slate-300">
           Shared hotel-investing workspace — decision support, cited, private.
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           <Link href="/trust" className="text-slate-300 underline-offset-2 hover:underline">
             Trust Contract
           </Link>
@@ -49,7 +49,7 @@ export default async function AcceptInvitePage({ params }: Props) {
         >
           Sign in and join
         </Link>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           If this org is at 20 seats, ask an admin to free a seat.
         </p>
       </div>

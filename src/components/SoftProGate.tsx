@@ -31,7 +31,7 @@ export function SoftProGate() {
   if (!visible) return null;
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-300 sm:flex-row sm:items-center sm:justify-between">
       <p>Go Pro for downloadable Sound Asset Lodging memos and higher chat limits. Billing opens soon; no charge until then.</p>
       <div className="flex shrink-0 items-center gap-3">
         <Link
@@ -43,7 +43,7 @@ export function SoftProGate() {
         <button
           type="button"
           onClick={dismiss}
-          className="text-slate-500 hover:text-slate-300"
+          className="text-slate-400 hover:text-slate-300"
           aria-label="Dismiss Pro upsell"
         >
           Dismiss

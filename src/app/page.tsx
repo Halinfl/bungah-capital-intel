@@ -37,11 +37,12 @@ export default async function HomePage() {
       const urls = citedOnly(m.signals)
         .filter((s) => s.kind === "occupancy" || s.kind === "visitation")
         .flatMap((s) => parseSourceUrls(s.sourceUrls).slice(0, 1));
+      // One link per publisher, at most two publishers per row.
       const seen = new Set<string>();
       const links = urls
-        .filter((u) => (seen.has(u.url) ? false : (seen.add(u.url), true)))
-        .slice(0, 2)
-        .map((u) => ({ url: u.url, label: publisherName(u.url) }));
+        .map((u) => ({ url: u.url, label: publisherName(u.url) }))
+        .filter((l) => (seen.has(l.label) ? false : (seen.add(l.label), true)))
+        .slice(0, 2);
       return {
         slug: m.slug,
         name: shortName(m.name, m.sourceLabel),
@@ -96,10 +97,10 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
         <div className="space-y-5 pt-2">
-          <h1 className="max-w-xl text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl">
+          <h1 className="t-display max-w-xl">
             See where hotel capital is moving, and what to do about it.
           </h1>
-          <p className="max-w-lg text-lg leading-relaxed text-slate-200">
+          <p className="t-lead max-w-lg">
             For hotel owners, investors, asset managers and developers. Market numbers, debt and
             supply signals in one place, every figure linked to its source.
           </p>
@@ -129,9 +130,9 @@ export default async function HomePage() {
               <thead>
                 <tr className="border-b border-white/10 text-slate-300">
                   <th scope="col" className="pb-2 font-normal">Market</th>
-                  <th scope="col" className="pb-2 text-right font-normal">OCC</th>
-                  <th scope="col" className="pb-2 text-right font-normal">ADR</th>
-                  <th scope="col" className="pb-2 text-right font-normal">RevPAR</th>
+                  <th scope="col" className="pb-2 pl-3 text-right font-normal">OCC</th>
+                  <th scope="col" className="pb-2 pl-3 text-right font-normal">ADR</th>
+                  <th scope="col" className="pb-2 pl-3 text-right font-normal">RevPAR</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,9 +157,9 @@ export default async function HomePage() {
                         ))}
                       </div>
                     </td>
-                    <td className="py-3 text-right text-white">{fmtPct(r.occupancy)}</td>
-                    <td className="py-3 text-right text-white">{fmtUsd(r.adr, 0)}</td>
-                    <td className="py-3 text-right text-white">{fmtUsd(r.revpar, 0)}</td>
+                    <td className="py-3 pl-3 text-right text-white">{fmtPct(r.occupancy)}</td>
+                    <td className="py-3 pl-3 text-right text-white">{fmtUsd(r.adr, 0)}</td>
+                    <td className="py-3 pl-3 text-right text-white">{fmtUsd(r.revpar, 0)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -182,7 +183,7 @@ export default async function HomePage() {
 
       {/* Tools — four equal cards */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-semibold tracking-tight text-white">What&apos;s inside</h2>
+        <h2 className="t-h2">What&apos;s inside</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {tools.map((t) => (
             <Link

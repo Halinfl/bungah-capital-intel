@@ -17,10 +17,10 @@ export default async function SignupPage() {
   return (
     <div className="mx-auto max-w-md space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">
+        <h1 className="t-h1">
           Start a private workspace
         </h1>
-        <p className="text-sm leading-relaxed text-slate-400">
+        <p className=" t-lead">
           Free to start. Cited market data, Chat and Radars for hotel owners, investors, asset
           managers and developers.
         </p>

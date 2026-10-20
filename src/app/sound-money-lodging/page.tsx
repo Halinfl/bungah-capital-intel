@@ -171,9 +171,9 @@ function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: So
           <>
             <span className="block text-sm font-medium text-slate-200">
               {c.title}
-              {c.href ? <span className="ml-1 text-xs text-slate-500">↗</span> : null}
+              {c.href ? <span className="ml-1 text-xs text-slate-400">↗</span> : null}
             </span>
-            <span className="mt-1 block text-sm leading-relaxed text-slate-400">{c.line}</span>
+            <span className="mt-1 block text-sm leading-relaxed text-slate-300">{c.line}</span>
           </>
         );
         const cls =
@@ -225,10 +225,10 @@ export default async function SoundMoneyLodgingPage({
       {/* Hero — short summary, then the two calculators; the full doctrine follows below */}
       <section className="space-y-4">
         <p className="text-sm font-medium text-slate-300">Sound Asset Lodging</p>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 className="t-display max-w-3xl">
           Bitcoin on a hotel balance sheet, without starving the hotel.
         </h1>
-        <p className="max-w-2xl text-lg leading-relaxed text-slate-200">
+        <p className="t-lead max-w-2xl">
           A cited guide for hotel owners and investors weighing a Bitcoin reserve: treasury, capital
           stack and operations. Start with the two calculators below; the full doctrine, sources and
           memo studio follow.
@@ -261,7 +261,7 @@ export default async function SoundMoneyLodgingPage({
 
       {/* The two calculators, near the top */}
       <section id="calculators" className="scroll-mt-24 space-y-4">
-        <h2 className="text-2xl font-semibold tracking-tight text-white">Two calculators</h2>
+        <h2 className="t-h2">Two calculators</h2>
         <div className="grid min-w-0 gap-4">
           <SleeveCarryCheck />
           <GroundRentCoverage />
@@ -275,7 +275,7 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Doctrine — long form */}
       <section className="space-y-3 border-t border-white/[0.1] pt-10">
-        <h2 className="text-2xl font-semibold tracking-tight text-white">The doctrine</h2>
+        <h2 className="t-h2">The doctrine</h2>
         <p className="max-w-2xl text-[15px] leading-relaxed text-slate-200">
           Bitcoin treasury, capital stack, and operations for hotel investors —
           hotel-native, decision support, and educational. Balance-sheet appreciation as a fifth
@@ -285,10 +285,10 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Why hotel playbook */}
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Why the hotel playbook is breaking
         </h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
           Nightly yield, PIP clocks, fee stacks, labor, group books, debt walls, and brand politics
           underspecify when you only borrow office/industrial framing. Sound Asset Lodging reweights
           treasury · capital · operations around{" "}
@@ -300,10 +300,10 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Fifth return driver */}
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-5">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Fifth return driver
         </h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
           Classic hotel returns: grow NOI · improve the asset · manage leverage · favorable cap rates.
           <span className="text-slate-200"> Fifth — balance-sheet appreciation:</span> a strategic
           Bitcoin reserve that can compound <em>independently of RevPAR</em>, local property values,
@@ -316,7 +316,7 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Three pillars */}
       <section className="space-y-4">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Three pillars
         </h2>
         <div className="grid gap-3 lg:grid-cols-3">
@@ -326,11 +326,11 @@ export default async function SoundMoneyLodgingPage({
               className="flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5"
             >
               <div className="flex items-baseline gap-2">
-                <span className="text-[11px] tabular-nums text-slate-500">{p.n}</span>
+                <span className="text-xs tabular-nums text-slate-400">{p.n}</span>
                 <h3 className="text-base font-medium text-white">{p.title}</h3>
               </div>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-400">{p.body}</p>
-              <ul className="mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-500">
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-300">{p.body}</p>
+              <ul className="mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-400">
                 {p.bullets.map((b) => (
                   <li key={b} className="flex gap-2">
                     <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-slate-600" />
@@ -346,10 +346,10 @@ export default async function SoundMoneyLodgingPage({
       {/* Financing a BTC sleeve */}
       <section id="btc-sleeve" className="scroll-mt-24 space-y-4">
         <div className="space-y-2">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <h2 className="text-sm font-medium text-slate-400">
             Financing a BTC sleeve
           </h2>
-          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
             Decision support for owners weighing loan-funded Bitcoin on a refinance, a new build or
             an acquisition. The hotel has to carry the whole loan on its own NOI.
           </p>
@@ -359,7 +359,7 @@ export default async function SoundMoneyLodgingPage({
           <h3 className="text-sm font-medium text-slate-300">
             One cited lender example: Battery Finance
           </h3>
-          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
             An affiliate of Newmarket Capital that lends against commercial real estate plus
             Bitcoin. Named for its public facts, not as an endorsement.
           </p>
@@ -378,7 +378,7 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Signature metrics */}
       <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Signature metrics
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -404,10 +404,10 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Hotel structuring — Esner / RES Ep.11 */}
       <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Hotel structuring signals
         </h2>
-        <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
           From hospitality-sector dialogue with operators (e.g. Justin Esner on The Real Estate
           Standard Ep.11 — educational, not advice): flags often lag 18–24 months; land vs
           operating/building sleeves can create distinct collateral and optionality; Bitcoin on
@@ -424,7 +424,7 @@ export default async function SoundMoneyLodgingPage({
           ].map((t) => (
             <div
               key={t}
-              className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-400"
+              className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
             >
               {t}
             </div>
@@ -435,10 +435,10 @@ export default async function SoundMoneyLodgingPage({
       {/* Land / hotel split */}
       <section id="land-split" className="scroll-mt-24 space-y-4">
         <div className="space-y-2">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <h2 className="text-sm font-medium text-slate-400">
             Land / hotel split
           </h2>
-          <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+          <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
             For fee-simple owners and owners already on a ground lease: the same coverage test
             applies to the rent you would pay or pay today.
           </p>
@@ -453,10 +453,10 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Before you sign */}
       <section id="before-you-sign" className="scroll-mt-24 space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           Before you sign
         </h2>
-        <p className="max-w-3xl text-sm text-slate-400">
+        <p className="max-w-3xl text-sm text-slate-300">
           Six questions on keys, locks, upside share and liquidity.
         </p>
         <ol className="grid gap-2 sm:grid-cols-2">
@@ -465,7 +465,7 @@ export default async function SoundMoneyLodgingPage({
               key={q}
               className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
             >
-              <span className="shrink-0 tabular-nums text-slate-500">{i + 1}</span>
+              <span className="shrink-0 tabular-nums text-slate-400">{i + 1}</span>
               <span>{q}</span>
             </li>
           ))}
@@ -474,13 +474,13 @@ export default async function SoundMoneyLodgingPage({
 
       {/* What not to do */}
       <section className="space-y-3">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <h2 className="text-sm font-medium text-slate-400">
           What not to do
         </h2>
         <ul className="space-y-2 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
           {notToDo.map((item) => (
-            <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-400">
-              <span className="shrink-0 text-slate-600">—</span>
+            <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-300">
+              <span className="shrink-0 text-slate-400">—</span>
               <span>{item}</span>
             </li>
           ))}
@@ -491,7 +491,7 @@ export default async function SoundMoneyLodgingPage({
       <section id="studio" className="scroll-mt-24 space-y-4">
         <div>
           <h2 className="text-sm font-medium text-slate-300">Stack memo studio</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">
             Deterministic memo from checked market data: demand, capital, operations and supply,
             each figure row linked to its original source. No paid LLM. Markets without a checked
             read show only their cited signals.
@@ -514,7 +514,7 @@ export default async function SoundMoneyLodgingPage({
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-medium text-white">{a.title}</h3>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-400">
                 {a.market ? `${a.market.name} · ` : ""}
                 {a.createdAt.toLocaleString("en-US", { timeZone: "America/New_York" })} ET
               </span>
@@ -529,18 +529,18 @@ export default async function SoundMoneyLodgingPage({
           );
         })}
         {!memos.length ? (
-          <p className="text-sm text-slate-500">No Stack memos yet — generate one above.</p>
+          <p className="text-sm text-slate-400">No Stack memos yet — generate one above.</p>
         ) : null}
       </section>
 
       {/* Lineage footnote */}
-      <p className="text-xs leading-relaxed text-slate-600">
+      <p className="text-xs leading-relaxed text-slate-400">
         Educational synthesis only. Lineage: Chris Drzyzga / TFTC CRE (
         <a
           href="https://www.tftc.io/cre"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-slate-500 underline-offset-2 hover:text-slate-300 hover:underline"
+          className="text-slate-400 underline-offset-2 hover:text-slate-300 hover:underline"
         >
           tftc.io/cre
         </a>

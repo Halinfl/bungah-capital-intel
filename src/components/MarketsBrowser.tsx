@@ -66,7 +66,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
           <span className="sr-only">Search markets</span>
           <div className="relative w-full">
             <svg
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
               viewBox="0 0 20 20"
               fill="currentColor"
               aria-hidden
@@ -85,11 +85,11 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
                 setPage(0);
               }}
               placeholder="Search your destination…"
-              className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 outline-none ring-emerald-500/40 focus:border-emerald-500/40 focus:ring-2"
+              className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-400 outline-none ring-emerald-500/40 focus:border-emerald-500/40 focus:ring-2"
             />
           </div>
         </label>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           {filtered.length} of {markets.length} markets
           {pageCount > 1 ? ` · page ${safePage + 1}/${pageCount}` : ""}
         </p>
@@ -105,9 +105,9 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-white">{m.name}</h2>
-                <p className="text-sm text-slate-400">{m.region}</p>
+                <p className="text-sm text-slate-300">{m.region}</p>
               </div>
-              <span className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-slate-400">
+              <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-300">
                 {[
                   m.assetCount ? `${m.assetCount} ${m.assetCount === 1 ? "asset" : "assets"}` : null,
                   `${m.signalCount} cited ${m.signalCount === 1 ? "signal" : "signals"}`,
@@ -120,24 +120,24 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
             {m.occupancy == null && m.adr == null && m.visitorsM == null && m.roomsK == null ? null : (
             <div className="mt-4 flex flex-wrap gap-4 text-sm tabular-nums text-slate-200">
               <span>
-                <span className="text-slate-500">Visitors </span>
+                <span className="text-slate-400">Visitors </span>
                 {fmtVisitorsM(m.visitorsM)}
               </span>
               <span>
-                <span className="text-slate-500">Rooms </span>
+                <span className="text-slate-400">Rooms </span>
                 {fmtRoomsK(m.roomsK)}
               </span>
               <span>
-                <span className="text-slate-500">OCC </span>
+                <span className="text-slate-400">OCC </span>
                 {fmtPct(m.occupancy)}
               </span>
               <span>
-                <span className="text-slate-500">ADR </span>
+                <span className="text-slate-400">ADR </span>
                 {fmtUsd(m.adr)}
               </span>
               {m.midweekOcc != null ? (
                 <span>
-                  <span className="text-slate-500">Midweek </span>
+                  <span className="text-slate-400">Midweek </span>
                   {fmtPct(m.midweekOcc)}
                 </span>
               ) : null}
@@ -151,7 +151,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
           </Link>
         ))}
         {!filtered.length ? (
-          <p className="text-slate-400">No markets match this search.</p>
+          <p className="text-slate-300">No markets match this search.</p>
         ) : null}
       </div>
 

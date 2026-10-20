@@ -54,7 +54,7 @@ export function SleeveCarryCheck() {
   return (
     <div id="sleeve-carry-check" className="scroll-mt-24 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
       <h3 className="text-base font-medium text-white">Sleeve carry check</h3>
-      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-400">
+      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-300">
         See what the BTC sleeve costs in coverage before it earns anything. Enter your own figures;
         nothing is pre-filled and nothing is saved.
       </p>
@@ -73,50 +73,50 @@ export function SleeveCarryCheck() {
       {out ? (
         <dl data-testid="scc-results" className="mt-5 grid gap-3 border-t border-white/[0.06] pt-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <dt className="text-xs text-slate-500">Debt yield, BTC excluded</dt>
+            <dt className="text-xs text-slate-400">Debt yield, BTC excluded</dt>
             <dd data-testid="scc-dy" className={`font-medium ${DY_TONE[out.dyStatus]}`}>
               {pct(out.debtYield, 2)} · {DY_LABEL[out.dyStatus]}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">DSCR, interest-only</dt>
+            <dt className="text-xs text-slate-400">DSCR, interest-only</dt>
             <dd data-testid="scc-dscr-io" className={`font-medium ${out.dscrIO < 1 ? "text-rose-300" : "text-slate-200"}`}>
               {xx(out.dscrIO)}
               {out.dscrIOWithoutSleeve !== null ? (
-                <span className="text-slate-500"> · {xx(out.dscrIOWithoutSleeve)} without the sleeve</span>
+                <span className="text-slate-400"> · {xx(out.dscrIOWithoutSleeve)} without the sleeve</span>
               ) : null}
             </dd>
           </div>
           {out.dscrAmort !== null ? (
             <div>
-              <dt className="text-xs text-slate-500">DSCR, amortizing</dt>
+              <dt className="text-xs text-slate-400">DSCR, amortizing</dt>
               <dd data-testid="scc-dscr-am" className={`font-medium ${out.dscrAmort < 1 ? "text-rose-300" : "text-slate-200"}`}>
                 {xx(out.dscrAmort)}
               </dd>
             </div>
           ) : null}
           <div>
-            <dt className="text-xs text-slate-500">Yearly cost of the sleeve</dt>
+            <dt className="text-xs text-slate-400">Yearly cost of the sleeve</dt>
             <dd data-testid="scc-carry" className="font-medium text-slate-200">
               {usd(out.btcCarry)} · {pct(out.btcCarryShareOfNoi)} of NOI
             </dd>
           </div>
           {out.ltv !== null ? (
             <div>
-              <dt className="text-xs text-slate-500">LTV, hotel alone</dt>
+              <dt className="text-xs text-slate-400">LTV, hotel alone</dt>
               <dd data-testid="scc-ltv" className="font-medium text-slate-200">{pct(out.ltv)}</dd>
             </div>
           ) : null}
           {out.breakevenCagr !== null ? (
             <div>
-              <dt className="text-xs text-slate-500">BTC growth needed to cover the cost</dt>
+              <dt className="text-xs text-slate-400">BTC growth needed to cover the cost</dt>
               <dd data-testid="scc-breakeven" className="font-medium text-slate-200">
                 {pct(out.breakevenCagr)} a year
               </dd>
             </div>
           ) : null}
           <div className="sm:col-span-2 lg:col-span-3">
-            <dt className="text-xs text-slate-500">Refinance on hotel NOI alone</dt>
+            <dt className="text-xs text-slate-400">Refinance on hotel NOI alone</dt>
             <dd data-testid="scc-stress" className="mt-1 flex flex-wrap gap-2">
               {out.stress.map((s) => (
                 <span key={s.cut} className={`rounded-md border border-white/10 px-2 py-1 text-xs ${DY_TONE[s.dyStatus]}`}>
@@ -133,12 +133,12 @@ export function SleeveCarryCheck() {
           ) : null}
         </dl>
       ) : (
-        <p className="mt-5 border-t border-white/[0.06] pt-4 text-xs text-slate-500">
+        <p className="mt-5 border-t border-white/[0.06] pt-4 text-xs text-slate-400">
           Enter NOI, total loan, loan dollars to BTC and coupon to see results.
         </p>
       )}
 
-      <div className="mt-4 space-y-1 text-[11px] leading-relaxed text-slate-500">
+      <div className="mt-4 space-y-1 text-xs leading-relaxed text-slate-400">
         <p>
           Formulas: debt yield = NOI ÷ total loan (BTC dollars count, BTC value does not) · DSCR
           interest-only = NOI ÷ (loan × coupon) · DSCR amortizing = NOI ÷ (loan × mortgage
@@ -154,7 +154,7 @@ export function SleeveCarryCheck() {
             href="https://peersense.com/cmbs-loans/hotel"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-400 underline-offset-2 hover:text-slate-200 hover:underline"
+            className="text-slate-300 underline-offset-2 hover:text-slate-200 hover:underline"
           >
             PeerSense, Jul 2026
           </a>

@@ -63,7 +63,7 @@ export function DestinationSearch({
         <span className="sr-only">Search your destination</span>
         <div className="relative">
           <svg
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden
@@ -80,13 +80,13 @@ export function DestinationSearch({
             onChange={(e) => setQ(e.target.value)}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 outline-none ring-emerald-500/40 focus:border-emerald-500/40 focus:ring-2"
+            className="w-full rounded-xl border border-white/15 bg-white/[0.04] py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-400 outline-none ring-emerald-500/40 focus:border-emerald-500/40 focus:ring-2"
           />
         </div>
       </label>
 
       {q.trim() ? (
-        <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0d1218]">
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-[#262a32]">
           {results.length ? (
             <ul className="divide-y divide-white/5">
               {results.map((m) => (
@@ -97,24 +97,24 @@ export function DestinationSearch({
                   >
                     <div className="min-w-0">
                       <div className="truncate font-medium text-white">{m.name}</div>
-                      <div className="text-xs text-slate-400">{m.region}</div>
+                      <div className="text-xs text-slate-300">{m.region}</div>
                     </div>
                     {m.visitorsM == null && m.roomsK == null && m.occupancy == null && m.adr == null ? null : (
                     <div className="flex flex-wrap gap-3 text-xs tabular-nums text-slate-300">
                       <span>
-                        <span className="text-slate-500">Vis </span>
+                        <span className="text-slate-400">Vis </span>
                         {fmtVisitorsM(m.visitorsM)}
                       </span>
                       <span>
-                        <span className="text-slate-500">Rooms </span>
+                        <span className="text-slate-400">Rooms </span>
                         {fmtRoomsK(m.roomsK)}
                       </span>
                       <span>
-                        <span className="text-slate-500">OCC </span>
+                        <span className="text-slate-400">OCC </span>
                         {fmtPct(m.occupancy)}
                       </span>
                       <span>
-                        <span className="text-slate-500">ADR </span>
+                        <span className="text-slate-400">ADR </span>
                         {fmtUsd(m.adr)}
                       </span>
                     </div>
@@ -124,12 +124,12 @@ export function DestinationSearch({
               ))}
             </ul>
           ) : (
-            <p className="px-4 py-6 text-center text-sm text-slate-400">
+            <p className="px-4 py-6 text-center text-sm text-slate-300">
               No markets match “{q.trim()}”. Try a city, MSA, or region.
             </p>
           )}
           {results.length >= maxResults ? (
-            <div className="border-t border-white/5 px-4 py-2 text-center text-xs text-slate-500">
+            <div className="border-t border-white/5 px-4 py-2 text-center text-xs text-slate-400">
               Showing top {maxResults} — refine search or{" "}
               <Link href="/markets" className="text-emerald-300 hover:underline">
                 browse all markets
@@ -138,7 +138,7 @@ export function DestinationSearch({
           ) : null}
         </div>
       ) : (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           Search {markets.length} US markets with cited coverage by name or region.
         </p>
       )}

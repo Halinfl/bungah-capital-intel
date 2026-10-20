@@ -22,3 +22,51 @@ body {
 ::selection {
   background: rgba(148, 163, 184, 0.28);
 }
+
+/*
+ * Type scale (one scale for every page) on the #2f333c charcoal.
+ * Contrast on #2f333c: white 12.6:1 · slate-200 10.3:1 · slate-300 8.5:1 · slate-400 4.9:1 (AA floor;
+ * never go dimmer than slate-400 for text). Smallest text size is 12px; prefer 13px+ for captions.
+ */
+html {
+  font-size: 16px;
+}
+@layer components {
+.t-display {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+.t-h1 {
+  font-size: 1.875rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+.t-h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.t-lead {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+@media (min-width: 640px) {
+  .t-display {
+    font-size: 3rem;
+  }
+  .t-h1 {
+    font-size: 2.25rem;
+  }
+  .t-lead {
+    font-size: 1.125rem;
+  }
+}
+}

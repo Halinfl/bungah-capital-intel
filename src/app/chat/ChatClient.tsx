@@ -102,6 +102,10 @@ export function ChatClient() {
   const prompts = useMemo(() => capitalPrompts(marketSlug), [marketSlug]);
 
   const isEmpty = messages.length === 0;
+  const endRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (messages.length) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
 
   // Fresh thread whenever marketSlug / initialQuestionKey changes so a prior
   // auto-ask does not burn Q2 of another market CTA.
@@ -231,7 +235,7 @@ export function ChatClient() {
 
         </div>
       ) : (
-        <div className="min-h-[280px] space-y-4 rounded-xl border border-white/[0.08] bg-[#0a0e13] p-4 sm:p-5">
+        <div className="min-h-[280px] space-y-4 rounded-xl border border-white/[0.08] bg-[#262a32] p-4 sm:p-5">
           {messages.map((m, i) => (
             <div
               key={i}
@@ -241,7 +245,7 @@ export function ChatClient() {
                   : "mr-2 border-white/[0.06] bg-transparent"
               }`}
             >
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
+              <div className="mb-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
               {m.role === "assistant" ? (
@@ -251,13 +255,13 @@ export function ChatClient() {
               )}
               {m.sources && m.sources.length > 0 ? (
                 <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Sources (open original)</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-400">Sources (open original)</div>
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
               {m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Citations</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-400">Citations</div>
                   {m.citations.map((c, j) => (
                     <SourceChip key={j} label={c} />
                   ))}
@@ -265,12 +269,13 @@ export function ChatClient() {
               ) : null}
             </div>
           ))}
-          {busy ? <p className="text-xs text-slate-500">Retrieving from graph…</p> : null}
+          {busy ? <p className="text-sm text-slate-300">Retrieving from the graph…</p> : null}
+          <div ref={endRef} />
         </div>
       )}
 
       <form
-        className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-white/[0.08] bg-[#2f333c]/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0"
+        className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-white/[0.1] bg-[#2f333c]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0"
         onSubmit={(e) => {
           e.preventDefault();
           send(input);
@@ -280,7 +285,7 @@ export function ChatClient() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Capital question…"
-          className="flex-1 rounded-lg border border-white/15 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-slate-400/40 focus:outline-none"
+          className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
         />
         <button
           type="submit"
@@ -290,6 +295,7 @@ export function ChatClient() {
           Send
         </button>
       </form>
+      <div aria-hidden className="h-16 sm:hidden" />
 
     </div>
   );

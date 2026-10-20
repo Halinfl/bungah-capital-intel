@@ -33,12 +33,12 @@ export function SourceLinks({
   limit?: number;
 }) {
   if (!links.length) {
-    return noPublicRead ? <span className="text-[11px] text-slate-500">no public read</span> : null;
+    return noPublicRead ? <span className="text-xs text-slate-400">no public read</span> : null;
   }
   const shown = limit ? links.slice(0, limit) : links;
   const rest = limit ? links.slice(limit) : [];
   return (
-    <div className="relative z-10 text-[11px] leading-snug">
+    <div className="relative z-10 text-xs leading-snug">
       <ul className="flex flex-wrap gap-x-3 gap-y-1">
         {shown.map((l) => (
           <Item key={`${l.url}|${l.label}`} l={l} />
@@ -46,7 +46,7 @@ export function SourceLinks({
       </ul>
       {rest.length ? (
         <details className="mt-1">
-          <summary className="cursor-pointer select-none text-slate-500 hover:text-slate-300">
+          <summary className="cursor-pointer select-none text-slate-400 hover:text-slate-300">
             +{rest.length} more source{rest.length === 1 ? "" : "s"}
           </summary>
           <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
