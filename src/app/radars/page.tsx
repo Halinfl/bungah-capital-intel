@@ -79,7 +79,7 @@ export default async function RadarsPage() {
   const radars = userId ? allRadars : allRadars.filter((r) => citedFindings(r.findings).length > 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="t-h1">Radars</h1>
@@ -93,7 +93,7 @@ export default async function RadarsPage() {
         ) : (
           <Link
             href="/signup"
-            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
+            className="hidden rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white sm:inline-flex"
           >
             Get alerts · Start free
           </Link>
@@ -118,20 +118,20 @@ export default async function RadarsPage() {
                 {scrubInternal(publicRadarDescription(r.description))}
               </p>
 
-              <h3 className="mt-5 text-xs font-medium uppercase tracking-wider text-slate-300">Recent findings</h3>
+              <h3 className="mt-4 text-xs font-medium uppercase tracking-wider text-slate-300">Recent findings</h3>
               <div className="mt-2 grid gap-3 lg:grid-cols-2">
                 {findings.map((f) => {
                   const stat = unverifiedFiguresIn(r.marketSlug, f.title).length
                     ? leadStat(r.marketSlug, f.title, "", used)
                     : leadStat(r.marketSlug, f.title, f.summary, used);
                   return (
-                    <article key={f.id} className="flex flex-col rounded-lg border border-white/10 bg-white/[0.02] p-4">
+                    <article key={f.id} className="flex flex-col rounded-lg border border-white/10 bg-white/[0.02] p-3 sm:p-4">
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs text-slate-300">Updated {fmtDate(f.createdAt)}</span>
                         <StatusPill status={f.severity} />
                       </div>
                       {stat ? (
-                        <div className="mt-3">
+                        <div className="mt-2 sm:mt-3">
                           <StatCard size="lg" label={stat.label} value={stat.value} hint={stat.hint} change={stat.change} />
                         </div>
                       ) : null}

@@ -24,7 +24,7 @@ export function StatCard({
   size?: "md" | "lg";
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent p-4">
+    <div className={`rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent ${size === "lg" ? "p-3 sm:p-4" : "p-4"}`}>
       <div className="text-xs uppercase tracking-wider text-slate-300">{label}</div>
       <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span
