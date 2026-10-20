@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { isPlaceholderText } from "@/lib/format";
+import { citedOnly, hasPublicCoverage, isNoReadSignal, isPlaceholderText } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
 import { SleeveCarryCheck } from "./SleeveCarryCheck";
 import { GroundRentCoverage } from "./GroundRentCoverage";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Sound Asset Lodging · Bungah Capital Intel",
   description:
-    "Bitcoin treasury, capital stack, and operations for hotel investors — decision support, educational, hotel-native.",
+    "Bitcoin treasury, capital stack, and operations for hotel investors — cited, educational, hotel-native.",
 };
 
 const pillars = [
@@ -34,7 +34,7 @@ const pillars = [
     body: "Debt-wall and maturity clocks dominate hotel risk. Strategic reserves and creative collateral are framed as education — runway through refi gaps, not leverage-first speculation.",
     bullets: [
       "Bitcoin per key as signature KPI",
-      "Months of debt service covered by strategic BTC (decision-support KPI)",
+      "Months of debt service covered by strategic BTC",
       "Dual-collateral / refi→sats as category education only",
     ],
   },
@@ -171,7 +171,7 @@ function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: So
           <>
             <span className="block text-sm font-medium text-slate-200">
               {c.title}
-              {c.href ? <span className="ml-1 text-xs text-slate-400">↗</span> : null}
+              {c.href ? <span className="ml-1 text-xs text-slate-300">↗</span> : null}
             </span>
             <span className="mt-1 block text-sm leading-relaxed text-slate-300">{c.line}</span>
           </>
@@ -198,8 +198,6 @@ function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: So
   );
 }
 
-const NOT_ADVICE =
-  "Not legal, tax or investment advice. Consult a lawyer and a CPA before structuring anything.";
 
 export default async function SoundMoneyLodgingPage({
   searchParams,
@@ -207,8 +205,20 @@ export default async function SoundMoneyLodgingPage({
   searchParams: Promise<{ market?: string }>;
 }) {
   const sp = await searchParams;
-  const markets = await prisma.market.findMany({ orderBy: { name: "asc" } });
-  // Only memos built on the checked-data engine are listed; older template memos stay in the DB, unrendered.
+  const allMarkets = await prisma.market.findMany({
+    orderBy: { name: "asc" },
+    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+  });
+  // The memo picker lists only the markets with cited coverage (same 17-market rule as /markets).
+  const markets = allMarkets.filter((m) =>
+    hasPublicCoverage(m, citedOnly(m.signals).filter((x) => !isNoReadSignal(x)).length)
+  );
+  const coveredIds = new Set(markets.map((m) => m.id));
+  const initialSlug = markets.some((m) => m.slug === sp.market)
+    ? sp.market!
+    : markets.find((m) => m.slug === "orlando")?.slug ?? markets[0]?.slug ?? "";
+  // Public list: only memos for covered markets that carry real data. Older memos whose every section
+  // reads "no checked read yet" stay in the DB, unrendered.
   const memos = (
     await prisma.artifact.findMany({
       where: { kind: STACK_MEMO_KIND },
@@ -218,6 +228,8 @@ export default async function SoundMoneyLodgingPage({
     })
   )
     .filter((a) => !isPlaceholderText(a.title, a.markdown, a.sourceLabel))
+    .filter((a) => a.marketId && coveredIds.has(a.marketId))
+    .filter((a) => !/Demand: no checked read yet\./.test(a.markdown))
     .slice(0, 10);
 
   return (
@@ -234,8 +246,8 @@ export default async function SoundMoneyLodgingPage({
           memo studio follow.
         </p>
         <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
-          Not financial, tax, legal, lending, or real-estate advice. We cite and propose — you
-          decide. Inspired by CRE × Bitcoin education associated with Chris Drzyzga /{" "}
+          Decision support and education only — not financial, tax, legal, lending or real-estate
+          advice; you decide. Inspired by CRE × Bitcoin education associated with Chris Drzyzga /{" "}
           <a
             href="https://www.tftc.io/cre"
             target="_blank"
@@ -267,7 +279,7 @@ export default async function SoundMoneyLodgingPage({
           <GroundRentCoverage />
         </div>
         <p className="text-sm leading-relaxed text-slate-300">
-          {NOT_ADVICE} The context for each calculator is below:{" "}
+          The context for each calculator is below:{" "}
           <a href="#btc-sleeve" className="underline underline-offset-2 hover:text-white">financing a BTC sleeve</a> and{" "}
           <a href="#land-split" className="underline underline-offset-2 hover:text-white">land / hotel split</a>.
         </p>
@@ -278,14 +290,14 @@ export default async function SoundMoneyLodgingPage({
         <h2 className="t-h2">The doctrine</h2>
         <p className="max-w-2xl text-[15px] leading-relaxed text-slate-200">
           Bitcoin treasury, capital stack, and operations for hotel investors —
-          hotel-native, decision support, and educational. Balance-sheet appreciation as a fifth
+          hotel-native and educational. Balance-sheet appreciation as a fifth
           return driver beside NOI, CapEx quality, leverage, and cap rates.
         </p>
       </section>
 
       {/* Why hotel playbook */}
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-5">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Why the hotel playbook is breaking
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
@@ -300,7 +312,7 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Fifth return driver */}
       <section className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-5">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Fifth return driver
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
@@ -310,13 +322,13 @@ export default async function SoundMoneyLodgingPage({
           and refinancing conditions. Track{" "}
           <span className="text-slate-300">Bitcoin per key</span> and{" "}
           <span className="text-slate-300">months of debt service / PIP runway covered by strategic BTC</span>{" "}
-          as decision-support KPIs — never starve PIP or debt service to fund the reserve.
+          as KPIs — never starve PIP or debt service to fund the reserve.
         </p>
       </section>
 
       {/* Three pillars */}
       <section className="space-y-4">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Three pillars
         </h2>
         <div className="grid gap-3 lg:grid-cols-3">
@@ -326,11 +338,11 @@ export default async function SoundMoneyLodgingPage({
               className="flex flex-col rounded-xl border border-white/[0.08] bg-white/[0.02] p-5"
             >
               <div className="flex items-baseline gap-2">
-                <span className="text-xs tabular-nums text-slate-400">{p.n}</span>
+                <span className="text-xs tabular-nums text-slate-300">{p.n}</span>
                 <h3 className="text-base font-medium text-white">{p.title}</h3>
               </div>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-300">{p.body}</p>
-              <ul className="mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-400">
+              <ul className="mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-300">
                 {p.bullets.map((b) => (
                   <li key={b} className="flex gap-2">
                     <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-slate-600" />
@@ -346,11 +358,11 @@ export default async function SoundMoneyLodgingPage({
       {/* Financing a BTC sleeve */}
       <section id="btc-sleeve" className="scroll-mt-24 space-y-4">
         <div className="space-y-2">
-          <h2 className="text-sm font-medium text-slate-400">
+          <h2 className="text-sm font-medium text-slate-300">
             Financing a BTC sleeve
           </h2>
           <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
-            Decision support for owners weighing loan-funded Bitcoin on a refinance, a new build or
+            For owners weighing loan-funded Bitcoin on a refinance, a new build or
             an acquisition. The hotel has to carry the whole loan on its own NOI.
           </p>
         </div>
@@ -372,13 +384,13 @@ export default async function SoundMoneyLodgingPage({
         <p className="text-sm leading-relaxed text-slate-300">
           Run the numbers in the{" "}
           <a href="#sleeve-carry-check" className="underline underline-offset-2 hover:text-white">sleeve carry check</a>{" "}
-          above. {NOT_ADVICE}
+          above. Consult a lawyer and a CPA before structuring a sleeve.
         </p>
       </section>
 
       {/* Signature metrics */}
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Signature metrics
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -404,12 +416,12 @@ export default async function SoundMoneyLodgingPage({
 
       {/* Hotel structuring — Esner / RES Ep.11 */}
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Hotel structuring signals
         </h2>
         <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
           From hospitality-sector dialogue with operators (e.g. Justin Esner on The Real Estate
-          Standard Ep.11 — educational, not advice): flags often lag 18–24 months; land vs
+          Standard Ep.11): flags often lag 18–24 months; land vs
           operating/building sleeves can create distinct collateral and optionality; Bitcoin on
           the owner balance sheet is framed as the emerging normal for competitive owners. Major
           brand loyalty and payment rails usually gate guest BTC UX — stronger path for
@@ -435,7 +447,7 @@ export default async function SoundMoneyLodgingPage({
       {/* Land / hotel split */}
       <section id="land-split" className="scroll-mt-24 space-y-4">
         <div className="space-y-2">
-          <h2 className="text-sm font-medium text-slate-400">
+          <h2 className="text-sm font-medium text-slate-300">
             Land / hotel split
           </h2>
           <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
@@ -447,13 +459,13 @@ export default async function SoundMoneyLodgingPage({
         <p className="text-sm leading-relaxed text-slate-300">
           Run the numbers in the{" "}
           <a href="#ground-rent-coverage" className="underline underline-offset-2 hover:text-white">ground rent coverage</a>{" "}
-          calculator above. {NOT_ADVICE}
+          calculator above. Consult a lawyer and a CPA before splitting land from the hotel.
         </p>
       </section>
 
       {/* Before you sign */}
       <section id="before-you-sign" className="scroll-mt-24 space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           Before you sign
         </h2>
         <p className="max-w-3xl text-sm text-slate-300">
@@ -465,7 +477,7 @@ export default async function SoundMoneyLodgingPage({
               key={q}
               className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
             >
-              <span className="shrink-0 tabular-nums text-slate-400">{i + 1}</span>
+              <span className="shrink-0 tabular-nums text-slate-300">{i + 1}</span>
               <span>{q}</span>
             </li>
           ))}
@@ -474,13 +486,13 @@ export default async function SoundMoneyLodgingPage({
 
       {/* What not to do */}
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           What not to do
         </h2>
         <ul className="space-y-2 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
           {notToDo.map((item) => (
             <li key={item} className="flex gap-3 text-sm leading-relaxed text-slate-300">
-              <span className="shrink-0 text-slate-400">—</span>
+              <span className="shrink-0 text-slate-300">—</span>
               <span>{item}</span>
             </li>
           ))}
@@ -491,19 +503,20 @@ export default async function SoundMoneyLodgingPage({
       <section id="studio" className="scroll-mt-24 space-y-4">
         <div>
           <h2 className="text-sm font-medium text-slate-300">Stack memo studio</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">
-            Deterministic memo from checked market data: demand, capital, operations and supply,
-            each figure row linked to its original source. No paid LLM. Markets without a checked
-            read show only their cited signals.
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-300">
+            A memo built from checked market data: demand, capital, operations and supply, each
+            figure row linked to its original source. Markets without a full checked read show their
+            cited snapshot and signals.
           </p>
         </div>
         <StackStudio
           markets={markets.map((m) => ({ slug: m.slug, name: m.name }))}
-          initialSlug={sp.market ?? markets[0]?.slug ?? ""}
+          initialSlug={initialSlug}
         />
       </section>
 
-      {/* Recent memos */}
+      {/* Recent memos (hidden when there is nothing with real data to show) */}
+      {memos.length ? (
       <section className="space-y-4">
         <h2 className="text-sm font-medium text-slate-300">Recent Stack memos</h2>
         {memos.map((a) => {
@@ -514,7 +527,7 @@ export default async function SoundMoneyLodgingPage({
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-medium text-white">{a.title}</h3>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-300">
                 {a.market ? `${a.market.name} · ` : ""}
                 {a.createdAt.toLocaleString("en-US", { timeZone: "America/New_York" })} ET
               </span>
@@ -528,24 +541,22 @@ export default async function SoundMoneyLodgingPage({
           </article>
           );
         })}
-        {!memos.length ? (
-          <p className="text-sm text-slate-400">No Stack memos yet — generate one above.</p>
-        ) : null}
       </section>
+      ) : null}
 
       {/* Lineage footnote */}
-      <p className="text-xs leading-relaxed text-slate-400">
+      <p className="text-xs leading-relaxed text-slate-300">
         Educational synthesis only. Lineage: Chris Drzyzga / TFTC CRE (
         <a
           href="https://www.tftc.io/cre"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-slate-400 underline-offset-2 hover:text-slate-300 hover:underline"
+          className="text-slate-300 underline-offset-2 hover:text-slate-300 hover:underline"
         >
           tftc.io/cre
         </a>
         ); hotel dialogue via The Real Estate Standard Ep.11 (Justin Esner). Bungah is not
-        affiliated with TFTC, Mr. Drzyzga, or the show. Decision support · citations required.
+        affiliated with TFTC, Mr. Drzyzga, or the show.
       </p>
     </div>
   );

@@ -33,7 +33,7 @@ export function SourceLinks({
   limit?: number;
 }) {
   if (!links.length) {
-    return noPublicRead ? <span className="text-xs text-slate-400">no public read</span> : null;
+    return noPublicRead ? <span className="text-xs text-slate-300">no public read</span> : null;
   }
   const shown = limit ? links.slice(0, limit) : links;
   const rest = limit ? links.slice(limit) : [];
@@ -46,7 +46,7 @@ export function SourceLinks({
       </ul>
       {rest.length ? (
         <details className="mt-1">
-          <summary className="cursor-pointer select-none text-slate-400 hover:text-slate-300">
+          <summary className="cursor-pointer select-none text-slate-300 hover:text-slate-300">
             +{rest.length} more source{rest.length === 1 ? "" : "s"}
           </summary>
           <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">

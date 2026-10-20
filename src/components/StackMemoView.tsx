@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { scrubInternal } from "@/lib/public-text";
 
 /**
  * Renders a Stack memo. A bullet with links becomes a whole-row link to its first source (stretched
@@ -6,7 +7,8 @@ import { Fragment, type ReactNode } from "react";
  * and the "Holdability read" section is collapsed by default.
  */
 export function StackMemoView({ text }: { text: string }) {
-  const blocks = text.split(/\n\n+/);
+  // Display-time guard: plain-language rewrites + internal-label scrub also cover memos stored earlier.
+  const blocks = scrubInternal(text).split(/\n\n+/);
   const out: ReactNode[] = [];
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -44,7 +46,7 @@ export function StackMemoView({ text }: { text: string }) {
       );
     } else if (first === "---") {
       out.push(<hr key={i} className="border-white/10" />);
-      if (lines.length > 1) out.push(<p key={`${i}f`} className="text-xs text-slate-400" dangerouslySetInnerHTML={{ __html: inline(lines.slice(1).join(" ")) }} />);
+      if (lines.length > 1) out.push(<p key={`${i}f`} className="text-xs text-slate-300" dangerouslySetInnerHTML={{ __html: inline(lines.slice(1).join(" ")) }} />);
     } else {
       out.push(<p key={i} className="text-[13px] leading-snug text-slate-300" dangerouslySetInnerHTML={{ __html: inline(block) }} />);
     }
@@ -101,5 +103,5 @@ function inline(s: string, raised = false): string {
       return `<span class='ml-1 inline-block rounded border px-1 py-px text-xs uppercase tracking-wide ${tone}'>${t}</span>`;
     })
     .replace(/\*\*(.+?)\*\*/g, "<strong class='font-semibold text-white'>$1</strong>")
-    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-400'>$2</em>");
+    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-300'>$2</em>");
 }

@@ -66,7 +66,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
           <span className="sr-only">Search markets</span>
           <div className="relative w-full">
             <svg
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300"
               viewBox="0 0 20 20"
               fill="currentColor"
               aria-hidden

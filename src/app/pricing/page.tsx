@@ -12,7 +12,7 @@ export default function PricingPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-medium text-slate-300">
           Plans
         </p>
         <h1 className="t-h1">Pricing</h1>
@@ -20,7 +20,7 @@ export default function PricingPage() {
           Free to try the public Capital Graph. Pro for a private workspace. Company for shared
           seats, up to 20.
         </p>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-300">
           <Link href="/trust" className="text-slate-300 underline-offset-2 hover:underline">
             Trust Contract
           </Link>

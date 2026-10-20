@@ -60,7 +60,7 @@ export function InviteForm({
       </p>
       <form onSubmit={onSubmit} className="space-y-4">
         <label className="block space-y-1.5">
-          <span className="text-xs text-slate-400">Email</span>
+          <span className="text-xs text-slate-300">Email</span>
           <input
             type="email"
             required
@@ -71,7 +71,7 @@ export function InviteForm({
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-slate-400">Role</span>
+          <span className="text-xs text-slate-300">Role</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as "Member" | "Admin")}

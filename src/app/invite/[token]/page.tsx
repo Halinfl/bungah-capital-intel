@@ -30,7 +30,7 @@ export default async function AcceptInvitePage({ params }: Props) {
         <p className="text-sm leading-relaxed text-slate-300">
           Shared hotel-investing workspace — decision support, cited, private.
         </p>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-300">
           <Link href="/trust" className="text-slate-300 underline-offset-2 hover:underline">
             Trust Contract
           </Link>
@@ -49,7 +49,7 @@ export default async function AcceptInvitePage({ params }: Props) {
         >
           Sign in and join
         </Link>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-300">
           If this org is at 20 seats, ask an admin to free a seat.
         </p>
       </div>

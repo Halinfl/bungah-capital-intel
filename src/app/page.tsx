@@ -124,7 +124,7 @@ export default async function HomePage() {
           <figure className="rounded-2xl border border-white/[0.12] bg-[#383d47] p-5 sm:p-6">
             <figcaption className="flex items-baseline justify-between gap-3">
               <span className="text-sm font-medium text-white">Capital Graph · cited snapshot</span>
-              <span className="text-sm text-slate-300">Live data</span>
+              <span className="text-sm text-slate-300">Latest published</span>
             </figcaption>
             <table className="mt-4 w-full text-left text-sm tabular-nums">
               <thead>

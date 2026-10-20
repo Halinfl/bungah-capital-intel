@@ -115,7 +115,7 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
                 <span className="text-2xl font-semibold tracking-tight text-white tabular-nums">
                   {tier.price}
                 </span>
-                <span className="ml-1 text-sm text-slate-400">{tier.period}</span>
+                <span className="ml-1 text-sm text-slate-300">{tier.period}</span>
               </p>
               <p className="mt-2 text-sm leading-relaxed text-slate-300">{tier.forWhom}</p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-slate-300">
@@ -143,7 +143,7 @@ export function PlanClient({ currentPlan }: { currentPlan: Plan }) {
         })}
       </div>
 
-      <p className="text-xs leading-relaxed text-slate-400">
+      <p className="text-xs leading-relaxed text-slate-300">
         Billing opens soon; you won&apos;t be charged until it does.{" "}
         <Link href="/workspace" className="text-slate-300 underline-offset-2 hover:underline">
           Back to workspace

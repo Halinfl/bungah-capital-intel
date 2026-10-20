@@ -67,12 +67,12 @@ function renderEpisode(episode: Episode) {
                 <span className="rounded-full border border-sky-400/20 bg-sky-400/[0.06] px-2 py-1 text-xs font-medium uppercase tracking-[0.12em] text-sky-200">
                   External
                 </span>
-                <span className="text-xs text-slate-400">Not Bungah</span>
+                <span className="text-xs text-slate-300">Not Bungah</span>
               </div>
               <h3 className="mt-4 text-base font-medium leading-snug text-white">{episode.title}</h3>
               <p className="mt-2 text-xs font-medium leading-relaxed text-slate-300">{episode.guest}</p>
               <div className="mt-5 border-t border-white/[0.06] pt-4">
-                <p className="text-sm font-medium text-slate-400">
+                <p className="text-sm font-medium text-slate-300">
                   Why listen
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-300">{episode.why}</p>
@@ -90,7 +90,7 @@ function renderEpisode(episode: Episode) {
                   </a>
                 ))}
               </div>
-              <p className="mt-auto border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-400">
+              <p className="mt-auto border-t border-white/[0.06] pt-4 text-xs leading-relaxed text-slate-300">
                 External · Not produced by Bungah Capital Intel
               </p>
             </article>
@@ -104,7 +104,7 @@ export default function PodcastPage() {
   return (
     <div className="space-y-10">
       <header className="max-w-2xl">
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-medium text-slate-300">
           Listening
         </p>
         <h1 className="mt-2 t-h1">Podcast</h1>

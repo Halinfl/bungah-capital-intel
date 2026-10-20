@@ -28,7 +28,7 @@ export default async function PlanPage() {
         </p>
       </div>
       <PlanClient currentPlan={profile.plan} />
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-300">
         <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>

@@ -43,7 +43,7 @@ export function SoftProGate() {
         <button
           type="button"
           onClick={dismiss}
-          className="text-slate-400 hover:text-slate-300"
+          className="text-slate-300 hover:text-slate-300"
           aria-label="Dismiss Pro upsell"
         >
           Dismiss

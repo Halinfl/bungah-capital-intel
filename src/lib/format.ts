@@ -103,8 +103,14 @@ export function citedOnly<T extends SeedCheckable>(rows: T[]): T[] {
   return rows.filter((r) => !isSeedRow(r));
 }
 
-export function coverageInProgressLine(marketName: string): string {
-  return `Deeper cited coverage for ${marketName} is in progress.`;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function coverageInProgressLine(_marketName?: string): string {
+  return "We haven't checked enough sources for this market yet.";
+}
+
+/** Placeholder-style "no market read" rows (e.g. "World Cup 2026 — tag: none … national applies"); never shown publicly. */
+export function isNoReadSignal(s: { title?: string | null; body?: string | null }): boolean {
+  return /\btag:\s*none\b/i.test(s.body ?? "") || /\(none: national applies\)/i.test(s.title ?? "");
 }
 
 /** Last-line guard: drop any line or citation that still carries seed wording. */

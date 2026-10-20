@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Stack memo studio — deterministic memo from checked market data, no paid LLM. */
+/** Stack memo studio — deterministic memo from checked market data. */
 export function StackStudio({
   markets,
   initialSlug,

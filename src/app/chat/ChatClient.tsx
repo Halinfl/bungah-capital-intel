@@ -245,7 +245,7 @@ export function ChatClient() {
                   : "mr-2 border-white/[0.06] bg-transparent"
               }`}
             >
-              <div className="mb-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
+              <div className="mb-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-300">
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
               {m.role === "assistant" ? (
@@ -255,13 +255,13 @@ export function ChatClient() {
               )}
               {m.sources && m.sources.length > 0 ? (
                 <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
-                  <div className="text-xs uppercase tracking-wider text-slate-400">Sources (open original)</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-300">Sources (open original)</div>
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
               {m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
-                  <div className="text-xs uppercase tracking-wider text-slate-400">Citations</div>
+                  <div className="text-xs uppercase tracking-wider text-slate-300">Citations</div>
                   {m.citations.map((c, j) => (
                     <SourceChip key={j} label={c} />
                   ))}
@@ -290,7 +290,7 @@ export function ChatClient() {
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-50"
+          className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
         >
           Send
         </button>

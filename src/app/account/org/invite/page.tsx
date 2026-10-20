@@ -29,12 +29,12 @@ export default async function InvitePage() {
         <h1 className="t-h2">
           Invite people to the org graph
         </h1>
-        <p className="text-sm text-slate-400">{profile.orgName}</p>
+        <p className="text-sm text-slate-300">{profile.orgName}</p>
       </div>
       <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
         <InviteForm remaining={remaining} seatsMax={seatsMax} />
       </div>
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-300">
         <Link href="/account/org" className="hover:text-slate-300">
           Back to org
         </Link>

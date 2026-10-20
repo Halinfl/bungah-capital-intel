@@ -81,7 +81,7 @@ const CARDONE_SRC = {
 };
 const SELF = "{tag: self-reported}";
 const CARDONE_HOTEL_SECTION: string[] = [
-  `Grant Cardone's Cardone Capital multifamily funds are the apartment precedent for pairing property with Bitcoin. This section credits that precedent and sets the hotel rules; it is education and decision support, not a recommendation.`,
+  `Grant Cardone's Cardone Capital multifamily funds are the apartment precedent for pairing property with Bitcoin. This section credits that precedent and sets the hotel rules; it is education, not a recommendation.`,
   ``,
   `### Apartment precedent`,
   ``,
@@ -94,7 +94,7 @@ const CARDONE_HOTEL_SECTION: string[] = [
   ``,
   `- Bitcoin is bought only from cash left after the PIP, the FF&E reserve, management and franchise fees, and a fully staffed hotel. The FF&E reserve level is a house assumption set by the franchise, management or loan documents, not a sourced figure.`,
   `- Under a lender lockbox or cash sweep, only released cash or new equity can buy Bitcoin; swept cash never does (CMBS loan-structure background) · [${publisherName(CARDONE_SRC.lockbox)} ↗](${CARDONE_SRC.lockbox})`,
-  `- The refinance test runs on hotel income alone, with no Bitcoin credit. A Bitcoin tranche never fixes a DY shortfall.`,
+  `- The refinance test runs on hotel income alone, with no Bitcoin credit. A Bitcoin tranche never fixes a debt-yield shortfall.`,
   `- The apartment claim that Bitcoin covers capex and debt maturities does not carry over: the franchisor sets PIP timing, and a PIP can come due in a Bitcoin drawdown (claim dated 2026-09-11) · [${publisherName(CARDONE_SRC.capexClaim)} ↗](${CARDONE_SRC.capexClaim}) ${SELF}`,
   `- Illustration: Boca's debt yield is about 7.5% (166-day NOI of $4.80M annualised ≈ $10.5M ÷ the $140M filed loan; our arithmetic), under the 8% hard-watch line before any Bitcoin is counted · [${publisherName(CARDONE_SRC.filing)} ↗](${CARDONE_SRC.filing}) {tag: watch}`,
   `- No staff cuts and no automating guest-facing roles to free cash for Bitcoin.`,
@@ -195,7 +195,7 @@ function latestTax(signals: SignalLike[], slug: string): string | null {
   const la = slug === "los-angeles" ? " · postings are lumpy: read fiscal-year totals" : "";
   return rowLine(
     { t: `${oneLine(tax.title)}: ${mag}${la}`, u: urls, sec, d: tax.asOf ?? "" },
-    "{tag: tax ≠ refinance capacity}"
+    "{tag: tax receipts are not refinance capacity}"
   );
 }
 
@@ -212,6 +212,8 @@ export function buildStackMemo(opts: {
   signals: SignalLike[];
   purpose?: MemoPurpose;
   now?: Date;
+  /** Cited market snapshot row (non-seed markets only), for markets without a checked read. */
+  snapshot?: { t: string; u: string[]; d?: string } | null;
 }): { markdown: string; tier1: boolean } {
   const { slug, name, signals } = opts;
   const purpose: MemoPurpose = opts.purpose === "build" ? "build" : "acquisition";
@@ -229,31 +231,19 @@ export function buildStackMemo(opts: {
       purpose === "build" ? "build or renovation" : "acquisition / hold"
     }`,
     ``,
-    `Decision support and education only — not financial, tax, legal, lending or real-estate advice. Every figure row opens its original source.`,
+    `Every figure row opens its original source.`,
     ``
   );
 
   if (!m) {
     push(
-      `## Market thesis (demand)`,
-      ``,
-      `Demand: no checked read yet.`,
-      ``,
-      `## Capital`,
-      ``,
-      `Capital: no checked read yet.`,
-      ``,
-      `## Operations`,
-      ``,
-      `Operations: no checked read yet.`,
-      ``,
-      `## Supply`,
-      ``,
-      `Supply: no checked read yet.`,
-      ``,
-      `## Cited signals on file`,
+      `We haven't checked enough sources to write the demand, capital, operations and supply sections for ${name} yet. Below is what is cited so far.`,
       ``
     );
+    if (opts.snapshot && opts.snapshot.u.length) {
+      push(`## Market snapshot`, ``, rowLine({ t: opts.snapshot.t, u: opts.snapshot.u, sec: false, d: opts.snapshot.d ?? "" }), ``);
+    }
+    push(`## Cited signals on file`, ``);
     const cited = signals
       .map((s) => {
         const ls = parseSourceUrls(s.sourceUrls);
@@ -324,7 +314,7 @@ export function buildStackMemo(opts: {
     ``
   );
   push(`### Loan watch`, ``, ...c.loans.map((r) => rowLine(r, r.watch ? "{tag: watch}" : null)));
-  push(`- Distressed or receivership assets stay **watch**, never buy, until DY, PIP, insurance and talent all clear.`, ``);
+  push(`- Distressed or receivership assets stay **watch**, never buy, until debt yield, PIP, insurance and talent all clear.`, ``);
   const tax = latestTax(signals, slug);
   push(`### Hotel-tax collections (latest)`, ``, tax ?? "- Hotel-tax collections: no public read", ``);
 
@@ -407,14 +397,14 @@ function pillarsAndNext(
   push(
     `## Three pillars checklist`,
     ``,
-    `- **Capital:** the refinance test clears (DY ≥10% on a normalized T12 at ≥7.5–8.0% takeout) before anything else is sized.`,
+    `- **Capital:** the refinance test clears (a debt yield of at least 10% on a normalized T12 at a 7.5–8.0% or higher takeout rate) before anything else is sized.`,
     `- **Operations:** labor at the scheduled floors and contract rates, full staffing, PIP and FF&E funded.`,
     `- **Treasury:** only free cash flow after fees, debt service and PIP escrow is eligible for a reserve.`,
     ``,
     `## Bitcoin tranche (education only)`,
     ``,
     `- A strategic Bitcoin tranche never fixes a debt-yield or DSCR shortfall; it is sized only after the refinance test clears.`,
-    `- Track Bitcoin per key and months of debt service covered as decision-support KPIs; never starve PIP or debt service to fund it.`,
+    `- Track Bitcoin per key and months of debt service covered as KPIs; never starve PIP or debt service to fund it.`,
     `- Bonuses or tips paid in sats are a concept only: pay and tip rules vary by state and need legal review before any use.`,
     ``
   );
@@ -422,7 +412,7 @@ function pillarsAndNext(
   if (cardone.length) push(`## Cardone model, hotel version`, ``, ...cardone);
   const watchLoans = m ? m.capital.loans.filter((l) => l.watch && l.u.length).length : 0;
   push(
-    `## Next steps (decision support)`,
+    `## Next steps`,
     ``,
     `1. Run the refinance test on a normalized T12${m?.demand.normalize ? " (event windows stripped)" : ""} before any price or tranche discussion.`,
     m
@@ -435,7 +425,7 @@ function pillarsAndNext(
     `5. A person decides: no automatic CapEx, outreach, refinance or Bitcoin purchase comes from this memo.`,
     ``,
     `---`,
-    `*Sound Asset Lodging · Bungah Capital Intel · decision support · rows tagged secondary are broker or aggregator reads*`
+    `*Sound Asset Lodging · Bungah Capital Intel · Decision support and education only — not financial, tax, legal, lending or real-estate advice. Rows tagged secondary are broker or aggregator reads.*`
   );
 }
 

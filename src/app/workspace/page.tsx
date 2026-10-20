@@ -46,7 +46,7 @@ export default async function WorkspacePage() {
       <SessionStatus profile={profile} showUpsell />
 
       <section className="space-y-3">
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-medium text-slate-300">
           Capital Graph
         </p>
         <h1 className="t-h1">
@@ -60,7 +60,7 @@ export default async function WorkspacePage() {
             Trust
           </Link>
         </p>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
           Markets, assets, debt, and talent/operator quality — humans make hospitality feel right.
         </p>
       </section>
@@ -78,7 +78,7 @@ export default async function WorkspacePage() {
             className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 transition hover:border-white/15 hover:bg-white/[0.03]"
           >
             <div className="text-sm font-medium text-white">{l.label}</div>
-            <p className="mt-1 text-xs text-slate-400">{l.desc}</p>
+            <p className="mt-1 text-xs text-slate-300">{l.desc}</p>
           </Link>
         ))}
       </section>
@@ -112,7 +112,7 @@ export default async function WorkspacePage() {
         </Link>
       </section>
 
-      <p className="text-xs leading-relaxed text-slate-400">
+      <p className="text-xs leading-relaxed text-slate-300">
                 <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>

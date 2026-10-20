@@ -69,9 +69,9 @@ export default async function RadarsPage() {
                     primaryUrl={u && isOriginalUrl(u) ? u : null}
                     tone={severityClass(f.severity)}
                     title={scrubInternal(f.title)}
-                    meta={<span className="text-xs uppercase tracking-wider opacity-80">{f.severity}</span>}
+                    meta={<span className="text-xs font-medium uppercase tracking-wider">{f.severity}</span>}
                   >
-                    <p className="mt-1 text-sm opacity-90">{scrubInternal(f.summary)}</p>
+                    <p className="mt-1 text-sm">{scrubInternal(f.summary)}</p>
                     <div className="mt-2">
                       {u && isOriginalUrl(u) ? <SourceChip label={f.sourceLabel} /> : <SourceNote label={f.sourceLabel} />}
                     </div>

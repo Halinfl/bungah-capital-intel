@@ -62,11 +62,11 @@ export default function TrustPage() {
           What we promise about your data, our sources, and who makes the decisions. Plain
           words, no badges we haven&apos;t earned.
         </p>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-300">
           <Link href="/chat" className="text-slate-300 underline-offset-2 hover:underline">
             Continue in Chat
           </Link>
-          <span className="mx-2 text-slate-400">·</span>
+          <span className="mx-2 text-slate-300">·</span>
           <Link href="/" className="text-slate-300 underline-offset-2 hover:underline">
             Return home
           </Link>
@@ -74,17 +74,17 @@ export default function TrustPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           How we earn confidence
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {promises.map((p) => (
             <div
               key={p.label}
               className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4"
             >
               <p className="text-sm font-medium text-white">{p.label}</p>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">{p.meaning}</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-200">{p.meaning}</p>
             </div>
           ))}
         </div>
@@ -112,7 +112,7 @@ export default function TrustPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-slate-400">
+        <h2 className="text-sm font-medium text-slate-300">
           How we handle data
         </h2>
         <div className="space-y-2">
@@ -124,11 +124,11 @@ export default function TrustPage() {
               <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-200 marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-3">
                   {row.title}
-                  <span className="text-xs text-slate-400 group-open:hidden">+</span>
-                  <span className="hidden text-xs text-slate-400 group-open:inline">−</span>
+                  <span className="text-xs text-slate-300 group-open:hidden">+</span>
+                  <span className="hidden text-xs text-slate-300 group-open:inline">−</span>
                 </span>
               </summary>
-              <p className="border-t border-white/[0.06] px-4 py-3 text-sm leading-relaxed text-slate-400">
+              <p className="border-t border-white/[0.06] px-4 py-3 text-sm leading-relaxed text-slate-300">
                 {row.body}
               </p>
             </details>

@@ -29,9 +29,9 @@ export function CalcField({
           onChange={(e) => onChange(e.target.value)}
           className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white/25"
         />
-        {suffix ? <span className="shrink-0 text-xs text-slate-400">{suffix}</span> : null}
+        {suffix ? <span className="shrink-0 text-xs text-slate-300">{suffix}</span> : null}
       </div>
-      <span className="block text-xs leading-snug text-slate-400">{hint}</span>
+      <span className="block text-xs leading-snug text-slate-300">{hint}</span>
     </label>
   );
 }

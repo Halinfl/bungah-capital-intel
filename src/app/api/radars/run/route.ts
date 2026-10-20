@@ -23,7 +23,7 @@ export async function POST() {
       if (radar.slug === "orlando-msa-scarcity-watch" && orlando) {
         marketId = orlando.id;
         severity = "watch";
-        title = `Radar refresh: Orlando OCC ${orlando.occupancy?.toFixed(1)}% — still impact≠scarcity`;
+        title = `Radar refresh: Orlando occupancy is ${orlando.occupancy?.toFixed(1)}%: record visitors still don't mean rooms are scarce`;
         summary = `Visitors ${orlando.visitorsM?.toFixed(1)}M / rooms ${orlando.roomsK?.toFixed(1)}k / ADR $${orlando.adr?.toFixed(2)}. MSA averages remain non-scarce; Grande Lakes / Gaylord-class can be.`;
         sourceLabel = orlando.sourceLabel;
       } else if (radar.slug === "vegas-visitation-softness" && vegas) {

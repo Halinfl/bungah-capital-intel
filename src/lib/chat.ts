@@ -522,7 +522,7 @@ export function formatMarketMemo(
       body = [
         `**${market.name} — debt / refinance overlay**`,
         "",
-        "Pair this market snapshot with the national lodging debt-wall / DY stress signal before CapEx or refinance greenlight.",
+        "Pair this market snapshot with the national lodging debt-wall / debt-yield stress signal before CapEx or refinance greenlight.",
         "",
         ...signalLines(market, market.signals.some(debtFilter) ? debtFilter : undefined),
         "",

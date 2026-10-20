@@ -63,7 +63,7 @@ export function DestinationSearch({
         <span className="sr-only">Search your destination</span>
         <div className="relative">
           <svg
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300"
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden
@@ -102,19 +102,19 @@ export function DestinationSearch({
                     {m.visitorsM == null && m.roomsK == null && m.occupancy == null && m.adr == null ? null : (
                     <div className="flex flex-wrap gap-3 text-xs tabular-nums text-slate-300">
                       <span>
-                        <span className="text-slate-400">Vis </span>
+                        <span className="text-slate-300">Vis </span>
                         {fmtVisitorsM(m.visitorsM)}
                       </span>
                       <span>
-                        <span className="text-slate-400">Rooms </span>
+                        <span className="text-slate-300">Rooms </span>
                         {fmtRoomsK(m.roomsK)}
                       </span>
                       <span>
-                        <span className="text-slate-400">OCC </span>
+                        <span className="text-slate-300">OCC </span>
                         {fmtPct(m.occupancy)}
                       </span>
                       <span>
-                        <span className="text-slate-400">ADR </span>
+                        <span className="text-slate-300">ADR </span>
                         {fmtUsd(m.adr)}
                       </span>
                     </div>
@@ -129,7 +129,7 @@ export function DestinationSearch({
             </p>
           )}
           {results.length >= maxResults ? (
-            <div className="border-t border-white/5 px-4 py-2 text-center text-xs text-slate-400">
+            <div className="border-t border-white/5 px-4 py-2 text-center text-xs text-slate-300">
               Showing top {maxResults} — refine search or{" "}
               <Link href="/markets" className="text-emerald-300 hover:underline">
                 browse all markets
@@ -138,7 +138,7 @@ export function DestinationSearch({
           ) : null}
         </div>
       ) : (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-300">
           Search {markets.length} US markets with cited coverage by name or region.
         </p>
       )}

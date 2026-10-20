@@ -6,7 +6,7 @@ export default function ChatPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-medium text-slate-300">
           IC whiteboard
         </p>
         <h1 className="mt-2 t-h1">Chat</h1>

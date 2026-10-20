@@ -61,7 +61,7 @@ export default async function OrgPage() {
         </div>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-300">
         <Link href="/trust" className="hover:text-slate-300">
           Trust Contract
         </Link>

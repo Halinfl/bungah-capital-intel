@@ -20,7 +20,10 @@ import {
   citedOnly,
   citedFindings,
   coverageInProgressLine,
+  hasPublicCoverage,
+  isNoReadSignal,
 } from "@/lib/format";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +32,21 @@ function shortMarketLabel(name: string, slug: string): string {
   if (slug === "las-vegas") return "Vegas";
   const first = name.split(/[–—,/]/)[0]?.trim();
   return first || name;
+}
+
+/** Markets without public coverage stay reachable by link but are not indexed. */
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const m = await prisma.market.findUnique({
+    where: { slug },
+    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+  });
+  if (!m) return {};
+  const covered = hasPublicCoverage(m, citedOnly(m.signals).filter((s) => !isNoReadSignal(s)).length);
+  return {
+    title: `${m.name} · Bungah Capital Intel`,
+    robots: covered ? undefined : { index: false, follow: true },
+  };
 }
 
 export default async function MarketDetailPage({
@@ -52,7 +70,8 @@ export default async function MarketDetailPage({
 
   if (!market) notFound();
   // Seed / illustrative rows stay in the DB but are never rendered.
-  market.signals = citedOnly(market.signals);
+  // "tag: none / national applies" placeholder rows are not shown either.
+  market.signals = citedOnly(market.signals).filter((s) => !isNoReadSignal(s));
   market.assets = citedOnly(market.assets);
   market.findings = citedFindings(market.findings);
   // Hotel-tax collection series render as their own newest-first section (Orlando-style cards).
@@ -86,7 +105,7 @@ export default async function MarketDetailPage({
                 {scrubInternal(s.magnitude)}
               </span>
             ) : null}
-            {s.asOf ? <span className="text-xs text-slate-400">as of {s.asOf}</span> : null}
+            {s.asOf ? <span className="text-xs text-slate-300">as of {s.asOf}</span> : null}
           </>
         }
       >
@@ -107,7 +126,7 @@ export default async function MarketDetailPage({
   return (
     <div className="space-y-10">
       <div>
-        <Link href="/markets" className="text-xs text-slate-400 hover:text-emerald-300">
+        <Link href="/markets" className="text-xs text-slate-300 hover:text-emerald-300">
           ← Markets
         </Link>
         <div className="mt-2 flex flex-wrap items-baseline gap-3">
@@ -120,14 +139,14 @@ export default async function MarketDetailPage({
         </div>
         <p className="mt-1 text-sm text-slate-300">
           <span className="text-slate-300">{market.region}</span>
-          <span className="mx-2 text-slate-400">·</span>
+          <span className="mx-2 text-slate-300">·</span>
           Destination dashboard
         </p>
         {thin ? (
           <p className="mt-4 max-w-3xl text-slate-300">{coverageInProgressLine(market.name)}</p>
         ) : (
           <>
-            <p className="mt-4 max-w-3xl text-slate-300">{market.summary}</p>
+            <p className="mt-4 max-w-3xl text-slate-300">{scrubInternal(market.summary)}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -160,9 +179,9 @@ export default async function MarketDetailPage({
         isOrlando ? (
           <section className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-200">
-              Which Orlando — impact ≠ scarcity
+              Which Orlando: record visitors don&apos;t mean rooms are scarce
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-amber-50/90">{market.nuanceNote}</p>
+            <p className="mt-3 text-sm leading-relaxed text-amber-50">{scrubInternal(market.nuanceNote)}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -170,9 +189,9 @@ export default async function MarketDetailPage({
         ) : (
           <section className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-sky-200">
-              Which {short} — scarcity vs impact
+              Which part of {short}: visitors vs. scarce rooms
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-200">{market.nuanceNote}</p>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200">{scrubInternal(market.nuanceNote)}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -193,7 +212,7 @@ export default async function MarketDetailPage({
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Signals</h2>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-300">
             {market.signals.length ? `${market.signals.length} cited` : "none yet"}
           </span>
         </div>
@@ -203,7 +222,7 @@ export default async function MarketDetailPage({
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
-            No cited market signals yet. {coverageInProgressLine(market.name)}
+            No cited market signals yet.
           </div>
         )}
       </section>
@@ -212,7 +231,7 @@ export default async function MarketDetailPage({
         <section className="space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Hotel-tax collections</h2>
-            <span className="text-xs text-slate-400">newest first · {taxSeries.length} periods</span>
+            <span className="text-xs text-slate-300">newest first · {taxSeries.length} periods</span>
           </div>
           <div className="grid gap-3">{taxSeries.slice(0, TAX_SHOWN).map((s, i) => renderSignal(s, i, "tax"))}</div>
           {taxSeries.length > TAX_SHOWN ? (
@@ -231,7 +250,7 @@ export default async function MarketDetailPage({
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-semibold text-white">Assets</h2>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-300">
             {market.assets.length ? `${market.assets.length} cited` : "none yet"}
           </span>
         </div>
@@ -274,12 +293,12 @@ export default async function MarketDetailPage({
                   tone={severityClass(f.severity)}
                   title={scrubInternal(f.title)}
                   meta={
-                    <span className="text-xs uppercase tracking-wider opacity-80">
+                    <span className="text-xs uppercase tracking-wider">
                       {f.severity} · {f.radar.name}
                     </span>
                   }
                 >
-                  <p className="mt-1 line-clamp-2 text-sm opacity-90">{briefLine(f.title, f.summary, 180)}</p>
+                  <p className="mt-1 line-clamp-2 text-sm">{briefLine(f.title, f.summary, 180)}</p>
                   <div className="mt-2">
                     {u && isOriginalUrl(u) ? <SourceChip label={f.sourceLabel} /> : <SourceNote label={f.sourceLabel} />}
                   </div>
@@ -292,32 +311,43 @@ export default async function MarketDetailPage({
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-white">Linked findings</h2>
           <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
-            No radar findings linked to this market yet. National debt-wall and talent radars may still apply —
-            see{" "}
-            <Link href="/radars" className="text-emerald-300 hover:underline">
-              Radars
-            </Link>
-            .
+            No radar findings for this market yet.
           </div>
         </section>
       )}
 
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href={`/sound-money-lodging?market=${market.slug}`}
-          className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
-        >
-          Generate Stack memo
-        </Link>
-        <Link
-          href={`/chat?market=${market.slug}&q=${encodeURIComponent(
-            `Capital thesis for ${market.name}: RevPAR, occupancy, supply, labor?`
-          )}`}
-          className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
-        >
-          Ask about this market
-        </Link>
-      </div>
+      {(() => {
+        const askHref = `/chat?market=${market.slug}&q=${encodeURIComponent(
+          `Capital thesis for ${market.name}: RevPAR, occupancy, supply, labor?`
+        )}`;
+        const covered = hasPublicCoverage(market, market.signals.length);
+        // With no checked data a Stack memo would be empty, so the memo link is a quiet text link.
+        return covered ? (
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/sound-money-lodging?market=${market.slug}#studio`}
+              className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
+            >
+              Generate Stack memo
+            </Link>
+            <Link href={askHref} className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+              Ask about this market
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link href={askHref} className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+              Ask about this market
+            </Link>
+            <Link
+              href="/sound-money-lodging#studio"
+              className="text-sm text-slate-300 underline decoration-white/30 underline-offset-4 hover:text-white"
+            >
+              Stack memos for markets with checked data
+            </Link>
+          </div>
+        );
+      })()}
     </div>
   );
 }
