@@ -34,12 +34,25 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
+/** Split a source line on ";" outside parentheses, so "(a; b)" stays with its source. */
+function splitSources(label: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let cur = "";
+  for (const ch of label) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth = Math.max(0, depth - 1);
+    if (ch === ";" && depth === 0) {
+      out.push(cur);
+      cur = "";
+    } else cur += ch;
+  }
+  out.push(cur);
+  return out.map((s) => s.trim()).filter(Boolean);
+}
+
 function Sources({ label }: { label: string }) {
-  const parts = cleanSourceLabel(label)
-    .replace(/https?:\/\/\S+/g, "")
-    .split(/;\s*/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const parts = splitSources(cleanSourceLabel(label).replace(/https?:\/\/\S+/g, ""));
   return (
     <details className="group mt-3 text-xs text-slate-200">
       <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded text-slate-200 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400 [&::-webkit-details-marker]:hidden">
