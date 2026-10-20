@@ -25,7 +25,7 @@ const MARKETS: MarketSeed[] = [
     name: "Orlando–Kissimmee–Sanford MSA",
     region: "Florida / Southeast",
     summary:
-      "Record visitation and economic impact coexist with mid-70s MSA occupancy. CapEx must clear hurdles by submarket and product class — not by MSA headlines.",
+      "Record visitation and economic impact coexist with 71.4% MSA occupancy (YE 2025). CapEx must clear hurdles by submarket and product class — not by MSA headlines.",
     nuanceNote:
       "Impact ≠ scarcity at MSA averages. Ask which Orlando: I-Drive/select-service is not scarce; Grande Lakes / Gaylord Palms-class group-resort + meeting campus can be. YE OCC 71.4% is the MSA underwriting tell — it does not flip for irreplaceable convention-resort campuses.",
     visitorsM: 76.7,
@@ -40,13 +40,13 @@ const MARKETS: MarketSeed[] = [
     name: "Las Vegas–Henderson–Paradise MSA",
     region: "Nevada / Southwest",
     summary:
-      "2025 visitation soft (−7.5% YoY). Capital thesis shifts from unstoppable leisure machine to event- and airlift-dependent cyclical. Midweek OCC lags weekends.",
+      "2025 visitation soft (38.5M visitors). Capital thesis shifts from unstoppable leisure machine to event- and airlift-dependent cyclical. Midweek OCC lags weekends.",
     nuanceNote:
       "Strip weekend strength (high-80s capable) masks softer midweek and already-soft Downtown (67.5% OCC). Hard Rock @ former Mirage (~3,600 keys, late 2027) is a discrete supply-return event into a softer demand tape.",
     visitorsM: 38.5,
     roomsK: 150.3,
     occupancy: 80.3,
-    adr: 183.52,
+    adr: 184,
     midweekOcc: 76.6,
     weekendOcc: 88.8,
     sourceLabel:
@@ -805,7 +805,7 @@ async function main() {
         marketId: orlando.id,
         kind: "visitation",
         title: "Orlando record visitors 2025",
-        body: "76.7M visitors (70.3M domestic / 6.3M intl). Economic impact cited at $98.6B. Record impact ≠ MSA scarcity.",
+        body: "76.7M visitors (70.3M domestic / 6.3M intl). Record visitation ≠ MSA scarcity.",
         magnitude: "76.7M",
         asOf: "YE 2025",
         sourceLabel: "Visit Orlando / PR Newswire 2026-05-07",
@@ -841,8 +841,8 @@ async function main() {
         marketId: vegas.id,
         kind: "visitation",
         title: "Las Vegas visitation softness 2025",
-        body: "38,545,700 visitors (−7.5% vs ~41.7M in 2024). LVCVA framed 2025 as a complex post-COVID environment.",
-        magnitude: "−7.5% YoY",
+        body: "38,545,700 visitors (YE 2025). LVCVA framed 2025 as a complex post-COVID environment.",
+        magnitude: "38.5M",
         asOf: "YE 2025",
         sourceLabel: "LVCVA FAQ YE 2025; News3LV YE wrap",
       },
@@ -1146,14 +1146,14 @@ async function main() {
         marketId: orlando.id,
         title: "MSA OCC 71.4% — impact ≠ scarcity",
         summary:
-          "76.7M visitors and ~$98.6B impact coexist with YE OCC 71.4%. Do not greenlight ground-up on MSA averages. Ask which Orlando: Grande Lakes / Gaylord-class can be scarce.",
+          "76.7M visitors coexist with YE OCC 71.4%. Do not greenlight ground-up on MSA averages. Ask which Orlando: Grande Lakes / Gaylord-class can be scarce.",
         severity: "watch",
         sourceLabel: "Visit Orlando Data & Trends YE 2025",
       },
       {
         radarId: r2.id,
         marketId: vegas.id,
-        title: "Visitation −7.5% with midweek OCC 76.6%",
+        title: "Visitors 38.5M; midweek occupancy 76.6%",
         summary:
           "38.5M visitors soft; total OCC 80.3% but midweek 76.6%. Thesis: event- and airlift-dependent cyclical, not unstoppable leisure.",
         severity: "alert",
