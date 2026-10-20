@@ -89,7 +89,7 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
             />
           </div>
         </label>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-300">
           {filtered.length} of {markets.length} markets
           {pageCount > 1 ? ` · page ${safePage + 1}/${pageCount}` : ""}
         </p>
@@ -120,24 +120,24 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
             {m.occupancy == null && m.adr == null && m.visitorsM == null && m.roomsK == null ? null : (
             <div className="mt-4 flex flex-wrap gap-4 text-sm tabular-nums text-slate-200">
               <span>
-                <span className="text-slate-400">Visitors </span>
+                <span className="text-slate-300">Visitors </span>
                 {fmtVisitorsM(m.visitorsM)}
               </span>
               <span>
-                <span className="text-slate-400">Rooms </span>
+                <span className="text-slate-300">Rooms </span>
                 {fmtRoomsK(m.roomsK)}
               </span>
               <span>
-                <span className="text-slate-400">OCC </span>
+                <span className="text-slate-300">OCC </span>
                 {fmtPct(m.occupancy)}
               </span>
               <span>
-                <span className="text-slate-400">ADR </span>
+                <span className="text-slate-300">ADR </span>
                 {fmtUsd(m.adr)}
               </span>
               {m.midweekOcc != null ? (
                 <span>
-                  <span className="text-slate-400">Midweek </span>
+                  <span className="text-slate-300">Midweek </span>
                   {fmtPct(m.midweekOcc)}
                 </span>
               ) : null}

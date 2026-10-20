@@ -11,9 +11,9 @@ export function SourceNote({ label, noPublicRead }: { label: string; noPublicRea
     .replace(/\s+([;,.])/g, "$1")
     .trim();
   return (
-    <p className="text-xs leading-snug text-slate-400">
-      <span className="text-slate-400">Source:</span> {text || "not linked"}
-      {noPublicRead ? <span className="text-slate-400"> · no public read</span> : null}
+    <p className="text-xs leading-snug text-slate-200">
+      <span className="text-slate-200">Source:</span> {text || "not linked"}
+      {noPublicRead ? <span className="text-slate-200"> · no public read</span> : null}
     </p>
   );
 }

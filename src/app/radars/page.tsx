@@ -52,12 +52,12 @@ export default async function RadarsPage() {
               </span>
             </div>
             {r.marketSlug ? (
-              <p className="mt-2 text-xs text-slate-400">Market focus: {marketName(r.marketSlug)}</p>
+              <p className="mt-2 text-xs text-slate-300">Market focus: {marketName(r.marketSlug)}</p>
             ) : (
-              <p className="mt-2 text-xs text-slate-400">National / cross-market</p>
+              <p className="mt-2 text-xs text-slate-300">National / cross-market</p>
             )}
 
-            <h3 className="mt-5 text-sm font-medium text-slate-400">
+            <h3 className="mt-5 text-sm font-medium text-slate-300">
               Recent findings
             </h3>
             <div className="mt-2 space-y-2">
@@ -79,7 +79,7 @@ export default async function RadarsPage() {
                 );
               })}
               {!citedFindings(r.findings).length ? (
-                <p className="text-sm text-slate-400">No cited findings yet.</p>
+                <p className="text-sm text-slate-300">No cited findings yet.</p>
               ) : null}
             </div>
           </section>

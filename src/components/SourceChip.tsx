@@ -10,7 +10,7 @@ export function SourceChip({ label }: { label: string }) {
       className="relative z-10 inline-flex max-w-full items-start gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs leading-snug text-slate-300"
       title={clean}
     >
-      <span className="shrink-0 font-medium text-emerald-400/90">src</span>
+      <span className="shrink-0 font-medium text-emerald-300">src</span>
       <span className="min-w-0 break-words">
         {parts.map((p, i) =>
           p.url ? (
