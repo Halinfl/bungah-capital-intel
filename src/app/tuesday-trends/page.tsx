@@ -20,7 +20,7 @@ export default function TuesdayTrendsPage() {
         <div>
           <h1 className="t-h1">Tuesday Trends</h1>
           <p className="mt-1.5 text-sm text-slate-200">Rates captured {TT_CAPTURED_LABEL}</p>
-          <p className="mt-1 max-w-3xl text-sm text-slate-300">
+          <p className="mt-1 text-sm text-slate-300">
             Indicative Google Hotels prices. Median of the cheapest refundable rate, 2 adults, pre-tax. Decision
             support, not a quote.
           </p>

@@ -134,7 +134,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto rounded-xl border border-white/10 bg-white/[0.03] md:block">
+      <div className="hidden overflow-x-auto rounded-xl border border-white/10 bg-[#353942] md:block">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <caption className="sr-only">
             Median {metric === "refundable" ? "cheapest refundable" : "lowest"} nightly rate, pre-tax, 2 adults,{" "}
@@ -179,7 +179,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                 <tr
                   key={m.key}
                   onClick={() => router.push(`/markets/${m.slug}`)}
-                  className="group cursor-pointer border-b border-white/[0.06] last:border-b-0 hover:bg-white/[0.04]"
+                  className="group cursor-pointer border-b border-white/[0.06] last:border-b-0 hover:bg-[#3b3f48]"
                 >
                   <th scope="row" className="sticky left-0 z-10 bg-[#353942] px-4 py-2.5 text-left font-medium group-hover:bg-[#3b3f48]">
                     <Link
