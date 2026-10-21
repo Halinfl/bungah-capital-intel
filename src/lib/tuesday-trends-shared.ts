@@ -22,10 +22,13 @@ export const THIN_BELOW = 15;
 export const SOLD_OUT_DOT_AT = 10;
 export const LIST_SIZE = 50;
 
-/** Labels for the current capture (Tue Oct 20, 2026, 9:33–9:40 PM ET) and list version. */
+/**
+ * Labels for the current capture and list version. 8,470 of 8,500 rows were priced Tue Oct 20, 2026,
+ * 9:33–10:48 PM ET; 30 rows (three hotels added in v2) were priced Wed Oct 21, 6:36 AM ET for the same stays.
+ */
 export const TT_CAPTURED_LABEL = "Tue, Oct 20, 2026";
-export const TT_CAPTURE_TIME_LABEL = "9:33–9:40 PM ET";
-export const TT_LIST_LABEL = "v1, effective Oct 20, 2026";
+export const TT_CAPTURE_TIME_LABEL = "9:33–10:48 PM ET";
+export const TT_LIST_LABEL = "v2, effective Oct 20, 2026";
 
 export type TTCell = {
   horizon: Horizon;

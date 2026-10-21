@@ -5,24 +5,24 @@
  * Only the fields the UI shows are exported to client components. The tax-inclusive median in
  * the summary file is not verified yet and is deliberately never passed through.
  */
-import summary from "@/data/tuesday-trends/summary-2026-10-20.json";
-import atlanta from "@/data/tuesday-trends/lists/v1-2026-10-20/atlanta.json";
-import boston from "@/data/tuesday-trends/lists/v1-2026-10-20/boston.json";
-import chicago from "@/data/tuesday-trends/lists/v1-2026-10-20/chicago.json";
-import dallas from "@/data/tuesday-trends/lists/v1-2026-10-20/dallas.json";
-import honolulu from "@/data/tuesday-trends/lists/v1-2026-10-20/honolulu.json";
-import houston from "@/data/tuesday-trends/lists/v1-2026-10-20/houston.json";
-import lasVegas from "@/data/tuesday-trends/lists/v1-2026-10-20/las-vegas.json";
-import losAngeles from "@/data/tuesday-trends/lists/v1-2026-10-20/los-angeles.json";
-import miami from "@/data/tuesday-trends/lists/v1-2026-10-20/miami.json";
-import nashville from "@/data/tuesday-trends/lists/v1-2026-10-20/nashville.json";
-import newYork from "@/data/tuesday-trends/lists/v1-2026-10-20/new-york.json";
-import orlando from "@/data/tuesday-trends/lists/v1-2026-10-20/orlando.json";
-import phoenix from "@/data/tuesday-trends/lists/v1-2026-10-20/phoenix.json";
-import sanDiego from "@/data/tuesday-trends/lists/v1-2026-10-20/san-diego.json";
-import sanFrancisco from "@/data/tuesday-trends/lists/v1-2026-10-20/san-francisco.json";
-import seattle from "@/data/tuesday-trends/lists/v1-2026-10-20/seattle.json";
-import washingtonDc from "@/data/tuesday-trends/lists/v1-2026-10-20/washington-dc.json";
+import summary from "@/data/tuesday-trends/summary-2026-10-20-v2final.json";
+import atlanta from "@/data/tuesday-trends/lists/v2-2026-10-20/atlanta.json";
+import boston from "@/data/tuesday-trends/lists/v2-2026-10-20/boston.json";
+import chicago from "@/data/tuesday-trends/lists/v2-2026-10-20/chicago.json";
+import dallas from "@/data/tuesday-trends/lists/v2-2026-10-20/dallas.json";
+import honolulu from "@/data/tuesday-trends/lists/v2-2026-10-20/honolulu.json";
+import houston from "@/data/tuesday-trends/lists/v2-2026-10-20/houston.json";
+import lasVegas from "@/data/tuesday-trends/lists/v2-2026-10-20/las-vegas.json";
+import losAngeles from "@/data/tuesday-trends/lists/v2-2026-10-20/los-angeles.json";
+import miami from "@/data/tuesday-trends/lists/v2-2026-10-20/miami.json";
+import nashville from "@/data/tuesday-trends/lists/v2-2026-10-20/nashville.json";
+import newYork from "@/data/tuesday-trends/lists/v2-2026-10-20/new-york.json";
+import orlando from "@/data/tuesday-trends/lists/v2-2026-10-20/orlando.json";
+import phoenix from "@/data/tuesday-trends/lists/v2-2026-10-20/phoenix.json";
+import sanDiego from "@/data/tuesday-trends/lists/v2-2026-10-20/san-diego.json";
+import sanFrancisco from "@/data/tuesday-trends/lists/v2-2026-10-20/san-francisco.json";
+import seattle from "@/data/tuesday-trends/lists/v2-2026-10-20/seattle.json";
+import washingtonDc from "@/data/tuesday-trends/lists/v2-2026-10-20/washington-dc.json";
 
 import type { Horizon, Stay, TTCell, TTMarket } from "@/lib/tuesday-trends-shared";
 export * from "@/lib/tuesday-trends-shared";

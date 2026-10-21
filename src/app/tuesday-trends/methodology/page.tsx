@@ -85,7 +85,9 @@ export default function MethodologyPage() {
               so you can see where rates sit now and, from the second week, how they move.
             </p>
             <p className={p}>
-              The current board was captured {TT_CAPTURED_LABEL}, {TT_CAPTURE_TIME_LABEL}.
+              The current board was captured {TT_CAPTURED_LABEL}, {TT_CAPTURE_TIME_LABEL}. A handful of rows (30
+              of 8,500, for three hotels added when the lists were revised) were priced the next morning, Wed, Oct
+              21, for the same stay dates.
             </p>
           </section>
 
@@ -165,9 +167,11 @@ export default function MethodologyPage() {
             <H2 id="hotel-lists">Hotel lists</H2>
             <p className={p}>
               Each market tracks a fixed list of {LIST_SIZE} hotels, so week-to-week changes come from prices, not
-              from a changing mix. Lists include hotels only (no vacation rentals), 3 stars and up, within a set
-              distance of the market&apos;s hotel core, ranked by Google review count times rating. Lists change
-              only with a new version, recorded in the change log below.
+              from a changing mix. Each list draws on the market&apos;s core visitor districts and includes hotels
+              only: no vacation rentals, hostels, extended-stay or timeshare properties, and 3 stars and up (a few hotels Google doesn&apos;t star-rate are included). Hotels are ranked by Google review count
+              times rating, weighted toward 4- and 5-star hotels, with a small number added or excluded by hand.
+              Orlando includes the Walt Disney World and Universal resorts. Lists change only with a new version,
+              recorded in the change log below.
             </p>
             <p className="text-sm text-slate-300">List {TT_LIST_LABEL}</p>
             <div className="divide-y divide-white/[0.08] rounded-xl border border-white/10 bg-white/[0.03]">
@@ -260,8 +264,13 @@ export default function MethodologyPage() {
             </p>
             <ul className={`${p} space-y-2`}>
               <li>
-                <span className="font-medium tabular-nums text-white">Oct 20, 2026</span>: first capture. Hotel
-                list v1 takes effect. Week-over-week changes start with the Oct 27 capture.
+                <span className="font-medium tabular-nums text-white">Oct 21, 2026</span>: hotel lists revised to v2
+                before first publication (core visitor districts; Orlando adds Walt Disney World and Universal
+                resorts).
+              </li>
+              <li>
+                <span className="font-medium tabular-nums text-white">Oct 20, 2026</span>: first capture.
+                Week-over-week changes start with the Oct 27 capture.
               </li>
             </ul>
           </section>
