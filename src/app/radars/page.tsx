@@ -154,10 +154,6 @@ function PreviewRadarSection({ radar, signedIn, children }: { radar: PreviewRada
             </div>
             <h4 className="mt-3 text-base font-medium leading-snug text-white">{f.title}</h4>
             <p className="mt-1 text-[14px] leading-[1.5] text-slate-200">{f.summary}</p>
-            <p className="mt-2 text-[14px] leading-[1.5] text-slate-200">
-              <span className="font-medium text-white">For capital: </span>
-              {f.capital}
-            </p>
             <div className="mt-auto pt-3 sm:pt-4">
               <div className="border-t border-white/10 pt-3">
                 <SourceList items={f.sources} />
@@ -184,7 +180,7 @@ function CityTable({ rows, sources }: { rows: CityRow[]; sources: PreviewSource[
   return (
     <div className="mt-6 border-t border-white/10 pt-4 sm:mt-7">
       <h3 className="text-xs font-medium uppercase tracking-wider text-slate-300">Cities we track</h3>
-      <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-slate-300">{CITY_TABLE_NOTE}</p>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-300">{CITY_TABLE_NOTE}</p>
 
       {/* Desktop: table */}
       <div className="mt-4 hidden lg:block">
@@ -232,11 +228,11 @@ function CityTable({ rows, sources }: { rows: CityRow[]; sources: PreviewSource[
               <StatusPill status={r.status} />
             </div>
             <div className="mt-0.5 text-xs text-slate-300">Coverage: {r.coverage}</div>
-            <dl className="mt-2 space-y-2 text-[13px] leading-snug">
+            <dl className="mt-2 grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-[13px] leading-snug">
               {CITY_COLS.map((c) => (
-                <div key={c.key}>
-                  <dt className="text-xs uppercase tracking-wider text-slate-300">{c.label}</dt>
-                  <dd className="mt-0.5 text-slate-200">{r[c.key]}</dd>
+                <div key={c.key} className="contents">
+                  <dt className="text-xs text-slate-300">{c.label}</dt>
+                  <dd className="text-slate-200">{r[c.key]}</dd>
                 </div>
               ))}
             </dl>

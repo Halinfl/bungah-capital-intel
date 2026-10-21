@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     const answer = { ...raw, content: scrubInternal(scrubSeedLines(raw.content)) };
     const modelUsed = toModelUsed(answer.mode);
     const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
-    const sources = (await sourcesForAnswer(answer.content)).map((l) => ({ ...l, label: scrubInternal(l.label) }));
+    const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
 
     // Product thread always stores full Q&A (including private workspace).
     const thread = await prisma.chatThread.create({

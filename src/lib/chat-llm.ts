@@ -29,6 +29,7 @@ import {
   formatDigestFallbackMemo,
   retrieveAllowedCorpus,
 } from "./chat-retrieve";
+import { radarChatAnswer } from "./radars-preview";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -140,6 +141,18 @@ export async function answerChat(
   question: string,
   opts?: { marketSlug?: string | null }
 ): Promise<ChatAnswer & { answeredWell: boolean }> {
+  // Radar cards' "Ask Chat about this": answer with the full verified radar detail.
+  const radar = radarChatAnswer(question);
+  if (radar) {
+    return {
+      content: radar.content,
+      citations: radar.sources.map((s) => s.label),
+      sources: radar.sources,
+      marketSlug: null,
+      mode: "deterministic",
+      answeredWell: true,
+    };
+  }
   const [ctx, corpus] = await Promise.all([
     retrieveGraphContext(question, opts?.marketSlug),
     retrieveAllowedCorpus(question),
