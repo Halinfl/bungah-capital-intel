@@ -10,6 +10,7 @@ import {
   type TTMarket,
 } from "@/lib/tuesday-trends-shared";
 import { SoldOutBadge } from "./SoldOutBadge";
+import { Thin } from "./Thin";
 
 function Value({ c }: { c: TTCell }) {
   const thin = isThin(c.nRefundable);
@@ -17,10 +18,7 @@ function Value({ c }: { c: TTCell }) {
     <>
       <div className="flex items-baseline gap-1.5">
         {thin ? (
-          <>
-            <span className="text-[15px] text-slate-300">—</span>
-            <span className="rounded border border-white/15 px-1 text-[12px] leading-4 text-slate-300">thin</span>
-          </>
+          <Thin />
         ) : (
           <span className="text-[15px] font-medium tabular-nums text-white">{fmtRate(c.refundable)}</span>
         )}

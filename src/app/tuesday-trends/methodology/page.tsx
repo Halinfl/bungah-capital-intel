@@ -93,13 +93,13 @@ export default function MethodologyPage() {
             <H2 id="what-we-measure">What we measure</H2>
             <ul className={`${p} list-disc space-y-2 pl-5`}>
               <li>
-                <span className="font-medium text-white">Cheapest refundable rate (the headline).</span> For each
+                <span className="font-medium text-white">Refundable: cheapest refundable rate (the default).</span> For each
                 hotel, the lowest nightly rate from a seller offering free cancellation. The board shows the median
                 across the hotels that have one. Not every hotel does, so this median covers about 3 in 4 hotels at
                 1 week out and about 1 in 3 at ~11 months.
               </li>
               <li>
-                <span className="font-medium text-white">Lowest rate.</span> Google&apos;s headline nightly price
+                <span className="font-medium text-white">Any rate.</span> Google&apos;s headline nightly price
                 for each hotel, refundable or not. Its median covers every priced hotel.
               </li>
               <li>
@@ -210,7 +210,7 @@ export default function MethodologyPage() {
                 <dt className="font-medium text-white">Thin</dt>
                 <dd>
                   Fewer than {THIN_BELOW} of {LIST_SIZE} hotels priced for the rate shown. The cell shows
-                  &ldquo;—&rdquo; with a &ldquo;thin&rdquo; label instead of a median.
+                  &ldquo;— thin&rdquo; instead of a median.
                 </dd>
               </div>
               <div>
@@ -218,8 +218,9 @@ export default function MethodologyPage() {
                 <dd>
                   Google returned the requested dates with no price and no sellers. This can&apos;t be told apart
                   from Google simply showing no rates for those dates, so treat it as a signal, not a count of full
-                  hotels. A dot marks {SOLD_OUT_DOT_AT} or more of {LIST_SIZE}. At ~11 months most sold-outs reflect
-                  Google&apos;s ~330-day pricing limit.
+                  hotels. The board shows the count 1 week out, where sell-outs are real, with a dot at{" "}
+                  {SOLD_OUT_DOT_AT} or more of {LIST_SIZE}; hovering shows all five horizons. Further out, and at
+                  ~11 months especially, most sold-outs reflect Google&apos;s ~330-day pricing limit.
                 </dd>
               </div>
               <div>

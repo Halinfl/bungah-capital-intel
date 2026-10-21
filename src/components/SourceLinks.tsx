@@ -10,7 +10,7 @@ function Item({ l }: { l: SourceLink }) {
         {scrubInternal(l.label)} ↗
       </a>
       {l.secondary ? (
-        <span className="rounded border border-amber-500/30 px-1 text-[9px] uppercase tracking-wider text-amber-200/80">
+        <span className="rounded border border-amber-500/30 px-1 text-xs uppercase tracking-wider text-amber-200/80">
           secondary
         </span>
       ) : null}
