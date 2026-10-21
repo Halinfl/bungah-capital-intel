@@ -9,7 +9,7 @@ import {
   type TTCell,
   type TTMarket,
 } from "@/lib/tuesday-trends-shared";
-import { SoldOutBadge } from "./SoldOutBadge";
+import { NoRatesText } from "./NoRatesBadge";
 import { Thin } from "./Thin";
 
 function Value({ c }: { c: TTCell }) {
@@ -26,9 +26,9 @@ function Value({ c }: { c: TTCell }) {
       <div className="mt-1 text-xs tabular-nums text-slate-300">
         {c.nRefundable}/{LIST_SIZE} priced
       </div>
-      {c.nSoldOut > 0 ? (
-        <div className="mt-1.5">
-          <SoldOutBadge n={c.nSoldOut} allowDot={c.horizon === "7d"} />
+      {c.nNoRates > 0 ? (
+        <div className="mt-0.5 text-xs text-slate-300">
+          <NoRatesText n={c.nNoRates} dot={c.horizon === "7d" && c.noRatesDot} />
         </div>
       ) : null}
     </>
@@ -123,8 +123,9 @@ export function MarketRatesBlock({ market }: { market: TTMarket }) {
           ))}
         </div>
         <p className="mt-3 text-xs text-slate-300">
-          Coverage counts hotels with a refundable rate. Thin: under 15 of 50. ● 10+ sold out at 1 wk.
-          ~11-month sold-outs largely reflect Google&apos;s ~330-day pricing limit.
+          Coverage counts hotels with a refundable rate; low-confidence prices (2 or fewer sellers and no
+          official hotel site) are left out. Thin: under 15 of 50. ● 10+ no rates on Google at 1 wk. At ~11
+          months, no rates largely reflect Google&apos;s ~330-day pricing limit.
         </p>
       </Link>
     </section>

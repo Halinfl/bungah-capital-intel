@@ -18,8 +18,8 @@ export const STAYS: { key: Stay; label: string; days: string }[] = [
 
 /** Below this many of 50 hotels with the displayed rate, the cell shows "—" and "thin". */
 export const THIN_BELOW = 15;
-/** At or above this many of 50 sold out, the sold-out badge gets a dot. */
-export const SOLD_OUT_DOT_AT = 10;
+/** At or above this many of 50 with no rates on Google (1-week cells), the count gets a dot. */
+export const NO_RATES_DOT_AT = 10;
 export const LIST_SIZE = 50;
 
 /**
@@ -39,8 +39,14 @@ export type TTCell = {
   refundable: number | null;
   nRefundable: number;
   lowest: number | null;
-  nPriced: number;
-  nSoldOut: number;
+  /** Priced hotels used in medians (low-confidence prices left out); coverage for "Any rate". */
+  nUsed: number;
+  nLowConfidence: number;
+  /** Hotels with no rates on Google for these dates, excluding hotels not on Google at all this week. */
+  nNoRates: number;
+  nNotOnGoogle: number;
+  /** Data flag: 10+ no-rates hotels, never at the structural ~11-month horizon. Shown on 1-week cells only. */
+  noRatesDot: boolean;
 };
 
 export type TTMarket = {
@@ -53,7 +59,7 @@ export type TTMarket = {
 /* ---------- shared display helpers (safe for client use) ---------- */
 
 export function cellValue(c: TTCell, metric: Metric): { value: number | null; n: number } {
-  return metric === "refundable" ? { value: c.refundable, n: c.nRefundable } : { value: c.lowest, n: c.nPriced };
+  return metric === "refundable" ? { value: c.refundable, n: c.nRefundable } : { value: c.lowest, n: c.nUsed };
 }
 
 export function isThin(n: number): boolean {

@@ -2,10 +2,11 @@
  * Tuesday Trends: weekly indicative hotel-rate board, read from static JSON committed in
  * src/data/tuesday-trends (no database reads or writes).
  *
- * Only the fields the UI shows are exported to client components. The tax-inclusive median in
- * the summary file is not verified yet and is deliberately never passed through.
+ * Only the fields the UI shows are exported to client components. Method v2 (Oct 21, 2026): refundable
+ * includes room-level refundable rates; low-confidence rows are left out of medians; "sold out" is
+ * "no rates on Google". The tax-inclusive median is unavailable for Oct 20 and is never passed through.
  */
-import summary from "@/data/tuesday-trends/summary-2026-10-20-v2final-r2.json";
+import summary from "@/data/tuesday-trends/summary-2026-10-20-v2final-r3-method2.json";
 import atlanta from "@/data/tuesday-trends/lists/v2-2026-10-20/atlanta.json";
 import boston from "@/data/tuesday-trends/lists/v2-2026-10-20/boston.json";
 import chicago from "@/data/tuesday-trends/lists/v2-2026-10-20/chicago.json";
@@ -50,8 +51,11 @@ function toCell(c: RawCell): TTCell {
     refundable: c.median_cheapest_refundable_pretax ?? null,
     nRefundable: c.n_refundable,
     lowest: c.median_headline_pretax ?? null,
-    nPriced: c.n_priced,
-    nSoldOut: c.n_sold_out,
+    nUsed: c.n_used_in_medians,
+    nLowConfidence: c.n_low_confidence_excluded,
+    nNoRates: c.n_no_rates_signal,
+    nNotOnGoogle: c.n_no_rates_not_on_google,
+    noRatesDot: c.no_rates_dot && !c.no_rates_structural,
   };
 }
 
@@ -76,6 +80,13 @@ export function ttMarkets(): TTMarket[] {
       cells,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Hotels with no priced cell anywhere in this capture (listed on the methodology page only). */
+export function ttNotOnGoogle(): { market: string; hotel: string }[] {
+  return summary.not_on_google_hotels
+    .map((h) => ({ market: nameByKey.get(h.market) ?? h.market, hotel: h.hotel_name }))
+    .sort((a, b) => a.market.localeCompare(b.market));
 }
 
 export function ttMarketBySiteSlug(slug: string): TTMarket | null {

@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   HORIZONS,
   LIST_SIZE,
-  SOLD_OUT_DOT_AT,
+  NO_RATES_DOT_AT,
   THIN_BELOW,
   cellValue,
   fmtRate,
@@ -18,11 +18,11 @@ import {
   type TTMarket,
 } from "@/lib/tuesday-trends-shared";
 import { Segmented } from "./Segmented";
-import { SoldOutBadge } from "./SoldOutBadge";
+import { NoRatesBadge, NoRatesText } from "./NoRatesBadge";
 import { Thin } from "./Thin";
 
-/** Sort column: market name, one horizon's rate, or the 1-week sold-out count. */
-type SortKey = "name" | Horizon | "soldout";
+/** Sort column: market name, one horizon's rate, or the 1-week no-rates count. */
+type SortKey = "name" | Horizon | "norates";
 type Dir = "asc" | "desc";
 
 const METRIC_OPTIONS: { value: Metric; label: string; aria: string }[] = [
@@ -30,11 +30,13 @@ const METRIC_OPTIONS: { value: Metric; label: string; aria: string }[] = [
   { value: "lowest", label: "Any rate", aria: "Lowest rate, refundable or not" },
 ];
 
-/** Sold-out counts are shown for 1 week out, where sell-outs are real (far horizons hit Google's limit). */
-const SOLD_OUT_HORIZON: Horizon = "7d";
+/** No-rates counts are shown for 1 week out (far horizons mostly hit Google's ~330-day pricing limit). */
+const NO_RATES_HORIZON: Horizon = "7d";
 
-function coverageText(n: number, metric: Metric): string {
-  return metric === "refundable" ? `${n}/${LIST_SIZE} priced with a refundable rate` : `${n}/${LIST_SIZE} priced`;
+function coverageText(c: TTCell, metric: Metric): string {
+  if (metric === "refundable") return `${c.nRefundable}/${LIST_SIZE} priced with a refundable rate`;
+  const low = c.nLowConfidence ? ` (${c.nLowConfidence} low-confidence ${c.nLowConfidence === 1 ? "price" : "prices"} left out)` : "";
+  return `${c.nUsed}/${LIST_SIZE} priced${low}`;
 }
 
 function Chevron() {
@@ -60,14 +62,14 @@ function Legend({ className = "" }: { className?: string }) {
       <span className="whitespace-nowrap">— thin: under {THIN_BELOW}/{LIST_SIZE} priced</span>
       <span className="mx-1.5">·</span>
       <span className="inline-flex items-center gap-1 whitespace-nowrap">
-        <Dot /> {SOLD_OUT_DOT_AT}+ sold out at 1 wk
+        <Dot /> {NO_RATES_DOT_AT}+ no rates on Google at 1 wk
       </span>
     </p>
   );
 }
 
 type Tip = { text: string; x: number; y: number } | null;
-type Row = { m: TTMarket; cells: TTCell[]; sold: TTCell };
+type Row = { m: TTMarket; cells: TTCell[]; nr: TTCell };
 
 export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
   const router = useRouter();
@@ -87,13 +89,13 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
   const rows = useMemo<Row[]>(() => {
     const list = markets.map((m) => {
       const cells = HORIZONS.map((h) => m.cells.find((c) => c.horizon === h.key && c.stay === stay)!);
-      const sold = cells[HORIZONS.findIndex((h) => h.key === SOLD_OUT_HORIZON)];
-      return { m, cells, sold };
+      const nr = cells[HORIZONS.findIndex((h) => h.key === NO_RATES_HORIZON)];
+      return { m, cells, nr };
     });
     const byName = (a: Row, b: Row) => a.m.name.localeCompare(b.m.name);
     if (sortKey === "name") return list.sort((a, b) => (dir === "asc" ? byName(a, b) : byName(b, a)));
-    if (sortKey === "soldout")
-      return list.sort((a, b) => (dir === "desc" ? b.sold.nSoldOut - a.sold.nSoldOut : a.sold.nSoldOut - b.sold.nSoldOut) || byName(a, b));
+    if (sortKey === "norates")
+      return list.sort((a, b) => (dir === "desc" ? b.nr.nNoRates - a.nr.nNoRates : a.nr.nNoRates - b.nr.nNoRates) || byName(a, b));
     const hi = HORIZONS.findIndex((h) => h.key === sortKey);
     const key = (r: Row) => {
       const { value, n } = cellValue(r.cells[hi], metric);
@@ -116,7 +118,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
       setSortKey(k);
       setDir(k === "name" ? "asc" : "desc");
     }
-    if (k !== "name" && k !== "soldout") setHorizon(k);
+    if (k !== "name" && k !== "norates") setHorizon(k);
   };
 
   /** Mobile sort button cycles A–Z → highest → lowest, on the selected horizon. */
@@ -135,7 +137,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
   };
   const pickHorizon = (h: Horizon) => {
     setHorizon(h);
-    if (sortKey !== "name" && sortKey !== "soldout") setSortKey(h);
+    if (sortKey !== "name" && sortKey !== "norates") setSortKey(h);
   };
 
   const hIdx = HORIZONS.findIndex((h) => h.key === horizon);
@@ -239,15 +241,15 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                   </button>
                 </th>
               ))}
-              <th scope="col" aria-sort={ariaSort("soldout")} className="w-36 px-3 py-3 text-right font-medium">
+              <th scope="col" aria-sort={ariaSort("norates")} className="w-52 px-3 py-3 text-right font-medium">
                 <button
                   type="button"
-                  onClick={() => clickSort("soldout")}
-                  title="Hotels of 50 sold out 1 week out. Click to sort."
-                  className={headBtn("soldout")}
+                  onClick={() => clickSort("norates")}
+                  title="Hotels of 50 with no rates on Google, 1 week out. Click to sort."
+                  className={headBtn("norates")}
                 >
-                  <Arrow k="soldout" />
-                  Sold out · 1 wk
+                  <Arrow k="norates" />
+                  No rates on Google · 1 wk
                 </button>
               </th>
               <th scope="col" className="w-8 px-2 py-3">
@@ -256,8 +258,11 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ m, cells, sold }) => {
-              const soldTip = `Sold out of ${LIST_SIZE}: ${HORIZONS.map((h, i) => `${h.label} ${cells[i].nSoldOut}`).join(" · ")}`;
+            {rows.map(({ m, cells, nr }) => {
+              const notOn = Math.max(...cells.map((c) => c.nNotOnGoogle));
+              const nrTip = `No rates on Google, of ${LIST_SIZE}: ${HORIZONS.map((h, i) => `${h.label} ${cells[i].nNoRates}`).join(" · ")}${
+                notOn ? ` (plus ${notOn} not on Google Hotels this week)` : ""
+              }`;
               return (
                 <tr
                   key={m.key}
@@ -276,7 +281,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                   {cells.map((c, i) => {
                     const { value, n } = cellValue(c, metric);
                     const thin = isThin(n);
-                    const text = `${HORIZONS[i].long}: ${coverageText(n, metric)}${thin ? " (thin, median not shown)" : ""}`;
+                    const text = `${HORIZONS[i].long}: ${coverageText(c, metric)}${thin ? " (thin, median not shown)" : ""}`;
                     return (
                       <td
                         key={c.horizon}
@@ -285,16 +290,16 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                         onMouseLeave={() => setTip(null)}
                       >
                         {thin ? <Thin /> : <span className="text-[15px] tabular-nums text-white">{fmtRate(value)}</span>}
-                        <span className="sr-only">, {coverageText(n, metric)}</span>
+                        <span className="sr-only">, {coverageText(c, metric)}</span>
                       </td>
                     );
                   })}
                   <td
-                    className="w-36 px-3 py-2.5 text-right"
-                    onMouseEnter={(e) => showTip(e, soldTip)}
+                    className="w-52 px-3 py-2.5 text-right"
+                    onMouseEnter={(e) => showTip(e, nrTip)}
                     onMouseLeave={() => setTip(null)}
                   >
-                    <SoldOutBadge n={sold.nSoldOut} compact />
+                    <NoRatesBadge n={nr.nNoRates} dot={nr.noRatesDot} compact />
                   </td>
                   <td className="px-2 py-2.5">
                     <Chevron />
@@ -308,11 +313,10 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
 
       {/* ---------- Mobile list: one row per market for the chosen horizon ---------- */}
       <ul className="mt-3 grid gap-2 md:hidden">
-        {rows.map(({ m, cells, sold }) => {
+        {rows.map(({ m, cells, nr }) => {
           const c = cells[hIdx];
           const { value, n } = cellValue(c, metric);
           const thin = isThin(n);
-          const so = sold.nSoldOut;
           return (
             <li key={m.key}>
               <Link
@@ -322,8 +326,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] font-medium text-white">{m.name}</span>
                   <span className="flex items-center gap-1 text-xs tabular-nums text-slate-300">
-                    {n}/{LIST_SIZE} priced · {so >= SOLD_OUT_DOT_AT ? <Dot /> : null}
-                    {so} sold out{horizon === SOLD_OUT_HORIZON ? "" : " at 1 wk"}
+                    {n}/{LIST_SIZE} priced · <NoRatesText n={nr.nNoRates} dot={nr.noRatesDot} />
                   </span>
                 </span>
                 <span className="text-right">
@@ -340,13 +343,14 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
       <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-slate-300">
         <p>
           {metric === "refundable"
-            ? "Refundable: the median covers only hotels with a free-cancellation rate, from about 3 in 4 hotels at 1 week to about 1 in 3 at ~11 months."
+            ? "Refundable: the median covers hotels with a free-cancellation rate, about 9 in 10 hotels at 1 week and about 2 in 3 at ~11 months."
             : "Any rate: Google's headline nightly price for each hotel, refundable or not."}{" "}
-          <span className="hidden md:inline">Hover a cell for its coverage, or the sold-out count for all five horizons.</span>
+          Low-confidence prices (2 or fewer sellers and no official hotel site) are left out of medians.{" "}
+          <span className="hidden md:inline">Hover a cell for its coverage, or the no-rates count for all five horizons.</span>
         </p>
         <p>
-          Sold out shows 1 week out, where sell-outs are real. Further out, and at ~11 months especially, most
-          &ldquo;sold out&rdquo; results reflect Google&apos;s ~330-day pricing limit.
+          No rates on Google means Google showed no bookable rates for the dates, which is not proof of a sell-out.
+          Counts are 1 week out; at ~11 months most no-rates results reflect Google&apos;s ~330-day pricing limit.
         </p>
       </div>
 

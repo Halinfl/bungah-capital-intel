@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import {
   HORIZONS,
   THIN_BELOW,
-  SOLD_OUT_DOT_AT,
+  NO_RATES_DOT_AT,
   LIST_SIZE,
   TT_CAPTURED_LABEL,
   TT_CAPTURE_TIME_LABEL,
@@ -11,6 +11,7 @@ import {
   fmtStayRange,
   stayYear,
   ttHotelLists,
+  ttNotOnGoogle,
   ttStays,
 } from "@/lib/tuesday-trends";
 
@@ -42,6 +43,7 @@ const p = "text-[15px] leading-relaxed text-slate-200";
 export default function MethodologyPage() {
   const stays = ttStays();
   const lists = ttHotelLists();
+  const notOnGoogle = ttNotOnGoogle();
   const range = (h: string, s: "weekday" | "weekend") => {
     const c = stays.find((x) => x.horizon === h && x.stay === s)!;
     return { text: fmtStayRange(c.checkIn, c.checkOut), year: stayYear(c.checkIn), nights: c.nights };
@@ -96,22 +98,29 @@ export default function MethodologyPage() {
             <ul className={`${p} list-disc space-y-2 pl-5`}>
               <li>
                 <span className="font-medium text-white">Refundable: cheapest refundable rate (the default).</span> For each
-                hotel, the lowest nightly rate from a seller offering free cancellation. The board shows the median
-                across the hotels that have one. Not every hotel does, so this median covers about 3 in 4 hotels at
-                1 week out and about 1 in 3 at ~11 months.
+                hotel, the lowest nightly rate with free cancellation, whether a booking site offers it or it is a
+                refundable room rate for 2 guests. The board shows the median across the hotels that have one. Not
+                every hotel does, so this median covers about 9 in 10 hotels at 1 week out and about 2 in 3 at ~11
+                months. From the Oct 27 capture, hotels missing a refundable rate are checked again (up to twice)
+                before the board is built.
               </li>
               <li>
                 <span className="font-medium text-white">Any rate.</span> Google&apos;s headline nightly price
-                for each hotel, refundable or not. Its median covers every priced hotel.
+                for each hotel, refundable or not. Its median covers every priced hotel except low-confidence prices.
+              </li>
+              <li>
+                <span className="font-medium text-white">Low-confidence prices.</span> A price that comes from 2 or
+                fewer sellers, with no official hotel site among them, is left out of every median. This week, for example, some resort hotels were listed only by resellers
+                at far higher prices. They are counted, and the board&apos;s
+                tooltips show how many were left out.
               </li>
               <li>
                 <span className="font-medium text-white">Basis.</span> Nightly, in US dollars, for 2 adults, before
-                taxes and fees. A tax-inclusive view is coming soon; we will add it once the tax figures are
-                consistent across markets.
+                taxes and fees. A tax-inclusive view is coming soon. It is not available for the Oct 20 capture.
               </li>
               <li>
                 <span className="font-medium text-white">Coverage.</span> Each cell reports how many of the{" "}
-                {LIST_SIZE} hotels had a price for the rate shown, for example &ldquo;38/50 priced&rdquo;. On the
+                {LIST_SIZE} hotels had a price for the rate shown, for example &ldquo;38/50 priced&rdquo;, after low-confidence prices are left out. On the
                 board it sits in the cell&apos;s tooltip.
               </li>
               <li>
@@ -218,13 +227,34 @@ export default function MethodologyPage() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-white">Sold out</dt>
+                <dt className="font-medium text-white">No rates on Google</dt>
                 <dd>
-                  Google returned the requested dates with no price and no sellers. This can&apos;t be told apart
-                  from Google simply showing no rates for those dates, so treat it as a signal, not a count of full
-                  hotels. The board shows the count 1 week out, where sell-outs are real, with a dot at{" "}
-                  {SOLD_OUT_DOT_AT} or more of {LIST_SIZE}; hovering shows all five horizons. Further out, and at
-                  ~11 months especially, most sold-outs reflect Google&apos;s ~330-day pricing limit.
+                  Google returned the requested dates with no price and no sellers. That is not proof the hotel is
+                  sold out, so treat it as a signal, not a count of full hotels. The board shows the count 1 week
+                  out, with a dot at {NO_RATES_DOT_AT} or more of {LIST_SIZE}; hovering shows all five horizons. At
+                  ~11 months most no-rates results reflect Google&apos;s ~330-day pricing limit, so no dot is shown
+                  there.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-white">Not on Google Hotels this week</dt>
+                <dd>
+                  A hotel with no price on any of the ten stays. It is not counted in the no-rates figures. This
+                  week:
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {notOnGoogle.map((h) => (
+                      <li key={h.hotel}>
+                        {h.hotel} <span className="text-slate-300">({h.market})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+              <div>
+                <dt className="font-medium text-white">Low confidence</dt>
+                <dd>
+                  Priced by 2 or fewer sellers and no official hotel site. Left out of medians and counted
+                  separately.
                 </dd>
               </div>
               <div>
@@ -260,9 +290,17 @@ export default function MethodologyPage() {
           <section className="space-y-3">
             <H2 id="archive">Archive and change log</H2>
             <p className={p}>
-              Each Tuesday&apos;s capture is kept unchanged. Past weeks will be listed here as they build up.
+              Each Tuesday&apos;s capture is kept unchanged; a method change re-reads the saved data rather than
+              overwriting it. Past weeks will be listed here as they build up.
             </p>
             <ul className={`${p} space-y-2`}>
+              <li>
+                <span className="font-medium tabular-nums text-white">Oct 21, 2026</span>: method update. The
+                refundable rate now also counts refundable room rates, not just booking-site offers, and from the
+                Oct 27 capture hotels missing one are checked again. Low-confidence, reseller-only prices are left
+                out of medians. &ldquo;Sold out&rdquo; is renamed &ldquo;no rates on Google&rdquo;. The Oct 20 board
+                was re-read from the saved data, with no new price pulls.
+              </li>
               <li>
                 <span className="font-medium tabular-nums text-white">Oct 21, 2026</span>: hotel lists revised to v2
                 before first publication (core visitor districts; Orlando adds Walt Disney World and Universal
