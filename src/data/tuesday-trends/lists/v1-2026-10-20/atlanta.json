@@ -1,0 +1,891 @@
+{
+ "status": "DRAFT - for Hal's human review; not yet approved",
+ "list_version": "v1-2026-10-20",
+ "effective_date": "2026-10-20",
+ "built_at": "2026-10-21T01:33:18+00:00",
+ "candidate_sources": [
+  {
+   "pass_id": "A_mostreviewed_3to5star_2026-11-16",
+   "check_in": "2026-11-16",
+   "check_out": "2026-11-19",
+   "sort_by": "most_reviewed",
+   "stars": [
+    3,
+    4,
+    5
+   ],
+   "depth": 108
+  },
+  {
+   "pass_id": "B_relevance_allstars_2027-01-22",
+   "check_in": "2027-01-22",
+   "check_out": "2027-01-24",
+   "sort_by": "relevance",
+   "depth": 108
+  }
+ ],
+ "ranking_rule": "Candidates = union of the hotel_searches passes above (2 adults, USD, en, standard queue). Keep only hotel_identifier type byte 1 (hotel); drop type 2 (vacation rental) and unknown. Keep only hotels within radius_km of the market centre point (great-circle on the search lat/lon). Drop hotels with no review data. Tier 1 = stars >= 3, tier 2 = stars < 3 (incl. 0/unclassified); tier 1 always ranks above tier 2. Within a tier sort by prominence = reviews.votes_count x reviews.value (rating, 0-5) descending; tie-break by votes_count then hotel_identifier. Take the first 50. Review stats/stars/coords are the values seen in the candidate search (max votes_count across passes).",
+ "market": "atlanta",
+ "market_name": "Atlanta",
+ "location_name": "Atlanta,Georgia,United States",
+ "location_code": 1015254,
+ "centre": {
+  "lat": 33.759,
+  "lon": -84.388
+ },
+ "radius_km": 25,
+ "stats": {
+  "candidates_unique": 130,
+  "eligible": 130,
+  "dropped": {
+   "rental_or_unknown_type": 0,
+   "outside_radius_or_no_coords": 0,
+   "no_reviews": 0
+  },
+  "selected": 50,
+  "tier2_selected": 0
+ },
+ "hotels": [
+  {
+   "rank": 1,
+   "hotel_id": "ChUI3aXLyYO6sLQvGgkvbS8wMmpuZnQQAQ",
+   "name": "Atlanta Marriott Marquis",
+   "stars": 4,
+   "lat": 33.7615717,
+   "lon": -84.3859463,
+   "dist_km": 0.34,
+   "rating": 4.2,
+   "review_count": 15022,
+   "prominence": 63092.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 2,
+   "hotel_id": "ChcI06Pch7nisZWiARoKL20vMHdmaGpfaxAB",
+   "name": "Omni Atlanta Hotel at Centennial Park",
+   "stars": 3,
+   "lat": 33.757912,
+   "lon": -84.39502739999999,
+   "dist_km": 0.66,
+   "rating": 4.2,
+   "review_count": 12722,
+   "prominence": 53432.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 3,
+   "hotel_id": "ChUI1MDJ_YSkorIdGgkvbS8wMXhzeXoQAQ",
+   "name": "The Westin Peachtree Plaza, Atlanta",
+   "stars": 4,
+   "lat": 33.759536499999996,
+   "lon": -84.3884256,
+   "dist_km": 0.07,
+   "rating": 4.2,
+   "review_count": 11553,
+   "prominence": 48522.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 4,
+   "hotel_id": "ChYIqrKBnYvOouVLGgovbS8wM2NzcGNwEAE",
+   "name": "Hyatt Regency Atlanta",
+   "stars": 4,
+   "lat": 33.7613755,
+   "lon": -84.38735559999999,
+   "dist_km": 0.27,
+   "rating": 4.3,
+   "review_count": 10984,
+   "prominence": 47231.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 5,
+   "hotel_id": "ChcIl_2m2f_xiMmVARoKL20vMHdmZ3NjaxAB",
+   "name": "Hilton Atlanta",
+   "stars": 4,
+   "lat": 33.7615008,
+   "lon": -84.3836006,
+   "dist_km": 0.49,
+   "rating": 4,
+   "review_count": 10955,
+   "prominence": 43820,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 6,
+   "hotel_id": "ChgIs8WS--bh8qz_ARoLL2cvMXRmNWZsZF8QAQ",
+   "name": "Courtland Grand Hotel",
+   "stars": 4,
+   "lat": 33.7592954,
+   "lon": -84.38373729999999,
+   "dist_km": 0.4,
+   "rating": 3.7,
+   "review_count": 8243,
+   "prominence": 30499.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 7,
+   "hotel_id": "ChgIr7mLi9u567Q6GgwvZy8xMmo2Y2M3aGwQAQ",
+   "name": "The American Hotel Atlanta Downtown, Tapestry Collection by Hilton",
+   "stars": 4,
+   "lat": 33.7593077,
+   "lon": -84.3899184,
+   "dist_km": 0.18,
+   "rating": 4.3,
+   "review_count": 4851,
+   "prominence": 20859.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 8,
+   "hotel_id": "ChoIkLDV5pK3mqCgARoNL2cvMTF0eGpkMGRyNBAB",
+   "name": "Signia by Hilton Atlanta Georgia World Congress Center",
+   "stars": 5,
+   "lat": 33.7589676,
+   "lon": -84.40105199999999,
+   "dist_km": 1.21,
+   "rating": 4.6,
+   "review_count": 4297,
+   "prominence": 19766.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 9,
+   "hotel_id": "ChkI8ZPz_KzDsNKKARoML2cvMTF4OWZxbWI2EAE",
+   "name": "Loews Atlanta Hotel",
+   "stars": 4,
+   "lat": 33.783643999999995,
+   "lon": -84.3829453,
+   "dist_km": 2.78,
+   "rating": 4.5,
+   "review_count": 3839,
+   "prominence": 17275.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 10,
+   "hotel_id": "ChcI7Jaw7JHTnrYUGgsvZy8xdG1wd3RtcRAB",
+   "name": "Embassy Suites by Hilton Atlanta at Centennial Olympic Park",
+   "stars": 3,
+   "lat": 33.7605431,
+   "lon": -84.3950598,
+   "dist_km": 0.67,
+   "rating": 4.2,
+   "review_count": 4009,
+   "prominence": 16837.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 11,
+   "hotel_id": "ChcIzbnzlODaueEsGgsvZy8xdGQzM3d6OBAB",
+   "name": "The Starling Atlanta Midtown, Curio Collection by Hilton",
+   "stars": 4,
+   "lat": 33.7869773,
+   "lon": -84.3813921,
+   "dist_km": 3.17,
+   "rating": 4,
+   "review_count": 3921,
+   "prominence": 15684,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 12,
+   "hotel_id": "ChYIyczf9_POypM8GgovbS8wMV8yNjF3EAE",
+   "name": "The Ritz-Carlton, Atlanta",
+   "stars": 5,
+   "lat": 33.7585793,
+   "lon": -84.3870657,
+   "dist_km": 0.1,
+   "rating": 4.4,
+   "review_count": 3519,
+   "prominence": 15483.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 13,
+   "hotel_id": "ChcI4O2qjpWS1abMARoKL20vMHB5MGNzcBAB",
+   "name": "Grand Hyatt Atlanta in Buckhead",
+   "stars": 4,
+   "lat": 33.8448541,
+   "lon": -84.3700497,
+   "dist_km": 9.69,
+   "rating": 4.5,
+   "review_count": 3395,
+   "prominence": 15277.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 14,
+   "hotel_id": "ChcIpM6u1_rijvjgARoKL20vMGI3N3BzcxAB",
+   "name": "The Georgian Terrace Hotel",
+   "stars": 4,
+   "lat": 33.7728702,
+   "lon": -84.38458589999999,
+   "dist_km": 1.57,
+   "rating": 4.2,
+   "review_count": 3455,
+   "prominence": 14511.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 15,
+   "hotel_id": "ChcI1dywjsTwmMbRARoKL20vMGoyYjhrMhAB",
+   "name": "Renaissance Concourse Atlanta Airport Hotel",
+   "stars": 4,
+   "lat": 33.653926000000006,
+   "lon": -84.4272711,
+   "dist_km": 12.24,
+   "rating": 4.2,
+   "review_count": 3451,
+   "prominence": 14494.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 16,
+   "hotel_id": "ChoI9JPomua_r-XDARoNL2cvMTFidF9oX19sNhAB",
+   "name": "InterContinental Buckhead Atlanta by IHG",
+   "stars": 5,
+   "lat": 33.845580999999996,
+   "lon": -84.36785499999999,
+   "dist_km": 9.81,
+   "rating": 4.4,
+   "review_count": 3229,
+   "prominence": 14207.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 17,
+   "hotel_id": "ChkIgaKuyrbkrb0JGg0vZy8xMWNqaHE0anNzEAE",
+   "name": "La Quinta Inn & Suites by Wyndham Atlanta Airport North",
+   "stars": 3,
+   "lat": 33.6581416,
+   "lon": -84.42863179999999,
+   "dist_km": 11.83,
+   "rating": 3.8,
+   "review_count": 3524,
+   "prominence": 13391.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 18,
+   "hotel_id": "ChgI75fcp7m8qI2CARoLL2cvMXZuOXB5NnkQAQ",
+   "name": "Embassy Suites by Hilton Atlanta Buckhead",
+   "stars": 3,
+   "lat": 33.844589899999995,
+   "lon": -84.3686474,
+   "dist_km": 9.68,
+   "rating": 3.7,
+   "review_count": 3572,
+   "prominence": 13216.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 19,
+   "hotel_id": "ChcIoc3Zy_rduZAYGgsvZy8xdGR6bWQ0ZhAB",
+   "name": "Motel 6 Atlanta, GA - Atlanta Airport Virginia Ave",
+   "stars": 3,
+   "lat": 33.6598624,
+   "lon": -84.43396489999999,
+   "dist_km": 11.82,
+   "rating": 3.5,
+   "review_count": 3752,
+   "prominence": 13132.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 20,
+   "hotel_id": "ChgIs7Cgx_ajivOcARoLL2cvMXRmZjN3bGIQAQ",
+   "name": "Hilton Garden Inn Atlanta Downtown",
+   "stars": 3,
+   "lat": 33.761901099999996,
+   "lon": -84.3957764,
+   "dist_km": 0.79,
+   "rating": 4.2,
+   "review_count": 3095,
+   "prominence": 12999.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 21,
+   "hotel_id": "ChgIrdrY3raird4wGgwvZy8xcTY3anljdmYQAQ",
+   "name": "Crowne Plaza Atlanta - Midtown by IHG",
+   "stars": 3,
+   "lat": 33.770219,
+   "lon": -84.38812,
+   "dist_km": 1.25,
+   "rating": 3.3,
+   "review_count": 3670,
+   "prominence": 12111.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 22,
+   "hotel_id": "ChkI_Kfg69qS--3pARoML2cvMWptY3FmbDV5EAE",
+   "name": "The Whitley, a Luxury Collection Hotel, Atlanta Buckhead",
+   "stars": 5,
+   "lat": 33.8504246,
+   "lon": -84.36341949999999,
+   "dist_km": 10.42,
+   "rating": 4.2,
+   "review_count": 2673,
+   "prominence": 11226.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 23,
+   "hotel_id": "ChgIkbO3-466ppnuARoLL2cvMXRnYzBtOXAQAQ",
+   "name": "The Westin Buckhead Atlanta",
+   "stars": 4,
+   "lat": 33.8484282,
+   "lon": -84.3651962,
+   "dist_km": 10.16,
+   "rating": 4.3,
+   "review_count": 2459,
+   "prominence": 10573.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 24,
+   "hotel_id": "ChgI0uOl3JHsgrusARoLL2cvMXY2cDUzcXoQAQ",
+   "name": "Georgia Tech Hotel and Conference Center",
+   "stars": 4,
+   "lat": 33.7763024,
+   "lon": -84.3892796,
+   "dist_km": 1.93,
+   "rating": 4.5,
+   "review_count": 2262,
+   "prominence": 10179.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 25,
+   "hotel_id": "ChYIx4TQ5OuJj9YCGgovbS8wMjd0NzFoEAE",
+   "name": "Four Seasons Hotel Atlanta",
+   "stars": 5,
+   "lat": 33.7861871,
+   "lon": -84.38526399999999,
+   "dist_km": 3.03,
+   "rating": 4.6,
+   "review_count": 2168,
+   "prominence": 9972.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 26,
+   "hotel_id": "ChgIysfrjZuvxthuGgwvZy8xcTVibmpsOWoQAQ",
+   "name": "Aloft by Marriott Atlanta Downtown",
+   "stars": 4,
+   "lat": 33.7628267,
+   "lon": -84.3897891,
+   "dist_km": 0.46,
+   "rating": 3.8,
+   "review_count": 2566,
+   "prominence": 9750.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 27,
+   "hotel_id": "ChgI9sTvycmsybX3ARoLL2cvMXRrNjN6NnIQAQ",
+   "name": "Holiday Inn & Suites Atlanta Airport-North by IHG",
+   "stars": 4,
+   "lat": 33.6581578,
+   "lon": -84.43449919999999,
+   "dist_km": 12.01,
+   "rating": 3.8,
+   "review_count": 2433,
+   "prominence": 9245.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 28,
+   "hotel_id": "ChcIgOH2kcSE8vOdARoKL20vMDFfMjF5bBAB",
+   "name": "JW Marriott Atlanta Buckhead",
+   "stars": 5,
+   "lat": 33.8456848,
+   "lon": -84.3595528,
+   "dist_km": 9.99,
+   "rating": 4.4,
+   "review_count": 2072,
+   "prominence": 9116.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 29,
+   "hotel_id": "ChkI6IjP8Nuurv0RGg0vZy8xMWNuc2M3NTR0EAE",
+   "name": "Holiday Inn Express Atlanta Airport - North by IHG",
+   "stars": 3,
+   "lat": 33.6600319,
+   "lon": -84.4354267,
+   "dist_km": 11.85,
+   "rating": 3.5,
+   "review_count": 2528,
+   "prominence": 8848.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 30,
+   "hotel_id": "ChgI7P34yK3RiaS5ARoLL2cvMXZmcDkxNDcQAQ",
+   "name": "Drury Inn & Suites Atlanta Airport",
+   "stars": 3,
+   "lat": 33.6582436,
+   "lon": -84.4308982,
+   "dist_km": 11.89,
+   "rating": 4.4,
+   "review_count": 1930,
+   "prominence": 8492.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 31,
+   "hotel_id": "ChcImtrFz6D-g4hSGgsvZy8xdGtwNXRwdBAB",
+   "name": "Best Western Plus Atlanta Airport-East",
+   "stars": 3,
+   "lat": 33.65387,
+   "lon": -84.39741,
+   "dist_km": 11.72,
+   "rating": 4,
+   "review_count": 2037,
+   "prominence": 8148,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 32,
+   "hotel_id": "ChoIvaLZ1ufYyq6aARoNL2cvMTFnY18xNGd0bhAB",
+   "name": "Kimpton Overland Hotel - Atlanta Airport",
+   "stars": 3,
+   "lat": 33.6526177,
+   "lon": -84.4008097,
+   "dist_km": 11.89,
+   "rating": 4.2,
+   "review_count": 1935,
+   "prominence": 8127.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 33,
+   "hotel_id": "ChkI9aOx_pvk7LxRGg0vZy8xMWR4cl9menprEAE",
+   "name": "AC Hotel Atlanta Downtown",
+   "stars": 3,
+   "lat": 33.7599412,
+   "lon": -84.3910229,
+   "dist_km": 0.3,
+   "rating": 4.2,
+   "review_count": 1846,
+   "prominence": 7753.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 34,
+   "hotel_id": "ChoIqqbr2dyB_6inARoNL2cvMTFidHdrMWRxNxAB",
+   "name": "Hotel Indigo Atlanta Downtown, an IHG Hotel",
+   "stars": 4,
+   "lat": 33.7602312,
+   "lon": -84.3878573,
+   "dist_km": 0.14,
+   "rating": 4.3,
+   "review_count": 1799,
+   "prominence": 7735.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 35,
+   "hotel_id": "ChgIoOWC3rzn6dp_GgwvZy8xMV9yNGoxODcQAQ",
+   "name": "Renaissance Atlanta Midtown Hotel",
+   "stars": 4,
+   "lat": 33.7784607,
+   "lon": -84.38774529999999,
+   "dist_km": 2.16,
+   "rating": 4.3,
+   "review_count": 1785,
+   "prominence": 7675.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 36,
+   "hotel_id": "ChYIz_76m9_viPM_GgovbS8wNDdxaHk4EAE",
+   "name": "Waldorf Astoria Atlanta Buckhead",
+   "stars": 5,
+   "lat": 33.8490989,
+   "lon": -84.36628929999999,
+   "dist_km": 10.22,
+   "rating": 4.6,
+   "review_count": 1663,
+   "prominence": 7649.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 37,
+   "hotel_id": "ChcIz_zGnvG5pr42GgsvZy8xdGY3MXM5dhAB",
+   "name": "Country Inn & Suites by Radisson, Atlanta Downtown",
+   "stars": 3,
+   "lat": 33.734085,
+   "lon": -84.3912277,
+   "dist_km": 2.79,
+   "rating": 3.5,
+   "review_count": 2171,
+   "prominence": 7598.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 38,
+   "hotel_id": "ChcI97qhurvons8TGgsvZy8xdmI5ZHhidhAB",
+   "name": "The St. Regis Atlanta",
+   "stars": 5,
+   "lat": 33.839996,
+   "lon": -84.38250599999999,
+   "dist_km": 9.02,
+   "rating": 4.6,
+   "review_count": 1641,
+   "prominence": 7548.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 39,
+   "hotel_id": "ChgIxZCEopHvx9rpARoLL2cvMXZzcHNiOWYQAQ",
+   "name": "Emory Conference Center Hotel",
+   "stars": 3,
+   "lat": 33.8014398,
+   "lon": -84.3241685,
+   "dist_km": 7.55,
+   "rating": 4.5,
+   "review_count": 1653,
+   "prominence": 7438.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 40,
+   "hotel_id": "ChoIoLCMg-Dzuc-cARoNL2cvMTFqOHJ6OHY2cBAB",
+   "name": "REVERB Downtown Atlanta",
+   "stars": 4,
+   "lat": 33.753584599999996,
+   "lon": -84.3990786,
+   "dist_km": 1.19,
+   "rating": 4,
+   "review_count": 1859,
+   "prominence": 7436,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 41,
+   "hotel_id": "ChgIp8P0gbuIp8GMARoLL2cvMXdrNGR4NjgQAQ",
+   "name": "Hilton Garden Inn Atlanta - Buckhead",
+   "stars": 4,
+   "lat": 33.8473782,
+   "lon": -84.3697186,
+   "dist_km": 9.97,
+   "rating": 3.8,
+   "review_count": 1940,
+   "prominence": 7372.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 42,
+   "hotel_id": "ChkIi_Gr5KbxjOl0Gg0vZy8xMWgwN3ZoNXdsEAE",
+   "name": "The Candler Hotel Atlanta, Curio Collection by Hilton",
+   "stars": 4,
+   "lat": 33.7569355,
+   "lon": -84.3876751,
+   "dist_km": 0.23,
+   "rating": 4.5,
+   "review_count": 1637,
+   "prominence": 7366.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 43,
+   "hotel_id": "ChgIoLr_7NftiWsaDS9nLzExYjZfbnFicXEQAQ",
+   "name": "Hyatt House Atlanta/Downtown",
+   "stars": 3,
+   "lat": 33.7647702,
+   "lon": -84.3970346,
+   "dist_km": 1.05,
+   "rating": 4.1,
+   "review_count": 1788,
+   "prominence": 7330.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 44,
+   "hotel_id": "ChcIu77ug-u51YpIGgsvZy8xdHZ5bW1iNxAB",
+   "name": "Atlanta Marriott Suites Midtown",
+   "stars": 4,
+   "lat": 33.7863262,
+   "lon": -84.3865149,
+   "dist_km": 3.04,
+   "rating": 4.1,
+   "review_count": 1766,
+   "prominence": 7240.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 45,
+   "hotel_id": "ChYI8PWL247po4AJGgovbS8wd2ducWNiEAE",
+   "name": "SpringHill Suites by Marriott Atlanta Buckhead",
+   "stars": 3,
+   "lat": 33.849133099999996,
+   "lon": -84.3731181,
+   "dist_km": 10.12,
+   "rating": 4.1,
+   "review_count": 1694,
+   "prominence": 6945.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 46,
+   "hotel_id": "ChgI46rKjcDQocH8ARoLL2cvMXZsOXNiNTcQAQ",
+   "name": "Glenn Hotel, Autograph Collection",
+   "stars": 3,
+   "lat": 33.7569647,
+   "lon": -84.3929763,
+   "dist_km": 0.51,
+   "rating": 4.3,
+   "review_count": 1473,
+   "prominence": 6333.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 47,
+   "hotel_id": "ChYIoLTEqePvmugNGgovbS8wendyZjJsEAE",
+   "name": "Hotel Indigo Atlanta Midtown by IHG",
+   "stars": 3,
+   "lat": 33.773191,
+   "lon": -84.38457199999999,
+   "dist_km": 1.61,
+   "rating": 3.9,
+   "review_count": 1588,
+   "prominence": 6193.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 48,
+   "hotel_id": "ChkI39n9qNqOmc3YARoML2cvMTI2MHozbHFrEAE",
+   "name": "Hyatt Centric Midtown Atlanta",
+   "stars": 3,
+   "lat": 33.7814467,
+   "lon": -84.3829706,
+   "dist_km": 2.54,
+   "rating": 4.2,
+   "review_count": 1468,
+   "prominence": 6165.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 49,
+   "hotel_id": "ChkIzLeWrInax8VnGg0vZy8xMXd2MjBqcnZmEAE",
+   "name": "The Connally Hotel Downtown Atlanta, an Ascend Collection Hotel",
+   "stars": 3,
+   "lat": 33.752939999999995,
+   "lon": -84.3912,
+   "dist_km": 0.74,
+   "rating": 3.4,
+   "review_count": 1718,
+   "prominence": 5841.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 50,
+   "hotel_id": "ChoI0K_G0a_FgrjAARoNL2cvMTFnOW5ybnc5chAB",
+   "name": "Hotel Clermont Atlanta, by Oliver",
+   "stars": 4,
+   "lat": 33.7735458,
+   "lon": -84.36140189999999,
+   "dist_km": 2.94,
+   "rating": 4.5,
+   "review_count": 1297,
+   "prominence": 5836.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  }
+ ]
+}

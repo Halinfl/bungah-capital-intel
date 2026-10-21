@@ -1,0 +1,875 @@
+{
+ "status": "DRAFT - for Hal's human review; not yet approved",
+ "list_version": "v1-2026-10-20",
+ "effective_date": "2026-10-20",
+ "built_at": "2026-10-21T01:33:18+00:00",
+ "candidate_sources": [
+  {
+   "pass_id": "A_mostreviewed_3to5star_2026-11-16",
+   "check_in": "2026-11-16",
+   "check_out": "2026-11-19",
+   "sort_by": "most_reviewed",
+   "stars": [
+    3,
+    4,
+    5
+   ],
+   "depth": 108
+  },
+  {
+   "pass_id": "B_relevance_allstars_2027-01-22",
+   "check_in": "2027-01-22",
+   "check_out": "2027-01-24",
+   "sort_by": "relevance",
+   "depth": 108
+  }
+ ],
+ "ranking_rule": "Candidates = union of the hotel_searches passes above (2 adults, USD, en, standard queue). Keep only hotel_identifier type byte 1 (hotel); drop type 2 (vacation rental) and unknown. Keep only hotels within radius_km of the market centre point (great-circle on the search lat/lon). Drop hotels with no review data. Tier 1 = stars >= 3, tier 2 = stars < 3 (incl. 0/unclassified); tier 1 always ranks above tier 2. Within a tier sort by prominence = reviews.votes_count x reviews.value (rating, 0-5) descending; tie-break by votes_count then hotel_identifier. Take the first 50. Review stats/stars/coords are the values seen in the candidate search (max votes_count across passes).",
+ "market": "washington-dc",
+ "market_name": "Washington DC",
+ "location_name": "Washington,District of Columbia,United States",
+ "location_code": 1014895,
+ "centre": {
+  "lat": 38.899,
+  "lon": -77.03
+ },
+ "radius_km": 20,
+ "stats": {
+  "candidates_unique": 166,
+  "eligible": 157,
+  "dropped": {
+   "rental_or_unknown_type": 8,
+   "outside_radius_or_no_coords": 0,
+   "no_reviews": 1
+  },
+  "selected": 50,
+  "tier2_selected": 0
+ },
+ "hotels": [
+  {
+   "rank": 1,
+   "hotel_id": "ChYIzvuXxdqel_QWGgovbS8wcG1mdjQzEAE",
+   "name": "Marriott Marquis Washington, DC",
+   "stars": 4,
+   "lat": 38.9039084,
+   "lon": -77.0249614,
+   "dist_km": 0.7,
+   "rating": 4.4,
+   "review_count": 6914,
+   "prominence": 30421.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 2,
+   "hotel_id": "ChcIxqrU3829oPjuARoKL20vMDl2NG1tbRAB",
+   "name": "Grand Hyatt Washington",
+   "stars": 3,
+   "lat": 38.8993973,
+   "lon": -77.02654369999999,
+   "dist_km": 0.3,
+   "rating": 4.4,
+   "review_count": 5999,
+   "prominence": 26395.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 3,
+   "hotel_id": "ChcI5-6qx920uKXlARoKL20vMDRmMWY5ehAB",
+   "name": "Capital Hilton",
+   "stars": 3,
+   "lat": 38.9032196,
+   "lon": -77.0357171,
+   "dist_km": 0.68,
+   "rating": 4.4,
+   "review_count": 5885,
+   "prominence": 25894.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 4,
+   "hotel_id": "ChYIhKiw37LF96h0GgovbS8wMnB3MzJfEAE",
+   "name": "Omni Shoreham Hotel Washington D.C.",
+   "stars": 4,
+   "lat": 38.9229631,
+   "lon": -77.0537011,
+   "dist_km": 3.36,
+   "rating": 4.2,
+   "review_count": 6113,
+   "prominence": 25674.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 5,
+   "hotel_id": "ChcI9fizqND3t-C2ARoKL20vMDJycWdycRAB",
+   "name": "Washington Hilton",
+   "stars": 3,
+   "lat": 38.9165712,
+   "lon": -77.0454106,
+   "dist_km": 2.37,
+   "rating": 4,
+   "review_count": 5764,
+   "prominence": 23056,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 6,
+   "hotel_id": "ChYIofSInpvfq9JFGgovbS8wNl84Z3R4EAE",
+   "name": "Hotel Washington",
+   "stars": 5,
+   "lat": 38.8969586,
+   "lon": -77.03321369999999,
+   "dist_km": 0.36,
+   "rating": 4.4,
+   "review_count": 4532,
+   "prominence": 19940.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 7,
+   "hotel_id": "ChcIqtbL4bar69WzARoKL20vMF95MzhmOBAB",
+   "name": "Holiday Inn Washington Capitol - Natl Mall by IHG",
+   "stars": 3,
+   "lat": 38.885563999999995,
+   "lon": -77.0196989,
+   "dist_km": 1.74,
+   "rating": 4.1,
+   "review_count": 4791,
+   "prominence": 19643.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 8,
+   "hotel_id": "ChgIitLu786I_r_pARoLL2cvMXZmcDkyc2oQAQ",
+   "name": "Hyatt Regency Washington on Capitol Hill",
+   "stars": 3,
+   "lat": 38.89543990000001,
+   "lon": -77.01168,
+   "dist_km": 1.63,
+   "rating": 4.2,
+   "review_count": 4630,
+   "prominence": 19446.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 9,
+   "hotel_id": "ChcIgo6ywKe90tx5GgsvZy8xdGg1a2JxNhAB",
+   "name": "JW Marriott Washington, DC",
+   "stars": 5,
+   "lat": 38.8964784,
+   "lon": -77.0313815,
+   "dist_km": 0.3,
+   "rating": 4.4,
+   "review_count": 4328,
+   "prominence": 19043.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 10,
+   "hotel_id": "ChUI2Mj4kbzR0eorGgkvbS8wM3hjajYQAQ",
+   "name": "InterContinental the Willard Washington D.C. by IHG",
+   "stars": 5,
+   "lat": 38.896812499999996,
+   "lon": -77.0322812,
+   "dist_km": 0.31,
+   "rating": 4.6,
+   "review_count": 3726,
+   "prominence": 17139.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 11,
+   "hotel_id": "ChcIl_OIrMHwieEIGgsvZy8xdGY3NmRqMhAB",
+   "name": "Embassy Suites by Hilton Washington DC Convention Center",
+   "stars": 3,
+   "lat": 38.9019456,
+   "lon": -77.02621789999999,
+   "dist_km": 0.46,
+   "rating": 4.3,
+   "review_count": 3916,
+   "prominence": 16838.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 12,
+   "hotel_id": "ChUIlNbpr_X8gKEvGgkvbS8wNDR3azUQAQ",
+   "name": "The Mayflower Hotel, Autograph Collection",
+   "stars": 5,
+   "lat": 38.904623799999996,
+   "lon": -77.03989949999999,
+   "dist_km": 1.06,
+   "rating": 4.4,
+   "review_count": 3756,
+   "prominence": 16526.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 13,
+   "hotel_id": "ChkI9Pzp8tbT7ucrGg0vZy8xMWdia3c4Nzc4EAE",
+   "name": "Hamilton Hotel",
+   "stars": 4,
+   "lat": 38.9029733,
+   "lon": -77.03156059999999,
+   "dist_km": 0.46,
+   "rating": 4.1,
+   "review_count": 3448,
+   "prominence": 14136.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 14,
+   "hotel_id": "ChgI3fmZ2pP_1JjOARoLL2cvMXRqNDZ0M3QQAQ",
+   "name": "Washington Plaza Hotel",
+   "stars": 4,
+   "lat": 38.90624760000001,
+   "lon": -77.0308788,
+   "dist_km": 0.81,
+   "rating": 4.2,
+   "review_count": 3322,
+   "prominence": 13952.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 15,
+   "hotel_id": "ChcIv7qnn_K0y_1oGgsvbS8wMTFqZDRfNxAB",
+   "name": "YOTEL Washington DC",
+   "stars": 3,
+   "lat": 38.8953091,
+   "lon": -77.01085119999999,
+   "dist_km": 1.71,
+   "rating": 3.8,
+   "review_count": 3652,
+   "prominence": 13877.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 16,
+   "hotel_id": "ChkI0K6y4sW2o7rHARoML2cvMXE2amJnNnIwEAE",
+   "name": "The Watergate Hotel",
+   "stars": 5,
+   "lat": 38.899394199999996,
+   "lon": -77.05550219999999,
+   "dist_km": 2.21,
+   "rating": 4.3,
+   "review_count": 3224,
+   "prominence": 13863.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 17,
+   "hotel_id": "ChcIzMbW4LKq6pWqARoKL20vMGsyYmQxbRAB",
+   "name": "The Potomac Hotel, Autograph Collection",
+   "stars": 5,
+   "lat": 38.883738099999995,
+   "lon": -77.03009879999999,
+   "dist_km": 1.7,
+   "rating": 4.5,
+   "review_count": 2623,
+   "prominence": 11803.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 18,
+   "hotel_id": "ChkIoajC8NzkkdxPGg0vZy8xMWYwMGtsaGh3EAE",
+   "name": "Hyatt House Washington DC / The Wharf",
+   "stars": 3,
+   "lat": 38.8786728,
+   "lon": -77.0239713,
+   "dist_km": 2.32,
+   "rating": 4.4,
+   "review_count": 2614,
+   "prominence": 11501.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 19,
+   "hotel_id": "ChcI2-aMpbq-l7AvGgsvbS8wMTIzaGszZBAB",
+   "name": "Embassy Suites by Hilton Washington DC Georgetown",
+   "stars": 4,
+   "lat": 38.9068931,
+   "lon": -77.0493753,
+   "dist_km": 1.89,
+   "rating": 4.4,
+   "review_count": 2529,
+   "prominence": 11127.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 20,
+   "hotel_id": "ChcIgtT_9rKZz_taGgsvZy8xdGYwM2NmcRAB",
+   "name": "Washington Marriott at Metro Center",
+   "stars": 4,
+   "lat": 38.8993141,
+   "lon": -77.02803519999999,
+   "dist_km": 0.17,
+   "rating": 4.3,
+   "review_count": 2533,
+   "prominence": 10891.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 21,
+   "hotel_id": "ChYI6_PY2NPMsOZSGgovbS8wazJscHZuEAE",
+   "name": "Four Seasons Hotel Washington, DC",
+   "stars": 5,
+   "lat": 38.904463199999995,
+   "lon": -77.0578342,
+   "dist_km": 2.48,
+   "rating": 4.7,
+   "review_count": 2290,
+   "prominence": 10763.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 22,
+   "hotel_id": "ChcI7PSUlrGPkdjfARoKL20vMGtiaHBnaxAB",
+   "name": "Le M\u00e9ridien Washington, D.C., The Madison",
+   "stars": 4,
+   "lat": 38.9052359,
+   "lon": -77.0340823,
+   "dist_km": 0.78,
+   "rating": 4.2,
+   "review_count": 2551,
+   "prominence": 10714.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 23,
+   "hotel_id": "ChgI4bqK2Mrf74XkARoLL2cvMXRtejd0eHAQAQ",
+   "name": "Hilton Garden Inn Washington DC Downtown",
+   "stars": 3,
+   "lat": 38.9006021,
+   "lon": -77.031455,
+   "dist_km": 0.22,
+   "rating": 4.1,
+   "review_count": 2580,
+   "prominence": 10578.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 24,
+   "hotel_id": "ChcIpLSJktSLhtsmGgsvZy8xdGh3N21nNRAB",
+   "name": "Sofitel Washington DC Lafayette Square",
+   "stars": 5,
+   "lat": 38.900478199999995,
+   "lon": -77.03400599999999,
+   "dist_km": 0.38,
+   "rating": 4.4,
+   "review_count": 2370,
+   "prominence": 10428.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 25,
+   "hotel_id": "ChcIktWDrN6M6amPARoKL20vMDRmNTk2MxAB",
+   "name": "The Westin Washington, D.C. City Center",
+   "stars": 4,
+   "lat": 38.905252499999996,
+   "lon": -77.0333279,
+   "dist_km": 0.75,
+   "rating": 4.1,
+   "review_count": 2535,
+   "prominence": 10393.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 26,
+   "hotel_id": "ChYImsfFtKKM7MxrGgovbS8wNGcxcjBmEAE",
+   "name": "The Royal Sonesta Washington DC Dupont Circle",
+   "stars": 4,
+   "lat": 38.909758,
+   "lon": -77.0473836,
+   "dist_km": 1.92,
+   "rating": 4.2,
+   "review_count": 2441,
+   "prominence": 10252.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 27,
+   "hotel_id": "ChoIq5Cb5duqxraLARoNL2cvMTFmY3RxcGgzMBAB",
+   "name": "Phoenix Park Hotel",
+   "stars": 3,
+   "lat": 38.8971317,
+   "lon": -77.0093423,
+   "dist_km": 1.8,
+   "rating": 4.4,
+   "review_count": 2247,
+   "prominence": 9886.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 28,
+   "hotel_id": "ChgIgN3O-_mDhuigARoLL20vMDEyMjJ3aG0QAQ",
+   "name": "Fairmont Washington D.C. Georgetown",
+   "stars": 5,
+   "lat": 38.9058213,
+   "lon": -77.0517041,
+   "dist_km": 2.03,
+   "rating": 4.6,
+   "review_count": 2052,
+   "prominence": 9439.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 29,
+   "hotel_id": "ChkIhrfKyLi17tw8Gg0vZy8xMWZ5emJ5NnF5EAE",
+   "name": "InterContinental Washington D.C. - the Wharf by IHG",
+   "stars": 5,
+   "lat": 38.8793085,
+   "lon": -77.0247382,
+   "dist_km": 2.24,
+   "rating": 4.5,
+   "review_count": 2055,
+   "prominence": 9247.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 30,
+   "hotel_id": "ChoIgOCph_CooK3PARoNL2cvMTFidzdkMjNtcxAB",
+   "name": "Hyatt Place Washington DC/National Mall",
+   "stars": 3,
+   "lat": 38.88311180000001,
+   "lon": -77.01785389999999,
+   "dist_km": 2.06,
+   "rating": 4.2,
+   "review_count": 2196,
+   "prominence": 9223.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 31,
+   "hotel_id": "ChYIy8rU0KyMqN5FGgovbS8wazJrd2JsEAE",
+   "name": "The Dupont Circle Hotel",
+   "stars": 5,
+   "lat": 38.9105439,
+   "lon": -77.0429082,
+   "dist_km": 1.7,
+   "rating": 4.4,
+   "review_count": 2038,
+   "prominence": 8967.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 32,
+   "hotel_id": "ChoIio7thta49ub5ARoNL2cvMTFjNzBkeXFjNBAB",
+   "name": "The LINE DC",
+   "stars": 4,
+   "lat": 38.9227591,
+   "lon": -77.0416516,
+   "dist_km": 2.83,
+   "rating": 4.3,
+   "review_count": 2057,
+   "prominence": 8845.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 33,
+   "hotel_id": "ChoIyZ-21fnNioiaARoNL2cvMTFqMWZoaHI2chAB",
+   "name": "Hotel Rendale Washington DC",
+   "stars": 3,
+   "lat": 38.9159866,
+   "lon": -77.0466824,
+   "dist_km": 2.38,
+   "rating": 4.3,
+   "review_count": 2053,
+   "prominence": 8827.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 34,
+   "hotel_id": "ChkImbz_mJ65ne4fGg0vZy8xMWZrM2M3ZF94EAE",
+   "name": "Conrad Washington, DC",
+   "stars": 5,
+   "lat": 38.9014786,
+   "lon": -77.0253522,
+   "dist_km": 0.49,
+   "rating": 4.6,
+   "review_count": 1877,
+   "prominence": 8634.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 35,
+   "hotel_id": "ChgIhoO5iK_JxLKdARoLL2cvMXRmang1MmgQAQ",
+   "name": "Washington Marriott Georgetown",
+   "stars": 4,
+   "lat": 38.9059999,
+   "lon": -77.0483181,
+   "dist_km": 1.77,
+   "rating": 4.3,
+   "review_count": 1970,
+   "prominence": 8471.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 36,
+   "hotel_id": "ChcIzdiImuvzjKGBARoKL20vMGsyazVzeRAB",
+   "name": "Melrose Georgetown Hotel",
+   "stars": 4,
+   "lat": 38.9031732,
+   "lon": -77.0525598,
+   "dist_km": 2.01,
+   "rating": 4.3,
+   "review_count": 1963,
+   "prominence": 8440.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 37,
+   "hotel_id": "ChcI3MXEkqTsluVNGgsvZy8xdHMxbmpraBAB",
+   "name": "Hampton Inn Washington-Downtown-Convention Center",
+   "stars": 3,
+   "lat": 38.901784,
+   "lon": -77.019465,
+   "dist_km": 0.96,
+   "rating": 4.1,
+   "review_count": 2058,
+   "prominence": 8437.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 38,
+   "hotel_id": "ChYI_q6z1-jiuYdBGgovbS8wYl9fNDZtEAE",
+   "name": "O Museum in The Mansion",
+   "stars": 5,
+   "lat": 38.9084313,
+   "lon": -77.0458359,
+   "dist_km": 1.73,
+   "rating": 4.5,
+   "review_count": 1868,
+   "prominence": 8406.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 39,
+   "hotel_id": "ChgIuOSurMHVmc75ARoLL2cvMXRjdmNzcXEQAQ",
+   "name": "Holiday Inn Washington-Central/White House by IHG",
+   "stars": 3,
+   "lat": 38.9080569,
+   "lon": -77.0349449,
+   "dist_km": 1.09,
+   "rating": 4.1,
+   "review_count": 2039,
+   "prominence": 8359.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 40,
+   "hotel_id": "ChkIi5Ko96mflpmpARoML2cvMXE2Mmg3M3JmEAE",
+   "name": "Hyatt Place Washington DC/US Capitol",
+   "stars": 3,
+   "lat": 38.9075037,
+   "lon": -77.007744,
+   "dist_km": 2.15,
+   "rating": 3.6,
+   "review_count": 2292,
+   "prominence": 8251.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 41,
+   "hotel_id": "ChoI4oKM-vnOmq3UARoNL2cvMTFjNTQ1eG5jahAB",
+   "name": "Waldorf Astoria Washington DC",
+   "stars": 5,
+   "lat": 38.894107999999996,
+   "lon": -77.027582,
+   "dist_km": 0.58,
+   "rating": 4.3,
+   "review_count": 1859,
+   "prominence": 7993.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 42,
+   "hotel_id": "ChgIkIbu9sG1h-auARoLL2cvMXRmdnQ1c2gQAQ",
+   "name": "State Plaza Hotel",
+   "stars": 3,
+   "lat": 38.896240299999995,
+   "lon": -77.04749439999999,
+   "dist_km": 1.54,
+   "rating": 4.3,
+   "review_count": 1853,
+   "prominence": 7967.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 43,
+   "hotel_id": "ChgI8ubw7Pa-6IfpARoLL2cvMXRmNmhqbmQQAQ",
+   "name": "Hilton Garden Inn Washington DC/U.S. Capitol",
+   "stars": 3,
+   "lat": 38.9062586,
+   "lon": -77.00562819999999,
+   "dist_km": 2.26,
+   "rating": 3.8,
+   "review_count": 2087,
+   "prominence": 7930.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 44,
+   "hotel_id": "ChcI59ex2Pug_azFARoKL20vMDl2MXd5NxAB",
+   "name": "The Ritz-Carlton, Washington, D.C.",
+   "stars": 5,
+   "lat": 38.9046966,
+   "lon": -77.0490792,
+   "dist_km": 1.77,
+   "rating": 4.5,
+   "review_count": 1643,
+   "prominence": 7393.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 45,
+   "hotel_id": "ChYIjZu7zqKphu07GgovbS8wazJrd3AzEAE",
+   "name": "The Churchill Hotel Near Embassy Row",
+   "stars": 3,
+   "lat": 38.9164051,
+   "lon": -77.0469449,
+   "dist_km": 2.43,
+   "rating": 4.2,
+   "review_count": 1760,
+   "prominence": 7392.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 46,
+   "hotel_id": "ChgIz7ikkJ6OlpWcARoLL2cvMXRucGc5X3gQAQ",
+   "name": "The Alexandrian Old Town Alexandria, Autograph Collection",
+   "stars": 4,
+   "lat": 38.8045568,
+   "lon": -77.0444684,
+   "dist_km": 10.58,
+   "rating": 4.2,
+   "review_count": 1723,
+   "prominence": 7236.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 47,
+   "hotel_id": "ChoIkZKnrOmCv8HBARoNL2cvMTFjNnowaHA1NRAB",
+   "name": "The Darcy",
+   "stars": 4,
+   "lat": 38.9078331,
+   "lon": -77.0356237,
+   "dist_km": 1.1,
+   "rating": 4.3,
+   "review_count": 1674,
+   "prominence": 7198.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 48,
+   "hotel_id": "ChkIs87YlYOKsJUtGg0vZy8xMWJicmw3NG5oEAE",
+   "name": "Hilton Garden Inn Washington DC/Georgetown Area",
+   "stars": 3,
+   "lat": 38.905545599999996,
+   "lon": -77.0491558,
+   "dist_km": 1.81,
+   "rating": 4.1,
+   "review_count": 1723,
+   "prominence": 7064.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 49,
+   "hotel_id": "ChoI5Ku20auPr5iVARoNL2cvMTFmMDNyaF9sehAB",
+   "name": "Hilton Washington DC National Mall The Wharf",
+   "stars": 4,
+   "lat": 38.8839197,
+   "lon": -77.02399520000002,
+   "dist_km": 1.76,
+   "rating": 4.1,
+   "review_count": 1697,
+   "prominence": 6957.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 50,
+   "hotel_id": "ChcI1eKckurai_p8GgsvZy8xdF9oendsaBAB",
+   "name": "Club Quarters Hotel White House, Washington DC",
+   "stars": 4,
+   "lat": 38.901059599999996,
+   "lon": -77.0391674,
+   "dist_km": 0.83,
+   "rating": 3.9,
+   "review_count": 1772,
+   "prominence": 6910.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  }
+ ]
+}

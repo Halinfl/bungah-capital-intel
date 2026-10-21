@@ -1,0 +1,868 @@
+{
+ "status": "DRAFT - for Hal's human review; not yet approved",
+ "list_version": "v1-2026-10-20",
+ "effective_date": "2026-10-20",
+ "built_at": "2026-10-21T01:33:18+00:00",
+ "candidate_sources": [
+  {
+   "pass_id": "A_mostreviewed_3to5star_2026-11-16",
+   "check_in": "2026-11-16",
+   "check_out": "2026-11-19",
+   "sort_by": "most_reviewed",
+   "stars": [
+    3,
+    4,
+    5
+   ],
+   "depth": 108
+  },
+  {
+   "pass_id": "B_relevance_allstars_2027-01-22",
+   "check_in": "2027-01-22",
+   "check_out": "2027-01-24",
+   "sort_by": "relevance",
+   "depth": 108
+  }
+ ],
+ "ranking_rule": "Candidates = union of the hotel_searches passes above (2 adults, USD, en, standard queue). Keep only hotel_identifier type byte 1 (hotel); drop type 2 (vacation rental) and unknown. Keep only hotels within radius_km of the market centre point (great-circle on the search lat/lon). Drop hotels with no review data. Tier 1 = stars >= 3, tier 2 = stars < 3 (incl. 0/unclassified); tier 1 always ranks above tier 2. Within a tier sort by prominence = reviews.votes_count x reviews.value (rating, 0-5) descending; tie-break by votes_count then hotel_identifier. Take the first 50. Review stats/stars/coords are the values seen in the candidate search (max votes_count across passes).",
+ "market": "chicago",
+ "market_name": "Chicago",
+ "location_name": "Chicago,Illinois,United States",
+ "location_code": 1016367,
+ "centre": {
+  "lat": 41.885,
+  "lon": -87.63
+ },
+ "radius_km": 25,
+ "stats": {
+  "candidates_unique": 181,
+  "eligible": 169,
+  "dropped": {
+   "rental_or_unknown_type": 8,
+   "outside_radius_or_no_coords": 4,
+   "no_reviews": 0
+  },
+  "selected": 50,
+  "tier2_selected": 0
+ },
+ "hotels": [
+  {
+   "rank": 1,
+   "hotel_id": "ChUI_o7k0-3cobYiGgkvbS8wNG5mcmMQAQ",
+   "name": "Palmer House a Hilton Hotel",
+   "stars": 4,
+   "lat": 41.8806312,
+   "lon": -87.6269397,
+   "dist_km": 0.55,
+   "rating": 4.2,
+   "review_count": 14062,
+   "prominence": 59060.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 2,
+   "hotel_id": "ChcI78-luoXdhoaIARoKL20vMDJ2cGdnMRAB",
+   "name": "Hyatt Regency Chicago",
+   "stars": 4,
+   "lat": 41.8874455,
+   "lon": -87.6216614,
+   "dist_km": 0.74,
+   "rating": 4.4,
+   "review_count": 12015,
+   "prominence": 52866.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 3,
+   "hotel_id": "ChUIoben2Mv6-CYaCi9tLzA3czVwbjQQAQ",
+   "name": "Hilton Chicago",
+   "stars": 4,
+   "lat": 41.872259199999995,
+   "lon": -87.624696,
+   "dist_km": 1.48,
+   "rating": 4.3,
+   "review_count": 11092,
+   "prominence": 47695.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 4,
+   "hotel_id": "ChYI_JyDvqWmoJgxGgovbS8wal9obWpuEAE",
+   "name": "Hyatt Regency O'Hare Chicago",
+   "stars": 3,
+   "lat": 41.9810036,
+   "lon": -87.8592721,
+   "dist_km": 21.76,
+   "rating": 4.3,
+   "review_count": 8152,
+   "prominence": 35053.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 5,
+   "hotel_id": "ChcIwseY9frL8a-4ARoKL20vMGg1MzhjdBAB",
+   "name": "The Congress Plaza Hotel & Convention Center",
+   "stars": 3,
+   "lat": 41.8751616,
+   "lon": -87.6246539,
+   "dist_km": 1.18,
+   "rating": 3.7,
+   "review_count": 8148,
+   "prominence": 30147.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 6,
+   "hotel_id": "ChcImZXXvonChriFARoKL20vMDJyNzM2dBAB",
+   "name": "LondonHouse Chicago, Curio Collection by Hilton",
+   "stars": 4,
+   "lat": 41.8880218,
+   "lon": -87.6250467,
+   "dist_km": 0.53,
+   "rating": 4.5,
+   "review_count": 6676,
+   "prominence": 30042.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 7,
+   "hotel_id": "ChcI6Oyk5fz2zd3bARoKL20vMHdmaDV2MRAB",
+   "name": "Hyatt Regency McCormick Place Chicago",
+   "stars": 4,
+   "lat": 41.8521395,
+   "lon": -87.61778939999999,
+   "dist_km": 3.79,
+   "rating": 4.4,
+   "review_count": 6816,
+   "prominence": 29990.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 8,
+   "hotel_id": "ChgIobGV9Ya297W6ARoLL2cvMXRkNF9mbGYQAQ",
+   "name": "Sheraton Grand Chicago Riverwalk",
+   "stars": 4,
+   "lat": 41.8891309,
+   "lon": -87.6193955,
+   "dist_km": 0.99,
+   "rating": 4.2,
+   "review_count": 7105,
+   "prominence": 29841.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 9,
+   "hotel_id": "ChoI0IWEzayprMCjARoNL2cvMTFieXZudncycBAB",
+   "name": "Swissotel Chicago",
+   "stars": 4,
+   "lat": 41.8873928,
+   "lon": -87.6194841,
+   "dist_km": 0.91,
+   "rating": 4.3,
+   "review_count": 6604,
+   "prominence": 28397.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 10,
+   "hotel_id": "ChcI492Am5-4usaCARoKL20vMDI3Y3c4NBAB",
+   "name": "InterContinental Chicago Magnificent Mile by IHG",
+   "stars": 4,
+   "lat": 41.891484999999996,
+   "lon": -87.62361299999999,
+   "dist_km": 0.89,
+   "rating": 4.4,
+   "review_count": 5612,
+   "prominence": 24692.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 11,
+   "hotel_id": "ChcIk8P2rYCS6-UIGgsvZy8xdG1xZ3Q1ehAB",
+   "name": "Loews Chicago O'Hare Hotel",
+   "stars": 4,
+   "lat": 41.9741649,
+   "lon": -87.8633689,
+   "dist_km": 21.7,
+   "rating": 4.5,
+   "review_count": 5257,
+   "prominence": 23656.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 12,
+   "hotel_id": "ChYIsbz_05Oo2r7eARoJL20vMDR6ODA1EAE",
+   "name": "The Drake",
+   "stars": 4,
+   "lat": 41.9001198,
+   "lon": -87.62348580000001,
+   "dist_km": 1.77,
+   "rating": 4.3,
+   "review_count": 4703,
+   "prominence": 20222.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 13,
+   "hotel_id": "ChkIqsq68cO72OQXGg0vZy8xMWI3Nmx3bGY0EAE",
+   "name": "Chicago Athletic Association - The Unbound Collection by Hyatt",
+   "stars": 4,
+   "lat": 41.881664199999996,
+   "lon": -87.62471769999999,
+   "dist_km": 0.57,
+   "rating": 4.6,
+   "review_count": 4333,
+   "prominence": 19931.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 14,
+   "hotel_id": "ChkI7Mezjuen4_B7Gg0vZy8xMWI2aGttYmdrEAE",
+   "name": "Loews Chicago Hotel",
+   "stars": 4,
+   "lat": 41.8901907,
+   "lon": -87.61908079999999,
+   "dist_km": 1.07,
+   "rating": 4.6,
+   "review_count": 4294,
+   "prominence": 19752.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 15,
+   "hotel_id": "ChcIwuHmsLmMg-WdARoKL20vMGdsdDRieBAB",
+   "name": "Sofitel Chicago Magnificent Mile",
+   "stars": 5,
+   "lat": 41.8987007,
+   "lon": -87.62727029999999,
+   "dist_km": 1.54,
+   "rating": 4.5,
+   "review_count": 4181,
+   "prominence": 18814.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 16,
+   "hotel_id": "ChgIo56j1Ke577HQARoLL2cvMXRkajRzeWMQAQ",
+   "name": "Chicago Marriott Downtown Magnificent Mile",
+   "stars": 4,
+   "lat": 41.892158,
+   "lon": -87.62502429999999,
+   "dist_km": 0.9,
+   "rating": 4.2,
+   "review_count": 4355,
+   "prominence": 18291.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 17,
+   "hotel_id": "ChgI6I6o4qyToqPhARoLL2cvMXY5NDBuNW4QAQ",
+   "name": "Embassy Suites by Hilton Chicago Downtown Magnificent Mile",
+   "stars": 4,
+   "lat": 41.8914042,
+   "lon": -87.61996339999999,
+   "dist_km": 1.09,
+   "rating": 4.2,
+   "review_count": 4325,
+   "prominence": 18165.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 18,
+   "hotel_id": "ChkIzauIxP-w65g0Gg0vZy8xMWNzMWY0MDhuEAE",
+   "name": "Marriott Marquis Chicago",
+   "stars": 4,
+   "lat": 41.854018599999996,
+   "lon": -87.6205363,
+   "dist_km": 3.53,
+   "rating": 4.5,
+   "review_count": 3968,
+   "prominence": 17856.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 19,
+   "hotel_id": "ChcIiKuBtfix7dMPGgsvZy8xdGdiN3lreRAB",
+   "name": "Embassy Suites by Hilton Chicago Downtown River North",
+   "stars": 4,
+   "lat": 41.8928714,
+   "lon": -87.6283194,
+   "dist_km": 0.89,
+   "rating": 4.1,
+   "review_count": 4270,
+   "prominence": 17507.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 20,
+   "hotel_id": "ChgIg5GK7ZO-ieqeARoLL2cvMXRmNmg2cGgQAQ",
+   "name": "The Wade",
+   "stars": 4,
+   "lat": 41.8939186,
+   "lon": -87.6153661,
+   "dist_km": 1.57,
+   "rating": 4.1,
+   "review_count": 4265,
+   "prominence": 17486.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 21,
+   "hotel_id": "ChYIsoKwi-X0tbp9GgovbS8wMnI0MzV2EAE",
+   "name": "Warwick Allerton - Chicago",
+   "stars": 3,
+   "lat": 41.8950952,
+   "lon": -87.6237527,
+   "dist_km": 1.24,
+   "rating": 3.7,
+   "review_count": 4486,
+   "prominence": 16598.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 22,
+   "hotel_id": "ChYIyN6C7I63qOtpGgovbS8wZGxqeDZtEAE",
+   "name": "DoubleTree by Hilton Hotel Chicago - Magnificent Mile",
+   "stars": 4,
+   "lat": 41.892803799999996,
+   "lon": -87.6197004,
+   "dist_km": 1.22,
+   "rating": 4,
+   "review_count": 4146,
+   "prominence": 16584,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 23,
+   "hotel_id": "ChcIk7rQuOK6_ZwaGgsvZy8xdGRraDcyeBAB",
+   "name": "theWit Chicago, a Hilton Hotel",
+   "stars": 4,
+   "lat": 41.885996899999995,
+   "lon": -87.6276317,
+   "dist_km": 0.23,
+   "rating": 4.3,
+   "review_count": 3767,
+   "prominence": 16198.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 24,
+   "hotel_id": "ChgIpsrPq7ysv_PuARoLL20vMDExdmdnNzkQAQ",
+   "name": "Millennium Hotel Knickerbocker Chicago",
+   "stars": 4,
+   "lat": 41.899805799999996,
+   "lon": -87.6226078,
+   "dist_km": 1.76,
+   "rating": 3.9,
+   "review_count": 4097,
+   "prominence": 15978.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 25,
+   "hotel_id": "ChcIzL6qwpKmyNMHGgsvZy8xdGpoeTdxdhAB",
+   "name": "The Westin O'Hare",
+   "stars": 4,
+   "lat": 41.988853399999996,
+   "lon": -87.8613331,
+   "dist_km": 22.35,
+   "rating": 4.3,
+   "review_count": 3681,
+   "prominence": 15828.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 26,
+   "hotel_id": "ChkIht_F2c6o9ZMqGg0vZy8xMWM1d2twemM5EAE",
+   "name": "Fairmont Chicago, Millennium Park",
+   "stars": 4,
+   "lat": 41.8860915,
+   "lon": -87.62089089999999,
+   "dist_km": 0.76,
+   "rating": 4.3,
+   "review_count": 3644,
+   "prominence": 15669.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 27,
+   "hotel_id": "ChgIlK6jw67RrfeKARoLL2cvMXZ0emhzX2sQAQ",
+   "name": "Renaissance Chicago Downtown Hotel",
+   "stars": 4,
+   "lat": 41.886529599999996,
+   "lon": -87.6283811,
+   "dist_km": 0.22,
+   "rating": 4.5,
+   "review_count": 3481,
+   "prominence": 15664.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 28,
+   "hotel_id": "ChkI0ufB-aXQ4NzaARoML2cvMTFoMHF4OWJrEAE",
+   "name": "Crowne Plaza Chicago Ohare Hotel & Conf Ctr by IHG",
+   "stars": 4,
+   "lat": 41.977239999999995,
+   "lon": -87.863787,
+   "dist_km": 21.89,
+   "rating": 3.9,
+   "review_count": 3923,
+   "prominence": 15299.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 29,
+   "hotel_id": "ChgIgKq4pPeZ16AUGgwvZy8xMmxsbDR6c24QAQ",
+   "name": "The Royal Sonesta Chicago Downtown",
+   "stars": 4,
+   "lat": 41.8873941,
+   "lon": -87.62569400000001,
+   "dist_km": 0.44,
+   "rating": 4.2,
+   "review_count": 3523,
+   "prominence": 14796.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 30,
+   "hotel_id": "ChgIg6nnwrPfmLOfARoLL2cvMXRteHJsd3MQAQ",
+   "name": "JW Marriott Chicago",
+   "stars": 5,
+   "lat": 41.8793371,
+   "lon": -87.6328322,
+   "dist_km": 0.67,
+   "rating": 4.5,
+   "review_count": 3259,
+   "prominence": 14665.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 31,
+   "hotel_id": "ChoIy5rfz6SC1NqFARoNL2cvMTFjMzI5M3lkYhAB",
+   "name": "Radisson Blu Aqua Hotel, Chicago",
+   "stars": 4,
+   "lat": 41.886579999999995,
+   "lon": -87.6201552,
+   "dist_km": 0.83,
+   "rating": 4.2,
+   "review_count": 3407,
+   "prominence": 14309.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 32,
+   "hotel_id": "ChkIkLP5qvfn8p_nARoML2cvMWhtNTY2MXprEAE",
+   "name": "The Godfrey Hotel Chicago",
+   "stars": 4,
+   "lat": 41.8946533,
+   "lon": -87.6321868,
+   "dist_km": 1.09,
+   "rating": 4.1,
+   "review_count": 3453,
+   "prominence": 14157.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 33,
+   "hotel_id": "ChgI76rhvuaY28kDGgwvZy8xamt5amdtOWoQAQ",
+   "name": "Holiday Inn Chicago Dwtn - the Mart by IHG",
+   "stars": 3,
+   "lat": 41.8882,
+   "lon": -87.63759999999999,
+   "dist_km": 0.72,
+   "rating": 4.3,
+   "review_count": 3280,
+   "prominence": 14104.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 34,
+   "hotel_id": "ChgI5vit_OPrwp-TARoLL2cvMXRkY3hwaGgQAQ",
+   "name": "Embassy Suites by Hilton Chicago O'Hare Rosemont",
+   "stars": 4,
+   "lat": 41.979116399999995,
+   "lon": -87.8631389,
+   "dist_km": 21.94,
+   "rating": 4.1,
+   "review_count": 3419,
+   "prominence": 14017.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 35,
+   "hotel_id": "ChgIz7ujp_HlzcneARoLL2cvMXRkdmtyeGcQAQ",
+   "name": "Hotel Felix",
+   "stars": 4,
+   "lat": 41.8946272,
+   "lon": -87.63158600000001,
+   "dist_km": 1.08,
+   "rating": 4.1,
+   "review_count": 3407,
+   "prominence": 13968.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 36,
+   "hotel_id": "ChgIor6Vwt3ou8vBARoLL2cvMXRnZGpsMjAQAQ",
+   "name": "HI Chicago, The J. Ira and Nicki Harris Family Hostel",
+   "stars": 3,
+   "lat": 41.875828399999996,
+   "lon": -87.6265633,
+   "dist_km": 1.06,
+   "rating": 4.4,
+   "review_count": 3111,
+   "prominence": 13688.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 37,
+   "hotel_id": "ChkItKq9peDY-P-wARoML2cvMTE5dzAzbjZ2EAE",
+   "name": "Hyatt Centric Chicago Magnificent Mile",
+   "stars": 4,
+   "lat": 41.893837399999995,
+   "lon": -87.6223754,
+   "dist_km": 1.17,
+   "rating": 4.4,
+   "review_count": 3094,
+   "prominence": 13613.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 38,
+   "hotel_id": "ChYI67-BvKyE0q5KGgovbS8wZ2g4ZnJoEAE",
+   "name": "The Peninsula Chicago",
+   "stars": 5,
+   "lat": 41.8959069,
+   "lon": -87.6251182,
+   "dist_km": 1.28,
+   "rating": 4.7,
+   "review_count": 2858,
+   "prominence": 13432.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 39,
+   "hotel_id": "ChkIqcj_sPa9yMv3ARoML2cvMWhjMnJqMzU3EAE",
+   "name": "Hyatt Place Chicago/River North",
+   "stars": 3,
+   "lat": 41.8909951,
+   "lon": -87.6306927,
+   "dist_km": 0.67,
+   "rating": 4.5,
+   "review_count": 2976,
+   "prominence": 13392.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 40,
+   "hotel_id": "ChcIy5Hy2pHngcf2ARoKL20vMDJyODl6NRAB",
+   "name": "Sports Illustrated Resorts Chicago",
+   "stars": 3,
+   "lat": 41.886058999999996,
+   "lon": -87.6260006,
+   "dist_km": 0.35,
+   "rating": 4.4,
+   "review_count": 3025,
+   "prominence": 13310.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 41,
+   "hotel_id": "ChgI2rzChsqC76fTARoLL2cvMXRqanB6azAQAQ",
+   "name": "DoubleTree by Hilton Hotel Chicago O'Hare Airport - Rosemont",
+   "stars": 4,
+   "lat": 41.9781961,
+   "lon": -87.8633255,
+   "dist_km": 21.91,
+   "rating": 4.2,
+   "review_count": 3132,
+   "prominence": 13154.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 42,
+   "hotel_id": "ChgIsq6405719vDIARoLL2cvMXRoa3h2bXEQAQ",
+   "name": "The Allegro Royal Sonesta Hotel Chicago Loop",
+   "stars": 4,
+   "lat": 41.8843938,
+   "lon": -87.6334083,
+   "dist_km": 0.29,
+   "rating": 4.2,
+   "review_count": 3116,
+   "prominence": 13087.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 43,
+   "hotel_id": "ChgIg4G6nZ6-torYARoLL2cvMXRmcXJqdG4QAQ",
+   "name": "Marriott Chicago O\u2019Hare",
+   "stars": 3,
+   "lat": 41.9855138,
+   "lon": -87.84118989999999,
+   "dist_km": 20.74,
+   "rating": 4.2,
+   "review_count": 3063,
+   "prominence": 12864.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 44,
+   "hotel_id": "ChgIk9asuYWG86w0GgwvZy8xMjYxazEwcXIQAQ",
+   "name": "The Langham, Chicago",
+   "stars": 5,
+   "lat": 41.888622700000006,
+   "lon": -87.6272867,
+   "dist_km": 0.46,
+   "rating": 4.7,
+   "review_count": 2664,
+   "prominence": 12520.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 45,
+   "hotel_id": "ChkIgOih8PGc04VTGg0vZy8xMWI4MXY0MmRyEAE",
+   "name": "Freehand Chicago",
+   "stars": 4,
+   "lat": 41.892375699999995,
+   "lon": -87.6273243,
+   "dist_km": 0.85,
+   "rating": 3.9,
+   "review_count": 3207,
+   "prominence": 12507.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 46,
+   "hotel_id": "ChgIsq61ssvayL8nGgwvZy8xcHR3MDlwc3gQAQ",
+   "name": "Hotel Chicago Downtown, Autograph Collection",
+   "stars": 4,
+   "lat": 41.888673,
+   "lon": -87.6288223,
+   "dist_km": 0.42,
+   "rating": 4.3,
+   "review_count": 2878,
+   "prominence": 12375.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 47,
+   "hotel_id": "ChgI2aP39vjT77dNGgwvZy8xaGMyMWhyejcQAQ",
+   "name": "DoubleTree by Hilton Chicago Midway Airport",
+   "stars": 4,
+   "lat": 41.7721746,
+   "lon": -87.7452617,
+   "dist_km": 15.77,
+   "rating": 4.7,
+   "review_count": 2599,
+   "prominence": 12215.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 48,
+   "hotel_id": "ChkIz9PhtvXwo6C_ARoML2cvMTJoazZ4c3NyEAE",
+   "name": "Omni Chicago Hotel",
+   "stars": 4,
+   "lat": 41.894776500000006,
+   "lon": -87.6248791,
+   "dist_km": 1.17,
+   "rating": 4.4,
+   "review_count": 2765,
+   "prominence": 12166.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 49,
+   "hotel_id": "ChgIt57uyPqf-riFARoLL2cvMXRqZmhmeDcQAQ",
+   "name": "The Westin Michigan Avenue Chicago",
+   "stars": 4,
+   "lat": 41.8994023,
+   "lon": -87.62345549999999,
+   "dist_km": 1.69,
+   "rating": 4.2,
+   "review_count": 2874,
+   "prominence": 12070.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 50,
+   "hotel_id": "ChgIyIq8vt_uqN7AARoLL2cvMXRkcjN4N2gQAQ",
+   "name": "Crowne Plaza Chicago West Loop by IHG",
+   "stars": 3,
+   "lat": 41.880866,
+   "lon": -87.6469826,
+   "dist_km": 1.48,
+   "rating": 3.9,
+   "review_count": 3072,
+   "prominence": 11980.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  }
+ ]
+}

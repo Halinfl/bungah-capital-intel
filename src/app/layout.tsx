@@ -43,6 +43,9 @@ export default function RootLayout({
                 <div className="text-slate-300">Decision support for hotel capital. Every number cited; you make the call.</div>
               </div>
               <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+                <Link href="/tuesday-trends" className="text-slate-200 hover:text-white">
+                  Tuesday Trends
+                </Link>
                 <Link href="/trust" className="text-slate-200 hover:text-white">
                   Trust Contract
                 </Link>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { TT_HAS_WOW } from "@/lib/tuesday-trends";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/StatCard";
@@ -348,6 +349,21 @@ export default async function RadarsPage() {
           );
         })}
       </div>
+
+      {/* Tuesday Trends hook: no week-over-week data until the second capture, so one truthful line. */}
+      {TT_HAS_WOW ? null : (
+        <section aria-labelledby="rate-moves" className="rounded-xl border border-white/10 bg-white/[0.03]">
+          <Link href="/tuesday-trends" className="flex items-center justify-between gap-3 p-4 hover:bg-white/[0.03] sm:p-5">
+            <span>
+              <span id="rate-moves" className="block text-base font-semibold text-white">
+                This Tuesday&apos;s rate moves
+              </span>
+              <span className="mt-1 block text-sm text-slate-300">Rate moves start next Tuesday.</span>
+            </span>
+            <span className="shrink-0 text-sm text-slate-200">Tuesday Trends →</span>
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

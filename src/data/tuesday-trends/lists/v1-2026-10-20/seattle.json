@@ -1,0 +1,890 @@
+{
+ "status": "DRAFT - for Hal's human review; not yet approved",
+ "list_version": "v1-2026-10-20",
+ "effective_date": "2026-10-20",
+ "built_at": "2026-10-21T01:33:18+00:00",
+ "candidate_sources": [
+  {
+   "pass_id": "A_mostreviewed_3to5star_2026-11-16",
+   "check_in": "2026-11-16",
+   "check_out": "2026-11-19",
+   "sort_by": "most_reviewed",
+   "stars": [
+    3,
+    4,
+    5
+   ],
+   "depth": 108
+  },
+  {
+   "pass_id": "B_relevance_allstars_2027-01-22",
+   "check_in": "2027-01-22",
+   "check_out": "2027-01-24",
+   "sort_by": "relevance",
+   "depth": 108
+  }
+ ],
+ "ranking_rule": "Candidates = union of the hotel_searches passes above (2 adults, USD, en, standard queue). Keep only hotel_identifier type byte 1 (hotel); drop type 2 (vacation rental) and unknown. Keep only hotels within radius_km of the market centre point (great-circle on the search lat/lon). Drop hotels with no review data. Tier 1 = stars >= 3, tier 2 = stars < 3 (incl. 0/unclassified); tier 1 always ranks above tier 2. Within a tier sort by prominence = reviews.votes_count x reviews.value (rating, 0-5) descending; tie-break by votes_count then hotel_identifier. Take the first 50. Review stats/stars/coords are the values seen in the candidate search (max votes_count across passes).",
+ "market": "seattle",
+ "market_name": "Seattle",
+ "location_name": "Seattle,Washington,United States",
+ "location_code": 1027744,
+ "centre": {
+  "lat": 47.609,
+  "lon": -122.335
+ },
+ "radius_km": 25,
+ "stats": {
+  "candidates_unique": 150,
+  "eligible": 129,
+  "dropped": {
+   "rental_or_unknown_type": 8,
+   "outside_radius_or_no_coords": 0,
+   "no_reviews": 13
+  },
+  "selected": 50,
+  "tier2_selected": 0
+ },
+ "hotels": [
+  {
+   "rank": 1,
+   "hotel_id": "ChcI8raa6d3K27fVARoKL20vMHdmZ3hidxAB",
+   "name": "Sheraton Grand Seattle",
+   "stars": 4,
+   "lat": 47.610803999999995,
+   "lon": -122.33356529999999,
+   "dist_km": 0.23,
+   "rating": 4.3,
+   "review_count": 7375,
+   "prominence": 31712.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 2,
+   "hotel_id": "ChYI0MuFwrSeqegsGgovbS8wM2gxY2diEAE",
+   "name": "The Westin Seattle",
+   "stars": 4,
+   "lat": 47.6136997,
+   "lon": -122.3381933,
+   "dist_km": 0.57,
+   "rating": 4.2,
+   "review_count": 6583,
+   "prominence": 27648.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 3,
+   "hotel_id": "ChYImpOVlcr7vZTdARoJL20vMGZ3dGN0EAE",
+   "name": "Fairmont Olympic Hotel, Seattle",
+   "stars": 4,
+   "lat": 47.608012599999995,
+   "lon": -122.3338702,
+   "dist_km": 0.14,
+   "rating": 4.5,
+   "review_count": 4805,
+   "prominence": 21622.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 4,
+   "hotel_id": "ChcIpIHco-q9kp3kARoKL20vMDQzbGQwNRAB",
+   "name": "Hyatt Regency Seattle",
+   "stars": 4,
+   "lat": 47.6150217,
+   "lon": -122.3341131,
+   "dist_km": 0.67,
+   "rating": 4.6,
+   "review_count": 4338,
+   "prominence": 19954.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 5,
+   "hotel_id": "ChgIvY_Z69T9rLLgARoLL2cvMXRmNV9fODAQAQ",
+   "name": "Renaissance Seattle Hotel",
+   "stars": 4,
+   "lat": 47.6066675,
+   "lon": -122.33068489999998,
+   "dist_km": 0.41,
+   "rating": 4.3,
+   "review_count": 4061,
+   "prominence": 17462.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 6,
+   "hotel_id": "ChoIqMTyps_0-sOHARoNL2cvMTFiNnk5dDk2ZBAB",
+   "name": "Crowne Plaza Seattle-Downtown by IHG",
+   "stars": 4,
+   "lat": 47.6082524,
+   "lon": -122.33224249999999,
+   "dist_km": 0.22,
+   "rating": 4.3,
+   "review_count": 3726,
+   "prominence": 16021.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 7,
+   "hotel_id": "ChcI6o3GmYGbupGxARoKL20vMG12bnNoYxAB",
+   "name": "Seattle Marriott Waterfront",
+   "stars": 4,
+   "lat": 47.610701899999995,
+   "lon": -122.3466414,
+   "dist_km": 0.89,
+   "rating": 4.3,
+   "review_count": 3697,
+   "prominence": 15897.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 8,
+   "hotel_id": "ChgI2Mmhw-fSiq21ARoLL2cvMXRkczZkbG0QAQ",
+   "name": "Grand Hyatt Seattle",
+   "stars": 5,
+   "lat": 47.6127521,
+   "lon": -122.33345159999999,
+   "dist_km": 0.43,
+   "rating": 4.5,
+   "review_count": 3484,
+   "prominence": 15678.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 9,
+   "hotel_id": "ChcIwePz7JzrjIBHGgsvZy8xdGN2dGtibRAB",
+   "name": "The Maxwell Hotel - A Staypineapple Hotel",
+   "stars": 3,
+   "lat": 47.6256677,
+   "lon": -122.35087440000001,
+   "dist_km": 2.2,
+   "rating": 4.7,
+   "review_count": 3258,
+   "prominence": 15312.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 10,
+   "hotel_id": "ChcI2YnB1cWV9fKwARoKL20vMDJ6NmcwchAB",
+   "name": "The Edgewater Hotel",
+   "stars": 4,
+   "lat": 47.6123593,
+   "lon": -122.35223719999999,
+   "dist_km": 1.35,
+   "rating": 4.4,
+   "review_count": 3326,
+   "prominence": 14634.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 11,
+   "hotel_id": "ChgI7YHiwO-EkucKGgwvZy8xcTY0ZDgzdnMQAQ",
+   "name": "Hilton Motif Seattle",
+   "stars": 4,
+   "lat": 47.610082,
+   "lon": -122.3355909,
+   "dist_km": 0.13,
+   "rating": 4.2,
+   "review_count": 3450,
+   "prominence": 14490.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 12,
+   "hotel_id": "ChcI8pD-hpC0ooQdGgsvZy8xdGdrZ19iaBAB",
+   "name": "Mediterranean Inn",
+   "stars": 3,
+   "lat": 47.623113499999995,
+   "lon": -122.357109,
+   "dist_km": 2.28,
+   "rating": 4.5,
+   "review_count": 2839,
+   "prominence": 12775.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 13,
+   "hotel_id": "ChgIocbygfKHjZUgGgwvZy8xeW04MnRxZGYQAQ",
+   "name": "Warwick Seattle",
+   "stars": 4,
+   "lat": 47.613854800000006,
+   "lon": -122.34094419999998,
+   "dist_km": 0.7,
+   "rating": 3.9,
+   "review_count": 3153,
+   "prominence": 12296.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 14,
+   "hotel_id": "ChkI84jU3aOoqbbjARoML2cvMXlwbW4za3oxEAE",
+   "name": "Hyatt at Olive 8",
+   "stars": 4,
+   "lat": 47.613801699999996,
+   "lon": -122.3341859,
+   "dist_km": 0.54,
+   "rating": 4.5,
+   "review_count": 2650,
+   "prominence": 11925.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 15,
+   "hotel_id": "ChcIlPbjuviw_JBZGgsvZy8xdGRicWtfcRAB",
+   "name": "W Seattle",
+   "stars": 4,
+   "lat": 47.6074036,
+   "lon": -122.3336677,
+   "dist_km": 0.2,
+   "rating": 4.3,
+   "review_count": 2726,
+   "prominence": 11721.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 16,
+   "hotel_id": "ChgI0_HAucWd8rPpARoLL2cvMXRncHh4NnoQAQ",
+   "name": "Belltown Inn",
+   "stars": 3,
+   "lat": 47.6146282,
+   "lon": -122.3451633,
+   "dist_km": 0.99,
+   "rating": 4.4,
+   "review_count": 2541,
+   "prominence": 11180.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 17,
+   "hotel_id": "ChgI3OPFqvKq3qqSARoLL2cvMXRkMTdrNTIQAQ",
+   "name": "The Paramount Hotel",
+   "stars": 3,
+   "lat": 47.61315,
+   "lon": -122.33367700000001,
+   "dist_km": 0.47,
+   "rating": 4.4,
+   "review_count": 2511,
+   "prominence": 11048.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 18,
+   "hotel_id": "ChoIy_TE2qe52tuYARoNL2cvMTFnOG42YzgwYhAB",
+   "name": "Embassy Suites by Hilton Seattle Downtown Pioneer Square",
+   "stars": 4,
+   "lat": 47.598078099999995,
+   "lon": -122.33092999999998,
+   "dist_km": 1.25,
+   "rating": 4.4,
+   "review_count": 2389,
+   "prominence": 10511.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 19,
+   "hotel_id": "ChcIpNHYxqGOl9RLGgsvZy8xdGh0Y3Y4NxAB",
+   "name": "Silver Cloud Hotel - Seattle Stadium",
+   "stars": 4,
+   "lat": 47.59258,
+   "lon": -122.33369199999999,
+   "dist_km": 1.83,
+   "rating": 4.4,
+   "review_count": 2221,
+   "prominence": 9772.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 20,
+   "hotel_id": "ChgI5dib35vk5eHGARoLL2cvMXRkendkdm4QAQ",
+   "name": "Hotel Five",
+   "stars": 3,
+   "lat": 47.6158481,
+   "lon": -122.34198880000001,
+   "dist_km": 0.92,
+   "rating": 4.4,
+   "review_count": 2218,
+   "prominence": 9759.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 21,
+   "hotel_id": "ChkIhbeX_9eF6P8YGg0vZy8xMWJ0eDV6MmI2EAE",
+   "name": "Hilton Garden Inn Seattle Downtown",
+   "stars": 4,
+   "lat": 47.6164953,
+   "lon": -122.3324579,
+   "dist_km": 0.85,
+   "rating": 4.1,
+   "review_count": 2294,
+   "prominence": 9405.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 22,
+   "hotel_id": "ChcI1uCokeb-ja5NGgsvZy8xdHBwcm5zcxAB",
+   "name": "Four Seasons Hotel Seattle",
+   "stars": 5,
+   "lat": 47.6076814,
+   "lon": -122.3393023,
+   "dist_km": 0.35,
+   "rating": 4.6,
+   "review_count": 2029,
+   "prominence": 9333.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 23,
+   "hotel_id": "ChkIpoDgrY_e-bc6Gg0vZy8xMWJ5ZmxscGpxEAE",
+   "name": "Hyatt House Seattle/Downtown",
+   "stars": 3,
+   "lat": 47.620129399999996,
+   "lon": -122.34798780000001,
+   "dist_km": 1.57,
+   "rating": 4.2,
+   "review_count": 2178,
+   "prominence": 9147.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 24,
+   "hotel_id": "ChUIm-KqyLuPjOdoGgkvbS8wNGQweXMQAQ",
+   "name": "Executive Hotel Pacific",
+   "stars": 3,
+   "lat": 47.6070892,
+   "lon": -122.33340600000001,
+   "dist_km": 0.24,
+   "rating": 3.6,
+   "review_count": 2355,
+   "prominence": 8478.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 25,
+   "hotel_id": "ChoIo4_N2ZuFttehARoNL2cvMTF0aGYxazQ5dhAB",
+   "name": "Arctic Club Hotel",
+   "stars": 3,
+   "lat": 47.6037287,
+   "lon": -122.33181449999998,
+   "dist_km": 0.63,
+   "rating": 4.5,
+   "review_count": 1781,
+   "prominence": 8014.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 26,
+   "hotel_id": "ChcIgfzlz6PEgoA4GgsvZy8xdHg0cDFrdBAB",
+   "name": "Hyatt Place Seattle/Downtown",
+   "stars": 3,
+   "lat": 47.618822699999996,
+   "lon": -122.3446415,
+   "dist_km": 1.31,
+   "rating": 4.2,
+   "review_count": 1867,
+   "prominence": 7841.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 27,
+   "hotel_id": "ChkI0MqIuozlrfY1Gg0vZy8xMWc5bmx4MTlfEAE",
+   "name": "Residence Inn by Marriott Seattle Downtown/Convention Center",
+   "stars": 3,
+   "lat": 47.615674000000006,
+   "lon": -122.33303839999999,
+   "dist_km": 0.76,
+   "rating": 4.4,
+   "review_count": 1779,
+   "prominence": 7827.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 28,
+   "hotel_id": "ChgI-oCl3Lqyq4PBARoLL2cvMXRncG1xeTEQAQ",
+   "name": "Holiday Inn Express & Suites Seattle Downtown - Lake Union by IHG",
+   "stars": 3,
+   "lat": 47.620329999999996,
+   "lon": -122.34282209999998,
+   "dist_km": 1.39,
+   "rating": 3.9,
+   "review_count": 1949,
+   "prominence": 7601.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 29,
+   "hotel_id": "ChcI-7-YxZ_-paNtGgsvZy8xdG0wc3czOBAB",
+   "name": "SpringHill Suites by Marriott Seattle Downtown/South Lake Union",
+   "stars": 3,
+   "lat": 47.617813999999996,
+   "lon": -122.32981699999999,
+   "dist_km": 1.05,
+   "rating": 4.1,
+   "review_count": 1848,
+   "prominence": 7576.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 30,
+   "hotel_id": "ChgIkeCe8sbn5NfVARoLL2cvMXRna2dfYmYQAQ",
+   "name": "Courtyard by Marriott Seattle Downtown/Lake Union",
+   "stars": 3,
+   "lat": 47.627450599999996,
+   "lon": -122.3405918,
+   "dist_km": 2.09,
+   "rating": 4.2,
+   "review_count": 1782,
+   "prominence": 7484.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 31,
+   "hotel_id": "ChcI1pHXpbKG_6AiGgsvZy8xdGtjMXRqaBAB",
+   "name": "Hotel Nexus Seattle",
+   "stars": 3,
+   "lat": 47.7091275,
+   "lon": -122.332284,
+   "dist_km": 11.14,
+   "rating": 3.7,
+   "review_count": 1991,
+   "prominence": 7366.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 32,
+   "hotel_id": "ChYI34Kg962g8PVNGgovbS8wYjZmcjd0EAE",
+   "name": "Hotel Sorrento",
+   "stars": 4,
+   "lat": 47.6089918,
+   "lon": -122.32691500000001,
+   "dist_km": 0.61,
+   "rating": 4.4,
+   "review_count": 1674,
+   "prominence": 7365.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 33,
+   "hotel_id": "ChkIvpXhs8rRxa49Gg0vZy8xMWdoemtfcXAzEAE",
+   "name": "Courtyard by Marriott Seattle Downtown/Pioneer Square",
+   "stars": 3,
+   "lat": 47.6028917,
+   "lon": -122.3327686,
+   "dist_km": 0.7,
+   "rating": 4.2,
+   "review_count": 1746,
+   "prominence": 7333.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 34,
+   "hotel_id": "ChcI4OP2xoOIqZsyGgsvZy8xdGx6endseRAB",
+   "name": "Hampton Inn & Suites Seattle-Downtown",
+   "stars": 3,
+   "lat": 47.6258293,
+   "lon": -122.34689969999998,
+   "dist_km": 2.07,
+   "rating": 4.1,
+   "review_count": 1783,
+   "prominence": 7310.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 35,
+   "hotel_id": "ChcIjbawt7Sc27UpGgsvZy8xdGgxdHJnaBAB",
+   "name": "Residence Inn by Marriott Seattle Downtown/Lake Union",
+   "stars": 3,
+   "lat": 47.626396199999995,
+   "lon": -122.3331541,
+   "dist_km": 1.94,
+   "rating": 4.2,
+   "review_count": 1713,
+   "prominence": 7194.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 36,
+   "hotel_id": "ChkIrqbOp-6415J-Gg0vZy8xMWNrdmZ4MXA1EAE",
+   "name": "Thompson Seattle, by Hyatt",
+   "stars": 4,
+   "lat": 47.610575999999995,
+   "lon": -122.3412018,
+   "dist_km": 0.5,
+   "rating": 4.3,
+   "review_count": 1673,
+   "prominence": 7193.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 37,
+   "hotel_id": "ChgIwqflgs6c7_a7ARoLL2cvMXR2eWxnc2MQAQ",
+   "name": "Kimpton Hotel Monaco Seattle",
+   "stars": 4,
+   "lat": 47.6068879,
+   "lon": -122.3341301,
+   "dist_km": 0.24,
+   "rating": 4.3,
+   "review_count": 1614,
+   "prominence": 6940.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 38,
+   "hotel_id": "ChcIvLzx0f-KqP0HGgsvZy8xdGh6bmxxeBAB",
+   "name": "Hotel 1000 - The Unbound Collection by Hyatt",
+   "stars": 4,
+   "lat": 47.605053299999994,
+   "lon": -122.33611940000002,
+   "dist_km": 0.45,
+   "rating": 4.5,
+   "review_count": 1542,
+   "prominence": 6939.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 39,
+   "hotel_id": "ChkIxYjMu8jn2qHTARoML2cvMTI2M3p2bTQwEAE",
+   "name": "La Quinta Inn & Suites by Wyndham Seattle Downtown",
+   "stars": 3,
+   "lat": 47.6178956,
+   "lon": -122.3399572,
+   "dist_km": 1.06,
+   "rating": 4.2,
+   "review_count": 1643,
+   "prominence": 6900.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 40,
+   "hotel_id": "ChgIuvPn6sue_dvJARoLL2cvMXcxMTF4MDEQAQ",
+   "name": "Homewood Suites by Hilton Seattle Downtown",
+   "stars": 3,
+   "lat": 47.6204764,
+   "lon": -122.35973609999999,
+   "dist_km": 2.25,
+   "rating": 4.2,
+   "review_count": 1622,
+   "prominence": 6812.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 41,
+   "hotel_id": "ChcIzYCLko_gmIVPGgsvZy8xdGZ3MnF6dhAB",
+   "name": "Hotel \u00c4ndra Seattle - MGallery Collection",
+   "stars": 4,
+   "lat": 47.613396099999996,
+   "lon": -122.3401171,
+   "dist_km": 0.62,
+   "rating": 4.5,
+   "review_count": 1500,
+   "prominence": 6750.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 42,
+   "hotel_id": "ChgIkr2jjpvvtMa7ARoLL2cvMXRoMXRyZ24QAQ",
+   "name": "Mayflower Park Hotel",
+   "stars": 4,
+   "lat": 47.612148,
+   "lon": -122.33800319999999,
+   "dist_km": 0.42,
+   "rating": 4.4,
+   "review_count": 1517,
+   "prominence": 6674.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 43,
+   "hotel_id": "ChkIkIy9v__d3dOCARoML2cvMTFnX3htdzV2EAE",
+   "name": "Silver Cloud Hotel - Seattle Broadway",
+   "stars": 4,
+   "lat": 47.6116491,
+   "lon": -122.320309,
+   "dist_km": 1.14,
+   "rating": 4.4,
+   "review_count": 1516,
+   "prominence": 6670.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 44,
+   "hotel_id": "ChgIwqD81OiHtbSfARoLL2cvMXRtcGRtc3oQAQ",
+   "name": "Hotel Max",
+   "stars": 3,
+   "lat": 47.614287399999995,
+   "lon": -122.33672010000001,
+   "dist_km": 0.6,
+   "rating": 4.2,
+   "review_count": 1583,
+   "prominence": 6648.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 45,
+   "hotel_id": "ChUIkpDLhcm6s8dBGgkvbS8wZzh5cmoQAQ",
+   "name": "WorldMark Seattle - The Camlin",
+   "stars": 3,
+   "lat": 47.6139112,
+   "lon": -122.33281530000001,
+   "dist_km": 0.57,
+   "rating": 4.3,
+   "review_count": 1532,
+   "prominence": 6587.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 46,
+   "hotel_id": "ChcIr7Wm6o2s0uVlGgsvZy8xdGZxcW5jMhAB",
+   "name": "Silver Cloud Hotel - Seattle Lake Union",
+   "stars": 4,
+   "lat": 47.6297061,
+   "lon": -122.32904599999999,
+   "dist_km": 2.35,
+   "rating": 4.5,
+   "review_count": 1415,
+   "prominence": 6367.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 47,
+   "hotel_id": "ChgI87Si2-WdgLORARoLL2cvMXRmZno2M2wQAQ",
+   "name": "Best Western Plus Pioneer Square Hotel Downtown",
+   "stars": 3,
+   "lat": 47.6014706,
+   "lon": -122.33520899999999,
+   "dist_km": 0.84,
+   "rating": 4.3,
+   "review_count": 1460,
+   "prominence": 6278.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 48,
+   "hotel_id": "ChcIsIj7suDg44xDGgsvZy8xdGQ5cTZ4cBAB",
+   "name": "Watertown Hotel - A Staypineapple Hotel",
+   "stars": 3,
+   "lat": 47.6594048,
+   "lon": -122.31761929999999,
+   "dist_km": 5.75,
+   "rating": 4.6,
+   "review_count": 1255,
+   "prominence": 5773.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 49,
+   "hotel_id": "ChoI2IbnvIzEvqLvARoNL2cvMTFmM3diNmNzbBAB",
+   "name": "EVEN Hotel Seattle Downtown - Lake Union by IHG",
+   "stars": 4,
+   "lat": 47.624024,
+   "lon": -122.33484179999999,
+   "dist_km": 1.67,
+   "rating": 4.5,
+   "review_count": 1278,
+   "prominence": 5751.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 50,
+   "hotel_id": "ChkIsqftje7IzbRgGg0vZy8xMWY2bnljbjlwEAE",
+   "name": "The Charter Hotel Seattle, Curio Collection by Hilton",
+   "stars": 4,
+   "lat": 47.6109383,
+   "lon": -122.34006930000001,
+   "dist_km": 0.44,
+   "rating": 4,
+   "review_count": 1405,
+   "prominence": 5620,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  }
+ ]
+}

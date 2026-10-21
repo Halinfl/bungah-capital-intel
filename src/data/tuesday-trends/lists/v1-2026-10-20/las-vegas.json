@@ -1,0 +1,894 @@
+{
+ "status": "DRAFT - for Hal's human review; not yet approved",
+ "list_version": "v1-2026-10-20",
+ "effective_date": "2026-10-20",
+ "built_at": "2026-10-21T01:33:18+00:00",
+ "candidate_sources": [
+  {
+   "pass_id": "A_mostreviewed_3to5star_2026-11-16",
+   "check_in": "2026-11-16",
+   "check_out": "2026-11-19",
+   "sort_by": "most_reviewed",
+   "stars": [
+    3,
+    4,
+    5
+   ],
+   "depth": 108
+  },
+  {
+   "pass_id": "B_relevance_allstars_2027-01-22",
+   "check_in": "2027-01-22",
+   "check_out": "2027-01-24",
+   "sort_by": "relevance",
+   "depth": 108
+  }
+ ],
+ "ranking_rule": "Candidates = union of the hotel_searches passes above (2 adults, USD, en, standard queue). Keep only hotel_identifier type byte 1 (hotel); drop type 2 (vacation rental) and unknown. Keep only hotels within radius_km of the market centre point (great-circle on the search lat/lon). Drop hotels with no review data. Tier 1 = stars >= 3, tier 2 = stars < 3 (incl. 0/unclassified); tier 1 always ranks above tier 2. Within a tier sort by prominence = reviews.votes_count x reviews.value (rating, 0-5) descending; tie-break by votes_count then hotel_identifier. Take the first 50. Review stats/stars/coords are the values seen in the candidate search (max votes_count across passes).",
+ "market": "las-vegas",
+ "market_name": "Las Vegas",
+ "location_name": "Las Vegas,Nevada,United States",
+ "location_code": 1022639,
+ "centre": {
+  "lat": 36.115,
+  "lon": -115.173
+ },
+ "radius_km": 25,
+ "stats": {
+  "candidates_unique": 153,
+  "eligible": 127,
+  "dropped": {
+   "rental_or_unknown_type": 25,
+   "outside_radius_or_no_coords": 0,
+   "no_reviews": 1
+  },
+  "selected": 50,
+  "tier2_selected": 0
+ },
+ "hotels": [
+  {
+   "rank": 1,
+   "hotel_id": "ChYIhJvEzt34sfmCARoJL20vMDMzYnhzEAE",
+   "name": "Bellagio Hotel & Casino",
+   "stars": 5,
+   "lat": 36.1129455,
+   "lon": -115.17650669999999,
+   "dist_km": 0.39,
+   "rating": 4.7,
+   "review_count": 144231,
+   "prominence": 677885.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 2,
+   "hotel_id": "ChUI9_-8laqe8uR3GgkvbS8wM2Z6MG0QAQ",
+   "name": "Caesars Palace",
+   "stars": 4,
+   "lat": 36.1172612,
+   "lon": -115.17614099999999,
+   "dist_km": 0.38,
+   "rating": 4.5,
+   "review_count": 138597,
+   "prominence": 623686.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 3,
+   "hotel_id": "ChYIxabfm-evjtqhARoJL20vMDN6ZGR0EAE",
+   "name": "The Venetian Las Vegas",
+   "stars": 5,
+   "lat": 36.121173999999996,
+   "lon": -115.16965259999999,
+   "dist_km": 0.75,
+   "rating": 4.6,
+   "review_count": 122343,
+   "prominence": 562777.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 4,
+   "hotel_id": "ChYI_6DY69ug0eydARoJL20vMDMzdnB5EAE",
+   "name": "MGM Grand",
+   "stars": 4,
+   "lat": 36.1036224,
+   "lon": -115.1675744,
+   "dist_km": 1.36,
+   "rating": 4.3,
+   "review_count": 113005,
+   "prominence": 485921.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 5,
+   "hotel_id": "ChUIuILA_uqFna0LGgkvbS8wMzV3X3AQAQ",
+   "name": "Luxor Hotel & Casino",
+   "stars": 4,
+   "lat": 36.09551,
+   "lon": -115.1760672,
+   "dist_km": 2.18,
+   "rating": 4.1,
+   "review_count": 105918,
+   "prominence": 434263.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 6,
+   "hotel_id": "ChUIyPj5nN_R14dtGgkvbS8wOGw3dmsQAQ",
+   "name": "The Cosmopolitan of Las Vegas",
+   "stars": 5,
+   "lat": 36.10996,
+   "lon": -115.1754159,
+   "dist_km": 0.6,
+   "rating": 4.6,
+   "review_count": 79178,
+   "prominence": 364218.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 7,
+   "hotel_id": "ChUIgbj58O-AraJFGgkvbS8wMzQ4czYQAQ",
+   "name": "Paris Las Vegas",
+   "stars": 4,
+   "lat": 36.112462,
+   "lon": -115.17070749999999,
+   "dist_km": 0.35,
+   "rating": 4.3,
+   "review_count": 83839,
+   "prominence": 360507.7,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 8,
+   "hotel_id": "ChYI7vn9qdDVotbtARoJL20vMDMzdnFyEAE",
+   "name": "New York-New York Hotel & Casino",
+   "stars": 4,
+   "lat": 36.102132,
+   "lon": -115.1744225,
+   "dist_km": 1.44,
+   "rating": 4.4,
+   "review_count": 80738,
+   "prominence": 355247.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 9,
+   "hotel_id": "ChYI6cOnv8Hx1KOvARoJL20vMDM0OHFwEAE",
+   "name": "Excalibur Hotel & Casino",
+   "stars": 3,
+   "lat": 36.0987973,
+   "lon": -115.17543119999998,
+   "dist_km": 1.81,
+   "rating": 4.1,
+   "review_count": 86613,
+   "prominence": 355113.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 10,
+   "hotel_id": "ChYI7d_t3bzuzuCxARoJL20vMDM4Z25iEAE",
+   "name": "Wynn Las Vegas",
+   "stars": 5,
+   "lat": 36.126118999999996,
+   "lon": -115.16195829999998,
+   "dist_km": 1.59,
+   "rating": 4.7,
+   "review_count": 66432,
+   "prominence": 312230.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 11,
+   "hotel_id": "ChYI77vTrdzEovuXARoJL20vMDM1d184EAE",
+   "name": "Mandalay Bay",
+   "stars": 5,
+   "lat": 36.0921847,
+   "lon": -115.1748583,
+   "dist_km": 2.54,
+   "rating": 4.4,
+   "review_count": 70102,
+   "prominence": 308448.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 12,
+   "hotel_id": "ChUI9dSLp4yo561kGgkvbS8wNjR3YzMQAQ",
+   "name": "Flamingo Las Vegas",
+   "stars": 3,
+   "lat": 36.1166377,
+   "lon": -115.1703905,
+   "dist_km": 0.3,
+   "rating": 4,
+   "review_count": 75423,
+   "prominence": 301692,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 13,
+   "hotel_id": "ChUInIvooueumap8GgkvbS8wNWc0cDIQAQ",
+   "name": "Planet Hollywood Las Vegas Resort & Casino",
+   "stars": 4,
+   "lat": 36.1099696,
+   "lon": -115.1700646,
+   "dist_km": 0.62,
+   "rating": 4.3,
+   "review_count": 70156,
+   "prominence": 301670.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 14,
+   "hotel_id": "ChUI9Mnkw8ePkvATGgkvbS8wMzVuZnMQAQ",
+   "name": "Circus Circus Hotel and Casino",
+   "stars": 3,
+   "lat": 36.1366568,
+   "lon": -115.16285380000001,
+   "dist_km": 2.57,
+   "rating": 3.8,
+   "review_count": 79210,
+   "prominence": 300998.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 15,
+   "hotel_id": "ChUIk47N4JuN5cUJGgkvbS8wMzNudGYQAQ",
+   "name": "Treasure Island TI Las Vegas Hotel \u2013 Handwritten Collection",
+   "stars": 4,
+   "lat": 36.1247462,
+   "lon": -115.17208269999999,
+   "dist_km": 1.09,
+   "rating": 4.2,
+   "review_count": 63891,
+   "prominence": 268342.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 16,
+   "hotel_id": "ChUIh5DCruKjzM8bGgkvbS8wMzNidncQAQ",
+   "name": "The STRAT Hotel, Casino & Tower",
+   "stars": 4,
+   "lat": 36.1475119,
+   "lon": -115.15655369999998,
+   "dist_km": 3.91,
+   "rating": 4,
+   "review_count": 64393,
+   "prominence": 257572,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 17,
+   "hotel_id": "ChUIi8PZzOu2uYggGgkvbS8wNHA1d3gQAQ",
+   "name": "Golden Nugget Las Vegas Hotel & Casino",
+   "stars": 4,
+   "lat": 36.1699671,
+   "lon": -115.14482350000002,
+   "dist_km": 6.62,
+   "rating": 4.3,
+   "review_count": 54053,
+   "prominence": 232427.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 18,
+   "hotel_id": "ChYI74rMpfSF4vkuGgovbS8wNXp0cF9yEAE",
+   "name": "ARIA Resort & Casino",
+   "stars": 5,
+   "lat": 36.1073702,
+   "lon": -115.1767526,
+   "dist_km": 0.91,
+   "rating": 4.5,
+   "review_count": 47867,
+   "prominence": 215401.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 19,
+   "hotel_id": "ChYI2un8sLnm_YykARoJL20vMDh4ejlrEAE",
+   "name": "South Point Hotel Casino & Spa",
+   "stars": 4,
+   "lat": 36.0115298,
+   "lon": -115.17455129999999,
+   "dist_km": 11.51,
+   "rating": 4.5,
+   "review_count": 45275,
+   "prominence": 203737.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 20,
+   "hotel_id": "ChYItfWN2_X78_aEARoJL20vMDZ5OWY4EAE",
+   "name": "Rio Hotel & Casino",
+   "stars": 4,
+   "lat": 36.1187296,
+   "lon": -115.18666839999999,
+   "dist_km": 1.3,
+   "rating": 3.8,
+   "review_count": 47897,
+   "prominence": 182008.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 21,
+   "hotel_id": "ChkIxcbP8pni5rt6Gg0vZy8xMWJ3ZDM1ZGd4EAE",
+   "name": "The LINQ - A Caesars Rewards Destination",
+   "stars": 4,
+   "lat": 36.1182282,
+   "lon": -115.1713506,
+   "dist_km": 0.39,
+   "rating": 4.1,
+   "review_count": 42850,
+   "prominence": 175685.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 22,
+   "hotel_id": "ChYI_KGmjMmG8ofTARoJL20vMDVncGwxEAE",
+   "name": "Red Rock Casino Resort and Spa",
+   "stars": 5,
+   "lat": 36.1555791,
+   "lon": -115.33200969999999,
+   "dist_km": 14.98,
+   "rating": 4.5,
+   "review_count": 33878,
+   "prominence": 152451.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 23,
+   "hotel_id": "ChUI4KGW_ePz9vxtGgkvbS8wNWcwOTcQAQ",
+   "name": "Horseshoe Las Vegas",
+   "stars": 3,
+   "lat": 36.1137144,
+   "lon": -115.16778860000001,
+   "dist_km": 0.49,
+   "rating": 4.1,
+   "review_count": 35261,
+   "prominence": 144570.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 24,
+   "hotel_id": "ChYIyLfE8M2N6u7iARoJL20vMDM0OHJmEAE",
+   "name": "Park MGM Las Vegas",
+   "stars": 4,
+   "lat": 36.104404599999995,
+   "lon": -115.17666919999999,
+   "dist_km": 1.22,
+   "rating": 4.3,
+   "review_count": 31657,
+   "prominence": 136125.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 25,
+   "hotel_id": "ChUI1Yj0kP67r7dFGgkvbS8wN21ibWQQAQ",
+   "name": "The Palazzo at The Venetian Resort",
+   "stars": 5,
+   "lat": 36.1240054,
+   "lon": -115.1679583,
+   "dist_km": 1.1,
+   "rating": 4.6,
+   "review_count": 28657,
+   "prominence": 131822.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 26,
+   "hotel_id": "ChYIs5300Y2lmI7hARoJL20vMDYxeGtoEAE",
+   "name": "Harrah's Las Vegas - A Caesars Rewards Destination",
+   "stars": 3,
+   "lat": 36.1194645,
+   "lon": -115.17163910000001,
+   "dist_km": 0.51,
+   "rating": 4,
+   "review_count": 31252,
+   "prominence": 125008,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 27,
+   "hotel_id": "ChYI5I2C8tz3x6ijARoJL20vMDVnNzY3EAE",
+   "name": "The Orleans Hotel & Casino",
+   "stars": 3,
+   "lat": 36.1026267,
+   "lon": -115.20093899999998,
+   "dist_km": 2.86,
+   "rating": 4.2,
+   "review_count": 29338,
+   "prominence": 123219.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 28,
+   "hotel_id": "ChYIkfvssdPPhtPyARoJL20vMDFtdzhsEAE",
+   "name": "Westgate Las Vegas Resort & Casino",
+   "stars": 4,
+   "lat": 36.1355819,
+   "lon": -115.15219359999999,
+   "dist_km": 2.95,
+   "rating": 4,
+   "review_count": 29740,
+   "prominence": 118960,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 29,
+   "hotel_id": "ChUI_r7779qlmYQ0GgkvbS8wN3EzaGgQAQ",
+   "name": "Palms Casino Resort",
+   "stars": 4,
+   "lat": 36.114436,
+   "lon": -115.1948157,
+   "dist_km": 1.96,
+   "rating": 4.3,
+   "review_count": 27626,
+   "prominence": 118791.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 30,
+   "hotel_id": "ChcIxpvIrOW_x5CZARoKL20vMDQ3c2hsZhAB",
+   "name": "Encore Las Vegas",
+   "stars": 5,
+   "lat": 36.1294396,
+   "lon": -115.16431399999999,
+   "dist_km": 1.79,
+   "rating": 4.6,
+   "review_count": 25766,
+   "prominence": 118523.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 31,
+   "hotel_id": "ChcIrv7U88PQ0deTARoKL20vMDR6X2Z4ahAB",
+   "name": "The D Casino & Hotel",
+   "stars": 3,
+   "lat": 36.16934930000001,
+   "lon": -115.14299989999999,
+   "dist_km": 6.62,
+   "rating": 4.2,
+   "review_count": 25075,
+   "prominence": 105315.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 32,
+   "hotel_id": "ChYIwaelo6jFy9SbARoJL20vMDZra3JjEAE",
+   "name": "Palace Station Hotel and Casino",
+   "stars": 4,
+   "lat": 36.1429464,
+   "lon": -115.1749359,
+   "dist_km": 3.11,
+   "rating": 4.2,
+   "review_count": 24451,
+   "prominence": 102694.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 33,
+   "hotel_id": "ChYI5Lvrs6DFnfKFARoJL20vMDk3aHhnEAE",
+   "name": "Four Queens Hotel & Casino",
+   "stars": 3,
+   "lat": 36.1698695,
+   "lon": -115.14370620000001,
+   "dist_km": 6.64,
+   "rating": 4.2,
+   "review_count": 22766,
+   "prominence": 95617.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 34,
+   "hotel_id": "ChYI5L_q_t-1p9YfGgovbS8wNHpfenRkEAE",
+   "name": "Tuscany Suites & Casino",
+   "stars": 3,
+   "lat": 36.1134337,
+   "lon": -115.1602397,
+   "dist_km": 1.16,
+   "rating": 4.3,
+   "review_count": 22115,
+   "prominence": 95094.5,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 35,
+   "hotel_id": "ChcIw57tkY_AyIaiARoKL20vMDR5OGZxeRAB",
+   "name": "Boulder Station Hotel and Casino",
+   "stars": 3,
+   "lat": 36.1329379,
+   "lon": -115.08469699999999,
+   "dist_km": 8.18,
+   "rating": 4.1,
+   "review_count": 20073,
+   "prominence": 82299.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 36,
+   "hotel_id": "ChYI0Oe-pIX7yuCHARoJL20vMDYxcTdfEAE",
+   "name": "Green Valley Ranch Resort Spa and Casino",
+   "stars": 5,
+   "lat": 36.0202484,
+   "lon": -115.08996789999999,
+   "dist_km": 12.91,
+   "rating": 4.4,
+   "review_count": 18243,
+   "prominence": 80269.2,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 37,
+   "hotel_id": "ChUIwt-_yry85J0oGgkvbS8wNWc3OGIQAQ",
+   "name": "Sam's Town Hotel & Gambling Hall",
+   "stars": 3,
+   "lat": 36.112778,
+   "lon": -115.0623035,
+   "dist_km": 9.95,
+   "rating": 4.3,
+   "review_count": 18403,
+   "prominence": 79132.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 38,
+   "hotel_id": "ChUIttmCtZ6w4fMcGgkvbS8wOTRieDYQAQ",
+   "name": "Plaza Hotel & Casino",
+   "stars": 4,
+   "lat": 36.171783999999995,
+   "lon": -115.14686099999999,
+   "dist_km": 6.74,
+   "rating": 4,
+   "review_count": 18408,
+   "prominence": 73632,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 39,
+   "hotel_id": "ChYIzYTTrtK2xKHQARoJL20vMDl4bDB2EAE",
+   "name": "Silverton Casino Lodge",
+   "stars": 3,
+   "lat": 36.0412621,
+   "lon": -115.1833267,
+   "dist_km": 8.25,
+   "rating": 4.3,
+   "review_count": 16623,
+   "prominence": 71478.9,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 40,
+   "hotel_id": "ChYI4a7b9sqy88uxARoJL20vMDdqMThjEAE",
+   "name": "OYO Hotel and Casino Las Vegas",
+   "stars": 3,
+   "lat": 36.100389899999996,
+   "lon": -115.1677237,
+   "dist_km": 1.69,
+   "rating": 3.4,
+   "review_count": 20992,
+   "prominence": 71372.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 41,
+   "hotel_id": "ChUI4pz3toK4_JVmGgkvbS8wNWc2eTIQAQ",
+   "name": "Fremont Hotel & Casino",
+   "stars": 3,
+   "lat": 36.170795399999996,
+   "lon": -115.14326469999997,
+   "dist_km": 6.75,
+   "rating": 4.3,
+   "review_count": 15657,
+   "prominence": 67325.1,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 42,
+   "hotel_id": "ChcI7Jyn_7SclK6KARoKL20vMDRteGMzdhAB",
+   "name": "Santa Fe Station Hotel and Casino",
+   "stars": 3,
+   "lat": 36.2502719,
+   "lon": -115.24504119999999,
+   "dist_km": 16.37,
+   "rating": 4.2,
+   "review_count": 15509,
+   "prominence": 65137.8,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 43,
+   "hotel_id": "ChoIkcDrgdzuqev4ARoNL2cvMTFjNGJ0Z3F4eBAB",
+   "name": "The Grandview at Las Vegas",
+   "stars": 3,
+   "lat": 36.008995,
+   "lon": -115.176039,
+   "dist_km": 11.79,
+   "rating": 4.3,
+   "review_count": 14192,
+   "prominence": 61025.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 44,
+   "hotel_id": "ChkI9I7klfuws65TGg0vZy8xMWg0Zl94ZnlfEAE",
+   "name": "Circa Resort & Casino",
+   "stars": 4,
+   "lat": 36.171837,
+   "lon": -115.14583839999999,
+   "dist_km": 6.77,
+   "rating": 4.5,
+   "review_count": 13526,
+   "prominence": 60867.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16"
+   ]
+  },
+  {
+   "rank": 45,
+   "hotel_id": "ChoIm5jcu8C9m9PzARoNL2cvMTFnNng3dndmeRAB",
+   "name": "Hilton Grand Vacations Club on the Las Vegas Strip",
+   "stars": 3,
+   "lat": 36.1398788,
+   "lon": -115.1608993,
+   "dist_km": 2.97,
+   "rating": 4.4,
+   "review_count": 13720,
+   "prominence": 60368.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 46,
+   "hotel_id": "ChYIusq1yrr576e4ARoJL20vMGJqMXl0EAE",
+   "name": "Ellis Island Casino & Hotel",
+   "stars": 3,
+   "lat": 36.1122136,
+   "lon": -115.16360789999997,
+   "dist_km": 0.9,
+   "rating": 4.2,
+   "review_count": 14240,
+   "prominence": 59808.0,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 47,
+   "hotel_id": "ChUI_qy_r7_qxaUxGgkvbS8wZzIyZ2wQAQ",
+   "name": "El Cortez Hotel and Casino",
+   "stars": 3,
+   "lat": 36.1693967,
+   "lon": -115.1387398,
+   "dist_km": 6.79,
+   "rating": 4.1,
+   "review_count": 13844,
+   "prominence": 56760.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 48,
+   "hotel_id": "ChYIhY7u_9re_9bRARoJL20vMDk5ajFxEAE",
+   "name": "Downtown Grand Hotel & Casino",
+   "stars": 3,
+   "lat": 36.1716389,
+   "lon": -115.14161279999999,
+   "dist_km": 6.9,
+   "rating": 4.2,
+   "review_count": 13062,
+   "prominence": 54860.4,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 49,
+   "hotel_id": "ChUIscKx-dHXzdBtGgkvbS8wNWc2eWYQAQ",
+   "name": "Gold Coast Hotel and Casino",
+   "stars": 3,
+   "lat": 36.1165485,
+   "lon": -115.1928065,
+   "dist_km": 1.79,
+   "rating": 4.1,
+   "review_count": 13303,
+   "prominence": 54542.3,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  },
+  {
+   "rank": 50,
+   "hotel_id": "ChkIgLTI-rz5volyGg0vZy8xMWNwOHFnMnhwEAE",
+   "name": "Tahiti Village",
+   "stars": 3,
+   "lat": 36.0597184,
+   "lon": -115.1717682,
+   "dist_km": 6.15,
+   "rating": 4.2,
+   "review_count": 12578,
+   "prominence": 52827.6,
+   "tier": 1,
+   "found_in_passes": [
+    "A_mostreviewed_3to5star_2026-11-16",
+    "B_relevance_allstars_2027-01-22"
+   ]
+  }
+ ]
+}

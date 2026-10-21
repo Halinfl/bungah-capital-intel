@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
+import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { citedOnly, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,7 @@ export default async function MarketsPage() {
 
   return (
     <div className="space-y-8">
+      <MarketsTabs active="markets" />
       <div>
         <h1 className="t-h1">Markets</h1>
         <p className="mt-2 max-w-2xl t-lead">

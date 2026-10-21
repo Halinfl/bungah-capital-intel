@@ -5,7 +5,7 @@ import { citedOnly, hasPublicCoverage } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 const BASE = "https://bungah.io";
-const CORE = ["/", "/markets", "/chat", "/radars", "/sound-money-lodging", "/podcast", "/pricing", "/trust", "/login", "/signup"];
+const CORE = ["/", "/markets", "/tuesday-trends", "/tuesday-trends/methodology", "/chat", "/radars", "/sound-money-lodging", "/podcast", "/pricing", "/trust", "/login", "/signup"];
 
 // Core public pages plus only the markets with public coverage (same rule as /markets).
 // Hidden markets are left out here and carry noindex on the page itself.

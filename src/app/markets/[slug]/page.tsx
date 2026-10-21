@@ -24,6 +24,8 @@ import {
   isNoReadSignal,
 } from "@/lib/format";
 import type { Metadata } from "next";
+import { MarketRatesBlock } from "@/components/tuesday-trends/MarketRatesBlock";
+import { ttMarketBySiteSlug } from "@/lib/tuesday-trends";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +85,7 @@ export default async function MarketDetailPage({
   const thin = isSeedMarket(market);
   const short = shortMarketLabel(market.name, market.slug);
   const hasRevpar = market.occupancy != null && market.adr != null;
+  const ttRates = ttMarketBySiteSlug(market.slug);
 
   const renderSignal = (s: (typeof market.signals)[number], i: number, prefix = "sig") => {
     const links = parseSourceUrls(s.sourceUrls);
@@ -174,6 +177,8 @@ export default async function MarketDetailPage({
         ) : null}
       </div>
       )}
+
+      {ttRates ? <MarketRatesBlock market={ttRates} /> : null}
 
       {thin ? null : market.nuanceNote ? (
         isOrlando ? (
