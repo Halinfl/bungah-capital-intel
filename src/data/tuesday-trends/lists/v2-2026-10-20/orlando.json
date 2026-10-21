@@ -2,7 +2,7 @@
  "status": "APPROVED by Hal 2026-10-21",
  "list_version": "v2-2026-10-20",
  "effective_date": "2026-10-20",
- "built_at": "2026-10-21T10:38:05+00:00",
+ "built_at": "2026-10-21T10:43:06+00:00",
  "market": "orlando",
  "market_name": "Orlando",
  "location_name": "Orlando,Florida,United States",
@@ -46,6 +46,20 @@
  ],
  "airport_cap": 0,
  "selection_rule": "v2-DRAFT rule (see ../v2-DRAFT/REVIEW.md#rule) + Hal-approved additions (mandatory); markets over 50 drop their lowest-scoring non-mandatory hotel(s). Mandatory = Hal adds + Orlando Disney/Universal forced includes.",
+ "list_revision": "v2 (rev. Oct 21)",
+ "revision_history": [
+  {
+   "revision": "v2 (initial final)",
+   "at": "2026-10-21 ~6:38 AM ET",
+   "change": "v2-DRAFT + Encore Boston Harbor, Talking Stick, BoardWalk Inn, Swan, Waldorf Astoria Orlando",
+   "snapshot": "superseded/v2-2026-10-20_as-of-2026-10-21T0640ET/"
+  },
+  {
+   "revision": "v2 (rev. Oct 21)",
+   "at": "2026-10-21 ~6:45 AM ET",
+   "change": "Orlando: Hilton Orlando Lake Buena Vista and Signia by Hilton Orlando re-added (mandatory); next two lowest-scoring non-mandatory hotels dropped"
+  }
+ ],
  "approved_by": "Hal",
  "approved_date": "2026-10-21",
  "derived_from": "v2-DRAFT + Hal's approved additions",
@@ -67,6 +81,18 @@
     "note": "Waldorf Astoria Orlando: Hal approved add (was just below the v2-DRAFT cut)"
    }
   ],
+  "hal_mandatory_kept_from_draft": [
+   {
+    "hotel_id": "ChgIgNWmqLfX1OZkGgwvZy8xam1jX2p3M3AQAQ",
+    "name": "Signia by Hilton Orlando - An Official Walt Disney World Hotel",
+    "note": "Signia by Hilton Orlando Bonnet Creek: Hal re-added in rev. Oct 21 (mandatory)"
+   },
+   {
+    "hotel_id": "ChcI9c-O9I2dodv7ARoKL20vMGJieGpncBAB",
+    "name": "Hilton Orlando Lake Buena Vista - Disney Springs Area",
+    "note": "Hilton Orlando Lake Buena Vista: Hal re-added in rev. Oct 21 (mandatory)"
+   }
+  ],
   "dropped": [
    {
     "hotel_id": "ChkI9c-_hv7Q3-SEARoML2cvMWhod20ycmwyEAE",
@@ -75,15 +101,15 @@
     "reason": "lowest-scoring non-mandatory hotel, dropped to keep 50"
    },
    {
-    "hotel_id": "ChcI9c-O9I2dodv7ARoKL20vMGJieGpncBAB",
-    "name": "Hilton Orlando Lake Buena Vista - Disney Springs Area",
-    "draft_rank": 45,
+    "hotel_id": "ChcIk4iO6dfVgbk2GgsvZy8xdGdwYzJyNhAB",
+    "name": "Renaissance Orlando at SeaWorld\u00ae",
+    "draft_rank": 43,
     "reason": "lowest-scoring non-mandatory hotel, dropped to keep 50"
    },
    {
-    "hotel_id": "ChgIgNWmqLfX1OZkGgwvZy8xam1jX2p3M3AQAQ",
-    "name": "Signia by Hilton Orlando - An Official Walt Disney World Hotel",
-    "draft_rank": 44,
+    "hotel_id": "ChcIpNDmu_Xi2PXwARoKL20vMDJxNGg3YxAB",
+    "name": "Rosen Plaza Hotel",
+    "draft_rank": 42,
     "reason": "lowest-scoring non-mandatory hotel, dropped to keep 50"
    }
   ]
@@ -952,45 +978,45 @@
   },
   {
    "rank": 42,
-   "hotel_id": "ChcIpNDmu_Xi2PXwARoKL20vMDJxNGg3YxAB",
-   "name": "Rosen Plaza Hotel",
+   "hotel_id": "ChgIgNWmqLfX1OZkGgwvZy8xam1jX2p3M3AQAQ",
+   "name": "Signia by Hilton Orlando - An Official Walt Disney World Hotel",
    "stars": 4,
-   "lat": 28.4301143,
-   "lon": -81.4714571,
-   "zone": "International Drive/Convention Center/SeaWorld",
+   "lat": 28.3558228,
+   "lon": -81.5347968,
+   "zone": "Walt Disney World (Bay Lake/Lake Buena Vista)",
    "zone_kind": "core",
    "category": "FS",
    "rating": 4.4,
-   "review_count": 6191,
-   "prominence": 27240.4,
+   "review_count": 5935,
+   "prominence": 26114.0,
    "in_v1": false,
    "v1_rank": null,
    "forced_include": false,
-   "hal_approved_add": false,
+   "hal_approved_add": true,
    "unrated_by_google": false,
-   "address": "9700 International Dr, Orlando, FL 32819",
-   "note": null
+   "address": "14100 Bonnet Creek Resort Ln, Orlando, FL 32821",
+   "note": "Signia by Hilton Orlando Bonnet Creek: Hal re-added in rev. Oct 21 (mandatory)"
   },
   {
    "rank": 43,
-   "hotel_id": "ChcIk4iO6dfVgbk2GgsvZy8xdGdwYzJyNhAB",
-   "name": "Renaissance Orlando at SeaWorld\u00ae",
+   "hotel_id": "ChcI9c-O9I2dodv7ARoKL20vMGJieGpncBAB",
+   "name": "Hilton Orlando Lake Buena Vista - Disney Springs Area",
    "stars": 4,
-   "lat": 28.411508299999998,
-   "lon": -81.4680085,
-   "zone": "International Drive/Convention Center/SeaWorld",
+   "lat": 28.3726305,
+   "lon": -81.5107951,
+   "zone": "Walt Disney World (Bay Lake/Lake Buena Vista)",
    "zone_kind": "core",
    "category": "FS",
-   "rating": 4.4,
-   "review_count": 6128,
-   "prominence": 26963.2,
+   "rating": 4.2,
+   "review_count": 5876,
+   "prominence": 24679.2,
    "in_v1": false,
    "v1_rank": null,
    "forced_include": false,
-   "hal_approved_add": false,
+   "hal_approved_add": true,
    "unrated_by_google": false,
-   "address": "6677 Sea Harbor Dr, Orlando, FL 32821",
-   "note": null
+   "address": "1751 Hotel Plaza Blvd, Lake Buena Vista, FL 32830",
+   "note": "Hilton Orlando Lake Buena Vista: Hal re-added in rev. Oct 21 (mandatory)"
   },
   {
    "rank": 44,

@@ -5,7 +5,7 @@
  * Only the fields the UI shows are exported to client components. The tax-inclusive median in
  * the summary file is not verified yet and is deliberately never passed through.
  */
-import summary from "@/data/tuesday-trends/summary-2026-10-20-v2final.json";
+import summary from "@/data/tuesday-trends/summary-2026-10-20-v2final-r2.json";
 import atlanta from "@/data/tuesday-trends/lists/v2-2026-10-20/atlanta.json";
 import boston from "@/data/tuesday-trends/lists/v2-2026-10-20/boston.json";
 import chicago from "@/data/tuesday-trends/lists/v2-2026-10-20/chicago.json";

@@ -2,7 +2,7 @@
  "status": "APPROVED by Hal 2026-10-21",
  "list_version": "v2-2026-10-20",
  "effective_date": "2026-10-20",
- "built_at": "2026-10-21T10:38:05+00:00",
+ "built_at": "2026-10-21T10:43:05+00:00",
  "market": "houston",
  "market_name": "Houston",
  "location_name": "Houston,Texas,United States",
@@ -53,11 +53,26 @@
  ],
  "airport_cap": 3,
  "selection_rule": "v2-DRAFT rule (see ../v2-DRAFT/REVIEW.md#rule) + Hal-approved additions (mandatory); markets over 50 drop their lowest-scoring non-mandatory hotel(s). Mandatory = Hal adds + Orlando Disney/Universal forced includes.",
+ "list_revision": "v2 (rev. Oct 21)",
+ "revision_history": [
+  {
+   "revision": "v2 (initial final)",
+   "at": "2026-10-21 ~6:38 AM ET",
+   "change": "v2-DRAFT + Encore Boston Harbor, Talking Stick, BoardWalk Inn, Swan, Waldorf Astoria Orlando",
+   "snapshot": "superseded/v2-2026-10-20_as-of-2026-10-21T0640ET/"
+  },
+  {
+   "revision": "v2 (rev. Oct 21)",
+   "at": "2026-10-21 ~6:45 AM ET",
+   "change": "Orlando: Hilton Orlando Lake Buena Vista and Signia by Hilton Orlando re-added (mandatory); next two lowest-scoring non-mandatory hotels dropped"
+  }
+ ],
  "approved_by": "Hal",
  "approved_date": "2026-10-21",
  "derived_from": "v2-DRAFT + Hal's approved additions",
  "changes_vs_draft": {
   "added": [],
+  "hal_mandatory_kept_from_draft": [],
   "dropped": []
  },
  "hotels": [
