@@ -154,7 +154,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
       </span>
     ) : null;
   const headBtn = (k: SortKey) =>
-    `inline-flex items-center gap-1 uppercase tracking-wider ${sortKey === k ? "text-white" : "hover:text-white"}`;
+    `inline-flex items-center gap-1 whitespace-nowrap uppercase tracking-wider ${sortKey === k ? "text-white" : "hover:text-white"}`;
 
   return (
     <div>
@@ -239,7 +239,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                   </button>
                 </th>
               ))}
-              <th scope="col" aria-sort={ariaSort("soldout")} className="w-32 px-3 py-3 text-right font-medium">
+              <th scope="col" aria-sort={ariaSort("soldout")} className="w-36 px-3 py-3 text-right font-medium">
                 <button
                   type="button"
                   onClick={() => clickSort("soldout")}
@@ -290,7 +290,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                     );
                   })}
                   <td
-                    className="w-32 px-3 py-2.5 text-right"
+                    className="w-36 px-3 py-2.5 text-right"
                     onMouseEnter={(e) => showTip(e, soldTip)}
                     onMouseLeave={() => setTip(null)}
                   >
