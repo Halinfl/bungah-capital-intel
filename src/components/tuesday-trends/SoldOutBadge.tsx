@@ -4,8 +4,19 @@ import { SOLD_OUT_DOT_AT, LIST_SIZE } from "@/lib/tuesday-trends-shared";
  * Neutral sold-out count badge; a small dot marks 10 or more of 50.
  * `where` names the horizon when the badge summarises a whole row (desktop table).
  */
-export function SoldOutBadge({ n, where, compact = false }: { n: number; where?: string; compact?: boolean }) {
-  const dot = n >= SOLD_OUT_DOT_AT;
+export function SoldOutBadge({
+  n,
+  where,
+  compact = false,
+  allowDot = true,
+}: {
+  n: number;
+  where?: string;
+  compact?: boolean;
+  /** False for horizons where the dot does not apply (it marks 1-week sell-outs only). */
+  allowDot?: boolean;
+}) {
+  const dot = allowDot && n >= SOLD_OUT_DOT_AT;
   return (
     <span
       role="img"

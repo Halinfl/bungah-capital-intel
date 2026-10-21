@@ -1,4 +1,4 @@
 /** Plain gray "— thin" marker for cells under the coverage threshold. */
-export function Thin({ className = "" }: { className?: string }) {
-  return <span className={`whitespace-nowrap text-[15px] text-slate-300 ${className}`}>— thin</span>;
+export function Thin({ size = "md" }: { size?: "md" | "lg" }) {
+  return <span className={`whitespace-nowrap text-slate-300 ${size === "lg" ? "text-[18px]" : "text-[15px]"}`}>— thin</span>;
 }

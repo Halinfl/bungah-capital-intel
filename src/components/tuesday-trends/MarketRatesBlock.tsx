@@ -18,9 +18,9 @@ function Value({ c }: { c: TTCell }) {
     <>
       <div className="flex items-baseline gap-1.5">
         {thin ? (
-          <Thin />
+          <Thin size="lg" />
         ) : (
-          <span className="text-[15px] font-medium tabular-nums text-white">{fmtRate(c.refundable)}</span>
+          <span className="text-[18px] font-semibold leading-tight tabular-nums text-white">{fmtRate(c.refundable)}</span>
         )}
       </div>
       <div className="mt-1 text-xs tabular-nums text-slate-300">
@@ -28,7 +28,7 @@ function Value({ c }: { c: TTCell }) {
       </div>
       {c.nSoldOut > 0 ? (
         <div className="mt-1.5">
-          <SoldOutBadge n={c.nSoldOut} />
+          <SoldOutBadge n={c.nSoldOut} allowDot={c.horizon === "7d"} />
         </div>
       ) : null}
     </>
@@ -123,8 +123,8 @@ export function MarketRatesBlock({ market }: { market: TTMarket }) {
           ))}
         </div>
         <p className="mt-3 text-xs text-slate-300">
-          Coverage counts hotels with a refundable rate. Thin: under 15 of 50. ~11-month sold-outs largely
-          reflect Google&apos;s ~330-day pricing limit.
+          Coverage counts hotels with a refundable rate. Thin: under 15 of 50. ● 10+ sold out at 1 wk.
+          ~11-month sold-outs largely reflect Google&apos;s ~330-day pricing limit.
         </p>
       </Link>
     </section>
