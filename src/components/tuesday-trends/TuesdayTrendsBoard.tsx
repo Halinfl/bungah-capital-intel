@@ -59,16 +59,16 @@ function Dot() {
 function Legend({ className = "" }: { className?: string }) {
   return (
     <p className={`text-[13px] text-slate-300 ${className}`}>
-      <span className="whitespace-nowrap">— thin: under {THIN_BELOW}/{LIST_SIZE} priced</span>
+      <span className="whitespace-nowrap">— thin: under {THIN_BELOW}/{LIST_SIZE}</span>
       <span className="mx-1.5">·</span>
       <span className="inline-flex items-center gap-1 whitespace-nowrap">
-        <Dot /> {NO_RATES_DOT_AT}+ no rates on Google at 1 wk
+        <Dot /> {NO_RATES_DOT_AT}+ no rates on Google, 1 wk
       </span>
     </p>
   );
 }
 
-type Tip = { text: string; x: number; y: number } | null;
+type Tip = { text: string; x: number; y: number; right?: boolean } | null;
 type Row = { m: TTMarket; cells: TTCell[]; nr: TTCell };
 
 export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
@@ -144,9 +144,10 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
   const hLabel = HORIZONS[hIdx].label;
   const mobileSortLabel =
     mobileMode === "az" ? "Sorted A–Z" : mobileMode === "high" ? `Sorted highest rate, ${hLabel}` : `Sorted lowest rate, ${hLabel}`;
-  const showTip = (e: React.MouseEvent, text: string) => {
+  /** `right`: anchor the tooltip's right edge to the cell (last column), so it never runs off-screen. */
+  const showTip = (e: React.MouseEvent, text: string, right = false) => {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setTip({ text, x: r.left + r.width / 2, y: r.top });
+    setTip({ text, x: right ? r.right : r.left + r.width / 2, y: r.top, right });
   };
   const ariaSort = (k: SortKey) => (sortKey === k ? (dir === "asc" ? "ascending" : "descending") : undefined);
   const Arrow = ({ k }: { k: SortKey }) =>
@@ -296,7 +297,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                   })}
                   <td
                     className="w-52 px-3 py-2.5 text-right"
-                    onMouseEnter={(e) => showTip(e, nrTip)}
+                    onMouseEnter={(e) => showTip(e, nrTip, true)}
                     onMouseLeave={() => setTip(null)}
                   >
                     <NoRatesBadge n={nr.nNoRates} dot={nr.noRatesDot} compact />
@@ -358,7 +359,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
         <div
           role="tooltip"
           style={{ left: tip.x, top: tip.y - 8 }}
-          className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-white/15 bg-[#1f2228] px-2.5 py-1.5 text-xs text-slate-100 shadow-lg"
+          className={`pointer-events-none fixed z-50 -translate-y-full whitespace-nowrap ${tip.right ? "-translate-x-full" : "-translate-x-1/2"} rounded-md border border-white/15 bg-[#1f2228] px-2.5 py-1.5 text-xs text-slate-100 shadow-lg`}
         >
           {tip.text}
         </div>
