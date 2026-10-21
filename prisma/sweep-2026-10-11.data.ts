@@ -155,9 +155,9 @@ export const SWEEP_2026_10_11: SweepSignal[] = [
     "id": "sweep-20261011-mia-arlo-wynwood",
     "marketSlug": "miami",
     "kind": "transaction",
-    "title": "Arlo Wynwood trade — $44.3M ($204K per key), no cap disclosed",
-    "body": "Arlo Wynwood: $44.3M (~$204K per key) with a $43M BMO loan. No cap rate disclosed.",
-    "magnitude": "$44.3M / $204K per key",
+    "title": "Arlo Wynwood trade — about $65M, no cap disclosed",
+    "body": "Arlo Wynwood: about $65M (Commercial Observer, updated article; the deed lists $44.3M, and the full price includes furniture, fixtures and business operations) with a $43M BMO loan. No cap rate disclosed.",
+    "magnitude": "about $65M",
     "asOf": "2026-10-11 sweep",
     "sourceLabel": "Commercial Observer (2026-09-29)"
   },

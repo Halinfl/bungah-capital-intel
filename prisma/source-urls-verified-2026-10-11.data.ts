@@ -268,7 +268,7 @@ export const SOURCE_URLS_VERIFIED_2026_10_11: { id: string; title: string; sourc
   },
   {
     "id": "sweep-20261011-mia-arlo-wynwood",
-    "title": "Arlo Wynwood trade — $44.3M ($204K per key), no cap disclosed",
+    "title": "Arlo Wynwood trade — about $65M, no cap disclosed",
     "sourceUrls": [
       {
         "url": "https://commercialobserver.com/2026/09/arlo-wynwood-miami-dauntless-capital-partners-quadrum-global/",
