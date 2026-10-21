@@ -281,7 +281,7 @@ export const CAPITAL_W1_2026_10_11: LinkedSignal[] = [
     "marketSlug": "chicago",
     "kind": "debt",
     "title": "Chicago debt & deals: Named hotel transactions 2025–2026",
-    "body": "Chicago — debt & deals: Named hotel transactions 2025–2026. Royal Sonesta River North → Hotel 505 River North (505 N State): reported 2026-10-08 · Manga Hotel Group venture / Service Properties Trust · $21.0M (−62% vs the $55M 2019 price) · 261 · ~$85K · cap not disclosed · 2026-10-08 | Blackstone Hotel, Autograph Collection (636 S Michigan): May 2026 · Vinayaka Hospitality / Fundamental Advisors & Sage Hospitality (JLL) · $43.2M (−28% vs $59.5M in 2016) · 335 (CRE Direct) / 355 (TRD) · $128,955 (CRE Direct) / ~$121K (TRD) · cap not disclosed · 2026-05-20; 2026-05-19 | La Quinta Inn & Suites Chicago downtown: Jun 2026 · Jamp Hotels / Highgate–Cerberus (per tags) · $30.5M · 239 · $127,615 · cap not disclosed · 2026-06-18 | Homewood Suites downtown Chicago: May 2026 · Prakash Patel group / Brookfield (per tags) · $29.0M · 233 · $124,463 · cap not disclosed · 2026-05-14. Decision support; labor underwritten at the new floors with no staff cuts.",
+    "body": "Chicago — debt & deals: Named hotel transactions 2025–2026. Royal Sonesta River North → Hotel 505 River North (505 N State): reported 2026-10-08 · Manga Hotel Group venture / Service Properties Trust · $21.0M / 261 keys (−62% vs the $55M 2019 price) · cap not disclosed · 2026-10-08 | Blackstone Hotel, Autograph Collection (636 S Michigan): May 2026 · Vinayaka Hospitality / Fundamental Advisors & Sage Hospitality (JLL) · $43.2M (−28% vs $59.5M in 2016) · 335 (CRE Direct) / 355 (TRD) · $128,955 (CRE Direct) / ~$121K (TRD) · cap not disclosed · 2026-05-20; 2026-05-19 | La Quinta Inn & Suites Chicago downtown: Jun 2026 · Jamp Hotels / Highgate–Cerberus (per tags) · $30.5M · 239 · $127,615 · cap not disclosed · 2026-06-18 | Homewood Suites downtown Chicago: May 2026 · Prakash Patel group / Brookfield (per tags) · $29.0M · 233 · $124,463 · cap not disclosed · 2026-05-14. Decision support; labor underwritten at the new floors with no staff cuts.",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "The Real Deal · Commercial Real Estate Direct (accessed 2026-10-11)",
@@ -1947,7 +1947,7 @@ export const CAPITAL_W1_2026_10_11: LinkedSignal[] = [
     "marketSlug": "seattle",
     "kind": "debt",
     "title": "Seattle debt & deals: Market-level reads",
-    "body": "Seattle — debt & deals: Market-level reads. Host Seattle comparable RevPAR: flat YoY · Q3-2025 | Seattle CBD OCC / ADR / RevPAR (TTM): 72.2% / $235 / $170 · Q2-2026 | Market TTM OCC: 68.6% vs 69.7% LY · Q2-2026 | HVS/CBRE Seattle cap read, lodging DQ cut: no public read (source: no public read). Decision support; labor underwritten at the new floors with no staff cuts.",
+    "body": "Seattle — debt & deals: Market-level reads. Host Seattle comparable RevPAR: flat YoY · Q3-2025 | Seattle CBD OCC / ADR / RevPAR: 70.7% / $239 / $169 · 2Q26 (Kidder Mathews) | Market TTM OCC: 68.6% vs 69.7% LY · Q2-2026 | HVS/CBRE Seattle cap read, lodging DQ cut: no public read (source: no public read). Decision support; labor underwritten at the new floors with no staff cuts.",
     "magnitude": "4 rows",
     "asOf": "2026-10-11",
     "sourceLabel": "Host Hotels & Resorts · Kidder Mathews (accessed 2026-10-11)",
@@ -1959,7 +1959,7 @@ export const CAPITAL_W1_2026_10_11: LinkedSignal[] = [
       },
       {
         "url": "https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf",
-        "label": "Seattle CBD OCC / ADR / RevPAR (TTM)",
+        "label": "Seattle CBD OCC / ADR / RevPAR, 2Q26",
         "secondary": true
       }
     ]

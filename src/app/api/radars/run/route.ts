@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { citedOnly, isPlaceholderText } from "@/lib/format";
+import { SUPERSEDED_RADAR_SLUGS } from "@/lib/radars-preview";
 
 export async function POST() {
   // Writes findings: signed-in workspaces only (the public page no longer shows the run control).
@@ -14,6 +15,8 @@ export async function POST() {
     let count = 0;
 
     for (const radar of radars) {
+      // The old national debt-wall radar is superseded by the code-defined National radar; never refill it.
+      if (SUPERSEDED_RADAR_SLUGS.includes(radar.slug)) continue;
       let title = "";
       let summary = "";
       let severity = "info";
