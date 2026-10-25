@@ -21,7 +21,7 @@ export function CitedValue({
       rel="noopener noreferrer"
       title={`Source: ${c.source}`}
       onClick={stop ? (e) => e.stopPropagation() : undefined}
-      className={`tabular-nums text-white underline decoration-white/25 underline-offset-4 hover:decoration-white ${className}`}
+      className={`relative tabular-nums text-white underline decoration-white/25 underline-offset-4 hover:decoration-white ${className}`}
     >
       {fmt(c.value)}
       <span className="sr-only"> (source: {c.source})</span>
