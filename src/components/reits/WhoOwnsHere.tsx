@@ -4,14 +4,22 @@ import { fmtDay, fmtInt } from "@/lib/reits-shared";
 import type { MarketOwners } from "@/lib/reits-market";
 
 /** Compact list of REIT-owned hotels in a market, plus REIT transactions there as comps. */
-export function WhoOwnsHere({ data, short }: { data: MarketOwners; short: string }) {
+export function WhoOwnsHere({ data, short, marketName }: { data: MarketOwners; short: string; marketName?: string }) {
   const tickers = [...new Set(data.hotels.map((h) => h.ticker))].sort();
   const SHOWN = 8;
+  // A row shows its location only when it differs from the page market (e.g. Lake Buena Vista on Orlando).
+  const norm = (x: string) => x.toLowerCase().replace(/^ft\.?\s/, "fort ").replace(/[^a-z]/g, "");
+  const marketCities = new Set(
+    [short, ...(marketName ?? "").split(/[–—\-,/]|\s+and\s+/)].map((x) => norm(x.trim())).filter(Boolean)
+  );
+  const location = (h: MarketOwners["hotels"][number]) =>
+    h.city && !marketCities.has(norm(h.city)) ? [h.city, h.state].filter(Boolean).join(", ") : null;
+  const hotels = [...data.hotels].sort((a, b) => (b.rooms ?? -1) - (a.rooms ?? -1) || a.name.localeCompare(b.name));
   const row = (h: MarketOwners["hotels"][number], i: number) => (
     <li key={i} className="flex items-baseline justify-between gap-3 px-4 py-2">
       <span className="min-w-0">
         <span className="block truncate text-sm text-white">{h.name}</span>
-        {h.city ? <span className="block text-xs text-slate-300">{[h.city, h.state].filter(Boolean).join(", ")}</span> : null}
+        {location(h) ? <span className="block text-xs text-slate-300">{location(h)}</span> : null}
       </span>
       <span className="flex shrink-0 items-baseline gap-3 text-xs tabular-nums">
         {h.rooms != null ? (
@@ -27,28 +35,28 @@ export function WhoOwnsHere({ data, short }: { data: MarketOwners; short: string
   );
   return (
     <section className="space-y-4">
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 className="text-lg font-semibold text-white">Who owns here</h2>
-        <span className="text-xs text-slate-300">
+        <span className="min-w-0 max-w-full text-xs leading-relaxed text-slate-300 sm:max-w-[60%] sm:text-right">
           {data.hotels.length ? `${data.hotels.length} REIT-owned ${data.hotels.length === 1 ? "hotel" : "hotels"} · ${tickers.join(", ")}` : "REIT transactions"}
         </span>
       </div>
       {data.hotels.length ? (
         <div className="rounded-xl border border-white/10 bg-white/[0.03]">
-          <ul className="divide-y divide-white/[0.06]">{data.hotels.slice(0, SHOWN).map(row)}</ul>
+          <ul className="divide-y divide-white/[0.06]">{hotels.slice(0, SHOWN).map(row)}</ul>
           {data.hotels.length > SHOWN ? (
             <details className="border-t border-white/10">
               <summary className="cursor-pointer px-4 py-2 text-xs text-slate-300 hover:text-slate-200">
                 +{data.hotels.length - SHOWN} more REIT-owned hotels in {short}
               </summary>
-              <ul className="divide-y divide-white/[0.06] border-t border-white/[0.06]">{data.hotels.slice(SHOWN).map(row)}</ul>
+              <ul className="divide-y divide-white/[0.06] border-t border-white/[0.06]">{hotels.slice(SHOWN).map(row)}</ul>
             </details>
           ) : null}
         </div>
       ) : null}
       {data.comps.length ? (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Recorded REIT transactions (comps)</h3>
+          <h3 className="text-base font-semibold text-white">Recorded REIT transactions (comps)</h3>
           <p className="text-[13px] text-slate-300">From REIT filings; this list may be incomplete.</p>
           <ul className="divide-y divide-white/[0.06] rounded-xl border border-white/10 bg-white/[0.03] text-sm">
             {data.comps.map((c, i) => (

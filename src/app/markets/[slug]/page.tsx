@@ -288,7 +288,7 @@ export default async function MarketDetailPage({
         )}
       </section>
 
-      {owners ? <WhoOwnsHere data={owners} short={short} /> : null}
+      {owners ? <WhoOwnsHere data={owners} short={short} marketName={market.name} /> : null}
 
       {market.findings.length ? (
         <section className="space-y-4">
