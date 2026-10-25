@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { StatCard } from "@/components/StatCard";
 import { SignalCard } from "@/components/SignalCard";
 import { SourceChip } from "@/components/SourceChip";
 import { ReitsTabs } from "@/components/reits/ReitsTabs";
@@ -74,9 +73,57 @@ function TxCard({ t }: { t: Transaction }) {
   );
 }
 
-function Stat({ label, c, fmt }: { label: string; c: Cited | null; fmt: (v: number) => string }) {
-  if (!c) return null;
-  return <StatCard label={label} value={fmt(c.value)} sourceLabel={chipLabel(c)} />;
+type Snap = { key: string; label: string; c: Cited; fmt: (v: number) => string; mobileHidden?: boolean; mobileHint?: string };
+
+/**
+ * Snapshot tiles in the StatCard style. Tiles that share a source get one source line under the group;
+ * a tile carries its own source only when no other tile shares it.
+ */
+function Snapshot({ items }: { items: Snap[] }) {
+  const byLabel = new Map<string, Snap[]>();
+  for (const it of items) byLabel.set(chipLabel(it.c), [...(byLabel.get(chipLabel(it.c)) ?? []), it]);
+  const shared = [...byLabel.entries()].filter(([, l]) => l.length > 1);
+  const own = (it: Snap) => (byLabel.get(chipLabel(it.c))?.length ?? 0) < 2;
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-5">
+        {items.map((it) => (
+          <div
+            key={it.key}
+            className={`rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent p-3 sm:p-4 ${it.mobileHidden ? "hidden sm:block" : ""}`}
+          >
+            <div className="text-xs uppercase tracking-wider text-slate-300">{it.label}</div>
+            <div className="mt-1 text-xl font-semibold tracking-tight text-white tabular-nums sm:text-2xl">{it.fmt(it.c.value)}</div>
+            {it.mobileHint ? <div className="mt-1 text-xs text-slate-300 sm:hidden">{it.mobileHint}</div> : null}
+            {own(it) ? (
+              <div className="mt-3">
+                <SourceChip label={chipLabel(it.c)} />
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+      {shared.length || items.some((it) => it.mobileHidden && own(it)) ? (
+        <ul className="space-y-1.5">
+          {shared.map(([label, list]) => (
+            <li key={label} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-slate-300">
+              <span>{list.map((x) => x.label).join(", ")}:</span>
+              <SourceChip label={label} />
+            </li>
+          ))}
+          {/* A tile hidden on mobile keeps its own source visible there. */}
+          {items
+            .filter((it) => it.mobileHidden && own(it))
+            .map((it) => (
+              <li key={it.key} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-slate-300 sm:hidden">
+                <span>{it.label}:</span>
+                <SourceChip label={chipLabel(it.c)} />
+              </li>
+            ))}
+        </ul>
+      ) : null}
+    </div>
+  );
 }
 
 const money2 = (v: number) => fmtMoney(v, 2);
@@ -101,6 +148,15 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
     const t = Date.parse(d);
     return r.guidance.find((g) => Math.abs(Date.parse(g.date) - t) <= 2 * 86400000) ?? null;
   };
+  // Mobile shows a 2x2 grid (RevPAR, ADR, Occupancy, Hotels); rooms ride on the Hotels tile there.
+  const snapItems: Snap[] = [];
+  const L = r.latest;
+  if (L.revpar) snapItems.push({ key: "revpar", label: "RevPAR", c: L.revpar, fmt: money2 });
+  if (L.adr) snapItems.push({ key: "adr", label: "ADR", c: L.adr, fmt: money2 });
+  if (L.occupancy) snapItems.push({ key: "occ", label: "Occupancy", c: L.occupancy, fmt: fmtPct });
+  if (L.hotels)
+    snapItems.push({ key: "hotels", label: "Hotels", c: L.hotels, fmt: fmtInt, mobileHint: L.rooms ? `${fmtInt(L.rooms.value)} rooms` : undefined });
+  if (L.rooms) snapItems.push({ key: "rooms", label: "Rooms", c: L.rooms, fmt: fmtInt, mobileHidden: !!L.hotels });
   const askHref = `/chat?q=${encodeURIComponent(
     `${r.name} (${r.ticker}): latest reported RevPAR, ADR and occupancy, portfolio and capital?`
   )}`;
@@ -138,13 +194,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
           <h2 className="text-lg font-semibold text-white">Snapshot</h2>
           <span className="text-xs text-slate-300">{fmtQuarter(r.latestQuarter)} · reported</span>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          <Stat label="RevPAR" c={r.latest.revpar} fmt={money2} />
-          <Stat label="ADR" c={r.latest.adr} fmt={money2} />
-          <Stat label="Occupancy" c={r.latest.occupancy} fmt={fmtPct} />
-          <Stat label="Hotels" c={r.latest.hotels} fmt={fmtInt} />
-          <Stat label="Rooms" c={r.latest.rooms} fmt={fmtInt} />
-        </div>
+        <Snapshot items={snapItems} />
         {!r.latest.hotels && r.latest.rooms ? (
           <p className="text-[13px] text-slate-300">
             The company states room counts but no hotel count, so no hotel count is shown. The portfolio below lists the
