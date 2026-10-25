@@ -77,6 +77,9 @@ function HotelList({ r, hotels, showRates }: { r: ReitSummary; hotels: BoardHote
         {r.unnamedHotels
           ? ` ${r.unnamedHotels} more ${r.unnamedHotels === 1 ? "row is" : "rows are"} listed in the schedule without a hotel name; counted in the totals, not listed here.`
           : ""}
+        {hotels.some((h) => h.rooms == null)
+          ? ` The filings give no per-hotel room count for ${hotels.filter((h) => h.rooms == null).length} of these.`
+          : ""}
       </p>
       <ol className="list-decimal columns-1 gap-8 pl-5 text-sm leading-relaxed text-slate-200 lg:columns-2">
         {hotels.map((h, i) => (

@@ -156,7 +156,7 @@ export default function ReitsMethodologyPage() {
               owning REIT and the dates it bought or sold each hotel, so captured rates are always attributed to the owner
               at the time.
               {REITS_UNIVERSE.hotels != null
-                ? ` It currently holds ${fmtInt(REITS_UNIVERSE.hotels)} hotels and ${fmtInt(REITS_UNIVERSE.rooms)} rooms: the FY2025 10-K property schedules, rolled forward for later purchases and sales.`
+                ? ` It currently holds ${fmtInt(REITS_UNIVERSE.hotels)} hotels and ${fmtInt(REITS_UNIVERSE.rooms)} rooms: the FY2025 10-K property schedules, rolled forward for later purchases and sales. The room total leaves out the six hotels Chatham Lodging Trust (CLDT) bought in March 2026, because its filings give no per-hotel room counts for them.`
                 : ""}
             </p>
             <p className={p}>
