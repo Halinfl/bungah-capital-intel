@@ -187,6 +187,7 @@ def prop_view(p):
         "rooms": int(num(p["rooms"])) if num(p["rooms"]) else None,
         "url": p["source_uri"],
         "source": f"Property schedule, {'10-K' if p['schedule_as_of'].endswith('12-31') else 'filing'} as of {fdate(p['schedule_as_of'])}",
+        **({"pending": True} if p["status"] == "pending_disposition" else {}),
     }
 
 
@@ -196,11 +197,13 @@ with open(os.path.join(REPO, "scripts", "reits", "market_names.json")) as f:
     market_names = json.load(f)
 
 owners_by_market = collections.defaultdict(list)
+prop_market = {}
 reit_markets = collections.defaultdict(lambda: collections.defaultdict(list))
 for p in props:
     if not p["name"].strip():
         match_log["no-name"] += 1
     slug, how = market_for(p["city"], p["state"], p["name"], p["schedule_section"])
+    prop_market[p["property_id"]] = slug
     match_log[how if slug else how] += 1
     v = prop_view(p)
     if slug:
@@ -413,7 +416,8 @@ for t in TICKERS:
         label = market_names.get(key, key) if kind == "m" else key
         markets.append({"slug": key if kind == "m" else None, "label": label,
                         "properties": sorted(plist, key=lambda p: -(p["rooms"] or 0))})
-    tprops = sorted([prop_view(p) for p in props if p["ticker"] == t], key=lambda p: p["name"])
+    tprops = sorted([{**prop_view(p), **({"market": prop_market[p["property_id"]]} if prop_market.get(p["property_id"]) else {})}
+                     for p in props if p["ticker"] == t], key=lambda p: p["name"])
     r = {
         "ticker": t, "name": NAMES[t], "peer": PEER[t], "latestQuarter": latest_q,
         "latest": {
@@ -427,6 +431,8 @@ for t in TICKERS:
         "markets": markets,
         "dividends": dividends_for(t),
         # Per the cohort data report: the transaction record is known to be incomplete for these REITs.
+        # Current-portfolio rows the schedule lists without a hotel name: counted in totals, not listed.
+        "unnamedHotels": sum(1 for p in unnamed if p["ticker"] == t),
         "txIncomplete": t in ("HST", "PK", "SHO", "CLDT"),
         "dividendNote": ({"text": "No common dividends declared in this period. The 10-K distribution policy: no common dividends until accumulated preferred dividends are paid.",
                           "url": excl[(t, "dividend_declared_per_share")]["evidence_uri"], "source": "10-K, Distribution Policy"}

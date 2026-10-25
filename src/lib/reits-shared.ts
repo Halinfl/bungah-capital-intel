@@ -62,6 +62,32 @@ export type Property = {
   rooms: number | null;
   url: string | null;
   source: string | null;
+  /** Under contract to be sold (status pending_disposition). */
+  pending?: boolean;
+  /** Site market slug when the hotel sits in a market the site covers. */
+  market?: string;
+};
+
+/** Weekly Google Hotels capture summary for one REIT; absent until the first capture. */
+export type CapturedSummary = {
+  date: string;
+  /** Captured median rate vs reported ADR, percent. */
+  trackingGapPct: number | null;
+  medianRate: number | null;
+  priced: number;
+  of: number;
+};
+
+/** One row of a REIT's hotel list on the board (slim client payload). */
+export type BoardHotel = {
+  name: string;
+  market: string | null;
+  marketLabel: string | null;
+  location: string | null;
+  rooms: number | null;
+  pending: boolean;
+  /** Captured nightly rate; only once captures exist. */
+  rate?: number | null;
 };
 
 export type NextCall = {
@@ -133,6 +159,9 @@ export type Reit = {
   transactions: Transaction[];
   /** The recorded transaction list is known to be incomplete for this REIT. */
   txIncomplete: boolean;
+  /** Current-portfolio rows listed without a hotel name: counted in totals, not listed. */
+  unnamedHotels: number;
+  captured?: CapturedSummary | null;
   guidance: Guidance[];
   debt: Debt | null;
   buybacks: Buyback[];
@@ -206,6 +235,8 @@ export type ReitSummary = Pick<Reit, "ticker" | "name" | "peer" | "latestQuarter
   siteMarkets: number;
   marketLabels: string[];
   quartersReported: number;
+  unnamedHotels: number;
+  captured: CapturedSummary | null;
 };
 
 export function summarize(r: Reit): ReitSummary {
@@ -219,5 +250,27 @@ export function summarize(r: Reit): ReitSummary {
     siteMarkets: r.markets.filter((m) => m.slug).length,
     marketLabels: r.markets.filter((m) => m.slug).map((m) => m.label),
     quartersReported: r.quarters.length,
+    unnamedHotels: r.unnamedHotels ?? 0,
+    captured: r.captured ?? null,
   };
+}
+
+/** Short market name from a full market label, e.g. "Orlando–Kissimmee–Sanford" -> "Orlando". */
+export function shortMarket(label: string): string {
+  return label.split(/–| \/ /)[0].trim();
+}
+
+/** The board's hotel list for one REIT: current portfolio, largest first. */
+export function boardHotels(r: Reit): BoardHotel[] {
+  const labels = new Map(r.markets.filter((m) => m.slug).map((m) => [m.slug as string, m.label]));
+  return [...r.properties]
+    .sort((a, b) => (b.rooms ?? -1) - (a.rooms ?? -1) || a.name.localeCompare(b.name))
+    .map((p) => ({
+      name: p.name,
+      market: p.market ?? null,
+      marketLabel: p.market && labels.has(p.market) ? shortMarket(labels.get(p.market)!) : null,
+      location: p.market ? null : [p.city, p.state].filter(Boolean).join(", ") || null,
+      rooms: p.rooms,
+      pending: !!p.pending,
+    }));
 }
