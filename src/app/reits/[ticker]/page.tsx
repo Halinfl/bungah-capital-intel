@@ -95,15 +95,16 @@ function Snapshot({ items }: { items: Snap[] }) {
             <div className="text-xs uppercase tracking-wider text-slate-300">{it.label}</div>
             <div className="mt-1 text-xl font-semibold tracking-tight text-white tabular-nums sm:text-2xl">{it.fmt(it.c.value)}</div>
             {it.mobileHint ? <div className="mt-1 text-xs text-slate-300 sm:hidden">{it.mobileHint}</div> : null}
+            {/* On mobile every source sits under the grid, so the 2x2 tiles stay the same height. */}
             {own(it) ? (
-              <div className="mt-3">
+              <div className="mt-3 hidden sm:block">
                 <SourceChip label={chipLabel(it.c)} />
               </div>
             ) : null}
           </div>
         ))}
       </div>
-      {shared.length || items.some((it) => it.mobileHidden && own(it)) ? (
+      {shared.length || items.some((it) => own(it)) ? (
         <ul className="space-y-1.5">
           {shared.map(([label, list]) => (
             <li key={label} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-slate-300">
@@ -111,9 +112,9 @@ function Snapshot({ items }: { items: Snap[] }) {
               <SourceChip label={label} />
             </li>
           ))}
-          {/* A tile hidden on mobile keeps its own source visible there. */}
+          {/* Mobile: a tile's own source moves here, one line per tile. */}
           {items
-            .filter((it) => it.mobileHidden && own(it))
+            .filter((it) => own(it))
             .map((it) => (
               <li key={it.key} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-slate-300 sm:hidden">
                 <span>{it.label}:</span>
