@@ -246,7 +246,8 @@ export function ReitsBoard({
 
   const hotelsButton = (r: ReitSummary, cls: string, children: React.ReactNode) => {
     const list = hotelLists[r.ticker] ?? [];
-    if (!list.length) return children;
+    // No reported count (n/r) or no listed hotels: plain text, no toggle and no chevron.
+    if (!list.length || !r.latest.hotels) return children;
     const isOpen = open === r.ticker;
     return (
       <button
@@ -342,10 +343,10 @@ export function ReitsBoard({
                 <th
                   scope="col"
                   rowSpan={2}
-                  className="w-[156px] border-b border-l border-white/10 px-3 py-2 text-center align-bottom text-[12px] font-medium normal-case leading-snug tracking-normal text-slate-200"
-                  title={`${capLabel}. No captured rates yet.`}
+                  className="w-[120px] border-b border-l border-white/10 px-3 py-2 text-center align-bottom text-[12px] font-medium normal-case leading-snug tracking-normal text-slate-200"
+                  title={`Captured (Google Hotels, Tuesdays). ${capLabel}. No captured rates yet.`}
                 >
-                  Captured (Google, Tuesdays) · {capShort}
+                  Captured · from {fmtDate(firstCapture, { dow: false })}
                 </th>
               )}
               <th scope="col" rowSpan={2} className="w-8 border-b border-white/10 px-2">
