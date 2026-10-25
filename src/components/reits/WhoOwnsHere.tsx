@@ -48,7 +48,8 @@ export function WhoOwnsHere({ data, short }: { data: MarketOwners; short: string
       ) : null}
       {data.comps.length ? (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">REIT transactions (comps)</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Recorded REIT transactions (comps)</h3>
+          <p className="text-[13px] text-slate-300">From REIT filings; this list may be incomplete.</p>
           <ul className="divide-y divide-white/[0.06] rounded-xl border border-white/10 bg-white/[0.03] text-sm">
             {data.comps.map((c, i) => (
               <li key={i} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-2">
