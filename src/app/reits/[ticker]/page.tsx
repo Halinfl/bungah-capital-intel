@@ -372,7 +372,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
               </div>
               {r.dividends.slice(-8).some((d) => d.special) ? (
                 <p className="text-[13px] text-slate-300">
-                  &ldquo;incl. special&rdquo;: the earnings release mentions a special or supplemental dividend for that quarter.
+                  &ldquo;incl. special&rdquo;: the earnings release for that quarter mentions a special or supplemental dividend.
                 </p>
               ) : null}
             </div>
