@@ -124,7 +124,7 @@ export function ReitsBrowser({ reits }: { reits: ReitSummary[] }) {
                 </span>
                 <span>
                   <span className="text-slate-300">Hotels </span>
-                  {r.latest.hotels ? fmtInt(r.latest.hotels.value) : "—"}
+                  {r.latest.hotels ? fmtInt(r.latest.hotels.value) : "n/r"}
                 </span>
                 <span>
                   <span className="text-slate-300">Rooms </span>

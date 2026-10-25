@@ -374,7 +374,24 @@ def call_history(t):
     return out
 
 
+# ---------- dividends (reit_dividends.csv, final file) ----------
+def dividends_for(t):
+    out = []
+    for d in rd("reit_dividends.csv"):
+        if d["ticker"] != t or not d["source_uri"].startswith("http"):
+            continue
+        v = num(d["dividend_per_common_share"])
+        if v is None:
+            continue
+        how = "SEC XBRL" if d["extraction_method"] == "xbrl" else ("8-K earnings release" if d["source_kind"] == "press_release" else "filing text")
+        filed = f", filed {fdate(d['filing_date'])}" if d["filing_date"] else ""
+        out.append({"value": v, "url": d["source_uri"], "source": how + filed, "quarter": d["quarter"],
+                    "special": d.get("release_mentions_special", "") == "yes"})
+    return sorted(out, key=lambda x: x["quarter"])
+
+
 # ---------- assemble ----------
+excl = {(e["ticker"], e["metric"]): e for e in rd("coverage_exclusions.csv")}
 reits = []
 coverage = {}
 for t in TICKERS:
@@ -408,7 +425,12 @@ for t in TICKERS:
         "quarters": [{"quarter": q, "revpar": cited(rv.get(q)), "adr": cited(ad.get(q)), "occupancy": cited(oc.get(q))} for q in qs],
         "properties": tprops,
         "markets": markets,
-        "dividends": [{**cited(dv[q], basis=False), "quarter": q} for q in quarters_all if q in dv and cited(dv[q])],
+        "dividends": dividends_for(t),
+        # Per the cohort data report: the transaction record is known to be incomplete for these REITs.
+        "txIncomplete": t in ("HST", "PK", "SHO", "CLDT"),
+        "dividendNote": ({"text": "No common dividends declared in this period. The 10-K distribution policy: no common dividends until accumulated preferred dividends are paid.",
+                          "url": excl[(t, "dividend_declared_per_share")]["evidence_uri"], "source": "10-K, Distribution Policy"}
+                         if (t, "dividend_declared_per_share") in excl and excl[(t, "dividend_declared_per_share")]["evidence_uri"].startswith("http") else None),
         "transactions": sorted([tx_view(c) for c in changes if c["ticker"] == t], key=lambda x: x["date"], reverse=True),
         "guidance": guidance_for(t),
         "debt": debt_for(t),
@@ -426,15 +448,18 @@ for t in TICKERS:
         "buybacks": len(r["buybacks"]), "releases": len(rel), "next": (r["nextCall"] or {}).get("kind"),
     }
 
-hotels_total = len(props)
+# Universe totals count every current row (owned or pending_disposition), including the unnamed schedule rows
+# that are not listed by name on the pages.
+cur_rows = [p for p in props_all if p["status"] in ("owned", "pending_disposition")]
+hotels_total = len(cur_rows)
 snap = {
     "built": datetime.datetime.now().isoformat(timespec="seconds"),
     "as_of_label": fdate(max(f["filing_date"] for f in filings)) if filings else "",
     "target_quarters": quarters_all,
     "first_capture": "2026-10-27",
     "captured": None,
-    "universe": {"hotels": hotels_total, "rooms": sum(int(num(p["rooms"]) or 0) for p in props),
-                 "hotels_source": "Property schedules in each REIT's latest 10-K"},
+    "universe": {"hotels": hotels_total, "rooms": sum(int(num(p["rooms"]) or 0) for p in cur_rows),
+                 "hotels_source": "FY2025 10-K property schedules, rolled forward for later purchases and sales"},
     "reits": reits,
 }
 os.makedirs(OUT, exist_ok=True)

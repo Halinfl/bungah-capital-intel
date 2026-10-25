@@ -127,8 +127,12 @@ export type Reit = {
   quarters: QuarterRow[];
   properties: Property[];
   markets: MarketGroup[];
-  dividends: (Cited & { quarter: string })[];
+  dividends: (Cited & { quarter: string; special?: boolean })[];
+  /** No common dividends, with the filing that says so. */
+  dividendNote: { text: string; url: string; source: string } | null;
   transactions: Transaction[];
+  /** The recorded transaction list is known to be incomplete for this REIT. */
+  txIncomplete: boolean;
   guidance: Guidance[];
   debt: Debt | null;
   buybacks: Buyback[];

@@ -1,5 +1,5 @@
 {
- "built": "2026-10-25T15:20:46",
+ "built": "2026-10-25T15:26:14",
  "as_of_label": "Aug 12, 2026",
  "target_quarters": [
   "2023Q2",
@@ -19,9 +19,9 @@
  "first_capture": "2026-10-27",
  "captured": null,
  "universe": {
-  "hotels": 740,
-  "rooms": 199097,
-  "hotels_source": "Property schedules in each REIT's latest 10-K"
+  "hotels": 742,
+  "rooms": 205894,
+  "hotels_source": "FY2025 10-K property schedules, rolled forward for later purchases and sales"
  },
  "reits": [
   {
@@ -1699,82 +1699,97 @@
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1070750/000095017023037240/hst-ex99_1.htm",
-     "source": "8-K exhibit 99.1, filed Aug 2, 2023",
-     "quarter": "2023Q2"
+     "source": "8-K earnings release, filed Aug 2, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.18,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075023000133/hst-20230930.htm",
-     "source": "10-Q, filed Nov 6, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 6, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.45,
      "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075024000075/hst-exx991.htm",
-     "source": "8-K exhibit 99.1, filed Feb 21, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 21, 2024",
+     "quarter": "2023Q4",
+     "special": true
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075024000128/hst-20240331.htm",
-     "source": "10-Q, filed May 3, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 3, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075024000167/hst-20240630.htm",
-     "source": "10-Q, filed Aug 2, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 2, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075024000184/hst-20240930.htm",
-     "source": "10-Q, filed Nov 8, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 8, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.3,
      "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075025000055/hst-ex991.htm",
-     "source": "8-K exhibit 99.1, filed Feb 19, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 19, 2025",
+     "quarter": "2024Q4",
+     "special": true
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075025000097/hst-20250331.htm",
-     "source": "10-Q, filed May 2, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 2, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075025000139/hst-20250630.htm",
-     "source": "10-Q, filed Aug 1, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 1, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075025000168/hst-20250930.htm",
-     "source": "10-Q, filed Nov 7, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 7, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.35,
      "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000038/hst-ex991.htm",
-     "source": "8-K exhibit 99.1, filed Feb 18, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 18, 2026",
+     "quarter": "2025Q4",
+     "special": true
     },
     {
      "value": 0.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000080/hst-20260331.htm",
-     "source": "10-Q, filed May 8, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 8, 2026",
+     "quarter": "2026Q1",
+     "special": true
     },
     {
      "value": 0.92,
      "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000126/hst-20260630.htm",
-     "source": "10-Q, filed Aug 7, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 7, 2026",
+     "quarter": "2026Q2",
+     "special": true
     }
    ],
+   "txIncomplete": true,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2026-06",
@@ -2832,82 +2847,97 @@
     {
      "value": 1.0,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837023013380/rhp-20230630x10q.htm",
-     "source": "10-Q, filed Aug 4, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 4, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 1.0,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837023017957/rhp-20230930x10q.htm",
-     "source": "10-Q, filed Nov 7, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 7, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 1.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465924026734/tm246791d1_ex99-1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 23, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 23, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 1.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837024006512/rhp-20240331x10q.htm",
-     "source": "10-Q, filed May 2, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 2, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 1.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837024010587/rhp-20240630x10q.htm",
-     "source": "10-Q, filed Aug 1, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 1, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 1.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837024014404/rhp-20240930x10q.htm",
-     "source": "10-Q, filed Nov 5, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 5, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 1.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837025001265/tmb-20250220xex99d1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 21, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 21, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 1.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837025006183/rhp-20250331x10q.htm",
-     "source": "10-Q, filed May 2, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 2, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 1.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000155837025010229/rhp-20250630x10q.htm",
-     "source": "10-Q, filed Aug 5, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 5, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 1.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465925106165/rhp-20250930x10q.htm",
-     "source": "10-Q, filed Nov 4, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 4, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 1.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926018817/tmb-20260223xex99d1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 24, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 24, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 1.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926053780/rhp-20260331x10q.htm",
-     "source": "10-Q, filed May 1, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 1, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 1.2,
      "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092580/rhp-20260630x10q.htm",
-     "source": "10-Q, filed Aug 7, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 7, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [],
    "guidance": [
     {
@@ -4296,82 +4326,97 @@
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000095017023037945/pk-20230630.htm",
-     "source": "10-Q, filed Aug 3, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 3, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740623000015/pk-20230930.htm",
-     "source": "10-Q, filed Nov 2, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 2, 2023",
+     "quarter": "2023Q3",
+     "special": true
     },
     {
      "value": 1.7,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740624000014/correctedearningsreleaseex.htm",
-     "source": "8-K exhibit 99.1, filed Feb 28, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 28, 2024",
+     "quarter": "2023Q4",
+     "special": true
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740624000039/pk-20240331.htm",
-     "source": "10-Q, filed May 1, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 1, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740624000062/pk-20240630.htm",
-     "source": "10-Q, filed Aug 1, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 1, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740624000070/pk-20240930.htm",
-     "source": "10-Q, filed Oct 30, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Oct 30, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.65,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740625000003/earningsreleaseex991-live.htm",
-     "source": "8-K exhibit 99.1, filed Feb 19, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 19, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740625000037/pk-20250331.htm",
-     "source": "10-Q, filed May 5, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 5, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740625000046/pk-20250630.htm",
-     "source": "10-Q, filed Aug 1, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 1, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740625000053/pk-20250930.htm",
-     "source": "10-Q, filed Nov 3, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 3, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000003/earningsreleaseex991-live.htm",
-     "source": "8-K exhibit 99.1, filed Feb 19, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 19, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000035/pk-20260331.htm",
-     "source": "10-Q, filed May 1, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 1, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.25,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
-     "source": "10-Q, filed Aug 7, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 7, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": true,
+   "dividendNote": null,
    "transactions": [],
    "guidance": [
     {
@@ -9213,82 +9258,97 @@
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017023038012/aple-20230630.htm",
-     "source": "10-Q, filed Aug 3, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 3, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017023060274/aple-20230930.htm",
-     "source": "10-Q, filed Nov 7, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 7, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024018790/aple-ex99_1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 22, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 22, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024053569/aple-20240331.htm",
-     "source": "10-Q, filed May 6, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 6, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024090771/aple-20240630.htm",
-     "source": "10-Q, filed Aug 5, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 5, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024120709/aple-20240930.htm",
-     "source": "10-Q, filed Nov 4, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 4, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025025637/aple-ex99_1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 24, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 24, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025061853/aple-20250331.htm",
-     "source": "10-Q, filed May 1, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 1, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025104057/aple-20250630.htm",
-     "source": "10-Q, filed Aug 6, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 6, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312525262579/aple-20250930.htm",
-     "source": "10-Q, filed Nov 3, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 3, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526064006/aple-ex99_1.htm",
-     "source": "8-K exhibit 99.1, filed Feb 23, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 23, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526204023/aple-20260331.htm",
-     "source": "10-Q, filed May 4, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 4, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.24,
      "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526335151/aple-20260630.htm",
-     "source": "10-Q, filed Aug 5, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 5, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2025-12-19",
@@ -9681,7 +9741,212 @@
      "source": "SEC filing for Q3 2025"
     }
    ],
-   "guidance": [],
+   "guidance": [
+    {
+     "date": "2023-08-03",
+     "period": "FY2023",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017023038011/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Aug 3, 2023",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 417.103,
+       "high": 451.603,
+       "units": "USD millions"
+      }
+     ]
+    },
+    {
+     "date": "2023-11-07",
+     "period": "FY2023",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017023060275/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Nov 7, 2023",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 423.223,
+       "high": 440.423,
+       "units": "USD millions",
+       "change": "lowered"
+      }
+     ]
+    },
+    {
+     "date": "2024-02-22",
+     "period": "FY2024",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024018790/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Feb 22, 2024",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 452.1,
+       "high": 473.625,
+       "units": "USD millions"
+      }
+     ]
+    },
+    {
+     "date": "2024-05-06",
+     "period": "FY2024",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024053568/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released May 6, 2024",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 461.021,
+       "high": 482.821,
+       "units": "USD millions",
+       "change": "raised"
+      }
+     ]
+    },
+    {
+     "date": "2024-08-05",
+     "period": "FY2024",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024090772/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Aug 5, 2024",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 456.26,
+       "high": 474.06,
+       "units": "USD millions",
+       "change": "lowered"
+      }
+     ]
+    },
+    {
+     "date": "2024-11-04",
+     "period": "FY2024",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017024120710/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Nov 4, 2024",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 458.295,
+       "high": 469.495,
+       "units": "USD millions",
+       "change": "lowered"
+      }
+     ]
+    },
+    {
+     "date": "2025-02-24",
+     "period": "FY2025",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025025637/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Feb 24, 2025",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 447.148,
+       "high": 471.448,
+       "units": "USD millions"
+      }
+     ]
+    },
+    {
+     "date": "2025-05-01",
+     "period": "FY2025",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025061854/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released May 1, 2025",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 432.801,
+       "high": 456.501,
+       "units": "USD millions",
+       "change": "lowered"
+      }
+     ]
+    },
+    {
+     "date": "2025-08-06",
+     "period": "FY2025",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000095017025104059/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Aug 6, 2025",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 428.449,
+       "high": 449.949,
+       "units": "USD millions",
+       "change": "lowered"
+      }
+     ]
+    },
+    {
+     "date": "2025-11-03",
+     "period": "FY2025",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312525262578/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Nov 3, 2025",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 434.71,
+       "high": 444.31,
+       "units": "USD millions",
+       "change": "raised"
+      }
+     ]
+    },
+    {
+     "date": "2026-02-23",
+     "period": "FY2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526064006/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Feb 23, 2026",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 424.4,
+       "high": 446.7,
+       "units": "USD millions"
+      }
+     ]
+    },
+    {
+     "date": "2026-05-04",
+     "period": "FY2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526204022/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released May 4, 2026",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 435.749,
+       "high": 458.049,
+       "units": "USD millions",
+       "change": "raised"
+      }
+     ]
+    },
+    {
+     "date": "2026-08-05",
+     "period": "FY2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526335144/aple-ex99_1.htm",
+     "source": "8-K exhibit 99.1, released Aug 5, 2026",
+     "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 452.565,
+       "high": 476.165,
+       "units": "USD millions",
+       "change": "raised"
+      }
+     ]
+    }
+   ],
    "debt": {
     "asOf": "2026-06-30",
     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526335151/aple-20260630.htm",
@@ -10821,82 +11086,97 @@
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894623000079/drh-20230630.htm",
-     "source": "10-Q, filed Aug 4, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 4, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894623000093/drh-20230930.htm",
-     "source": "10-Q, filed Nov 3, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 3, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894624000007/exhibit9914q2023.htm",
-     "source": "8-K exhibit 99.1, filed Feb 22, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 22, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894624000052/drh-20240331.htm",
-     "source": "10-Q, filed May 3, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 3, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894624000095/drh-20240630.htm",
-     "source": "10-Q, filed Aug 2, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 2, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.03,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894624000107/drh-20240930.htm",
-     "source": "10-Q, filed Nov 8, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 8, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.23,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894625000013/exhibit9914q2024.htm",
-     "source": "8-K exhibit 99.1, filed Feb 27, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 27, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894625000049/drh-20250331.htm",
-     "source": "10-Q, filed May 2, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 2, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894625000077/drh-20250630.htm",
-     "source": "10-Q, filed Aug 8, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 8, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894625000085/drh-20250930.htm",
-     "source": "10-Q, filed Nov 7, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 7, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.12,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000010/exhibit9914q2025.htm",
-     "source": "8-K exhibit 99.1, filed Feb 26, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 26, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000027/drh-20260331.htm",
-     "source": "10-Q, filed Apr 30, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed Apr 30, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000038/drh-20260630.htm",
-     "source": "10-Q, filed Jul 30, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Jul 30, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2025-02-19",
@@ -11931,76 +12211,90 @@
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837023013385/sho-20230630x10q.htm",
-     "source": "10-Q, filed Aug 4, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 4, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837023017934/sho-20230930x10q.htm",
-     "source": "10-Q, filed Nov 7, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 7, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837024006777/sho-20240331x10q.htm",
-     "source": "10-Q, filed May 6, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 6, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837024011285/sho-20240630x10q.htm",
-     "source": "10-Q, filed Aug 7, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 7, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837024015239/sho-20240930x10q.htm",
-     "source": "10-Q, filed Nov 12, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 12, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837024015163/sho-20241107xex99d1.htm",
-     "source": "8-K exhibit 99.1, filed Nov 12, 2024",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Nov 12, 2024",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837025006454/sho-20250331x10q.htm",
-     "source": "10-Q, filed May 6, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 6, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000155837025010475/sho-20250630x10q.htm",
-     "source": "10-Q, filed Aug 6, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 6, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465925108317/sho-20250930x10q.htm",
-     "source": "10-Q, filed Nov 7, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 7, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465925108138/sho-20251107xex99d1.htm",
-     "source": "8-K exhibit 99.1, filed Nov 7, 2025",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Nov 7, 2025",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926055508/sho-20260331x10q.htm",
-     "source": "10-Q, filed May 5, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 5, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926091907/sho-20260630x10q.htm",
-     "source": "10-Q, filed Aug 6, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 6, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": true,
+   "dividendNote": null,
    "transactions": [],
    "guidance": [
     {
@@ -13482,82 +13776,97 @@
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600023000063/xhr-20230630.htm",
-     "source": "10-Q, filed Aug 2, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 2, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600023000080/xhr-20230930.htm",
-     "source": "10-Q, filed Nov 1, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 1, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600024000020/ex991q42023xhrearningsrele.htm",
-     "source": "8-K exhibit 99.1, filed Feb 27, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 27, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.12,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600024000042/xhr-20240331.htm",
-     "source": "10-Q, filed May 3, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 3, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.12,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600024000073/xhr-20240630.htm",
-     "source": "10-Q, filed Aug 2, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 2, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.12,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600024000078/xhr-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.12,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600025000019/ex991q42024xhrearningsrele.htm",
-     "source": "8-K exhibit 99.1, filed Feb 25, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 25, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600025000046/xhr-20250331.htm",
-     "source": "10-Q, filed May 2, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 2, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000161600025000071/xhr-20250630.htm",
-     "source": "10-Q, filed Aug 1, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 1, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828025047832/xhr-20250930.htm",
-     "source": "10-Q, filed Oct 31, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Oct 31, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026010860/ex991q42025xhrearningsrele.htm",
-     "source": "8-K exhibit 99.1, filed Feb 24, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 24, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026029383/xhr-20260331.htm",
-     "source": "10-Q, filed May 1, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 1, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.14,
      "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026051092/xhr-20260630.htm",
-     "source": "10-Q, filed Jul 30, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Jul 30, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2025-04",
@@ -15123,82 +15432,97 @@
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409823000134/peb8-k072723q2x23erex991.htm",
-     "source": "8-K exhibit 99.1, filed Jul 27, 2023",
-     "quarter": "2023Q2"
+     "source": "8-K earnings release, filed Jul 27, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409823000158/peb8-k102623q3x23erex991.htm",
-     "source": "8-K exhibit 99.1, filed Oct 26, 2023",
-     "quarter": "2023Q3"
+     "source": "8-K earnings release, filed Oct 26, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409824000042/a022124earningsreleaseex991.htm",
-     "source": "8-K exhibit 99.1, filed Feb 21, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 21, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409824000135/peb-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409824000135/peb-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409824000135/peb-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409825000039/peb-20241231.htm",
-     "source": "10-K, filed Feb 26, 2025",
-     "quarter": "2024Q4"
+     "source": "SEC XBRL, filed Feb 26, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409825000070/peb-20250331.htm",
-     "source": "10-Q, filed May 1, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 1, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409825000119/peb-20250630.htm",
-     "source": "10-Q, filed Jul 29, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Jul 29, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409825000138/peb-20250930.htm",
-     "source": "10-Q, filed Nov 5, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 5, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm",
-     "source": "10-K, filed Feb 25, 2026",
-     "quarter": "2025Q4"
+     "source": "SEC XBRL, filed Feb 25, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000039/peb-20260331.htm",
-     "source": "10-Q, filed Apr 28, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed Apr 28, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.01,
      "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000055/peb-20260630.htm",
-     "source": "10-Q, filed Jul 29, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Jul 29, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2026-05-27",
@@ -17681,82 +18005,97 @@
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133723000021/rlj-20230630.htm",
-     "source": "10-Q, filed Aug 4, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 4, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133723000027/rlj-20230930.htm",
-     "source": "10-Q, filed Nov 2, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 2, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133724000004/rlj-exhibit991q42023.htm",
-     "source": "8-K exhibit 99.1, filed Feb 26, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 26, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133724000013/rlj-20240331.htm",
-     "source": "10-Q, filed May 2, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 2, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133724000025/rlj-20240630.htm",
-     "source": "10-Q, filed Aug 2, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 2, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133724000033/rlj-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133725000004/rlj-exhibit991q42024.htm",
-     "source": "8-K exhibit 99.1, filed Feb 25, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 25, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133725000014/rlj-20250331.htm",
-     "source": "10-Q, filed May 5, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 5, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133725000023/rlj-20250630.htm",
-     "source": "10-Q, filed Aug 8, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 8, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133725000031/rlj-20250930.htm",
-     "source": "10-Q, filed Nov 6, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 6, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000005/rlj-exhibit991q42025.htm",
-     "source": "8-K exhibit 99.1, filed Feb 26, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 26, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000014/rlj-20260331.htm",
-     "source": "10-Q, filed May 4, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 4, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.15,
      "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000023/rlj-20260630.htm",
-     "source": "10-Q, filed Aug 7, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 7, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2025-12-16",
@@ -20333,76 +20672,90 @@
     {
      "value": 0.06,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000110465923086829/tm2322642d1_ex99-1.htm",
-     "source": "8-K exhibit 99.1, filed Aug 2, 2023",
-     "quarter": "2023Q3"
+     "source": "8-K earnings release, filed Aug 2, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.06,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764523000060/a2023_q3xsummitxearnings.htm",
-     "source": "8-K exhibit 99.1, filed Nov 1, 2023",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Nov 1, 2023",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.06,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764524000009/a2023_q4xsummitxearnings.htm",
-     "source": "8-K exhibit 99.1, filed Feb 28, 2024",
-     "quarter": "2024Q1"
+     "source": "8-K earnings release, filed Feb 28, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764524000044/exhibit99103-31x2024.htm",
-     "source": "8-K exhibit 99.1, filed May 1, 2024",
-     "quarter": "2024Q2"
+     "source": "8-K earnings release, filed May 1, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764524000065/exhibit99106-30x2024.htm",
-     "source": "8-K exhibit 99.1, filed Jul 29, 2024",
-     "quarter": "2024Q3"
+     "source": "8-K earnings release, filed Jul 29, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764524000079/exhibit99109-30x2024.htm",
-     "source": "8-K exhibit 99.1, filed Nov 4, 2024",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Nov 4, 2024",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764525000014/exhibit99112-31x2024.htm",
-     "source": "8-K exhibit 99.1, filed Feb 24, 2025",
-     "quarter": "2025Q1"
+     "source": "8-K earnings release, filed Feb 24, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764525000050/exhibit99103-31x2025.htm",
-     "source": "8-K exhibit 99.1, filed Apr 30, 2025",
-     "quarter": "2025Q2"
+     "source": "8-K earnings release, filed Apr 30, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764525000093/exhibit99106-30x2025.htm",
-     "source": "8-K exhibit 99.1, filed Aug 5, 2025",
-     "quarter": "2025Q3"
+     "source": "8-K earnings release, filed Aug 5, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764525000103/exhibit99109-30x2025.htm",
-     "source": "8-K exhibit 99.1, filed Nov 4, 2025",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Nov 4, 2025",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000017/exhibit99112-31x2025.htm",
-     "source": "8-K exhibit 99.1, filed Feb 25, 2026",
-     "quarter": "2026Q1"
+     "source": "8-K earnings release, filed Feb 25, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.08,
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000042/exhibit99103312026.htm",
-     "source": "8-K exhibit 99.1, filed Apr 30, 2026",
-     "quarter": "2026Q2"
+     "source": "8-K earnings release, filed Apr 30, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2024-12",
@@ -20524,21 +20877,6 @@
    ],
    "guidance": [
     {
-     "date": "2023-08-02",
-     "period": "FY2023",
-     "url": "https://www.sec.gov/Archives/edgar/data/1497645/000110465923086829/tm2322642d1_ex99-1.htm",
-     "source": "8-K exhibit 99.1, released Aug 2, 2023",
-     "items": [
-      {
-       "metric": "adjusted_ebitdare",
-       "label": "Adj. EBITDAre",
-       "low": 183.0,
-       "high": 193.0,
-       "units": "USD millions"
-      }
-     ]
-    },
-    {
      "date": "2024-05-01",
      "period": "",
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764524000044/exhibit99103-31x2024.htm",
@@ -20576,6 +20914,13 @@
      "source": "8-K exhibit 99.1, released Feb 24, 2025",
      "items": [
       {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 184.0,
+       "high": 198.0,
+       "units": "USD millions"
+      },
+      {
        "metric": "adjusted_ffo_per_share",
        "label": "Adj. FFO per share",
        "low": 0.9,
@@ -20597,6 +20942,13 @@
      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000017/exhibit99112-31x2025.htm",
      "source": "8-K exhibit 99.1, released Feb 25, 2026",
      "items": [
+      {
+       "metric": "adjusted_ebitdare",
+       "label": "Adj. EBITDAre",
+       "low": 167.0,
+       "high": 181.0,
+       "units": "USD millions"
+      },
       {
        "metric": "adjusted_ffo_per_share",
        "label": "Adj. FFO per share",
@@ -21725,82 +22077,97 @@
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604523000057/cldt-20230630.htm",
-     "source": "10-Q, filed Aug 2, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 2, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604523000066/cldt-20230930.htm",
-     "source": "10-Q, filed Nov 2, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 2, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604525000011/cldt-20241231.htm",
-     "source": "10-K, filed Feb 26, 2025",
-     "quarter": "2023Q4"
+     "source": "SEC XBRL, filed Feb 26, 2025",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604524000035/cldt-20240331.htm",
-     "source": "10-Q, filed May 6, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 6, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604524000045/cldt-20240630.htm",
-     "source": "10-Q, filed Aug 2, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 2, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604524000049/cldt-20240930.htm",
-     "source": "10-Q, filed Nov 7, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 7, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.07,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000147604525000011/cldt-20241231.htm",
-     "source": "10-K, filed Feb 26, 2025",
-     "quarter": "2024Q4"
+     "source": "SEC XBRL, filed Feb 26, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774925014749/cldt20250331_10q.htm",
-     "source": "10-Q, filed May 6, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 6, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774925025025/cldt20250630_10q.htm",
-     "source": "10-Q, filed Aug 6, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 6, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774925033297/cldt20250930_10q.htm",
-     "source": "10-Q, filed Nov 5, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 5, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.09,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774926005449/ex_872075.htm",
-     "source": "8-K exhibit 99.1, filed Feb 25, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 25, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774926015470/cldt20260203d_10q.htm",
-     "source": "10-Q, filed May 7, 2026",
-     "quarter": "2026Q1"
+     "source": "SEC XBRL, filed May 7, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.1,
      "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774926025638/cldt20260630c_10q.htm",
-     "source": "10-Q, filed Aug 4, 2026",
-     "quarter": "2026Q2"
+     "source": "SEC XBRL, filed Aug 4, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": true,
+   "dividendNote": null,
    "transactions": [],
    "guidance": [
     {
@@ -23428,6 +23795,12 @@
     }
    ],
    "dividends": [],
+   "txIncomplete": false,
+   "dividendNote": {
+    "text": "No common dividends declared in this period. The 10-K distribution policy: no common dividends until accumulated preferred dividends are paid.",
+    "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000067/aht-20251231.htm",
+    "source": "10-K, Distribution Policy"
+   },
    "transactions": [
     {
      "date": "2026-07-31",
@@ -24342,82 +24715,97 @@
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408523000087/bhr-20230630.htm",
-     "source": "10-Q, filed Aug 7, 2023",
-     "quarter": "2023Q2"
+     "source": "SEC XBRL, filed Aug 7, 2023",
+     "quarter": "2023Q2",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408523000103/bhr-20230930.htm",
-     "source": "10-Q, filed Nov 8, 2023",
-     "quarter": "2023Q3"
+     "source": "SEC XBRL, filed Nov 8, 2023",
+     "quarter": "2023Q3",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408524000010/bhr2023q4earningsrelease.htm",
-     "source": "8-K exhibit 99.1, filed Feb 29, 2024",
-     "quarter": "2023Q4"
+     "source": "8-K earnings release, filed Feb 29, 2024",
+     "quarter": "2023Q4",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408524000099/bhr-20240331.htm",
-     "source": "10-Q, filed May 9, 2024",
-     "quarter": "2024Q1"
+     "source": "SEC XBRL, filed May 9, 2024",
+     "quarter": "2024Q1",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408524000201/bhr-20240630.htm",
-     "source": "10-Q, filed Aug 8, 2024",
-     "quarter": "2024Q2"
+     "source": "SEC XBRL, filed Aug 8, 2024",
+     "quarter": "2024Q2",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408524000228/bhr-20240930.htm",
-     "source": "10-Q, filed Nov 12, 2024",
-     "quarter": "2024Q3"
+     "source": "SEC XBRL, filed Nov 12, 2024",
+     "quarter": "2024Q3",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408525000010/bhr2024q4earningsrelease.htm",
-     "source": "8-K exhibit 99.1, filed Feb 26, 2025",
-     "quarter": "2024Q4"
+     "source": "8-K earnings release, filed Feb 26, 2025",
+     "quarter": "2024Q4",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408525000051/bhr-20250331.htm",
-     "source": "10-Q, filed May 8, 2025",
-     "quarter": "2025Q1"
+     "source": "SEC XBRL, filed May 8, 2025",
+     "quarter": "2025Q1",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408525000092/bhr-20250630.htm",
-     "source": "10-Q, filed Aug 11, 2025",
-     "quarter": "2025Q2"
+     "source": "SEC XBRL, filed Aug 11, 2025",
+     "quarter": "2025Q2",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408525000130/bhr-20250930.htm",
-     "source": "10-Q, filed Nov 7, 2025",
-     "quarter": "2025Q3"
+     "source": "SEC XBRL, filed Nov 7, 2025",
+     "quarter": "2025Q3",
+     "special": false
     },
     {
      "value": 0.05,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000022/bhr2025q4earningsrelease.htm",
-     "source": "8-K exhibit 99.1, filed Feb 26, 2026",
-     "quarter": "2025Q4"
+     "source": "8-K earnings release, filed Feb 26, 2026",
+     "quarter": "2025Q4",
+     "special": false
     },
     {
      "value": 0.0,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000073/bhr2026q1earningsrelease.htm",
-     "source": "8-K exhibit 99.1, filed May 6, 2026",
-     "quarter": "2026Q1"
+     "source": "8-K earnings release, filed May 6, 2026",
+     "quarter": "2026Q1",
+     "special": false
     },
     {
      "value": 0.0,
      "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000123/bhr2026q2earningsrelease.htm",
-     "source": "8-K exhibit 99.1, filed Aug 5, 2026",
-     "quarter": "2026Q2"
+     "source": "8-K earnings release, filed Aug 5, 2026",
+     "quarter": "2026Q2",
+     "special": false
     }
    ],
+   "txIncomplete": false,
+   "dividendNote": null,
    "transactions": [
     {
      "date": "2026-10-22",

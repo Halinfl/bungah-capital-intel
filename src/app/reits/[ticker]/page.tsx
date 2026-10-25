@@ -90,7 +90,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
   const siteMarkets = r.markets.filter((m) => m.slug);
   const otherMarkets = r.markets.filter((m) => !m.slug);
   const hasCapital =
-    r.dividends.length > 0 || r.transactions.length > 0 || r.guidance.length > 0 || (r.debt?.items.length ?? 0) > 0 || r.buybacks.length > 0;
+    r.dividends.length > 0 || r.dividendNote != null || r.transactions.length > 0 || r.txIncomplete || r.guidance.length > 0 || (r.debt?.items.length ?? 0) > 0 || r.buybacks.length > 0;
   const txShown = 6;
   const latestGuidance = r.guidance.length ? r.guidance[r.guidance.length - 1] : null;
   const guidanceRows = latestGuidance ? r.guidance.filter((g) => g.period === latestGuidance.period) : [];
@@ -154,6 +154,12 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
           <Stat label="Hotels" c={r.latest.hotels} fmt={fmtInt} />
           <Stat label="Rooms" c={r.latest.rooms} fmt={fmtInt} />
         </div>
+        {!r.latest.hotels && r.latest.rooms ? (
+          <p className="text-[13px] text-slate-300">
+            The company states room counts but no hotel count, so no hotel count is shown. The portfolio below lists the
+            hotels named in its filings.
+          </p>
+        ) : null}
         <p className="text-[13px] text-slate-300">
           Tracking gap (captured rate vs reported ADR) appears after the first weekly capture,{" "}
           {fmtDate(REITS_FIRST_CAPTURE, { year: true })}.
@@ -360,15 +366,40 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
                   <span key={d.quarter} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm">
                     <span className="block text-xs text-slate-300">{fmtQuarter(d.quarter)}</span>
                     <CitedValue c={d} fmt={(v) => fmtMoney(v, v < 0.1 ? 3 : 2)} />
+                    {d.special ? <span className="ml-1.5 text-xs text-slate-300">incl. special</span> : null}
                   </span>
                 ))}
               </div>
+              {r.dividends.slice(-8).some((d) => d.special) ? (
+                <p className="text-[13px] text-slate-300">
+                  &ldquo;incl. special&rdquo;: the earnings release mentions a special or supplemental dividend for that quarter.
+                </p>
+              ) : null}
+            </div>
+          ) : r.dividendNote ? (
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Dividends</h3>
+              <p className="text-sm text-slate-300">
+                {r.dividendNote.text}{" "}
+                <a href={r.dividendNote.url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:underline">
+                  {r.dividendNote.source} ↗
+                </a>
+              </p>
             </div>
           ) : null}
 
-          {r.transactions.length ? (
+          {r.transactions.length || r.txIncomplete ? (
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Transactions</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">Recorded transactions</h3>
+              <p className="text-[13px] text-slate-300">
+                {r.transactions.length ? "" : "No transactions recorded yet. "}
+                {r.txIncomplete
+                  ? "This list is known to be incomplete for this REIT: deals disclosed only in other 8-K filings are not yet included."
+                  : "From transaction tables in 10-Q, 10-K and earnings-release filings; this list may be incomplete."}{" "}
+                <Link href="/reits/methodology#universe" className="underline decoration-white/30 underline-offset-4 hover:text-white">
+                  How this is built
+                </Link>
+              </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {r.transactions.slice(0, txShown).map((t, i) => (
                   <TxCard key={i} t={t} />
@@ -379,7 +410,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
                   <summary className="cursor-pointer text-xs text-slate-300 hover:text-slate-200">
                     +{r.transactions.length - txShown} earlier transactions
                   </summary>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {r.transactions.slice(txShown).map((t, i) => (
                       <TxCard key={i} t={t} />
                     ))}

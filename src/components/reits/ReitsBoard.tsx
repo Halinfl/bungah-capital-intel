@@ -124,6 +124,8 @@ export function ReitsBoard({ rows: all, firstCapture }: { rows: ReitSummary[]; f
         Tuesday; {capLabel.charAt(0).toLowerCase() + capLabel.slice(1)}.
         <span className="mx-1.5">·</span>
         Occupancy is reported only; it cannot be captured.
+        <span className="mx-1.5">·</span>
+        n/r: not reported by the company (RHP states rooms, not a hotel count).
       </p>
 
       {/* ---------- Desktop table ---------- */}
@@ -196,7 +198,11 @@ export function ReitsBoard({ rows: all, firstCapture }: { rows: ReitSummary[]; f
                 </td>
                 {COLS.map((c) => (
                   <td key={c.key} className="px-3 py-2.5 text-right text-[15px]">
-                    <CitedValue c={val(r, c.key)} fmt={c.fmt} stop />
+                    {c.key === "hotels" && !r.latest.hotels ? (
+                      <span className="text-slate-300" title="Not reported: the company states room counts only">n/r</span>
+                    ) : (
+                      <CitedValue c={val(r, c.key)} fmt={c.fmt} stop />
+                    )}
                   </td>
                 ))}
                 {i === 0 ? (
@@ -243,7 +249,7 @@ export function ReitsBoard({ rows: all, firstCapture }: { rows: ReitSummary[]; f
                 </span>
                 <span className="mt-0.5 block truncate text-[12px] tabular-nums text-slate-300">
                   ADR {r.latest.adr ? fmtMoney(r.latest.adr.value, 2) : "—"} · Occ {r.latest.occupancy ? fmtPct(r.latest.occupancy.value) : "—"} ·{" "}
-                  {r.latest.hotels ? fmtInt(r.latest.hotels.value) : "—"} hotels · {r.latest.rooms ? fmtInt(r.latest.rooms.value) : "—"} rooms
+                  {r.latest.hotels ? `${fmtInt(r.latest.hotels.value)} hotels` : "hotels n/r"} · {r.latest.rooms ? fmtInt(r.latest.rooms.value) : "—"} rooms
                 </span>
               </span>
               <Chevron />

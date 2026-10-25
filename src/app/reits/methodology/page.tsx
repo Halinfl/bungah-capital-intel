@@ -143,7 +143,7 @@ export default function ReitsMethodologyPage() {
               </li>
               <li>
                 <span className="font-medium text-white">Checks.</span> Every value passes format and range checks, and a
-                sample of values read from tables is checked by hand against the filing. Values that fail stay off the
+                sample of values read from tables is queued for a hand check against the filing. Values that fail stay off the
                 site until resolved.
               </li>
             </ul>
@@ -155,7 +155,16 @@ export default function ReitsMethodologyPage() {
               The universe is every hotel the 13 REITs own, built from the property lists in their filings, with the
               owning REIT and the dates it bought or sold each hotel, so captured rates are always attributed to the owner
               at the time.
-              {REITS_UNIVERSE.hotels != null ? ` It currently holds ${fmtInt(REITS_UNIVERSE.hotels)} hotels.` : ""}
+              {REITS_UNIVERSE.hotels != null
+                ? ` It currently holds ${fmtInt(REITS_UNIVERSE.hotels)} hotels and ${fmtInt(REITS_UNIVERSE.rooms)} rooms: the FY2025 10-K property schedules, rolled forward for later purchases and sales.`
+                : ""}
+            </p>
+            <p className={p}>
+              Transactions are recorded from the transaction tables in 10-Q, 10-K and earnings-release filings. Deals
+              disclosed only in other 8-K filings, and hotels handed back to lenders, are not yet included, so the
+              recorded list may be incomplete (it is known to be for HST, PK, SHO and CLDT) and a REIT&apos;s current
+              hotel list can differ slightly from the count in its latest quarterly report. Ryman Hospitality Properties
+              (RHP) states room counts but no hotel count, so its pages show rooms only.
             </p>
           </section>
 
