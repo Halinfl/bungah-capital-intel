@@ -311,6 +311,13 @@ export default function MethodologyPage() {
                 Week-over-week changes start with the Oct 27 capture.
               </li>
             </ul>
+            <p className={p}>
+              See also the{" "}
+              <Link href="/reits/methodology" className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">
+                Hotel REITs methodology
+              </Link>
+              : its weekly hotel captures, starting Oct 27, 2026, follow these same rules.
+            </p>
           </section>
         </article>
       </div>
