@@ -7,6 +7,7 @@ import { MobileMenu } from "./MobileMenu";
 /** Primary nav. Pricing lives on the homepage and in the footer; Trust lives in the footer. */
 const links = [
   { href: "/markets", label: "Markets" },
+  { href: "/reits", label: "REITs" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
   { href: "/sound-money-lodging", label: "Sound Asset" },
