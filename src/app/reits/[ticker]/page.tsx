@@ -118,19 +118,10 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
           <Link href="/reits" className="text-xs text-slate-300 hover:text-emerald-300">
             ← REITs
           </Link>
-          <div className="mt-2 flex flex-wrap items-baseline gap-3">
-            <h1 className="t-h1">
-              {r.name} <span className="text-slate-300">({r.ticker})</span>
-            </h1>
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-emerald-200">
-              Reported data
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-slate-300">
-            <span>{peerLabel(r.ticker)}</span>
-            <span className="mx-2">·</span>
-            REIT dashboard
-          </p>
+          <h1 className="t-h1 mt-2">
+            {r.name} <span className="text-slate-300">({r.ticker})</span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-300">{peerLabel(r.ticker)}</p>
           {summaryBits.length ? (
             <p className="mt-4 max-w-3xl text-slate-300">
               {summaryBits.join(", ")}
