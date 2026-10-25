@@ -93,8 +93,11 @@ function Snapshot({ items }: { items: Snap[] }) {
             className={`rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent p-3 sm:p-4 ${it.mobileHidden ? "hidden sm:block" : ""}`}
           >
             <div className="text-xs uppercase tracking-wider text-slate-300">{it.label}</div>
-            <div className="mt-1 text-xl font-semibold tracking-tight text-white tabular-nums sm:text-2xl">{it.fmt(it.c.value)}</div>
-            {it.mobileHint ? <div className="mt-1 text-xs text-slate-300 sm:hidden">{it.mobileHint}</div> : null}
+            <div className="mt-1 text-xl font-semibold tracking-tight text-white tabular-nums sm:text-2xl">
+              {it.fmt(it.c.value)}
+              {/* Inline so the mobile tiles keep one height. */}
+              {it.mobileHint ? <span className="ml-1.5 text-xs font-normal tracking-normal text-slate-300 sm:hidden">{it.mobileHint}</span> : null}
+            </div>
             {/* On mobile every source sits under the grid, so the 2x2 tiles stay the same height. */}
             {own(it) ? (
               <div className="mt-3 hidden sm:block">
