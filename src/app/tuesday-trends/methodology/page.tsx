@@ -11,6 +11,7 @@ import {
   fmtStayRange,
   stayYear,
   ttHotelLists,
+  ttHotelOwners,
   ttNotOnGoogle,
   ttStays,
 } from "@/lib/tuesday-trends";
@@ -44,6 +45,7 @@ export default function MethodologyPage() {
   const stays = ttStays();
   const lists = ttHotelLists();
   const notOnGoogle = ttNotOnGoogle();
+  const owners = ttHotelOwners();
   const range = (h: string, s: "weekday" | "weekend") => {
     const c = stays.find((x) => x.horizon === h && x.stay === s)!;
     return { text: fmtStayRange(c.checkIn, c.checkOut), year: stayYear(c.checkIn), nights: c.nights };
@@ -183,6 +185,10 @@ export default function MethodologyPage() {
               recorded in the change log below.
             </p>
             <p className="text-sm text-slate-300">List {TT_LIST_LABEL}</p>
+            <p className="text-[13px] text-slate-300">
+              A &ldquo;REIT: ticker&rdquo; tag marks a listed hotel owned by one of the 13 hotel REITs, per its SEC
+              property schedule. It does not change the lists or the medians.
+            </p>
             <div className="divide-y divide-white/[0.08] rounded-xl border border-white/10 bg-white/[0.03]">
               {lists.map((l) => (
                 <details key={l.key} className="group">
@@ -208,6 +214,14 @@ export default function MethodologyPage() {
                     {l.hotels.map((h, i) => (
                       <li key={i} className="break-inside-avoid">
                         {h}
+                        {owners[l.key]?.[h] ? (
+                          <Link
+                            href={`/reits/${owners[l.key][h].toLowerCase()}`}
+                            className="ml-1.5 inline-block rounded border border-white/15 px-1 py-px align-middle text-[12px] leading-tight text-slate-200 hover:border-white/40 hover:text-white"
+                          >
+                            REIT: {owners[l.key][h]}
+                          </Link>
+                        ) : null}
                       </li>
                     ))}
                   </ol>

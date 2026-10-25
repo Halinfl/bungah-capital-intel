@@ -25,6 +25,7 @@ import sanFrancisco from "@/data/tuesday-trends/lists/v2-2026-10-20/san-francisc
 import seattle from "@/data/tuesday-trends/lists/v2-2026-10-20/seattle.json";
 import washingtonDc from "@/data/tuesday-trends/lists/v2-2026-10-20/washington-dc.json";
 
+import ttOwners from "@/data/reits/tt-owner-badges.json";
 import type { Horizon, Stay, TTCell, TTMarket } from "@/lib/tuesday-trends-shared";
 export * from "@/lib/tuesday-trends-shared";
 
@@ -111,3 +112,19 @@ export function ttHotelLists(): { key: string; name: string; hotels: string[] }[
   })).sort((a, b) => a.name.localeCompare(b.name));
 }
 
+
+/**
+ * REIT owner of a listed hotel, where the hotel's name and city match a REIT property schedule
+ * in SEC filings with high confidence. Display only: lists, medians and coverage are unchanged.
+ */
+const OWNERS = ttOwners as unknown as Record<string, Record<string, { ticker: string }>>;
+
+export function ttHotelOwners(): Record<string, Record<string, string>> {
+  const out: Record<string, Record<string, string>> = {};
+  for (const l of LISTS) {
+    const m = OWNERS[l.market] ?? {};
+    out[l.market] = {};
+    for (const h of l.hotels) if (m[h.hotel_id]) out[l.market][h.name] = m[h.hotel_id].ticker;
+  }
+  return out;
+}

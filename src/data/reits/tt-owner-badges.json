@@ -1,0 +1,605 @@
+{
+ "atlanta": {
+  "ChcI4O2qjpWS1abMARoKL20vMHB5MGNzcBAB": {
+   "ticker": "HST",
+   "hotel": "Grand Hyatt Atlanta in Buckhead",
+   "matched": "Grand Hyatt Atlanta in Buckhead",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIgOH2kcSE8vOdARoKL20vMDFfMjF5bBAB": {
+   "ticker": "HST",
+   "hotel": "JW Marriott Atlanta Buckhead",
+   "matched": "JW Marriott Atlanta Buckhead",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgI75fcp7m8qI2CARoLL2cvMXZuOXB5NnkQAQ": {
+   "ticker": "RLJ",
+   "hotel": "Embassy Suites by Hilton Atlanta Buckhead",
+   "matched": "Embassy Suites Atlanta - Buckhead",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  },
+  "ChYIz_76m9_viPM_GgovbS8wNDdxaHk4EAE": {
+   "ticker": "XHR",
+   "hotel": "Waldorf Astoria Atlanta Buckhead",
+   "matched": "Waldorf Astoria Atlanta Buckhead",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChkI39n9qNqOmc3YARoML2cvMTI2MHozbHFrEAE": {
+   "ticker": "RLJ",
+   "hotel": "Hyatt Centric Midtown Atlanta",
+   "matched": "Hyatt Centric Midtown Atlanta",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  }
+ },
+ "boston": {
+  "ChgI8YGU7tjQk8rFARoLL2cvMXRkenhyM18QAQ": {
+   "ticker": "DRH",
+   "hotel": "The Westin Boston Seaport District",
+   "matched": "Westin Boston Seaport District",
+   "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000013/drh-20251231.htm"
+  },
+  "ChYIw4rs68fO7rR5GgovbS8wa2NncDNyEAE": {
+   "ticker": "PEB",
+   "hotel": "The Liberty, a Luxury Collection Hotel, Boston",
+   "matched": "The Liberty, a Luxury Collection Hotel, Boston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcImcqWlNmvn8x9GgsvZy8xdGRxdmsxaBAB": {
+   "ticker": "PEB",
+   "hotel": "The Westin Copley Place, Boston",
+   "matched": "The Westin Copley Place, Boston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcImp3Pj7eE_8ecARoKL20vMGsyX3gzbBAB": {
+   "ticker": "PK",
+   "hotel": "Hyatt Regency Boston",
+   "matched": "Hyatt Regency Boston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChcIraC8-Jv8xeY_GgsvZy8xdGRrYzIwaxAB": {
+   "ticker": "PK",
+   "hotel": "Hilton Boston Logan Airport",
+   "matched": "Hilton Boston Logan Airport",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChYI--WR47ny_bsaGgovbS8wd2Znczg1EAE": {
+   "ticker": "HST",
+   "hotel": "Boston Marriott Copley Place",
+   "matched": "Boston Marriott Copley Place",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcI7fn3k4Hpzv0tGgsvZy8xdGZidHd4NhAB": {
+   "ticker": "SHO",
+   "hotel": "Boston Marriott Long Wharf",
+   "matched": "Marriott Boston Long Wharf",
+   "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926021440/sho-20251231x10k.htm"
+  },
+  "ChgI7Lu82-XY3ZQdGgwvZy8xMTNnYmZ2MTIQAQ": {
+   "ticker": "DRH",
+   "hotel": "The Dagny Boston",
+   "matched": "The Dagny Boston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000013/drh-20251231.htm"
+  },
+  "ChgI3tS_xKuT8dgfGgwvZy8xMWgwc2IyOWMQAQ": {
+   "ticker": "PEB",
+   "hotel": "Revere Hotel Boston Common",
+   "matched": "Revere Hotel Boston Common",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChgI0sv64Prj5aWKARoLL2cvMXRmNzF5dDIQAQ": {
+   "ticker": "PEB",
+   "hotel": "Hyatt Regency Boston Harbor",
+   "matched": "Hyatt Regency Boston Harbor",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChgI-s6J_e3p3KwWGgwvZy8xMjYxODBwdjgQAQ": {
+   "ticker": "RLJ",
+   "hotel": "Wyndham Boston Beacon Hill",
+   "matched": "Wyndham Boston Beacon Hill",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  },
+  "ChcIjuSE7s6oh6O7ARoKL20vMGpreno4ZBAB": {
+   "ticker": "PEB",
+   "hotel": "W Boston",
+   "matched": "W Boston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  }
+ },
+ "chicago": {
+  "ChUIoben2Mv6-CYaCi9tLzA3czVwbjQQAQ": {
+   "ticker": "PK",
+   "hotel": "Hilton Chicago",
+   "matched": "Hilton Chicago",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChcIwuHmsLmMg-WdARoKL20vMGdsdDRieBAB": {
+   "ticker": "BHR",
+   "hotel": "Sofitel Chicago Magnificent Mile",
+   "matched": "Sofitel Chicago Magnificent Mile",
+   "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000038/bhr-20251231.htm"
+  },
+  "ChgIo56j1Ke577HQARoLL2cvMXRkajRzeWMQAQ": {
+   "ticker": "DRH",
+   "hotel": "Chicago Marriott Downtown Magnificent Mile",
+   "matched": "Chicago Marriott Downtown Magnificent Mile",
+   "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000013/drh-20251231.htm"
+  },
+  "ChgI6I6o4qyToqPhARoLL2cvMXY5NDBuNW4QAQ": {
+   "ticker": "HST",
+   "hotel": "Embassy Suites by Hilton Chicago Downtown Magnificent Mile",
+   "matched": "Embassy Suites by Hilton Chicago Downtown Magnificent Mile",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgIg5GK7ZO-ieqeARoLL2cvMXRmNmg2cGgQAQ": {
+   "ticker": "PK",
+   "hotel": "The Wade",
+   "matched": "The Wade",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChgIsq61ssvayL8nGgwvZy8xcHR3MDlwc3gQAQ": {
+   "ticker": "PEB",
+   "hotel": "Hotel Chicago Downtown, Autograph Collection",
+   "matched": "Hotel Chicago Downtown, Autograph Collection",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChgIquaK5NqVv9IyGgwvZy8xMXhrMzJzeXgQAQ": {
+   "ticker": "HST",
+   "hotel": "The Westin Chicago River North",
+   "matched": "The Westin Chicago River North",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  }
+ },
+ "dallas": {
+  "ChYIi42NlqfLpMkTGgovbS8wbXZuc2RiEAE": {
+   "ticker": "XHR",
+   "hotel": "Dallas Marriott Downtown",
+   "matched": "Marriott Dallas Downtown",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  }
+ },
+ "honolulu": {
+  "ChYIsITxqa-Mk6mxARoJL20vMDNjbXNnEAE": {
+   "ticker": "PK",
+   "hotel": "Hilton Hawaiian Village Waikiki Beach Resort",
+   "matched": "Hilton Hawaiian Village Waikiki Beach Resort",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChYI3vP2ybTU64giGgovbS8wZnExZDVqEAE": {
+   "ticker": "HST",
+   "hotel": "Hyatt Place Waikiki Beach",
+   "matched": "Hyatt Place Waikiki Beach",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcI36jMpt7VpoRPGgsvZy8xdGRkc2RubRAB": {
+   "ticker": "RLJ",
+   "hotel": "Courtyard by Marriott Waikiki Beach",
+   "matched": "Courtyard Waikiki Beach",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  }
+ },
+ "houston": {
+  "ChYI1tK8zNKN94tTGgovbS8wbXZuc2d0EAE": {
+   "ticker": "HST",
+   "hotel": "Houston Airport Marriott at George Bush Intercontinental",
+   "matched": "Houston Airport Marriott at George Bush Intercontinental",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIyb6l4_OW49uMARoKL20vMHdmazRwaxAB": {
+   "ticker": "XHR",
+   "hotel": "The Westin Galleria Houston",
+   "matched": "Westin Galleria Houston",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChcI_p6uqbnFtMcvGgsvZy8xdHJwbGw5ZxAB": {
+   "ticker": "HST",
+   "hotel": "Houston Marriott Medical Center/Museum District",
+   "matched": "Houston Marriott Medical Center/Museum District",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChYI276b6Kb3xppGGgovbS8wbXZuc2dkEAE": {
+   "ticker": "HST",
+   "hotel": "JW Marriott Houston by The Galleria",
+   "matched": "JW Marriott Houston by The Galleria",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChoI2IbS5N3xtu-IARoNL2cvMTFzZ3Zqbms3bRAB": {
+   "ticker": "RLJ",
+   "hotel": "DoubleTree by Hilton Houston Medical Center Hotel & Suites",
+   "matched": "DoubleTree by Hilton Houston Medical Center Hotel & Suites",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  },
+  "ChgI3N6uwZT_sMiqARoLL2cvMXRkZ2ttX3gQAQ": {
+   "ticker": "XHR",
+   "hotel": "The Westin Oaks Houston at the Galleria",
+   "matched": "Westin Oaks Houston at the Galleria",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChkIhJ_7lJWwyuQSGg0vZy8xMXBjbTBrenZ4EAE": {
+   "ticker": "HST",
+   "hotel": "The Laura Hotel, Houston Downtown, Autograph Collection",
+   "matched": "The Laura Hotel, Houston Downtown, Autograph Collection",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIyvzH2rCvyc97GgsvZy8xdGhwOGNjMBAB": {
+   "ticker": "RLJ",
+   "hotel": "Courtyard by Marriott Houston Downtown/Convention Center",
+   "matched": "Courtyard Houston Downtown Convention Center",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  }
+ },
+ "las-vegas": {},
+ "los-angeles": {
+  "ChgIlIes3NHJ644-GgwvZy8xMTl3bXNxN3MQAQ": {
+   "ticker": "HST",
+   "hotel": "The Ritz-Carlton, Marina del Rey",
+   "matched": "The Ritz-Carlton, Marina del Rey",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChYI5_yUvP223-5GGgovbS8wbXg1cHNtEAE": {
+   "ticker": "HST",
+   "hotel": "Marina del Rey Marriott",
+   "matched": "Marina del Rey Marriott",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgIjKHuicyF9JBeGgwvZy8xaGMycGNmNXEQAQ": {
+   "ticker": "PEB",
+   "hotel": "Hyatt Centric Delfina Santa Monica",
+   "matched": "Hyatt Centric Delfina Santa Monica",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChYIkNHgis7Yw-ZDGgovbS8wbGg1cGN5EAE": {
+   "ticker": "PEB",
+   "hotel": "W Los Angeles - West Beverly Hills",
+   "matched": "W Los Angeles - West Beverly Hills",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  }
+ },
+ "miami": {
+  "ChoI4Nvv56-L5OPzARoNL2cvMTFiN2Z3NnI4ZxAB": {
+   "ticker": "HST",
+   "hotel": "1 Hotel South Beach",
+   "matched": "1 Hotel South Beach",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgIjJiO7vzcxtAHGgwvZy8xaGMwcl9uY2cQAQ": {
+   "ticker": "HST",
+   "hotel": "Miami Marriott Biscayne Bay",
+   "matched": "Miami Marriott Biscayne Bay",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChkI_Lf-47GXoLoHGg0vZy8xMWI1d201MzNtEAE": {
+   "ticker": "SHO",
+   "hotel": "Andaz Miami Beach Resort & Spa",
+   "matched": "Andaz Miami Beach",
+   "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926021440/sho-20251231x10k.htm"
+  },
+  "ChkI3JGDv7O124j3ARoML2cvMTF5azBwNl8xEAE": {
+   "ticker": "PK",
+   "hotel": "Royal Palm South Beach Miami, a Tribute Portfolio Resort",
+   "matched": "Royal Palm South Beach Miami, a Tribute Portfolio Resort",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  }
+ },
+ "nashville": {
+  "ChkIu6-B1eiP1OQ6Gg0vZy8xMWI2bnJ6MzdnEAE": {
+   "ticker": "RHP",
+   "hotel": "Gaylord Opryland Resort & Convention Center",
+   "matched": "Gaylord Opryland",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926019035/rhp-20251231x10k.htm"
+  },
+  "ChoIus75rPO3u5i2ARoNL2cvMTFwcXMwZG1tcxAB": {
+   "ticker": "XHR",
+   "hotel": "W Nashville",
+   "matched": "W Nashville",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChoI3YbZzsujsIHuARoNL2cvMTFzMXd6Z2NwahAB": {
+   "ticker": "HST",
+   "hotel": "Embassy Suites by Hilton Nashville Downtown",
+   "matched": "Embassy Suites by Hilton Nashville Downtown",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  }
+ },
+ "new-york": {
+  "ChUIksaK9_ij5_kYGgkvbS8wNjJ3YzIQAQ": {
+   "ticker": "HST",
+   "hotel": "New York Marriott Marquis",
+   "matched": "New York Marriott Marquis",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChYIgPn8mcvjjZoqGgovbS8wYnkxZjdfEAE": {
+   "ticker": "PK",
+   "hotel": "New York Hilton Midtown",
+   "matched": "New York Hilton Midtown",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChcIj8_wi8mwiqm3ARoKL20vMHdmaDIxXxAB": {
+   "ticker": "HST",
+   "hotel": "New York Marriott Downtown",
+   "matched": "New York Marriott Downtown",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  }
+ },
+ "orlando": {
+  "ChYIr5yl28GzhqXBARoJL20vMDZwbGN0EAE": {
+   "ticker": "RHP",
+   "hotel": "Gaylord Palms Resort & Convention Center",
+   "matched": "Gaylord Palms",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926019035/rhp-20251231x10k.htm"
+  },
+  "ChYI2tHS27Twx9ZiGgovbS8wMjZiNzZ2EAE": {
+   "ticker": "HST",
+   "hotel": "Orlando World Center Marriott",
+   "matched": "Orlando World Center Marriott",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChYIq-O-7_nUktbAARoJL20vMGJoaDM3EAE": {
+   "ticker": "PK",
+   "hotel": "Hilton Orlando",
+   "matched": "Hilton Orlando",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChgI6sSzwJ-0lM9JGgwvZy8xMTNmdDB4cHcQAQ": {
+   "ticker": "RHP",
+   "hotel": "The Ritz-Carlton Orlando, Grande Lakes",
+   "matched": "The Ritz-Carlton Orlando, Grande Lakes",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_ex99-1.htm"
+  },
+  "ChcIiOG8lMj6x6iDARoKL20vMG14bjJkORAB": {
+   "ticker": "RHP",
+   "hotel": "JW Marriott Orlando, Grande Lakes",
+   "matched": "JW Marriott Orlando Grande Lakes",
+   "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_ex99-1.htm"
+  },
+  "ChgI38a_nqDKwIpMGgwvZy8xaGYwMTBuMnAQAQ": {
+   "ticker": "XHR",
+   "hotel": "Hyatt Regency Grand Cypress Resort",
+   "matched": "Hyatt Regency Grand Cypress",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChcI9c-O9I2dodv7ARoKL20vMGJieGpncBAB": {
+   "ticker": "PK",
+   "hotel": "Hilton Orlando Lake Buena Vista - Disney Springs Area",
+   "matched": "Hilton Orlando Lake Buena Vista",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChgIq-bVltXvzoyCARoLL2cvMXhmc3BqX3gQAQ": {
+   "ticker": "PK",
+   "hotel": "Waldorf Astoria Orlando - An Official Walt Disney World Hotel",
+   "matched": "Waldorf Astoria Orlando",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  }
+ },
+ "phoenix": {
+  "ChkI57qoyvGZ6N1uGg0vZy8xMWMzeDhkdHdnEAE": {
+   "ticker": "HST",
+   "hotel": "The Phoenician, a Luxury Collection Resort, Scottsdale",
+   "matched": "The Phoenician, A Luxury Collection Resort, Scottsdale",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChkItqy68PG6scX6ARoML2cvMTI2MXExanhyEAE": {
+   "ticker": "HST",
+   "hotel": "The Westin Kierland Resort & Spa",
+   "matched": "The Westin Kierland Resort & Spa",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgIp4Whw77E_6DIARoLL2cvMXRkZjF0eTMQAQ": {
+   "ticker": "XHR",
+   "hotel": "Grand Hyatt Scottsdale Resort",
+   "matched": "Grand Hyatt Scottsdale Resort",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChkImbT1j-eBwbDXARoML2cvMTF4cl84cHRzEAE": {
+   "ticker": "XHR",
+   "hotel": "Royal Palms Resort and Spa -The Unbound Collection by Hyatt",
+   "matched": "Royal Palms Resort & Spa, The Unbound Collection by Hyatt",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  },
+  "ChkI94CawNnk6cuIARoML2cvMTEzaF96ZzZkEAE": {
+   "ticker": "DRH",
+   "hotel": "Kimpton Hotel Palomar Phoenix",
+   "matched": "Kimpton Hotel Palomar Phoenix",
+   "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000013/drh-20251231.htm"
+  },
+  "ChcI4q700MffootpGgsvZy8xdGtjNzQ0YxAB": {
+   "ticker": "RLJ",
+   "hotel": "Embassy Suites by Hilton Phoenix Biltmore",
+   "matched": "Embassy Suites Phoenix - Biltmore",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  }
+ },
+ "san-diego": {
+  "ChYIn_mgksiWqpwWGgovbS8wNGdrMG44EAE": {
+   "ticker": "HST",
+   "hotel": "Manchester Grand Hyatt San Diego",
+   "matched": "Manchester Grand Hyatt San Diego",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcI17-Ctf7t8rTWARoKL20vMDQ2NXdfMhAB": {
+   "ticker": "SHO",
+   "hotel": "Hilton San Diego Bayfront",
+   "matched": "Hilton San Diego Bayfront",
+   "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926021440/sho-20251231x10k.htm"
+  },
+  "ChYIpoPFkbfs2LxoGgovbS8wNXp0ZHljEAE": {
+   "ticker": "HST",
+   "hotel": "Marriott Marquis San Diego Marina",
+   "matched": "Marriott Marquis San Diego Marina",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChkI_Nmcs93Jk4DDARoML2cvMTI2NDdqeV81EAE": {
+   "ticker": "RLJ",
+   "hotel": "Wyndham San Diego Bayside",
+   "matched": "Wyndham San Diego Bayside",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  },
+  "ChgI3uyL4cym4ckDGgwvZy8xMmhtMWN0ODcQAQ": {
+   "ticker": "PEB",
+   "hotel": "Paradise Point Resort & Spa",
+   "matched": "Paradise Point Resort & Spa",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcIntvJyde9j9VHGgsvZy8xdGhxaDFseRAB": {
+   "ticker": "PK",
+   "hotel": "Hyatt Regency Mission Bay Spa and Marina",
+   "matched": "Hyatt Regency Mission Bay Spa and Marina",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChcI4cral46g7fQtGgsvZy8xdHNfNnh4dhAB": {
+   "ticker": "PEB",
+   "hotel": "San Diego Mission Bay Resort",
+   "matched": "San Diego Mission Bay Resort",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChgIkIG07-6K1r_yARoLL2cvMXZscXFoZDkQAQ": {
+   "ticker": "PEB",
+   "hotel": "Embassy Suites by Hilton San Diego Bay Downtown",
+   "matched": "Embassy Suites San Diego Bay - Downtown",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcI-r62pIjHz7DWARoKL20vMG14bjJmNBAB": {
+   "ticker": "HST",
+   "hotel": "Coronado Island Marriott Resort & Spa",
+   "matched": "Coronado Island Marriott Resort & Spa",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChgI4-GGyenuq-rYARoLL2cvMXRkaGY4cm4QAQ": {
+   "ticker": "DRH",
+   "hotel": "The Westin San Diego Bayview",
+   "matched": "Westin San Diego Bayview",
+   "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000013/drh-20251231.htm"
+  },
+  "ChgIuZHf_eG-zan_ARoLL2cvMXRjX2xmOXMQAQ": {
+   "ticker": "PEB",
+   "hotel": "The Westin San Diego Gaslamp Quarter",
+   "matched": "The Westin San Diego Gaslamp Quarter",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcIt-7b3Ork4c54GgsvZy8xdGdndHRsZhAB": {
+   "ticker": "PEB",
+   "hotel": "Hilton San Diego Gaslamp Quarter",
+   "matched": "Hilton San Diego Gaslamp Quarter",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcIit_Y7b3wmNR8GgsvZy8xdGdzMTZyahAB": {
+   "ticker": "PEB",
+   "hotel": "Margaritaville Hotel San Diego Gaslamp Quarter",
+   "matched": "Margaritaville Hotel San Diego Gaslamp Quarter",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChcIjMy4kOjPhJBDGgsvZy8xdGpmYms1eBAB": {
+   "ticker": "XHR",
+   "hotel": "Andaz San Diego, by Hyatt",
+   "matched": "Andaz San Diego",
+   "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026011060/xhr-20251231.htm"
+  }
+ },
+ "san-francisco": {
+  "ChcI1azL38Xvs-HrARoKL20vMDNjOXMwMhAB": {
+   "ticker": "HST",
+   "hotel": "San Francisco Marriott Marquis",
+   "matched": "San Francisco Marriott Marquis",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIq7qC4oCKg7OEARoKL20vMGI2ZjY0YhAB": {
+   "ticker": "SHO",
+   "hotel": "Hyatt Regency San Francisco",
+   "matched": "Hyatt Regency San Francisco",
+   "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926021440/sho-20251231x10k.htm"
+  },
+  "ChcI1ZnGzt_g0PBmGgsvZy8xdHMzZnZqNxAB": {
+   "ticker": "PEB",
+   "hotel": "Argonaut Hotel",
+   "matched": "Argonaut Hotel",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChYIz5uGt4GevcgkGgovbS8wM21kczQ0EAE": {
+   "ticker": "HST",
+   "hotel": "Grand Hyatt San Francisco",
+   "matched": "Grand Hyatt San Francisco",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChYIhf3vkMW_jN8CGgovbS8wMmJkcjliEAE": {
+   "ticker": "RLJ",
+   "hotel": "San Francisco Marriott Union Square",
+   "matched": "San Francisco Marriott Union Square",
+   "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000007/rlj-20251231.htm"
+  },
+  "ChYI5qSO3qvqmuwPGgovbS8wZGRjNGZwEAE": {
+   "ticker": "PK",
+   "hotel": "JW Marriott San Francisco Union Square",
+   "matched": "JW Marriott San Francisco Union Square",
+   "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm"
+  },
+  "ChYIzZDYyeD886gWGgovbS8wNGZqYnI3EAE": {
+   "ticker": "HST",
+   "hotel": "San Francisco Marriott Fisherman's Wharf",
+   "matched": "San Francisco Marriott Fisherman's Wharf",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIyobNqPe5_YslGgsvZy8xdGQwdDMyXxAB": {
+   "ticker": "PEB",
+   "hotel": "Hotel Zelos San Francisco",
+   "matched": "Hotel Zelos San Francisco",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChoI3dXq_bO_gcXTARoNL2cvMTFieGZqeGhwcBAB": {
+   "ticker": "PEB",
+   "hotel": "Hotel Zeppelin San Francisco",
+   "matched": "Hotel Zeppelin San Francisco",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  },
+  "ChYIm7uzzMbD64tyGgovbS8wX2ZxaDMzEAE": {
+   "ticker": "HST",
+   "hotel": "Axiom Hotel",
+   "matched": "Axiom Hotel",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  }
+ },
+ "seattle": {
+  "ChYI0MuFwrSeqegsGgovbS8wM2gxY2diEAE": {
+   "ticker": "HST",
+   "hotel": "The Westin Seattle",
+   "matched": "The Westin Seattle",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIlPbjuviw_JBZGgsvZy8xdGRicWtfcRAB": {
+   "ticker": "HST",
+   "hotel": "W Seattle",
+   "matched": "W Seattle",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  }
+ },
+ "washington-dc": {
+  "ChcIgo6ywKe90tx5GgsvZy8xdGg1a2JxNhAB": {
+   "ticker": "HST",
+   "hotel": "JW Marriott Washington, DC",
+   "matched": "JW Marriott Washington, DC",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcIxqrU3829oPjuARoKL20vMDl2NG1tbRAB": {
+   "ticker": "HST",
+   "hotel": "Grand Hyatt Washington",
+   "matched": "Grand Hyatt Washington",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcI5-6qx920uKXlARoKL20vMDRmMWY5ehAB": {
+   "ticker": "BHR",
+   "hotel": "Capital Hilton",
+   "matched": "Capital Hilton",
+   "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000038/bhr-20251231.htm"
+  },
+  "ChgIitLu786I_r_pARoLL2cvMXZmcDkyc2oQAQ": {
+   "ticker": "HST",
+   "hotel": "Hyatt Regency Washington on Capitol Hill",
+   "matched": "Hyatt Regency Washington on Capitol Hill",
+   "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm"
+  },
+  "ChcI-JOui6-3s9aXARoKL20vMDQ2NDhuaxAB": {
+   "ticker": "PEB",
+   "hotel": "Kimpton Hotel Monaco Washington DC",
+   "matched": "Hotel Monaco Washington DC",
+   "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000015/peb-20251231.htm"
+  }
+ }
+}
