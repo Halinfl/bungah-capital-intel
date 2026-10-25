@@ -26,6 +26,8 @@ import {
 import type { Metadata } from "next";
 import { MarketRatesBlock } from "@/components/tuesday-trends/MarketRatesBlock";
 import { ttMarketBySiteSlug } from "@/lib/tuesday-trends";
+import { WhoOwnsHere } from "@/components/reits/WhoOwnsHere";
+import { marketOwners } from "@/lib/reits-market";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +88,7 @@ export default async function MarketDetailPage({
   const short = shortMarketLabel(market.name, market.slug);
   const hasRevpar = market.occupancy != null && market.adr != null;
   const ttRates = ttMarketBySiteSlug(market.slug);
+  const owners = marketOwners(market.slug);
 
   const renderSignal = (s: (typeof market.signals)[number], i: number, prefix = "sig") => {
     const links = parseSourceUrls(s.sourceUrls);
@@ -284,6 +287,8 @@ export default async function MarketDetailPage({
           </div>
         )}
       </section>
+
+      {owners ? <WhoOwnsHere data={owners} short={short} /> : null}
 
       {market.findings.length ? (
         <section className="space-y-4">
