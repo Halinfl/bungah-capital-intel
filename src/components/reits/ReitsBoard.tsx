@@ -66,10 +66,41 @@ function CapturedTag() {
 
 const val = (r: ReitSummary, k: Exclude<SortKey, "ticker">): Cited | null => r.latest[k];
 
-/** A REIT's hotel list, laid out like the Tuesday Trends hotel lists. */
-function HotelList({ r, hotels, showRates }: { r: ReitSummary; hotels: BoardHotel[]; showRates: boolean }) {
+const TOP = 10;
+
+/**
+ * A REIT's hotel list, largest first. Shows the top 10; desktop expands in place ("Show all N"), mobile
+ * links to the Portfolio section of the REIT page ("See all N hotels").
+ */
+function HotelList({
+  r,
+  hotels,
+  showRates,
+  mobile = false,
+}: {
+  r: ReitSummary;
+  hotels: BoardHotel[];
+  showRates: boolean;
+  mobile?: boolean;
+}) {
+  const [all, setAll] = useState(false);
+  const shown = all ? hotels : hotels.slice(0, TOP);
+  const where = (h: BoardHotel) =>
+    h.market && h.marketLabel ? (
+      <Link href={`/markets/${h.market}`} className="underline decoration-white/25 underline-offset-4 hover:text-white hover:decoration-white">
+        {h.marketLabel}
+      </Link>
+    ) : (
+      h.location
+    );
+  const pending = (h: BoardHotel) =>
+    h.pending ? (
+      <span className="ml-1.5 inline-block rounded border border-white/15 px-1 py-px align-middle text-[12px] leading-tight text-slate-200">
+        pending sale
+      </span>
+    ) : null;
   return (
-    <div className="space-y-2 px-4 pb-4 pt-1">
+    <div className={`space-y-2 pb-4 pt-1 ${mobile ? "px-3" : "px-4"}`}>
       <p className="text-[13px] text-slate-300">
         Current portfolio: {fmtInt(hotels.length)} {hotels.length === 1 ? "hotel" : "hotels"} named in its filings (FY2025 10-K
         property schedule, rolled forward), largest first.
@@ -81,35 +112,65 @@ function HotelList({ r, hotels, showRates }: { r: ReitSummary; hotels: BoardHote
           ? ` The filings give no per-hotel room count for ${hotels.filter((h) => h.rooms == null).length} of these.`
           : ""}
       </p>
-      <ol className="list-decimal columns-1 gap-8 pl-5 text-sm leading-relaxed text-slate-200 lg:columns-2">
-        {hotels.map((h, i) => (
-          <li key={i} className="break-inside-avoid">
-            <span className="flex items-baseline justify-between gap-3">
-              <span className="min-w-0">
-                <span className="text-white">{h.name}</span>
-                {h.pending ? (
-                  <span className="ml-1.5 inline-block rounded border border-white/15 px-1 py-px align-middle text-[12px] leading-tight text-slate-200">
-                    pending sale
+      {mobile ? (
+        <ol className="divide-y divide-white/[0.06]">
+          {shown.map((h, i) => {
+            const loc = where(h);
+            return (
+              <li key={i} className="py-1.5">
+                <span className="block text-sm text-white">
+                  {h.name}
+                  {pending(h)}
+                </span>
+                {loc || h.rooms != null || showRates ? (
+                  <span className="mt-0.5 block text-[12px] tabular-nums text-slate-300">
+                    {loc}
+                    {loc && h.rooms != null ? " · " : ""}
+                    {h.rooms != null ? `${fmtInt(h.rooms)} rooms` : ""}
+                    {showRates ? ` · ${h.rate != null ? fmtMoney(h.rate) : "no rate"}` : ""}
                   </span>
                 ) : null}
-                <span className="ml-1.5 text-[13px] text-slate-300">
-                  {h.market && h.marketLabel ? (
-                    <Link href={`/markets/${h.market}`} className="underline decoration-white/25 underline-offset-4 hover:text-white hover:decoration-white">
-                      {h.marketLabel}
-                    </Link>
-                  ) : (
-                    h.location ?? ""
-                  )}
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <ol className="max-w-3xl list-decimal pl-5 text-sm leading-relaxed text-slate-200">
+          {shown.map((h, i) => (
+            <li key={i}>
+              <span className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0">
+                  <span className="text-white">{h.name}</span>
+                  {pending(h)}
+                  <span className="ml-1.5 text-[13px] text-slate-300">{where(h)}</span>
+                </span>
+                <span className="flex shrink-0 items-baseline gap-3 text-[13px] tabular-nums text-slate-300">
+                  {h.rooms != null ? <span>{fmtInt(h.rooms)} rooms</span> : null}
+                  {showRates ? <span className="w-16 text-right text-white">{h.rate != null ? fmtMoney(h.rate) : "—"}</span> : null}
                 </span>
               </span>
-              <span className="flex shrink-0 items-baseline gap-3 text-[13px] tabular-nums text-slate-300">
-                {h.rooms != null ? <span>{fmtInt(h.rooms)} rooms</span> : null}
-                {showRates ? <span className="w-16 text-right text-white">{h.rate != null ? fmtMoney(h.rate) : "—"}</span> : null}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      )}
+      {mobile ? (
+        <Link
+          href={`/reits/${r.ticker.toLowerCase()}#portfolio`}
+          className="inline-block text-[13px] text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white"
+        >
+          See all {fmtInt(hotels.length)} hotels
+        </Link>
+      ) : hotels.length > TOP ? (
+        <button
+          type="button"
+          aria-expanded={all}
+          onClick={() => setAll((v) => !v)}
+          className="inline-flex items-center gap-1 text-[13px] text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white"
+        >
+          {all ? `Show top ${TOP}` : `Show all ${fmtInt(hotels.length)}`}
+          <DownChevron open={all} />
+        </button>
+      ) : null}
       {r.latest.hotels ? (
         <div className="flex flex-wrap items-center gap-2 text-[13px] text-slate-300">
           <span>Reported hotel count:</span>
@@ -425,7 +486,7 @@ export function ReitsBoard({
               </div>
               {isOpen ? (
                 <div id={`hotels-${r.ticker}`} className="border-t border-white/10">
-                  <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} />
+                  <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} mobile />
                 </div>
               ) : null}
             </li>

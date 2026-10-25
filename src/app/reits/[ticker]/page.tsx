@@ -209,7 +209,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
 
       {/* ---------- Portfolio ---------- */}
       {r.markets.length ? (
-        <section className="space-y-4">
+        <section id="portfolio" className="scroll-mt-24 space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Portfolio</h2>
             <span className="text-xs text-slate-300">
