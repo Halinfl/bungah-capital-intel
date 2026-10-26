@@ -75,6 +75,11 @@ export function ChatClient() {
       : "");
   const initialQuestionKey = `${marketSlug}\u0000${queryQuestion}`;
   const threadKeyRef = useRef<string | null>(null);
+  // One answer per question: each send gets a sequence number; a response is rendered only if
+  // it is still the latest request for the current thread. A reset aborts the request in
+  // flight, so a late reply can never replace or append to an answer already on screen.
+  const requestSeq = useRef(0);
+  const inFlight = useRef<AbortController | null>(null);
   const autoSubmittedKey = useRef<string | null>(null);
   const prompts = useMemo(() => capitalPrompts(marketSlug), [marketSlug]);
 
@@ -89,6 +94,9 @@ export function ChatClient() {
   useEffect(() => {
     if (threadKeyRef.current === initialQuestionKey) return;
     threadKeyRef.current = initialQuestionKey;
+    requestSeq.current += 1;
+    inFlight.current?.abort();
+    inFlight.current = null;
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
@@ -104,6 +112,11 @@ export function ChatClient() {
 
       setMessages((m) => [...m, { role: "user", content: q }]);
 
+      const seq = ++requestSeq.current;
+      inFlight.current?.abort();
+      const controller = new AbortController();
+      inFlight.current = controller;
+      let reply: Msg;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -112,25 +125,20 @@ export function ChatClient() {
             question: q,
             marketSlug: marketSlug || undefined,
           }),
+          signal: controller.signal,
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        setMessages((m) => [
-          ...m,
-          { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] },
-        ]);
+        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] };
       } catch (e) {
-        setMessages((m) => [
-          ...m,
-          {
-            role: "assistant",
-            content: e instanceof Error ? e.message : "Error",
-            citations: [],
-          },
-        ]);
-      } finally {
-        setBusy(false);
+        reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
       }
+      // Stale (reset or superseded) → drop it; the thread on screen keeps its single answer.
+      if (seq !== requestSeq.current) return;
+      inFlight.current = null;
+      // The final answer is appended once and never rewritten.
+      setMessages((m) => [...m, reply]);
+      setBusy(false);
     },
     [busy, marketSlug]
   );

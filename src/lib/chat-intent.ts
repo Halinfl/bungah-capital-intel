@@ -13,6 +13,10 @@ export const CHAT_INTENTS = [
   "tax_collections",
   "compare_markets",
   "general_thesis",
+  // Set by guards in chat-llm.ts (not by RULES below).
+  "advice_declined",
+  "uncovered_market",
+  "supply_ranking",
   "unknown",
 ] as const;
 

@@ -2,9 +2,18 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { answerChat } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
-import { scrubSeedCitations, scrubSeedLines } from "@/lib/format";
+import { scrubSeedCitations } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
 import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
+
+/**
+ * Preview deployments share the production database: they answer but never write threads
+ * or question logs. BUNGAH_CHAT_PERSIST=false turns writes off anywhere else too.
+ */
+function shouldPersist(): boolean {
+  if (process.env.VERCEL_ENV === "preview") return false;
+  return process.env.BUNGAH_CHAT_PERSIST?.trim().toLowerCase() !== "false";
+}
 
 function toModelUsed(mode: string | undefined): "llm" | "memo" {
   return mode === "llm" ? "llm" : "memo";
@@ -31,55 +40,58 @@ export async function POST(req: Request) {
         ? body.marketSlug.trim().toLowerCase()
         : null;
 
-    const raw = await answerChat(question, { marketSlug });
-    // Last-line guard: seed / illustrative wording never reaches a user, a stored thread, or the corpus.
-    // Internal team / agent labels never reach a user either (display-time guard; DB rows are clean).
-    const answer = { ...raw, content: scrubInternal(scrubSeedLines(raw.content)) };
+    // answerChat returns the one final answer: seed wording and internal labels are already
+    // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
+    const answer = await answerChat(question, { marketSlug });
     const modelUsed = toModelUsed(answer.mode);
     const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
     const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
 
-    // Product thread always stores full Q&A (including private workspace).
-    const thread = await prisma.chatThread.create({
-      data: {
-        title: question.slice(0, 80) || "Chat",
-        messages: {
-          create: [
-            { role: "user", content: question },
-            {
-              role: "assistant",
-              content: answer.content,
-              citations: JSON.stringify(citations),
-            },
-          ],
+    let threadId: string | null = null;
+    if (shouldPersist()) {
+      // Product thread always stores full Q&A (including private workspace).
+      const thread = await prisma.chatThread.create({
+        data: {
+          title: question.slice(0, 80) || "Chat",
+          messages: {
+            create: [
+              { role: "user", content: question },
+              {
+                role: "assistant",
+                content: answer.content,
+                citations: JSON.stringify(citations),
+              },
+            ],
+          },
         },
-      },
-    });
+      });
 
-    // Memory-loop log: public rows keep bodies for corpus; private rows omit
-    // answer/citation bodies so train export cannot leak them even if mis-filtered.
-    await prisma.chatQuestionLog.create({
-      data: {
-        question: isPrivate ? "[private]" : question,
-        marketSlug: answer.marketSlug ?? marketSlug,
-        intent: answer.intent ?? "unknown",
-        answerText: isPrivate ? null : answer.content,
-        answerSnippet: isPrivate ? null : snippet(answer.content),
-        citationsJson: isPrivate ? null : JSON.stringify(citations),
-        answeredWell: answer.answeredWell,
-        modelUsed,
-        trainEligible,
-        isPrivate,
-        userId: userId ?? null,
-        threadId: thread.id,
-      },
-    });
+      // Memory-loop log: public rows keep bodies for corpus; private rows omit
+      // answer/citation bodies so train export cannot leak them even if mis-filtered.
+      await prisma.chatQuestionLog.create({
+        data: {
+          question: isPrivate ? "[private]" : question,
+          marketSlug: answer.marketSlug ?? marketSlug,
+          intent: answer.intent ?? "unknown",
+          answerText: isPrivate ? null : answer.content,
+          answerSnippet: isPrivate ? null : snippet(answer.content),
+          citationsJson: isPrivate ? null : JSON.stringify(citations),
+          answeredWell: answer.answeredWell,
+          modelUsed,
+          trainEligible,
+          isPrivate,
+          userId: userId ?? null,
+          threadId: thread.id,
+        },
+      });
+      threadId = thread.id;
+    }
 
     return NextResponse.json({
       content: answer.content,
       citations,
       sources,
-      threadId: thread.id,
+      threadId,
       intent: answer.intent,
       marketSlug: answer.marketSlug ?? marketSlug,
       mode: answer.mode,

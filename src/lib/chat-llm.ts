@@ -20,14 +20,26 @@ import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import {
   answerFromGraph,
+  decisionSupportFooter,
+  formatMarketMemo,
+  formatSupplyRanking,
+  isCoveredMarketPhrase,
+  isSupplyRankingQuestion,
+  namedCoveredMarkets,
   retrieveGraphContext,
   serializeGraphPack,
   type ChatAnswer,
+  type GraphContext,
 } from "./chat";
+import { adviceDeclineLines, classifyAdviceRequest, type AdviceKind } from "./chat-advice";
+import { detectUncoveredPlaces, uncoveredMarketLines, withoutPlaces, type UncoveredPlace } from "./chat-coverage";
+import { scrubSeedLines } from "./format";
+import { scrubInternal } from "./public-text";
 import type { ChatIntent } from "./chat-intent";
 import {
   formatDigestFallbackMemo,
   retrieveAllowedCorpus,
+  type CorpusPack,
 } from "./chat-retrieve";
 import { radarChatAnswer } from "./radars-preview";
 
@@ -134,29 +146,153 @@ function answeredWellHeuristic(
   return (answer.citations?.length ?? 0) > 0;
 }
 
+type FinalAnswer = ChatAnswer & { answeredWell: boolean };
+
 /**
- * Primary chat entry: retrieve graph + digests → LLM only when explicitly enabled → otherwise deterministic graph/digest memos.
+ * The single place an answer becomes final: display guards (seed wording, internal labels)
+ * run once here, so the text returned, stored and rendered is the same text. Callers must not
+ * rewrite `content` afterwards (one answer per question, no post-render swap).
+ */
+function finalize(answer: ChatAnswer, answeredWell: boolean): FinalAnswer {
+  return {
+    ...answer,
+    content: scrubInternal(scrubSeedLines(answer.content)),
+    answeredWell,
+  };
+}
+
+/** Digests count as issuer-led only when the question names the issuer or asks about REITs / brands / earnings. */
+const ISSUER_THEME =
+  /\b(reits?|earnings|guidance|franchis(e|ee|or)|brands?|branded|fee platform|net unit growth|nug|buybacks?|capital return|owner[- ]operator)\b/i;
+
+function issuerDigests(question: string, corpus: CorpusPack): CorpusPack["digests"] {
+  if (ISSUER_THEME.test(question)) return corpus.digests;
+  return corpus.digests.filter((d) => d.score >= 5);
+}
+
+/** Uncovered places named in the question, unless a covered market or deep-link is also in play. */
+function uncoveredFor(
+  question: string,
+  ctx: GraphContext,
+  marketSlug: string | null | undefined
+): { places: UncoveredPlace[]; alsoCovered: boolean } {
+  const places = detectUncoveredPlaces(question, (phrase) => isCoveredMarketPhrase(phrase, ctx.markets));
+  if (!places.length) return { places, alsoCovered: false };
+  const alsoCovered =
+    Boolean(marketSlug) || namedCoveredMarkets(withoutPlaces(question, places), ctx.markets).length > 0;
+  return { places, alsoCovered };
+}
+
+/** Buy / sell / should-I-invest (or staff-cut) request: fixed decline, then the relevant cited facts. */
+function adviceAnswer(
+  kind: AdviceKind,
+  question: string,
+  ctx: GraphContext,
+  corpus: CorpusPack,
+  marketSlug: string | null | undefined
+): ChatAnswer {
+  const lines = [...adviceDeclineLines(kind), ""];
+  const citations: string[] = [];
+  const { places, alsoCovered } = uncoveredFor(question, ctx, marketSlug);
+  const market = ctx.matched && (!places.length || alsoCovered) ? ctx.matched : null;
+  if (places.length && !alsoCovered) lines.push(...uncoveredMarketLines(places, ctx.markets), "");
+  if (market) {
+    const memo = formatMarketMemo(market, ctx.intent === "unknown" ? "general_thesis" : ctx.intent);
+    lines.push(memo.content.replace(decisionSupportFooter(), "").trimEnd(), "");
+    citations.push(...memo.citations);
+  }
+  const digests = issuerDigests(question, corpus);
+  const digestMemo = formatDigestFallbackMemo(digests);
+  if (digestMemo) {
+    lines.push(digestMemo, "");
+    citations.push(...digests.map((d) => d.citePath));
+  }
+  if (!market && !digestMemo && !(places.length && !alsoCovered)) {
+    lines.push(
+      "Name a market or a REIT (for example, [Nashville](/markets/nashville) or [Host Hotels](/reits)) and Chat will show its cited facts. Or [browse the markets we cover](/markets)."
+    , "");
+  }
+  if (!digestMemo) lines.push(decisionSupportFooter());
+  return {
+    content: lines.join("\n").replace(/\n{3,}/g, "\n\n").trim(),
+    citations: [...new Set(citations)],
+    intent: "advice_declined",
+    marketSlug: market?.slug ?? marketSlug ?? null,
+    mode: "deterministic",
+  };
+}
+
+/**
+ * Primary chat entry. Order:
+ *   1. Advice guard (buy / sell / should-I-invest, staff cuts) — classified before anything else.
+ *   2. Radar "Ask Chat about this" detail.
+ *   3. Uncovered market (Boise, London…) — not covered yet, closest covered markets, no figures.
+ *   4. Supply-pipeline ranking across covered markets (cited score rows, or a plain "can't rank").
+ *   5. LLM only when explicitly enabled; otherwise deterministic graph / digest memos.
+ * Steps 1, 3 and 4 never call a model. Every path returns exactly one final answer.
  */
 export async function answerChat(
   question: string,
   opts?: { marketSlug?: string | null }
-): Promise<ChatAnswer & { answeredWell: boolean }> {
+): Promise<FinalAnswer> {
+  const advice = classifyAdviceRequest(question);
+
   // Radar cards' "Ask Chat about this": answer with the full verified radar detail.
-  const radar = radarChatAnswer(question);
+  const radar = advice ? null : radarChatAnswer(question);
   if (radar) {
-    return {
-      content: radar.content,
-      citations: radar.sources.map((s) => s.label),
-      sources: radar.sources,
-      marketSlug: null,
-      mode: "deterministic",
-      answeredWell: true,
-    };
+    return finalize(
+      {
+        content: radar.content,
+        citations: radar.sources.map((s) => s.label),
+        sources: radar.sources,
+        marketSlug: null,
+        mode: "deterministic",
+      },
+      true
+    );
   }
   const [ctx, corpus] = await Promise.all([
     retrieveGraphContext(question, opts?.marketSlug),
     retrieveAllowedCorpus(question),
   ]);
+
+  if (advice) {
+    return finalize(adviceAnswer(advice, question, ctx, corpus, opts?.marketSlug), true);
+  }
+
+  const { places, alsoCovered } = uncoveredFor(question, ctx, opts?.marketSlug);
+  if (places.length && !alsoCovered) {
+    return finalize(
+      {
+        content: [...uncoveredMarketLines(places, ctx.markets), "", decisionSupportFooter()].join("\n"),
+        citations: [],
+        sources: [],
+        intent: "uncovered_market",
+        marketSlug: null,
+        mode: "deterministic",
+      },
+      // A coverage gap, not a served answer: keep it visible in the question log.
+      false
+    );
+  }
+  // A covered market named alongside an uncovered one: one answer, coverage note first.
+  const coverageNote = places.length
+    ? uncoveredMarketLines(places, ctx.markets).filter((l) => !/Browse every market/.test(l))
+    : [];
+  const withNote = (a: FinalAnswer): FinalAnswer =>
+    coverageNote.length ? finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell) : a;
+
+  // "Compare Boise and Denver": only one side is covered, so answer that market alone.
+  if (coverageNote.length && ctx.intent === "compare_markets" && ctx.matched) {
+    const memo = formatMarketMemo(ctx.matched, "general_thesis");
+    return withNote(finalize({ ...memo, intent: "compare_markets" }, true));
+  }
+
+  if (!opts?.marketSlug && isSupplyRankingQuestion(question, ctx.matched)) {
+    const ranked = formatSupplyRanking(ctx.markets, question);
+    return withNote(finalize({ ...ranked, intent: "supply_ranking" }, ranked.citations.length > 0));
+  }
+
   const { pack, citations: packCitations } = serializeGraphPack(ctx);
   const allCitations = [
     ...new Set([...packCitations, ...corpus.citations]),
@@ -203,78 +339,64 @@ export async function answerChat(
           marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null,
           mode: "llm",
         };
-        return {
-          ...answer,
-          answeredWell: answeredWellHeuristic(
-            answer,
-            ctx.intent,
-            Boolean(ctx.matched),
-            hadCorpus
-          ),
-        };
+        return withNote(
+          finalize(answer, answeredWellHeuristic(answer, ctx.intent, Boolean(ctx.matched), hadCorpus))
+        );
       }
     } catch (err) {
       console.error("[chat-llm] generateText failed; falling back", err);
     }
   }
 
-  // Deterministic fallback: prefer digest headline memo when issuer-matched
-  const digestMemo = formatDigestFallbackMemo(corpus.digests);
+  // Deterministic memo. REIT digests only when the question names the issuer or asks about
+  // REITs / earnings — never as a soft pull onto market, supply or uncovered questions.
+  const digests = issuerDigests(question, corpus);
+  const digestMemo = formatDigestFallbackMemo(digests);
+  const digestCites = digests.map((d) => d.citePath);
   // National debt questions answer from cited graph rows, not REIT digest soft-pulls.
   const nationalDebtFromGraph =
     ctx.intent === "debt_overlay" && !corpus.digests.some((d) => d.score >= 5);
   if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
     const answer: ChatAnswer = {
       content: digestMemo,
-      citations: corpus.citations,
+      citations: digestCites,
       intent: ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
       mode: "deterministic",
     };
-    return {
-      ...answer,
-      answeredWell: answeredWellHeuristic(
-        answer,
-        ctx.intent,
-        false,
-        true
-      ),
-    };
+    return withNote(finalize(answer, answeredWellHeuristic(answer, ctx.intent, false, true)));
   }
 
   const fallback = await answerFromGraph(question, opts);
-  // Append digest citations when we also matched digests alongside a market memo
+  // A named issuer alongside a market: one memo with a REIT section, not a second answer.
   if (digestMemo && ctx.matched) {
     const merged: ChatAnswer = {
       ...fallback,
-      content: [fallback.content, "", "---", "", digestMemo].join("\n"),
-      citations: [...new Set([...fallback.citations, ...corpus.citations])],
+      content: [
+        fallback.content,
+        "",
+        "**Related REIT read (named in your question)**",
+        "",
+        digestMemo,
+      ].join("\n"),
+      citations: [...new Set([...fallback.citations, ...digestCites])],
       intent: fallback.intent ?? ctx.intent,
       marketSlug:
         fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
       mode: "deterministic",
     };
-    return {
-      ...merged,
-      answeredWell: answeredWellHeuristic(
-        merged,
-        ctx.intent,
-        Boolean(ctx.matched),
-        true
-      ),
-    };
+    return withNote(
+      finalize(merged, answeredWellHeuristic(merged, ctx.intent, Boolean(ctx.matched), true))
+    );
   }
 
-  return {
+  const answer: ChatAnswer = {
     ...fallback,
     intent: fallback.intent ?? ctx.intent,
     marketSlug: fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
     mode: "deterministic",
-    answeredWell: answeredWellHeuristic(
-      fallback,
-      ctx.intent,
-      Boolean(ctx.matched),
-      hadCorpus
-    ),
   };
+  return withNote(
+    finalize(answer, answeredWellHeuristic(fallback, ctx.intent, Boolean(ctx.matched), hadCorpus))
+  );
 }

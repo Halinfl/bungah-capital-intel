@@ -1029,3 +1029,159 @@ export async function sourcesForAnswer(
   }
   return out.slice(0, 60);
 }
+
+/* ------------------------------------------------------------------ */
+/* Coverage, ranking and composition helpers (deterministic answers). */
+/* ------------------------------------------------------------------ */
+
+/** Shared decision-support footer for answers composed outside this file. */
+export function decisionSupportFooter(): string {
+  return footer();
+}
+
+/** Tokens too generic to name a market on their own ("beach", "city", state names…). */
+const GENERIC_PLACE_TOKENS = new Set([
+  "beach", "city", "long", "grand", "canyon", "springs", "palm", "valley", "mountain", "research",
+  "triangle", "island", "lake", "park", "keys", "west", "north", "south", "east", "fort", "saint",
+  "new", "san", "santa", "metro", "bay", "area", "coast", "hills", "falls", "port", "harbor", "strip",
+  "disney", "ski", "wine", "country", "historic", "corridor", "smokies", "hard rock", "florida",
+  "colorado", "california", "texas", "hawaii", "nevada", "arizona", "carolina", "virginia",
+  "tennessee", "georgia", "ozarks", "oahu", "broward", "coachella", "orange county", "disneyland",
+]);
+
+function wordRe(token: string): RegExp {
+  return new RegExp(`(^|[^\\p{L}])${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=$|[^\\p{L}])`, "iu");
+}
+
+/** Covered markets named by a specific (non-generic) token, whole-word match. */
+export function namedCoveredMarkets<T extends { slug: string; name: string }>(question: string, markets: T[]): T[] {
+  return markets.filter((m) =>
+    marketSearchTokens(m)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 3 && !GENERIC_PLACE_TOKENS.has(t))
+      .some((t) => wordRe(t).test(question))
+  );
+}
+
+/** True when `phrase` is itself a covered-market search token (so it is not "uncovered"). */
+export function isCoveredMarketPhrase(phrase: string, markets: { slug: string; name: string }[]): boolean {
+  const p = phrase.toLowerCase().trim();
+  return markets.some((m) => marketSearchTokens(m).some((t) => t.trim() === p));
+}
+
+const RANK_CUE = /\b(heaviest|heavy|most|biggest|largest|highest|top|rank(ed|ing|s)?|lightest|least|lowest|smallest|fewest|thinnest|which (covered )?markets?|what markets?)\b/i;
+const LIGHT_CUE = /\b(lightest|least|lowest|smallest|fewest|thinnest)\b/i;
+const SUPPLY_CUE = /\b(supply|pipeline|new keys|new rooms|rooms under construction|under construction|construction pipeline)\b/i;
+
+/** "Which covered markets have the heaviest pipeline…"-style ranking question. */
+export function isSupplyRankingQuestion(question: string, matched: MarketRow | null): boolean {
+  if (!SUPPLY_CUE.test(question) || !RANK_CUE.test(question)) return false;
+  return !matched || /\bmarkets\b/i.test(question);
+}
+
+function publisherHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "source link";
+  }
+}
+
+const SCORE_TITLE = /supply-pressure score\s*(\d)\s*\/\s*5/i;
+
+/**
+ * Ranking of covered markets by their cited supply-pressure score (1–5). The score rows are
+ * built from each market's cited pipeline data; no ratio is computed by stitching publishers.
+ * If fewer than two markets carry a score, says plainly that the data can't support a ranking.
+ */
+export function formatSupplyRanking(markets: MarketRow[], question: string): ChatAnswer {
+  const light = LIGHT_CUE.test(question);
+  const rows = markets
+    .flatMap((m) => {
+      const s = m.signals.find((x) => SCORE_TITLE.test(x.title));
+      if (!s) return [];
+      const score = Number(SCORE_TITLE.exec(s.title)![1]);
+      const uc = /UC intensity:\s*([^|]+)/i.exec(s.body)?.[1]?.trim().replace(/\s*\(source:[^)]*\)\s*$/i, "") ?? null;
+      return [{ m, s, score, uc }];
+    })
+    .sort((a, b) => (light ? a.score - b.score : b.score - a.score) || a.m.name.localeCompare(b.m.name));
+
+  const unscored = markets.filter(
+    (m) =>
+      !rows.some((r) => r.m.id === m.id) &&
+      m.signals.some((s) => s.kind === "supply" || s.kind === "pipeline")
+  );
+
+  if (rows.length < 2) {
+    return {
+      content: dedupeBlank([
+        "**Supply pipeline ranking: not enough cited data**",
+        "",
+        `The cited supply data can't support a ranking of covered markets yet: ${rows.length === 0 ? "no covered market" : "only one covered market"} has a supply-pressure score built from cited pipeline rows, and no publisher reports pipeline against existing rooms on one basis for all of them. We won't rank on estimates.`,
+        "",
+        "Name a market (for example, [Nashville](/markets/nashville)) for its cited pipeline rows, or [browse the markets we cover](/markets).",
+        "",
+        footer(),
+      ]),
+      citations: cites(...rows.map((r) => r.s.sourceLabel)),
+      sources: [],
+      intent: "supply_pipeline",
+      mode: "deterministic",
+    };
+  }
+
+  // Ties share a rank.
+  let rank = 0;
+  let prev: number | null = null;
+  const table = rows.map((r, i) => {
+    if (r.score !== prev) {
+      rank = i + 1;
+      prev = r.score;
+    }
+    const links = parseSourceUrls(r.s.sourceUrls);
+    const ucLink = links.find((l) => /^UC intensity/i.test(l.label)) ?? links[0];
+    const pub = (ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel.replace(/\s*\(accessed[^)]*\)\s*$/i, "")).replace(/\|/g, "/");
+    const uc = (r.uc ?? "no public read").replace(/\|/g, "/");
+    return `| ${rank} | [${r.m.name}](/markets/${r.m.slug}) | ${r.score}/5 | ${uc} | ${pub} |`;
+  });
+
+  const content = dedupeBlank([
+    `**Covered markets ranked by supply pressure (${light ? "lightest" : "heaviest"} first)**`,
+    "",
+    "No publisher reports pipeline against existing rooms on one basis for every market, so this ranks by each market's supply-pressure score (1–5), built from its cited pipeline rows: rooms under construction, starts against history, openings and conversions. On each score row, 4–5 is heavy pressure, 3 is mixed (read by submarket) and 1–2 is a supply tailwind. Where a source states under-construction rooms as a share of inventory, the share is quoted as published.",
+    "",
+    "| Rank | Market | Score | Under construction (as cited) | Source |",
+    "| --- | --- | --- | --- | --- |",
+    ...table,
+    "",
+    ...(unscored.length
+      ? [
+          `Not ranked (cited pipeline rows, no supply-pressure score yet): ${unscored
+            .map((m) => `[${m.name}](/markets/${m.slug})`)
+            .join(", ")}.`,
+          "",
+        ]
+      : []),
+    `Markets without cited pipeline rows aren't ranked. Open a market for its full cited pipeline, or [browse the markets we cover](/markets).`,
+    "",
+    footer(),
+  ]);
+
+  const sources: NonNullable<ChatAnswer["sources"]> = [];
+  const seen = new Set<string>();
+  for (const r of rows) {
+    for (const l of parseSourceUrls(r.s.sourceUrls)) {
+      if (seen.has(l.url)) continue;
+      seen.add(l.url);
+      sources.push({ ...l, signal: r.s.title });
+    }
+  }
+
+  return {
+    content,
+    citations: cites(...rows.map((r) => r.s.sourceLabel)),
+    sources,
+    intent: "supply_pipeline",
+    mode: "deterministic",
+  };
+}
