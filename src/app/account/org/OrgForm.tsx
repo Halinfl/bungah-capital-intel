@@ -60,7 +60,6 @@ export function OrgForm() {
           ))}
         </select>
       </label>
-      <p className="text-sm text-slate-300">1 of 20 seats used</p>
       {error ? <p className="text-sm text-rose-300">{error}</p> : null}
       <button
         type="submit"
@@ -69,9 +68,6 @@ export function OrgForm() {
       >
         {busy ? "Creating…" : "Create org workspace"}
       </button>
-      <p className="text-xs text-slate-300">
-        Billing opens soon; you won’t be charged until it does.
-      </p>
     </form>
   );
 }

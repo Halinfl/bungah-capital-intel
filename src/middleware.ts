@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 /**
  * Clerk auth middleware.
  * Protect /workspace and /account. Public: /, /markets, /chat, /radars, /sound-money-lodging,
- * /podcast, /trust, /pricing, /login, /signup, /invite, static assets.
+ * /podcast, /trust, /login, /signup, /invite, static assets.
  */
 function isProtectedPath(pathname: string): boolean {
   return pathname.startsWith("/workspace") || pathname.startsWith("/account");

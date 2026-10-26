@@ -56,7 +56,7 @@ export function InviteForm({
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-300">
-        Remaining seats: {left} of {seatsMax}
+        Room for {left} more of {seatsMax} team members
       </p>
       <form onSubmit={onSubmit} className="space-y-4">
         <label className="block space-y-1.5">

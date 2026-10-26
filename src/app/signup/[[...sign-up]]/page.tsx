@@ -7,7 +7,7 @@ import { clerkAppearance } from "@/lib/clerk-appearance";
 
 export const metadata: Metadata = {
   title: "Start a private workspace · Bungah Capital Intel",
-  description: "Create a free private Capital Graph workspace for hotel investors.",
+  description: "Create a private Capital Graph workspace for hotel investors.",
 };
 
 export default async function SignupPage() {
@@ -21,8 +21,8 @@ export default async function SignupPage() {
           Start a private workspace
         </h1>
         <p className=" t-lead">
-          Free to start. Cited market data, Chat and Radars for hotel owners, investors, asset
-          managers and developers.
+          Create a private Capital Graph workspace. Cited market data, Chat and Radars for hotel
+          owners, investors, asset managers and developers.
         </p>
       </div>
       <div className="flex justify-center rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">

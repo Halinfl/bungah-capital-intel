@@ -27,6 +27,9 @@ const nextConfig: NextConfig = {
       { source: "/artifacts", destination: "/sound-money-lodging", permanent: true },
       { source: "/artifacts/:path*", destination: "/sound-money-lodging", permanent: true },
       { source: "/stack", destination: "/sound-money-lodging", permanent: true },
+      // No paid tiers (Hal, 2026-10-25): the old pricing and plan pages go home.
+      { source: "/pricing", destination: "/", permanent: false },
+      { source: "/account/plan", destination: "/", permanent: false },
     ];
   },
   // content/ also copied into src/generated/allowed-corpus.json at build (corpus:embed).

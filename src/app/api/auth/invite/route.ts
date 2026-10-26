@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const seatsMax = existing.seatsMax ?? SEATS_MAX;
   if (seatsUsed >= seatsMax) {
     return NextResponse.json(
-      { error: `This org is at ${seatsMax} seats. Ask an admin to free a seat.` },
+      { error: `This team is full (${seatsMax} members). Ask an admin to make room.` },
       { status: 400 },
     );
   }

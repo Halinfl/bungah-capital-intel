@@ -50,7 +50,7 @@ export default async function AcceptInvitePage({ params }: Props) {
           Sign in and join
         </Link>
         <p className="text-xs text-slate-300">
-          If this org is at 20 seats, ask an admin to free a seat.
+          If the team is full, ask an admin to make room.
         </p>
       </div>
     </div>

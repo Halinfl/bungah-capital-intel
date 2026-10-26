@@ -992,11 +992,11 @@ export async function answerFromGraph(
 
   return {
     content: [
-      "Public Capital Graph chat can only answer from seeded market snapshots: named markets, the national debt wall, talent signals, and active radars.",
+      "Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover.",
       "",
-      "This question needs a private workspace with a richer graph and deeper context. [Create an account](/signup) to continue.",
+      "Try naming a covered market, for example: [Capital thesis for Orlando](/chat?market=orlando), or [browse the markets we cover](/markets).",
       "",
-      "_Decision support:_ this is a workspace invitation, not an underwriting conclusion.",
+      "_Decision support:_ no figures are given here because none matched; you make the call.",
     ].join("\n"),
     citations: [],
     intent,

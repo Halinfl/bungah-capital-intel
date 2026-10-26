@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
@@ -14,7 +13,6 @@ type Msg = {
   sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
 };
 
-const FREE_MARKETS_KEY = "bungah_chat_free_markets";
 
 function marketLabel(slug: string): string {
   return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -63,31 +61,10 @@ function capitalPrompts(marketSlug: string) {
   ] as const;
 }
 
-function readUsedMarkets(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = sessionStorage.getItem(FREE_MARKETS_KEY);
-    if (!raw) return new Set();
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return new Set();
-    return new Set(parsed.filter((x): x is string => typeof x === "string"));
-  } catch {
-    return new Set();
-  }
-}
-
-function markMarketUsed(slug: string) {
-  if (typeof window === "undefined" || !slug) return;
-  const used = readUsedMarkets();
-  used.add(slug);
-  sessionStorage.setItem(FREE_MARKETS_KEY, JSON.stringify([...used]));
-}
-
 export function ChatClient() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const { isLoaded: authLoaded, isSignedIn } = useAuth();
   const searchParams = useSearchParams();
   const marketSlug = searchParams.get("market")?.trim() ?? "";
   const queryQuestion = searchParams.get("q")?.trim() ?? "";
@@ -125,29 +102,6 @@ export function ChatClient() {
       setBusy(true);
       setInput("");
 
-      const allowanceKey = marketSlug || "__general__";
-
-      // Unsigned: one free answered question per marketSlug (or general) per
-      // browser session. Follow-up in the same market → signup CTA. A different
-      // market CTA gets its own free answer. Signed-in: unlimited.
-      if (authLoaded && !isSignedIn) {
-        const used = readUsedMarkets();
-        if (used.has(allowanceKey)) {
-          setMessages((m) => [
-            ...m,
-            { role: "user", content: q },
-            {
-              role: "assistant",
-              content:
-                "You've used the free answer for this market in this browser session. Create an account to keep working with the Capital Graph: [Create an account](/signup)\n\n_Decision support:_ your judgment stays in control; no capital action is taken here.",
-              citations: [],
-            },
-          ]);
-          setBusy(false);
-          return;
-        }
-      }
-
       setMessages((m) => [...m, { role: "user", content: q }]);
 
       try {
@@ -161,9 +115,6 @@ export function ChatClient() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        if (authLoaded && !isSignedIn) {
-          markMarketUsed(allowanceKey);
-        }
         setMessages((m) => [
           ...m,
           { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] },
@@ -181,17 +132,15 @@ export function ChatClient() {
         setBusy(false);
       }
     },
-    [authLoaded, busy, isSignedIn, marketSlug]
+    [busy, marketSlug]
   );
 
   useEffect(() => {
     if (!initialQuestion || !marketSlug) return;
     if (autoSubmittedKey.current === initialQuestionKey) return;
-    // Wait for auth so free-allowance check is accurate before auto-ask.
-    if (!authLoaded) return;
     autoSubmittedKey.current = initialQuestionKey;
     void send(initialQuestion);
-  }, [authLoaded, initialQuestion, initialQuestionKey, marketSlug, send]);
+  }, [initialQuestion, initialQuestionKey, marketSlug, send]);
 
   return (
     <div className="flex flex-col gap-4">

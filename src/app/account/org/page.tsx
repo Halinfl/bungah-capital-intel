@@ -27,8 +27,7 @@ export default async function OrgPage() {
           {hasOrg ? profile.orgName : "Create an org Capital Graph"}
         </h1>
         <p className="text-sm leading-relaxed text-slate-300">
-          Shared picture for your brand, owner, AM, developer, or CVB team — up to {SEATS_MAX}{" "}
-          seats.
+          Shared picture for your brand, owner, AM, developer, or CVB team.
         </p>
       </div>
 
@@ -38,7 +37,7 @@ export default async function OrgPage() {
             Role: <span className="text-white">{profile.orgRole || "Owner"}</span>
           </p>
           <p className="text-sm text-slate-300">
-            {profile.seatsUsed ?? 1} of {profile.seatsMax ?? SEATS_MAX} seats used
+            Team: {profile.seatsUsed ?? 1} of {profile.seatsMax ?? SEATS_MAX} members
           </p>
           <div className="flex flex-wrap gap-3">
             <Link

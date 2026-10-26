@@ -120,7 +120,7 @@ function answeredWellHeuristic(
   hadCorpus: boolean
 ): boolean {
   if (!answer.content || answer.content.length < 40) return false;
-  if (/Create an account/i.test(answer.content) && !hadMarket && !hadCorpus)
+  if (/didn't match a market we cover/i.test(answer.content) && !hadMarket && !hadCorpus)
     return false;
   if (answer.mode === "llm") return true;
   if (hadMarket || hadCorpus) return true;

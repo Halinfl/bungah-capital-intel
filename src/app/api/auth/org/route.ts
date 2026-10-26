@@ -28,7 +28,6 @@ export async function POST(req: Request) {
   const orgRole = (ROLES.includes(body.orgRole as Role) ? body.orgRole : "Owner") as Role;
 
   await updateWorkspaceProfile({
-    plan: "company",
     orgName,
     orgRole,
     seatsUsed: 1,

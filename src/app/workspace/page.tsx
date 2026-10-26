@@ -43,7 +43,7 @@ export default async function WorkspacePage() {
 
   return (
     <div className="space-y-8">
-      <SessionStatus profile={profile} showUpsell />
+      <SessionStatus profile={profile} />
 
       <section className="space-y-3">
         <p className="text-sm font-medium text-slate-300">
@@ -70,7 +70,7 @@ export default async function WorkspacePage() {
           { href: "/markets", label: "Markets", desc: "Browse markets" },
           { href: "/chat", label: "Chat", desc: "IC whiteboard ideate" },
           { href: "/radars", label: "Radars", desc: "Quiet monitors" },
-          { href: "/sound-money-lodging", label: "Sound Asset", desc: "Hotel Bitcoin stack memos" },
+          { href: "/hard-assets", label: "Sound Assets", desc: "Our thesis on sound assets" },
         ].map((l) => (
           <Link
             key={l.href}

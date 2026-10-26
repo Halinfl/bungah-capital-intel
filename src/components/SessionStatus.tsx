@@ -1,14 +1,11 @@
 import Link from "next/link";
 import type { WorkspaceProfile } from "@/lib/workspace-profile";
-import { SoftProGate } from "./SoftProGate";
 
 type Props = {
   profile: WorkspaceProfile;
-  /** Soft dismissible upsell for Free plan */
-  showUpsell?: boolean;
 };
 
-export function SessionStatus({ profile, showUpsell = false }: Props) {
+export function SessionStatus({ profile }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -32,19 +29,11 @@ export function SessionStatus({ profile, showUpsell = false }: Props) {
           <span className="truncate max-w-[12rem]" title={profile.email}>
             {profile.name || profile.email}
           </span>
-          <span className="rounded-full border border-white/[0.08] px-2 py-0.5 uppercase tracking-wider text-xs text-slate-300">
-            {profile.plan}
-          </span>
-          <Link href="/account/plan" className="hover:text-slate-200">
-            Plan
-          </Link>
           <Link href="/account/org" className="hover:text-slate-200">
-            Org & seats
+            Org
           </Link>
         </div>
       </div>
-
-      {showUpsell && profile.plan === "free" ? <SoftProGate /> : null}
     </div>
   );
 }

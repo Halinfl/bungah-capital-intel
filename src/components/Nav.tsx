@@ -20,7 +20,7 @@ const linkCls =
 export async function Nav() {
   const { userId } = await auth();
   const mobileItems = userId
-    ? [...links, { href: "/workspace", label: "Workspace" }, { href: "/account/plan", label: "Account" }]
+    ? [...links, { href: "/workspace", label: "Workspace" }, { href: "/account/org", label: "Account" }]
     : [...links, { href: "/login", label: "Sign in" }];
 
   return (
@@ -46,7 +46,7 @@ export async function Nav() {
               <Link href="/workspace" className={linkCls}>
                 Workspace
               </Link>
-              <Link href="/account/plan" className={linkCls}>
+              <Link href="/account/org" className={linkCls}>
                 Account
               </Link>
             </>
@@ -56,7 +56,7 @@ export async function Nav() {
         <div className="flex items-center gap-2">
           {userId ? (
             <span className="inline-flex items-center">
-              <UserButton appearance={clerkAppearance} userProfileMode="navigation" userProfileUrl="/account/plan" />
+              <UserButton appearance={clerkAppearance} userProfileMode="navigation" userProfileUrl="/account/org" />
             </span>
           ) : (
             <>
