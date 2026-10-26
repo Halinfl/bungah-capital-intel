@@ -41,12 +41,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 const KIND_ORDER = { filing: 0, record: 1, press: 2 } as const;
 const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : "Press");
+/** Short display name for the breadcrumb: the slug minus its market suffix, title-cased (grande-lakes-orlando → Grande Lakes). */
+const shortName = (s: Sale) => {
+  const base = s.market_slug && s.slug.endsWith(`-${s.market_slug}`) ? s.slug.slice(0, -(s.market_slug.length + 1)) : s.slug;
+  return base
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+};
 const h2 = "text-xl font-semibold tracking-tight text-white";
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <dt className="text-xs uppercase tracking-wider text-slate-400">{label}</dt>
+      <dt className="text-xs uppercase tracking-wider text-slate-300">{label}</dt>
       <dd className="mt-0.5 break-words text-sm text-slate-100">{children}</dd>
     </div>
   );
@@ -73,7 +81,7 @@ function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
               <>
                 <span className="text-2xl font-semibold tabular-nums text-white">
                   {g.overall.toFixed(1)}
-                  <span className="text-sm font-normal text-slate-400"> / {RUBRIC.scale.max}</span>
+                  <span className="text-sm font-normal text-slate-300"> / {RUBRIC.scale.max}</span>
                 </span>
                 <DotBar score={g.overall} />
               </>
@@ -91,12 +99,37 @@ function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
   );
 }
 
-function SourceLinkCell({ r }: { r: FactorResult }) {
-  if (!r.source_uri) return <span className="text-slate-400">None yet</span>;
+type KindOf = (uri: string) => Source["kind"];
+
+/** Kind of a factor's source: from the entry's Sources list, else inferred from the publisher's host. */
+function kindResolver(sources: Source[]): KindOf {
+  const byUrl = new Map(sources.map((s) => [s.url, s.kind]));
+  return (uri) => {
+    const k = byUrl.get(uri);
+    if (k) return k;
+    const host = (() => {
+      try {
+        return new URL(uri).hostname;
+      } catch {
+        return "";
+      }
+    })();
+    if (host.endsWith("sec.gov")) return "filing";
+    if (host.endsWith(".gov") || host.endsWith("occompt.com")) return "record";
+    return "press";
+  };
+}
+
+function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
+  if (!r.source_uri) return <span className="text-slate-300">None (not graded)</span>;
   return (
-    <a href={r.source_uri} className="break-all underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
-      Source{r.as_of ? ` (${fmtDate(r.as_of)})` : ""}
-    </a>
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+      <Chip>{kindLabel(kindOf(r.source_uri))}</Chip>
+      <a href={r.source_uri} className="underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+        {r.as_of ? fmtDate(r.as_of) : "Source"}
+        <span className="sr-only"> (opens source)</span>
+      </a>
+    </span>
   );
 }
 
@@ -116,17 +149,17 @@ function blankRows(): FactorResult[] {
   }));
 }
 
-function FactorTable({ rows }: { rows: FactorResult[] }) {
+function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf }) {
   return (
     <>
       <table className="hidden w-full text-left text-sm lg:table">
-        <thead className="text-xs uppercase tracking-wider text-slate-400">
+        <thead className="text-xs uppercase tracking-wider text-slate-300">
           <tr className="border-b border-white/10">
             <th className="py-2 pr-3 font-medium">Factor</th>
             <th className="py-2 pr-3 font-medium">Score</th>
             <th className="py-2 pr-3 font-medium">Input</th>
             <th className="py-2 pr-3 font-medium">Band</th>
-            <th className="py-2 font-medium">Source</th>
+            <th className="w-[9.5rem] min-w-[9.5rem] whitespace-nowrap py-2 font-medium">Source</th>
           </tr>
         </thead>
         <tbody className="text-slate-200">
@@ -135,7 +168,7 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
             return (
               <tr key={r.factor} className="border-b border-white/[0.06] align-top">
                 <td className="py-2.5 pr-3">
-                  {f.label} <span className="text-slate-400">{Math.round(f.weight * 100)}%</span>
+                  {f.label} <span className="text-slate-300">{Math.round(f.weight * 100)}%</span>
                 </td>
                 <td className="whitespace-nowrap py-2.5 pr-3">
                   <span className="inline-flex items-center gap-2">
@@ -145,8 +178,8 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
                 </td>
                 <td className="py-2.5 pr-3">{r.graded ? r.input_text : <span className="text-slate-300">{r.reason}</span>}</td>
                 <td className="py-2.5 pr-3 text-slate-300">{r.band_text ?? ""}</td>
-                <td className="py-2.5 text-[13px]">
-                  <SourceLinkCell r={r} />
+                <td className="w-[9.5rem] min-w-[9.5rem] whitespace-nowrap py-2.5 text-[13px]">
+                  <SourceLinkCell r={r} kindOf={kindOf} />
                 </td>
               </tr>
             );
@@ -161,7 +194,10 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
               <details className="group px-3 py-2.5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
                   <span className="min-w-0 text-sm text-slate-100">
-                    {f.label} <span className="text-slate-400">{Math.round(f.weight * 100)}%</span>
+                    {f.label} <span className="text-slate-300">{Math.round(f.weight * 100)}%</span>
+                    {!r.graded && r.reason ? (
+                      <span className="block truncate text-[12px] text-slate-300 group-open:hidden">{r.reason}</span>
+                    ) : null}
                   </span>
                   <span className="inline-flex shrink-0 items-center gap-2 text-sm">
                     <DotBar score={r.score} />
@@ -172,7 +208,7 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
                   <p>{r.graded ? r.input_text : r.reason}</p>
                   {r.band_text ? <p>Band: {r.band_text}</p> : null}
                   <p>
-                    <SourceLinkCell r={r} />
+                    <SourceLinkCell r={r} kindOf={kindOf} />
                   </p>
                 </div>
               </details>
@@ -184,7 +220,7 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
   );
 }
 
-function GradeSection({ sale, grades }: { sale: Sale; grades: GradeResult[] }) {
+function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResult[]; kindOf: KindOf }) {
   const [current, ...older] = grades;
   const rows = current ? current.factor_scores : blankRows();
   const ungraded = !!current && rows.some((r) => !r.graded);
@@ -196,7 +232,7 @@ function GradeSection({ sale, grades }: { sale: Sale; grades: GradeResult[] }) {
         </h2>
         <span className="text-[13px] text-slate-300">As of {fmtDate(sale.announced_on)}</span>
       </div>
-      <FactorTable rows={rows} />
+      <FactorTable rows={rows} kindOf={kindOf} />
       {ungraded ? <p className="text-[13px] text-slate-300">Weights of ungraded factors are spread across graded ones.</p> : null}
       <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 text-sm">
         <span className="font-medium text-white">Overall</span>
@@ -220,7 +256,7 @@ function GradeSection({ sale, grades }: { sale: Sale; grades: GradeResult[] }) {
           <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}</summary>
           <div className="mt-2 space-y-2">
             <p>{g.output_text}</p>
-            <FactorTable rows={g.factor_scores} />
+            <FactorTable rows={g.factor_scores} kindOf={kindOf} />
           </div>
         </details>
       ))}
@@ -246,7 +282,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             <a href={s.url} className="text-slate-100 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
               {s.title}
             </a>
-            <span className="text-slate-400">
+            <span className="text-slate-300">
               {" "}
               · {s.publisher} · {fmtDate(s.date)}
             </span>
@@ -261,13 +297,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
       <DealsSubnav active="entry" />
       <header className="space-y-4">
         <nav aria-label="Breadcrumb" className="text-xs text-slate-300">
-          <Link href="/markets" className="hover:text-white">
-            Markets
-          </Link>{" "}
-          /{" "}
           <Link href="/deals" className="hover:text-white">
-            Recent Deals
-          </Link>
+            Deals
+          </Link>{" "}
+          / <span aria-current="page">{shortName(sale)}</span>
         </nav>
         <div>
           <h1 className="t-h1">{sale.property}</h1>
@@ -288,19 +321,19 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           <Fact label="Seller">{sale.seller}</Fact>
           <Fact label="Price">
             {fmtPrice(sale.price)}
-            {sale.price_qualifier ? <span className="block text-xs text-slate-400">{sale.price_qualifier}</span> : null}
+            {sale.price_qualifier ? <span className="block text-xs text-slate-300">{sale.price_qualifier}</span> : null}
           </Fact>
           <Fact label="Price/key">{fmtPerKey(sale.price_per_key)}</Fact>
           <Fact label="Keys">
             {sale.keys?.toLocaleString("en-US") ?? "n/d"}
-            {sale.keys_detail ? <span className="block text-xs text-slate-400">{sale.keys_detail}</span> : null}
+            {sale.keys_detail ? <span className="block text-xs text-slate-300">{sale.keys_detail}</span> : null}
           </Fact>
           <Fact label="Announced">{fmtDate(sale.announced_on)}</Fact>
           <Fact label="Status">
             {sale.status === "closed" && sale.closed_on ? `Closed ${fmtDate(sale.closed_on)}` : statusLabel(sale.status)}
           </Fact>
         </dl>
-        {sale.seller_note ? <p className="text-[13px] text-slate-400">{sale.seller_note}</p> : null}
+        {sale.seller_note ? <p className="text-[13px] text-slate-300">{sale.seller_note}</p> : null}
       </header>
 
       {entry.tape ? (
@@ -319,7 +352,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         </section>
       ) : null}
 
-      <GradeSection sale={sale} grades={grades} />
+      <GradeSection sale={sale} grades={grades} kindOf={kindResolver(entry.sources)} />
 
       {entry.factor_context && Object.keys(entry.factor_context).length ? (
         <section aria-labelledby="context" className="space-y-3">
@@ -339,7 +372,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     <a href={c.url} className="text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
                       source
                     </a>
-                    <span className="text-slate-400"> · {fmtDate(c.date)}</span>
+                    <span className="text-slate-300"> · {fmtDate(c.date)}</span>
                   </li>
                 ))}
               </ul>
@@ -392,7 +425,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                         <a href={v.source_uri} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
                           source
                         </a>{" "}
-                        <span className="text-slate-400">· recorded {fmtDate(v.recorded_on)}</span>
+                        <span className="text-slate-300">· recorded {fmtDate(v.recorded_on)}</span>
                       </li>
                     ))}
                   </ul>

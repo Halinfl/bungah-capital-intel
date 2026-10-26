@@ -82,7 +82,7 @@ export default function DealsMethodologyPage() {
           {r.factors.map((f) => (
             <li key={`${f.id}-m`} className="rounded-xl border border-white/10 p-3 text-sm">
               <div className="font-medium text-white">
-                {f.label} <span className="font-normal text-slate-400">{Math.round(f.weight * 100)}%</span>
+                {f.label} <span className="font-normal text-slate-300">{Math.round(f.weight * 100)}%</span>
               </div>
               <p className="mt-1 text-[13px] text-slate-200">{SOURCES[f.id].source}</p>
               <p className="mt-1 text-[13px] text-slate-300">As of: {SOURCES[f.id].asOf}</p>
@@ -91,7 +91,7 @@ export default function DealsMethodologyPage() {
         </ul>
         <div className="hidden md:block">
           <table className="w-full text-left text-sm">
-            <thead className="text-xs uppercase tracking-wider text-slate-400">
+            <thead className="text-xs uppercase tracking-wider text-slate-300">
               <tr className="border-b border-white/10">
                 <th className="py-2 pr-3 font-medium">Factor</th>
                 <th className="py-2 pr-3 font-medium">Weight</th>
@@ -118,7 +118,7 @@ export default function DealsMethodologyPage() {
           {r.factors.map((f) => (
             <div key={f.id} className="rounded-xl border border-white/10 p-4">
               <div className="font-medium text-white">
-                {f.label} <span className="text-sm font-normal text-slate-400">{Math.round(f.weight * 100)}%</span>
+                {f.label} <span className="text-sm font-normal text-slate-300">{Math.round(f.weight * 100)}%</span>
               </div>
               <p className="mt-1 text-[13px] text-slate-300">{f.metric_definition}</p>
               <ol className="mt-2 space-y-1 text-sm">
@@ -127,7 +127,7 @@ export default function DealsMethodologyPage() {
                     <span className="w-4 shrink-0 tabular-nums text-white">{b.score}</span>
                     <span className="text-slate-200">
                       {b.text}
-                      <span className="text-xs text-slate-400"> · {b.set_by === "Hal" ? "top band" : "stepped down"}</span>
+                      <span className="text-xs text-slate-300"> · {b.set_by === "Hal" ? "top band" : "stepped down"}</span>
                     </span>
                   </li>
                 ))}

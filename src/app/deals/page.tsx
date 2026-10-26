@@ -29,14 +29,14 @@ function GradeRow({ sale }: { sale: Sale }) {
     return (
       <div className="text-[13px] text-slate-200">
         {RUBRIC.missing_factor_rule.insufficient_label}
-        <span className="text-slate-400"> · {g.factors_graded} of {g.factors_total} factors graded</span>
+        <span className="text-slate-300"> · {g.factors_graded} of {g.factors_total} factors graded</span>
       </div>
     );
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
       <span className="text-base font-semibold tabular-nums text-white">
         {g.overall.toFixed(1)}
-        <span className="text-xs font-normal text-slate-400"> / {RUBRIC.scale.max}</span>
+        <span className="text-xs font-normal text-slate-300"> / {RUBRIC.scale.max}</span>
       </span>
       <DotBar score={g.overall} />
       <span className="text-slate-300">
@@ -59,7 +59,7 @@ function DealCard({ sale }: { sale: Sale }) {
       <div className="text-sm tabular-nums text-slate-200">
         {fmtPrice(sale.price)} · {fmtPerKey(sale.price_per_key)} · {sale.keys?.toLocaleString("en-US") ?? "n/d"} keys
       </div>
-      <div className="text-[13px] text-slate-400">
+      <div className="text-[13px] text-slate-300">
         Buyer {sale.buyer} · Seller {sale.seller}
       </div>
       <GradeRow sale={sale} />
@@ -85,7 +85,7 @@ function logStatus(r: LogRow): React.ReactNode {
         Grading
       </Link>
     );
-  return <span>Not graded yet</span>;
+  return <span>Not graded: inputs not yet gathered</span>;
 }
 
 /** Disclosed price, or the partial figure exactly as recorded, or Unpriced. Never estimated. */
@@ -100,7 +100,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
     <>
       {/* Desktop: plain table */}
       <table className="hidden w-full text-left text-sm md:table">
-        <thead className="text-xs uppercase tracking-wider text-slate-400">
+        <thead className="text-xs uppercase tracking-wider text-slate-300">
           <tr className="border-b border-white/10">
             <th className="py-2 pr-3 font-medium">Announced</th>
             <th className="py-2 pr-3 font-medium">Property</th>
@@ -135,7 +135,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
               <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
               </a>{" "}
-              <span className="text-slate-400">· {r.market}</span>
+              <span className="text-slate-300">· {r.market}</span>
             </div>
             <div className="text-[13px] text-slate-300">
               {fmtDate(r.announce_date)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}
