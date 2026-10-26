@@ -50,11 +50,7 @@ export async function Nav() {
                 Account
               </Link>
             </>
-          ) : (
-            <Link href="/login" className={linkCls}>
-              Sign in
-            </Link>
-          )}
+          ) : null}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -63,12 +59,20 @@ export async function Nav() {
               <UserButton appearance={clerkAppearance} userProfileMode="navigation" userProfileUrl="/account/plan" />
             </span>
           ) : (
-            <Link
-              href="/chat"
-              className="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
-            >
-              Ask a capital question
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white md:inline"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/chat"
+                className="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
+              >
+                Ask a capital question
+              </Link>
+            </>
           )}
           <MobileMenu items={mobileItems} />
         </div>

@@ -38,10 +38,7 @@ export default function RootLayout({
           <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">{children}</main>
           <footer className="mx-auto max-w-6xl border-t border-white/[0.08] px-4 py-8 text-sm text-slate-300 sm:px-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-1">
-                <div className="font-medium text-slate-100">Bungah Capital Intel</div>
-                <div className="text-slate-300">Decision support for hotel capital. Every number cited; you make the call.</div>
-              </div>
+              <div className="font-medium text-slate-100">Bungah Capital Intel</div>
               <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
                 {[
                   ["/markets", "Markets"],
