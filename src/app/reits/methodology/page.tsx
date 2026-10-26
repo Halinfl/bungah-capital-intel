@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   title: "Hotel REITs methodology · Bungah Capital Intel",
   description:
     "How the Hotel REITs section is built: SEC EDGAR sources, the property universe, weekly Google Hotels captures, the tracking gap, and what is never captured.",
+  alternates: { canonical: "/reits/methodology" },
 };
 
 const SECTIONS = [

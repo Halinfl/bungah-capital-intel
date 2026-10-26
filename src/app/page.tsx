@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { citedFindings, citedOnly, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { parseSourceUrls } from "@/lib/source-links";
@@ -9,6 +10,21 @@ import { TT_CAPTURE_DATE, ttMarkets } from "@/lib/tuesday-trends";
 import { SCORECARD } from "@/lib/sound-assets";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Hotel capital intelligence · Bungah Capital Intel",
+  description:
+    "Hotel market numbers, debt and supply signals for owners, investors, asset managers and developers, every figure linked to its source. Decision support; you make the call.",
+  alternates: { canonical: "/" },
+};
+
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Bungah Capital Intel",
+  url: "https://bungah.io",
+  description: "Cited hotel capital intelligence for owners, investors, asset managers and developers.",
+};
 
 /** "Chicago–Naperville–Elgin MSA" → "Chicago"; adds "CBD" when the cited source is CBD-scoped. */
 function shortName(name: string, sourceLabel: string): string {
@@ -153,6 +169,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16 sm:space-y-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }} />
       {/* 1 · Hero (one primary action) + 2 · cited snapshot with the trust line under it */}
       <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
         <div className="space-y-5 pt-2">

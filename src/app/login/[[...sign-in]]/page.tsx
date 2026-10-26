@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
@@ -8,6 +9,7 @@ import { clerkAppearance } from "@/lib/clerk-appearance";
 export const metadata: Metadata = {
   title: "Sign in · Bungah Capital Intel",
   description: "Sign in to your private Capital Graph workspace.",
+  robots: NOINDEX,
 };
 
 export default async function LoginPage() {

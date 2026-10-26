@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SessionStatus } from "@/components/SessionStatus";
@@ -11,6 +12,7 @@ import { OrgForm } from "./OrgForm";
 
 export const metadata: Metadata = {
   title: "Org Capital Graph · Bungah Capital Intel",
+  robots: NOINDEX,
 };
 
 export default async function OrgPage() {

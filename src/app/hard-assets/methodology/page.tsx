@@ -10,6 +10,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Methodology · Sound Assets · Bungah Capital Intel",
   description: "How the soundness scorecard is scored, where every number comes from, data vintages and license notes.",
+  alternates: { canonical: "/hard-assets/methodology" },
 };
 
 const p = "max-w-3xl text-[15px] leading-relaxed text-slate-200";

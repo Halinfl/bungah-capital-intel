@@ -4,6 +4,7 @@ import { DraftNote } from "@/components/sound-assets/DraftNote";
 export const metadata: Metadata = {
   title: "Sponsorship policy · Bungah Capital Intel",
   description: "Who may sponsor Bungah Capital Intel, who may not, and how any sponsorship would be disclosed.",
+  alternates: { canonical: "/sponsorship-policy" },
 };
 
 export default function SponsorshipPolicyPage() {

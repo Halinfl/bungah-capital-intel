@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Tuesday Trends · Bungah Capital Intel",
   description:
     "Weekly indicative Google Hotels rates for 17 US markets: median cheapest refundable nightly rate, 2 adults, pre-tax, five horizons. Decision support, not a quote.",
+  alternates: { canonical: "/tuesday-trends" },
 };
 
 export default function TuesdayTrendsPage() {

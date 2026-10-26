@@ -11,6 +11,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Evidence register · Sound Assets · Bungah Capital Intel",
   description: "Every item of evidence for and against the thesis, graded by strength, with its source. Append-only.",
+  alternates: { canonical: "/hard-assets/evidence" },
 };
 
 export default function EvidencePage() {

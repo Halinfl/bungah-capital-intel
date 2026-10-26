@@ -6,6 +6,7 @@ import ledger from "@/data/ledger/entries.json";
 export const metadata: Metadata = {
   title: "Monday Ledger · Markets · Bungah Capital Intel",
   description: "Every hotel-data call we make, timestamped before the data arrives, graded against Tuesday Trends actuals.",
+  alternates: { canonical: "/markets/ledger" },
 };
 
 export default function LedgerPage() {

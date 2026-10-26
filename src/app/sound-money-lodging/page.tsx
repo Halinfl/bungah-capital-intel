@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: "Sound Asset Lodging · Bungah Capital Intel",
   description:
     "Bitcoin treasury, capital stack, and operations for hotel investors — cited, educational, hotel-native.",
+  alternates: { canonical: "/sound-money-lodging" },
 };
 
 const pillars = [

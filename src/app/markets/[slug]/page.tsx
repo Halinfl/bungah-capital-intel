@@ -21,6 +21,7 @@ import {
   citedFindings,
   coverageInProgressLine,
   hasPublicCoverage,
+  isIndexableMarket,
   isNoReadSignal,
 } from "@/lib/format";
 import type { Metadata } from "next";
@@ -46,9 +47,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
   });
   if (!m) return {};
-  const covered = hasPublicCoverage(m, citedOnly(m.signals).filter((s) => !isNoReadSignal(s)).length);
+  const covered = isIndexableMarket(m);
+  const extras = [
+    ttMarketBySiteSlug(slug) ? "weekly indicative Google Hotels rates" : null,
+    marketOwners(slug)?.hotels.length ? "hotels owned by listed REITs" : null,
+  ].filter(Boolean);
   return {
-    title: `${m.name} · Bungah Capital Intel`,
+    title: `${m.name} hotel market · Bungah Capital Intel`,
+    description: covered
+      ? `${m.name}: cited hotel market signals on demand, supply, debt and labor, each linked to its source` +
+        (extras.length ? `, plus ${extras.join(" and ")}.` : ".") +
+        " Decision support."
+      : `${m.name}: hotel market page. Sources for this market are still being checked.`,
+    alternates: { canonical: `/markets/${slug}` },
     robots: covered ? undefined : { index: false, follow: true },
   };
 }

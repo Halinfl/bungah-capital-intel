@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
@@ -11,6 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "Private workspace · Bungah Capital Intel",
   description: "Your private Capital Graph — decision support, cited.",
+  robots: NOINDEX,
 };
 
 const CAPITAL_PROMPTS = [

@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Podcast · Bungah Capital Intel",
+  description:
+    "A listening shelf of external conversations on hotel capital, ownership and sound money, with guests and listen links. Not Bungah episodes.",
+  alternates: { canonical: "/podcast" },
+};
+
 // Order: hotel-capital conversations first. The Erik Cason episode stays on the page (title unchanged)
 // but is never the first card or above the fold (Hal, 2026-10-20).
 const episodes = [

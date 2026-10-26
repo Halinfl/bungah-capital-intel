@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
@@ -23,6 +24,13 @@ import {
 } from "@/lib/radars-preview";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Radars · Bungah Capital Intel",
+  description:
+    "Monitors over the Capital Graph that post material, cited findings on US hotel markets, so you see what changed without a firehose.",
+  alternates: { canonical: "/radars" },
+};
 
 function marketName(slug: string): string {
   return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
