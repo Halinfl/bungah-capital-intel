@@ -265,12 +265,12 @@ export function ChatClient() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Capital question…"
-          className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
+          className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
+          className="min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
         >
           Send
         </button>

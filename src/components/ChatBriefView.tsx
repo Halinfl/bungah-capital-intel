@@ -73,8 +73,32 @@ function useDismiss(open: boolean, close: () => void, box: React.RefObject<HTMLE
   }, [open, close, box, opener]);
 }
 
-const chipCls =
-  "ml-1.5 inline-flex shrink-0 items-center rounded-full border border-white/25 px-2 py-0.5 align-middle text-xs leading-none text-slate-200 hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-300";
+/**
+ * Chips look compact but are 44×44 px tap targets: the button is the hit area (negative vertical
+ * margin keeps the line height), the inner pill is what you see. Pill border slate-400 on the
+ * #1f2228 card is ≥3:1 contrast.
+ */
+const hitCls =
+  "group -my-[13px] inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full align-middle focus-visible:outline-none";
+const pillCls =
+  "inline-flex items-center gap-1 rounded-full border border-slate-400 px-2 py-0.5 text-xs leading-none text-slate-100 group-hover:border-slate-200 group-hover:text-white group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-1 group-focus-visible:outline-slate-200";
+
+/** Keep Tab / Shift+Tab inside a modal box. */
+function trapTab(e: React.KeyboardEvent, box: HTMLElement | null) {
+  if (e.key !== "Tab" || !box) return;
+  const items = [...box.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+  if (!items.length) return;
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement as HTMLElement | null;
+  if (e.shiftKey && (active === first || !box.contains(active))) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (active === last || !box.contains(active))) {
+    e.preventDefault();
+    first.focus();
+  }
+}
 
 /**
  * Source chip (Filing / Press / Record / Data). Tapping opens a preview: a popover on desktop,
@@ -87,7 +111,12 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
   const box = useRef<HTMLDivElement>(null);
   const id = useId();
   const [alignRight, setAlignRight] = useState(false);
-  useDismiss(open, onClose, box, btn);
+  // On mobile the sheet is modal: closing it (backdrop, outside press, ✕, Esc) returns focus to the chip.
+  const closeToChip = useCallback(() => {
+    onClose();
+    if (mobile) window.setTimeout(() => btn.current?.focus(), 0);
+  }, [onClose, mobile]);
+  useDismiss(open, closeToChip, box, btn);
   useEffect(() => {
     if (!open) return;
     const r = btn.current?.getBoundingClientRect();
@@ -109,6 +138,7 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
       aria-modal={mobile ? true : undefined}
       aria-labelledby={`${id}-t`}
       data-testid="source-preview"
+      onKeyDown={mobile ? (e) => trapTab(e, box.current) : undefined}
       className={
         mobile
           ? "fixed inset-x-0 bottom-0 z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl border-t border-white/15 bg-[#2b2f37] px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] text-left shadow-2xl"
@@ -131,7 +161,7 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
           }}
           aria-label="Close source preview"
           data-autofocus={s.url ? undefined : true}
-          className="-mr-1 -mt-1 shrink-0 rounded-md px-2 py-1 text-sm text-slate-300 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
+          className="-mr-2.5 -mt-2.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-base text-slate-300 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
         >
           ✕
         </button>
@@ -159,7 +189,7 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
           target="_blank"
           rel="noopener noreferrer"
           data-autofocus
-          className="mt-3 inline-flex items-center gap-1 rounded-md border border-white/20 px-2.5 py-1.5 text-sm text-slate-100 hover:border-white/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
+          className="mt-3 inline-flex min-h-11 items-center gap-1 rounded-md border border-slate-400 px-3 py-2 text-sm text-slate-100 hover:border-white/40 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
         >
           Open source <span aria-hidden>↗</span>
         </a>
@@ -177,14 +207,14 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
         aria-expanded={open}
         aria-controls={open ? `${id}-dlg` : undefined}
         aria-label={`${s.kind}: ${s.label}. Preview source`}
-        className={chipCls}
+        className={`ml-0.5 ${hitCls}`}
       >
-        {s.kind}
+        <span className={pillCls}>{s.kind}</span>
       </button>
       {open ? (
         mobile ? (
           <>
-            <span aria-hidden className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+            <span aria-hidden className="fixed inset-0 z-40 bg-black/50" onClick={closeToChip} />
             {body}
           </>
         ) : (
@@ -224,9 +254,11 @@ function RangeChip({ range, onPick }: { range: DateRange; onPick: (r: DateRange)
         aria-label={`Date range: ${CHIP_LABEL[range]}. Change and ask again`}
         data-testid="range-chip"
         onClick={() => setOpen((o) => !o)}
-        className="ml-1 inline-flex items-center gap-1 rounded-full border border-white/25 px-2 py-0.5 text-xs leading-none text-slate-200 hover:border-white/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-slate-300"
+        className={`ml-0.5 ${hitCls}`}
       >
-        {CHIP_LABEL[range]} <span aria-hidden>▾</span>
+        <span className={pillCls}>
+          {CHIP_LABEL[range]} <span aria-hidden>▾</span>
+        </span>
       </button>
       {open ? (
         <div
@@ -247,7 +279,7 @@ function RangeChip({ range, onPick }: { range: DateRange; onPick: (r: DateRange)
                 setOpen(false);
                 if (r.id !== range) onPick(r.id);
               }}
-              className="flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm text-slate-100 hover:bg-white/[0.06] focus-visible:bg-white/[0.08] focus-visible:outline-none"
+              className="flex min-h-11 w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm text-slate-100 hover:bg-white/[0.06] focus-visible:bg-white/[0.08] focus-visible:outline-none"
             >
               {r.label}
               {r.id === range ? <span aria-hidden className="text-slate-300">✓</span> : null}
@@ -325,7 +357,7 @@ export function ChatBriefView({ brief, onReask }: { brief: ChatBrief; onReask?: 
                   aria-expanded={isOpen}
                   aria-controls={panel}
                   onClick={() => toggle(s.id)}
-                  className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-slate-100 hover:bg-white/[0.03] focus-visible:bg-white/[0.04] focus-visible:outline-none"
+                  className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-slate-100 hover:bg-white/[0.03] focus-visible:bg-white/[0.04] focus-visible:outline-none"
                 >
                   <span>
                     {s.title} <span className="text-slate-300">({s.count})</span>

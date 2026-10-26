@@ -898,7 +898,7 @@ export async function answerFromGraph(
 
 
   // National debt (no market or debt-led)
-  if (intent === "debt_overlay" && !matched) {
+  if ((intent === "debt_overlay" || intent === "rates") && !matched) {
     const debt = nationalSignals.find((s) => s.kind === "debt");
     const debtSweep = nationalSignals.filter(
       (s) => s.kind === "rates" || s.kind === "cmbs" || s.kind === "cap_rate"

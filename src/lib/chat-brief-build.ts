@@ -13,9 +13,12 @@ import {
   chipKind,
   coverageLine,
   digestDate,
+  furtherReadingSection,
   inRange,
   periodOf,
   RANGE_LABEL,
+  signalCites,
+  windowSignal,
   withDate,
   type Citation,
   type DateRange,
@@ -28,9 +31,7 @@ import {
   pickReads,
   plain,
   signalFacts,
-  signalLinks,
   signalSections,
-  sourcesSection,
   toRead,
   type BriefRead,
   type BriefSection,
@@ -43,7 +44,7 @@ import {
 
 export function lensFor(intent: ChatIntent | undefined): Lens {
   if (intent === "supply_pipeline" || intent === "supply_ranking") return "supply";
-  if (intent === "debt_overlay") return "debt";
+  if (intent === "debt_overlay" || intent === "rates") return "debt";
   if (intent === "talent_greenlight") return "talent";
   return "demand";
 }
@@ -72,7 +73,7 @@ function snapshotLabel(label: string): string {
 /** The snapshot's own date, as written in its first citation ("YE 2025", "2025"); null if none. */
 function snapshotDate(m: MarketRow): string | null {
   const p = periodOf(snapshotLabel(m.sourceLabel));
-  return p ? (p.startLabel === p.endLabel ? p.startLabel : `${p.startLabel}–${p.endLabel}`) : null;
+  return p ? p.label : null;
 }
 
 function snapshotSource(m: MarketRow): BriefSource {
@@ -107,7 +108,7 @@ export function windowMarket(m: MarketRow, range: DateRange): MarketRow {
   const snapshotOut = isSeedMarket(m) || !inRange(snapshotLabel(m.sourceLabel), range);
   const out: MarketRow = {
     ...m,
-    signals: m.signals.filter((s) => inRange(s.asOf, range)),
+    signals: m.signals.map((s) => windowSignal(s as SignalLike & typeof s, range)).filter((s): s is NonNullable<typeof s> => Boolean(s)),
     assets: [],
     ...(snapshotOut
       ? { occupancy: null, adr: null, visitorsM: null, roomsK: null, midweekOcc: null, weekendOcc: null, summary: "", nuanceNote: null }
@@ -117,12 +118,18 @@ export function windowMarket(m: MarketRow, range: DateRange): MarketRow {
   return out;
 }
 
-export function windowSignals<T extends { asOf: string | null }>(rows: T[], range: DateRange): T[] {
-  return range === "all" ? rows : rows.filter((s) => inRange(s.asOf, range));
+export function windowSignals<T extends SignalLike>(rows: T[], range: DateRange): T[] {
+  return range === "all" ? rows : rows.map((s) => windowSignal(s, range)).filter((s): s is T => Boolean(s));
 }
 
+/** A digest is dated by the quarter it reports (its data), not its release or load date. */
 export function windowDigests(digests: DigestHit[], range: DateRange): DigestHit[] {
-  return range === "all" ? digests : digests.filter((d) => inRange(digestDate(d), range));
+  return range === "all" ? digests : digests.filter((d) => inRange(digestQuarter(d) ?? digestDate(d), range));
+}
+
+function digestQuarter(d: DigestHit): string | null {
+  const q = /(20\d{2})-Q([1-4])/.exec(d.citePath);
+  return q ? `Q${q[2]} ${q[1]}` : null;
 }
 
 function inWindowWord(m: MarketRow): string {
@@ -145,7 +152,10 @@ function metricsTable(m: MarketRow): BriefSection | null {
   if (m.roomsK != null) rows.push(["Rooms", `${m.roomsK.toFixed(1)}k`]);
   if (m.occupancy != null) rows.push(["OCC", `${m.occupancy.toFixed(1)}%`]);
   if (m.adr != null) rows.push(["ADR", `$${m.adr.toFixed(2)}`]);
-  if (m.occupancy != null && m.adr != null) rows.push(["RevPAR (OCC×ADR, derived)", `$${((m.occupancy / 100) * m.adr).toFixed(2)}`]);
+  // One RevPAR: the cited source's own figure when its label carries one, else OCC×ADR (marked derived).
+  const cited = /RevPAR \$([\d,]+(?:\.\d+)?)/.exec(m.sourceLabel)?.[1];
+  if (cited) rows.push(["RevPAR (as published)", `$${cited}`]);
+  else if (m.occupancy != null && m.adr != null) rows.push(["RevPAR (OCC×ADR, derived)", `$${((m.occupancy / 100) * m.adr).toFixed(2)}`]);
   if (m.midweekOcc != null) rows.push(["Midweek OCC", `${m.midweekOcc.toFixed(1)}%`]);
   if (m.weekendOcc != null) rows.push(["Weekend OCC", `${m.weekendOcc.toFixed(1)}%`]);
   if (!rows.length) return null;
@@ -153,13 +163,18 @@ function metricsTable(m: MarketRow): BriefSection | null {
     id: `metrics-${m.slug}`,
     title: "Metrics",
     count: rows.length,
-    markdown: ["| Metric | Value |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`), "", `_Source: ${scrubInternal(m.sourceLabel)}_`].join("\n"),
+    markdown: ["| Metric | Value |", "| --- | --- |", ...rows.map(([k, v]) => `| ${k} | ${v} |`), "", `_Source: ${fieldNames(scrubInternal(m.sourceLabel))}_`].join("\n"),
   };
+}
+
+/** Readers see "rooms", never a stored field name such as roomsK. */
+function fieldNames(t: string): string {
+  return t.replace(/\broomsK\b/g, "rooms").replace(/\bvisitorsM\b/g, "visitors").replace(/\bmidweekOcc\b/g, "midweek OCC").replace(/\bweekendOcc\b/g, "weekend OCC");
 }
 
 function contextSection(m: MarketRow): BriefSection | null {
   if (!snapOK(m)) return null;
-  const paras = dedupeParagraphs([m.summary, m.nuanceNote ?? ""].map((x) => scrubInternal(x)));
+  const paras = dedupeParagraphs([m.summary, m.nuanceNote ?? ""].map((x) => fieldNames(scrubInternal(x))));
   if (!paras.length) return null;
   return { id: `context-${m.slug}`, title: "Market context", count: paras.length, markdown: paras.join("\n\n") };
 }
@@ -176,13 +191,14 @@ function assetsSection(m: MarketRow): BriefSection | null {
   };
 }
 
-function registryLine(m: MarketRow): string[] {
-  // Undated registry links stay out of a date-windowed answer.
+/** The tourism bureau's research pages: background reading, not a source of any figure here. */
+function registryLinks(m: MarketRow): { url: string; label: string }[] {
   if (windowOf(m)) return [];
   const reg = getMsaRegistryEntry(m.slug);
   if (!reg) return [];
   return [
-    `${reg.cvb_name}: [research](${reg.cvb_research_url})${reg.lodging_report_url ? ` · [lodging report](${reg.lodging_report_url})` : ""} (registry verified ${reg.last_verified_at})`,
+    { url: reg.cvb_research_url, label: `${reg.cvb_name} research` },
+    ...(reg.lodging_report_url ? [{ url: reg.lodging_report_url, label: `${reg.cvb_name} lodging report` }] : []),
   ];
 }
 
@@ -190,38 +206,36 @@ function marketFacts(m: MarketRow): Fact[] {
   return m.signals.flatMap((s) => signalFacts(s as SignalLike));
 }
 
-/** Source labels of cited rows that have no original URL (listed in Sources so the count matches). */
-function unlinkedLabels(signals: SignalLike[]): string[] {
-  return signals.filter((s) => !signalLinks([s]).length).map((s) => s.sourceLabel);
-}
-
 /**
  * The citations behind an answer, each with its cited row's own date: the reads' sources, every
  * signal shown in the detail (one per original URL, else its source label) and extra sources
  * (market snapshots). Count and date span on the "based on" line are computed from this list.
  */
-function citationsOf(reads: BriefRead[], signals: SignalLike[], extra: Citation[] = []): Citation[] {
+export function citationsOf(reads: BriefRead[], signals: SignalLike[], extra: Citation[] = []): Citation[] {
   const out: Citation[] = [];
-  for (const r of reads) out.push({ key: r.source.url ?? r.source.label, label: r.source.label, asOf: r.source.date ?? r.asOf });
-  for (const s of signals) {
-    const links = signalLinks([s]);
-    if (links.length) links.forEach((l) => out.push({ key: l.url, label: s.sourceLabel, asOf: s.asOf }));
-    else out.push({ key: s.sourceLabel, label: s.sourceLabel, asOf: s.asOf });
-  }
+  for (const s of signals) out.push(...signalCites(s));
+  for (const r of reads) out.push(readCite(r));
   out.push(...extra);
   return out;
+}
+
+/** A read's own source, dated by the read's data period. */
+export function readCite(r: BriefRead): Citation {
+  const d = r.source.date ?? r.asOf;
+  const text = r.source.url ? [r.source.title, r.source.publisher ?? r.source.label].filter(Boolean).join(" — ") || r.source.label : r.source.label;
+  return { key: r.source.url ?? r.source.label, url: r.source.url, label: r.source.label, text, asOf: d, period: periodOf(d) };
 }
 
 function snapshotCite(m: MarketRow): Citation[] {
   if (!snapOK(m)) return [];
   const label = snapshotLabel(m.sourceLabel);
-  return [{ key: label, label, asOf: label }];
+  return [{ key: label, label, text: fieldNames(scrubInternal(m.sourceLabel)), asOf: null, period: periodOf(label) }];
 }
 
 const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "debt", talent: "labor" };
 
 function headLine(scope: string, lens: Lens, f: Fact): string {
-  const date = fmtAsOf(f.asOf);
+  const date = f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
   // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
   const esc = scope.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const text = f.text.replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
@@ -235,6 +249,8 @@ export type BriefOpts = {
   notes?: string[];
   extraReads?: BriefRead[];
   extraSections?: BriefSection[];
+  /** Sources behind extraSections / extraReads (e.g. a named REIT's digest links). */
+  extraCites?: Citation[];
   nationalOverlay?: SignalLike | null;
 };
 
@@ -246,7 +262,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   const metrics = metricsLine(m);
   const snap = snapshotSource(m);
 
-  let answer: string;
+  let answer = "";
   let reads: Fact[];
   const scoreSig = m.signals.find((s) => /supply-pressure score\s*\d\s*\/\s*5/i.test(s.title));
   if (lens === "demand" && metrics) {
@@ -266,7 +282,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = `${short}: ${metrics} (${snap.label}).`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     } else {
-      answer = `${short}: no cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited reads we have are below.`;
+      answer = `${short}: no dated, cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited rows we have are below.`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     }
   }
@@ -284,15 +300,17 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     sections.push(...signalSections([opts.nationalOverlay], null, "national").map((s) => ({ ...s, title: "National overlay" })));
   }
   sections.push(...(opts.extraSections ?? []));
-  const src = sourcesSection(
-    [...signalLinks(m.signals as SignalLike[]), ...(opts.nationalOverlay ? signalLinks([opts.nationalOverlay]) : [])],
-    [...(snapOK(m) ? [scrubInternal(m.sourceLabel)] : []), ...unlinkedLabels([...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])]), ...registryLine(m)]
-  );
-  if (src) sections.push(src);
+  // Sources (the cited rows) are generated from the citations; bureau pages are further reading only.
+  const further = furtherReadingSection(registryLinks(m));
+  if (further) sections.push(further);
 
   const notes = [...(opts.notes ?? [])];
+  if (!readList.length) {
+    answer = /no cited/.test(answer) ? answer.replace(/^[^:]+: /, `Limited recent data for ${short}: `) : answer;
+    notes.unshift(`Limited recent data for ${short}: no dated key reads; the cited rows are in the sections below.`);
+  }
   if (isSeedMarket(m)) notes.push(coverageInProgressLine(m.name));
-  const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], snapshotCite(m));
+  const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
   const range = windowOf(m)?.range ?? opts.range ?? "all";
   return makeBrief({
     decline: opts.decline,
@@ -337,11 +355,8 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
     const c = contextSection(m);
     if (c) sections.push({ ...c, title: `${s} · Market context` });
   }
-  const src = sourcesSection(signalLinks([...a.signals, ...b.signals] as SignalLike[]), [
-    ...[a, b].filter(snapOK).map((m) => scrubInternal(m.sourceLabel)),
-    ...unlinkedLabels([...a.signals, ...b.signals] as SignalLike[]),
-  ]);
-  if (src) sections.push(src);
+  const further = furtherReadingSection([...registryLinks(a), ...registryLinks(b)]);
+  if (further) sections.push(further);
   const notes = [...(opts.notes ?? [])];
   const seeds = [a, b].filter((m) => isSeedMarket(m)).map(shortName);
   if (seeds.length) notes.push(`We haven't checked enough sources for ${seeds.join(" or ")} yet.`);
@@ -380,20 +395,64 @@ export function nationalDebtBrief(
       markdown: findings.map((f) => `- **${scrubInternal(f.title)}** — ${plain(scrubInternal(f.summary))} · ${scrubInternal(f.sourceLabel)}`).join("\n"),
     });
   }
-  const src = sourcesSection(signalLinks(debt), debt.filter((s) => !signalLinks([s]).length).map((s) => s.sourceLabel));
-  if (src) sections.push(src);
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: reads.map(toRead),
     coverage: coverageLine({
       // Radar findings carry no data date of their own: they count as undated sources.
-      cites: citationsOf(reads.map(toRead), debt, findings.map((f) => ({ key: f.sourceLabel, label: f.sourceLabel, asOf: null }))),
+      cites: citationsOf(reads.map(toRead), debt, findings.map((f) => ({ key: f.sourceLabel, label: f.sourceLabel, asOf: null, period: null }))),
       notes: ["National reads, not a market read."],
       range: opts.range,
     }),
     window: { range: opts.range ?? "all", filterable: true },
     sections,
+  });
+}
+
+const RATE_ROW = /\b(10-year|10Y|Treasury|SOFR|fed funds|FOMC)\b/i;
+
+/** Which benchmark the question asks about (10-year Treasury by default). */
+function rateSeries(question: string): { name: string; re: RegExp } {
+  if (/\bsofr\b/i.test(question)) return { name: "SOFR", re: /\bSOFR\b/i };
+  if (/\bfed funds|fomc|federal funds\b/i.test(question)) return { name: "Fed funds", re: /\bfed funds|FOMC\b/i };
+  return { name: "10-year Treasury", re: /\b10-year|10Y\b/i };
+}
+
+/** Benchmark rate question: the newest cited row for that rate leads, with its date and source. */
+export function ratesBrief(signals: SignalLike[], question: string, opts: BriefOpts = {}): ChatBrief {
+  const rows = signals.filter((s) => RATE_ROW.test(`${s.title} ${s.body.slice(0, 200)}`));
+  const series = rateSeries(question);
+  const facts = rows.flatMap((s) => signalFacts(s).slice(0, 1).map((f) => ({ f, s })));
+  const byNewest = (a: { f: Fact }, b: { f: Fact }) => b.f.key - a.f.key;
+  const head = facts.filter((x) => x.f.period && series.re.test(x.s.title)).sort(byNewest)[0];
+  const range = opts.range ?? "all";
+  const answer = head
+    ? `${head.f.text.replace(/\.$/, "")} (${[head.f.asOf, head.f.source.label].filter(Boolean).join(", ")}).`
+    : `US ${series.name}: no cited, dated read${range === "all" ? " on file yet" : ` in the ${RANGE_LABEL[range].toLowerCase()}`}.`;
+  // Reads: the newest row of each other benchmark (one per series), then the next-newest of the asked one.
+  const seen = new Set<string>([head ? rateSeries(head.s.title).name : series.name]);
+  const others: Fact[] = [];
+  for (const x of facts.filter((y) => y !== head && y.f.readable).sort(byNewest)) {
+    const name = /SOFR/i.test(x.s.title) ? "SOFR" : /fed funds|FOMC/i.test(x.s.title) ? "Fed funds" : /10-year|10Y/i.test(x.s.title) ? "10-year Treasury" : x.s.title;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    others.push(x.f);
+  }
+  const reads = others.slice(0, 3).map(toRead);
+  const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind) || RATE_ROW.test(s.title));
+  const ordered = [...debt].sort((a, b) => Number(RATE_ROW.test(b.title)) - Number(RATE_ROW.test(a.title)));
+  return makeBrief({
+    decline: opts.decline,
+    answer,
+    reads,
+    coverage: coverageLine({
+      cites: citationsOf([...(head ? [toRead(head.f)] : []), ...reads], debt),
+      notes: ["National benchmark rates, not a market read."],
+      range,
+    }),
+    window: { range, filterable: true },
+    sections: signalSections(ordered, "debt", "national"),
   });
 }
 
@@ -403,7 +462,7 @@ export function nationalDebtBrief(
 
 const PIPELINE_Q = /\b(pipeline|net unit growth|nug|development|openings|signings)\b/i;
 
-export function digestReads(d: DigestHit, question: string): { answer: string; reads: Fact[]; sections: BriefSection[]; links: { url: string; label: string }[]; date: string | null } {
+export function digestReads(d: DigestHit, question: string): { answer: string; reads: Fact[]; sections: BriefSection[]; links: { url: string; label: string }[]; date: string | null; period: ReturnType<typeof periodOf>; cites: Citation[] } {
   const f = digestFacts(d, d.raw ?? d.excerpt);
   const asked = PIPELINE_Q.test(question);
   // REIT call rule: guidance, capital allocation, market color (pipeline questions: NUG guide and pipeline).
@@ -418,10 +477,14 @@ export function digestReads(d: DigestHit, question: string): { answer: string; r
     const n = f.guidanceMd.split("\n").filter((l) => /^(- |\|(?!\s*-)(?!\s*(Item|Metric)\b))/.test(l)).length;
     sections.push({ id: `guide-${d.slug}`, title: `${f.name}: outlook & guidance`, count: n || 1, markdown: f.guidanceMd });
   }
+  const rowsIn = (md: string) => md.split("\n").filter((l) => /^(- |\*\*|\|(?!\s*-)(?!\s*(Item|Metric)\b))/.test(l)).length || 1;
+  if (f.kpiMd) sections.splice(1, 0, { id: `kpi-${d.slug}`, title: `${f.name}: operating KPIs`, count: rowsIn(f.kpiMd), markdown: f.kpiMd });
   if (f.balanceMd) {
     sections.push({ id: `bal-${d.slug}`, title: `${f.name}: balance sheet & capital`, count: f.balanceMd.split("\n").filter((l) => /^- /.test(l)).length || 1, markdown: f.balanceMd });
   }
-  return { answer, reads, sections, links: f.links, date: f.guidance?.asOf ?? null };
+  if (f.supplyMd) sections.push({ id: `sup-${d.slug}`, title: `${f.name}: supply & pipeline`, count: rowsIn(f.supplyMd), markdown: f.supplyMd });
+  if (f.segmentMd) sections.push({ id: `seg-${d.slug}`, title: `${f.name}: segment & geography mix`, count: rowsIn(f.segmentMd), markdown: f.segmentMd });
+  return { answer, reads, sections, links: f.links, date: f.guidance?.asOf ?? null, period: f.dataPeriod, cites: f.links.map((l) => ({ key: l.url, url: l.url, label: l.label, text: l.label, asOf: digestDate(d), period: f.dataPeriod })) };
 }
 
 export function digestBrief(digests: DigestHit[], question: string, opts: BriefOpts & { range?: DateRange } = {}): ChatBrief {
@@ -438,15 +501,18 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
   }
   const readList = reads.slice(0, 3).map(toRead);
   const sections = parts.flatMap((p) => p.sections);
-  const src = sourcesSection(links);
-  if (src) sections.push(src);
+  void links;
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: readList,
     coverage: coverageLine({
       // Each digest's source links, dated by that digest's release date.
-      cites: digests.flatMap((d, i) => parts[i].links.map((l) => ({ key: l.url, label: l.label, asOf: digestDate(d) }))),
+      // Each digest's source links, dated by the quarter the digest reports.
+      cites: [
+        ...digests.flatMap((d, i) => parts[i].links.map((l) => ({ key: l.url, url: l.url, label: l.label, text: l.label, asOf: digestDate(d), period: parts[i].period }))),
+        ...readList.map(readCite),
+      ],
       notes: ["Editor-authored digests of company-reported results; no licensed STR."],
       range: opts.range,
     }),
@@ -556,15 +622,15 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
     const ml = metricsLine(market);
     const mt = metricsTable(market);
     if (mt) sections.push({ ...mt, title: `${shortName(market)} market metrics`, markdown: (ml ? `${shortName(market)}: ${ml}.\n\n` : "") + mt.markdown });
-    sections.push(...signalSections(market.signals as SignalLike[], "demand", `sig-${market.slug}`).map((x) => ({ ...x, title: `${shortName(market)} · ${x.title}` })));
+    // The market's own signal rows are not what this hotel answer rests on: link the market page instead.
+    sections.push({ id: "further", title: "Further reading", count: 1, markdown: `- [${shortName(market)} market: every cited read](/markets/${market.slug})` });
   }
-  const links = [{ url: p.url, label: ownerSrc.label }, ...curated.map((f) => ({ url: f.source.url!, label: f.source.label })), ...p.comps.map((c) => ({ url: c.url, label: c.source })), ...(market ? signalLinks(market.signals as SignalLike[]) : [])];
-  const src = sourcesSection(links);
-  if (src) sections.push(src);
   const cites: Citation[] = [
-    { key: p.url, label: ownerSrc.label, asOf: scheduleDate },
-    ...curated.map((f) => ({ key: f.source.url!, label: f.source.label, asOf: f.asOf })),
-    ...reads.map((r) => ({ key: r.source.url ?? r.source.label, label: r.source.label, asOf: r.source.date ?? r.asOf })),
+    { key: p.url, url: p.url, label: ownerSrc.label, text: ownerSrc.label, asOf: scheduleDate, period: periodOf(scheduleDate) },
+    ...curated.map((f) => ({ key: f.source.url!, url: f.source.url, label: f.source.label, text: f.source.label, asOf: f.asOf, period: periodOf(f.asOf) })),
+    ...p.comps.map((c) => ({ key: c.url, url: c.url, label: c.source, text: c.source, asOf: c.date, period: periodOf(c.date) })),
+    ...(market && metricsTable(market) ? snapshotCite(market) : []),
+    ...reads.map(readCite),
   ];
   return makeBrief({
     decline: opts.decline,

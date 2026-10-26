@@ -53,7 +53,17 @@ export function parseRange(v: unknown): DateRange {
   return v === "90d" || v === "12m" ? v : "all";
 }
 /** One citation behind an answer: a dedupe key (URL, else label) and the cited row's date. */
-export type Citation = { key: string; label: string; asOf: string | null | undefined };
+export type Citation = {
+  key: string;
+  /** The row's source label (feeds the answer's `citations`). */
+  label: string;
+  asOf: string | null | undefined;
+  /** Data period of what this source supports in the answer (null = undated; undefined = parse asOf). */
+  period?: Period | null;
+  /** Shown in Sources: the link's own label, else the source label. */
+  text?: string;
+  url?: string;
+};
 export type DataSpan = { sources: number; dated: number; from: string | null; to: string | null; label: string | null };
 
 export const DECISION_LINE = "Decision support, not a recommendation. You make the call.";
@@ -229,67 +239,179 @@ export function fmtAsOf(s: string | null | undefined): string | null {
   return t || null;
 }
 
-/** A date as a period (yyyymmdd keys) at the granularity it was written; null when undated. */
-export type Period = {
-  start: number;
-  end: number;
-  startLabel: string;
-  endLabel: string;
-  gran: "day" | "month" | "quarter" | "year";
-  /** Earliest the period can end. A fiscal year ("FY 2025") can end in any month of that year. */
-  minEnd?: number;
-};
-const DIM = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-const monthPeriod = (y: number, mo: number): Period => ({
-  start: y * 10000 + mo * 100 + 1,
-  end: y * 10000 + mo * 100 + DIM[mo - 1],
-  startLabel: `${MONTH_NAMES[mo - 1]} ${y}`,
-  endLabel: `${MONTH_NAMES[mo - 1]} ${y}`,
-  gran: "month",
-});
-const yearPeriod = (y: number, prefix = ""): Period => ({ start: y * 10000 + 101, end: y * 10000 + 1231, startLabel: `${prefix}${y}`, endLabel: `${prefix}${y}`, gran: "year" });
+/* ------------------------------------------------------------------ */
+/* Data periods                                                        */
+/* ------------------------------------------------------------------ */
 
-export function periodOf(raw: string | null | undefined): Period | null {
-  if (!raw) return null;
-  // Ignore access stamps ("accessed 2026-10-11"): they date the lookup, not the data.
-  const s = raw.replace(/\(?\baccessed\b[^);]*\)?/gi, " ");
-  let m = /\b(20\d{2})-(\d{2})-(\d{2})\b/.exec(s);
-  if (m) {
-    const k = +m[1] * 10000 + +m[2] * 100 + +m[3];
-    const l = `${MONTH_NAMES[+m[2] - 1]} ${m[1]}`;
-    return { start: k, end: k, startLabel: l, endLabel: l, gran: "day" };
+/**
+ * The period a fact's DATA covers (yyyymmdd keys), read from the fact's own wording: week ending,
+ * month, quarter, YE, an explicit range, YTD-through, a dated release. Sweep / load stamps and
+ * "accessed" dates say when a row was collected, not what it measures, so they are never a data
+ * period. `label` is the period as shown to readers.
+ */
+export type Period = { start: number; end: number; label: string };
+
+const MON = "(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?";
+const monNum = (s: string) => MONTHS[s.toLowerCase().slice(0, 3)];
+const dim = (y: number, mo: number) => new Date(Date.UTC(y, mo, 0)).getUTCDate();
+const k = (y: number, mo: number, d: number) => y * 10000 + mo * 100 + d;
+const kY = (x: number) => Math.floor(x / 10000);
+const kM = (x: number) => Math.floor(x / 100) % 100;
+const kD = (x: number) => x % 100;
+const dayLabel = (x: number) => `${MONTH_NAMES[kM(x) - 1]} ${kD(x)}, ${kY(x)}`;
+const monLabel = (x: number) => `${MONTH_NAMES[kM(x) - 1]} ${kY(x)}`;
+
+/** Load / sweep dates of the Capital Graph (seed files prisma/*-2026-10-11 etc.), plus any day stamp shared by many rows. */
+const SWEEP_STAMPS = new Set<number>([20261011, 20261019, 20261020]);
+export function registerSweepStamps(asOfs: (string | null | undefined)[]): void {
+  const n = new Map<number, number>();
+  for (const a of asOfs) {
+    const m = /^\s*(20\d{2})-(\d{2})-(\d{2})\b/.exec(a ?? "");
+    if (m) n.set(k(+m[1], +m[2], +m[3]), (n.get(k(+m[1], +m[2], +m[3])) ?? 0) + 1);
   }
-  m = /\b(20\d{2})-(\d{2})\b/.exec(s);
-  if (m && +m[2] >= 1 && +m[2] <= 12) return monthPeriod(+m[1], +m[2]);
-  m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(20\d{2})\b/i.exec(s);
-  if (m) {
-    const mo = MONTHS[m[1].toLowerCase()];
-    const k = +m[3] * 10000 + mo * 100 + +m[2];
-    const l = `${MONTH_NAMES[mo - 1]} ${m[3]}`;
-    return { start: k, end: k, startLabel: l, endLabel: l, gran: "day" };
+  for (const [day, c] of n) if (c >= 25) SWEEP_STAMPS.add(day);
+}
+export function isSweepStamp(day: number): boolean {
+  return SWEEP_STAMPS.has(day);
+}
+
+/** The row's load stamp (first ISO day in its as-of), used only to place a year-less "w/e 26 Sep". */
+export function stampKey(asOf: string | null | undefined): number | null {
+  const m = /(20\d{2})-(\d{2})-(\d{2})/.exec(asOf ?? "");
+  return m ? k(+m[1], +m[2], +m[3]) : null;
+}
+
+function yearFor(mo: number, d: number, ref: number): number {
+  const y = kY(ref);
+  return k(y, mo, d) <= ref ? y : y - 1;
+}
+
+/** Every data period written in one text (future-starting ones dropped, ends capped at today). */
+export function periodsIn(raw: string | null | undefined, ref: number = todayKey()): Period[] {
+  if (!raw) return [];
+  const today = todayKey();
+  let s = ` ${raw} `
+    .replace(/\(?\b(accessed|reviewed|retrieved|pulled|as of)\b[^);|]*\)?/gi, " ")
+    .replace(/https?:\/\/\S+/g, " ");
+  const out: Period[] = [];
+  const take = (re: RegExp, f: (m: RegExpExecArray) => Period | null) => {
+    s = s.replace(re, (...args) => {
+      const m = args.slice(0, -2) as unknown as RegExpExecArray;
+      const p = f(m);
+      if (p) out.push(p);
+      return " ";
+    });
+  };
+  // Ranges: "Jul 2025–Jun 2026", "Jun 11–Jul 19, 2026", "Aug 2025 → Aug 2026", "Oct 29–31, 2026".
+  take(new RegExp(`\\b${MON}\\s*(\\d{1,2}(?!\\d))?,?\\s*(20\\d{2})?\\s*(?:–|—|-|→|to)\\s*${MON}\\s*(\\d{1,2}(?!\\d))?,?\\s*(20\\d{2})\\b`, "gi"), (m) => {
+    const m1 = monNum(m[1]), m2 = monNum(m[4]), y2 = +m[6];
+    const y1 = m[3] ? +m[3] : m1 > m2 ? y2 - 1 : y2;
+    const start = k(y1, m1, m[2] ? +m[2] : 1);
+    const end = k(y2, m2, m[5] ? +m[5] : dim(y2, m2));
+    const label = m[2] && m[5] ? `${MONTH_NAMES[m1 - 1]} ${+m[2]}${y1 !== y2 ? `, ${y1}` : ""}–${MONTH_NAMES[m2 - 1]} ${+m[5]}, ${y2}` : "";
+    return { start, end, label };
+  });
+  take(new RegExp(`\\b${MON}\\s+(\\d{1,2})\\s*[–-]\\s*(\\d{1,2}),?\\s+(20\\d{2})\\b`, "gi"), (m) => {
+    const mo = monNum(m[1]), y = +m[4];
+    return { start: k(y, mo, +m[2]), end: k(y, mo, +m[3]), label: `${MONTH_NAMES[mo - 1]} ${+m[2]}–${+m[3]}, ${y}` };
+  });
+  // Week ending / week of.
+  take(new RegExp(`\\b(w\\/e|wk ending|week ending|week of)\\s+(?:(20\\d{2})-(\\d{2})-(\\d{2})|(\\d{1,2})\\s+${MON}|${MON}\\s+(\\d{1,2}))(?:,?\\s*(20\\d{2}))?`, "gi"), (m) => {
+    let e: number;
+    if (m[2]) e = k(+m[2], +m[3], +m[4]);
+    else {
+      const mo = monNum(m[6] ?? m[7]), d = +(m[5] ?? m[8]);
+      e = k(m[9] ? +m[9] : yearFor(mo, d, ref), mo, d);
+    }
+    const end = new Date(Date.UTC(kY(e), kM(e) - 1, kD(e)));
+    const other = new Date(end);
+    other.setUTCDate(other.getUTCDate() + (/of/i.test(m[1]) ? 6 : -6));
+    const ok = other.getUTCFullYear() * 10000 + (other.getUTCMonth() + 1) * 100 + other.getUTCDate();
+    return /of/i.test(m[1]) ? { start: e, end: ok, label: "" } : { start: ok, end: e, label: `w/e ${dayLabel(e)}` };
+  });
+  // YTD through a month: "2026 YTD through Aug", "YTD Aug 2026", "through Aug 2026".
+  take(new RegExp(`\\b(?:(20\\d{2})\\s+)?(?:YTD(?:\\s+(?:through|thru|to))?|through|thru)\\s+${MON}(?:\\s+(20\\d{2}))?`, "gi"), (m) => {
+    const mo = monNum(m[2]);
+    const y = m[3] ? +m[3] : m[1] ? +m[1] : null;
+    if (!y) return null;
+    return { start: k(y, 1, 1), end: k(y, mo, dim(y, mo)), label: `Jan–${MONTH_NAMES[mo - 1]} ${y}` };
+  });
+  // Single days and months.
+  take(/\b(20\d{2})-(\d{2})-(\d{2})\b/g, (m) => {
+    const d = k(+m[1], +m[2], +m[3]);
+    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+  });
+  take(/\b(20\d{2})-(\d{2})\b(?!-)/g, (m) => (+m[2] >= 1 && +m[2] <= 12 ? { start: k(+m[1], +m[2], 1), end: k(+m[1], +m[2], dim(+m[1], +m[2])), label: "" } : null));
+  take(new RegExp(`\\b${MON}\\s+(\\d{1,2}),?\\s+(20\\d{2})\\b`, "gi"), (m) => {
+    const d = k(+m[3], monNum(m[1]), +m[2]);
+    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+  });
+  take(new RegExp(`\\b(\\d{1,2})\\s+${MON}\\s+(20\\d{2})\\b`, "gi"), (m) => {
+    const d = k(+m[3], monNum(m[2]), +m[1]);
+    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+  });
+  take(new RegExp(`\\b${MON}\\s+(20\\d{2})\\b`, "gi"), (m) => {
+    const mo = monNum(m[1]), y = +m[2];
+    return { start: k(y, mo, 1), end: k(y, mo, dim(y, mo)), label: "" };
+  });
+  take(/\bQ([1-4])[\s-]?(?:FY)?(20\d{2})\b|\b(20\d{2})[\s-]?Q([1-4])\b/gi, (m) => {
+    const q = +(m[1] ?? m[4]), y = +(m[2] ?? m[3]);
+    return { start: k(y, q * 3 - 2, 1), end: k(y, q * 3, dim(y, q * 3)), label: `Q${q} ${y}` };
+  });
+  take(/\b(YE|CY)\s?(20\d{2})\b/gi, (m) => ({ start: k(+m[2], 1, 1), end: k(+m[2], 12, 31), label: `${m[1].toUpperCase() === "YE" ? "YE " : ""}${m[2]}` }));
+  // A bare year counts only when nothing finer is written (fiscal years without months never do).
+  if (!out.length) {
+    take(/(?<![A-Za-z\d-])(?<!FY\s|TY\s)(20\d{2})\b(?![-–]\d)/g, (m) => ({ start: k(+m[1], 1, 1), end: k(+m[1], 12, 31), label: `${m[1]}` }));
   }
-  m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(20\d{2})\b/i.exec(s);
-  if (m) return monthPeriod(+m[2], MONTHS[m[1].toLowerCase()]);
-  m = /\bQ([1-4])[\s-]?(?:FY)?(20\d{2})\b|\b(20\d{2})[\s-]?Q([1-4])\b/i.exec(s);
-  if (m) {
-    const q = +(m[1] ?? m[4]);
-    const y = +(m[2] ?? m[3]);
-    const l = `Q${q} ${y}`;
-    return { start: y * 10000 + (q * 3 - 2) * 100 + 1, end: y * 10000 + q * 300 + DIM[q * 3 - 1], startLabel: l, endLabel: l, gran: "quarter" };
+  return out
+    .filter((p) => p.start <= today && p.start <= p.end)
+    .map((p) => {
+      const end = Math.min(p.end, today);
+      const label =
+        p.label ||
+        (p.start === p.end
+          ? dayLabel(p.start)
+          : kD(p.start) === 1 && kM(p.start) === kM(p.end) && kY(p.start) === kY(p.end)
+            ? monLabel(p.start)
+            : spanLabel(p.start, p.end));
+      return { start: p.start, end, label };
+    });
+}
+
+/**
+ * The data period of a fact: the latest period written in the first text that has one. Dates in
+ * parentheses ("(2026-09-25; source: …)", "(report dated …)") are usually publication dates, so
+ * the text outside parentheses is read first.
+ */
+export function dataPeriod(texts: (string | null | undefined)[], ref?: number | null): Period | null {
+  const latest = (ps: Period[]) => (ps.length ? ps.reduce((a, b) => (b.end > a.end ? b : a)) : null);
+  for (const t of texts) {
+    if (!t) continue;
+    let outside = t;
+    for (let i = 0; i < 3; i++) outside = outside.replace(/\([^()]*\)/g, " ");
+    const p = latest(periodsIn(outside, ref ?? todayKey())) ?? latest(periodsIn(t, ref ?? todayKey()));
+    if (p) return p;
   }
-  m = /\b(?:YE|CY)\s?(20\d{2})\b/i.exec(s);
-  if (m) return yearPeriod(+m[1]);
-  m = /\bFY\s?(20\d{2})\b/i.exec(s);
-  if (m) return { ...yearPeriod(+m[1], "FY "), minEnd: +m[1] * 10000 + 131 };
-  m = /\b(20\d{2})\b/.exec(s);
-  if (m) return yearPeriod(+m[1]);
   return null;
 }
 
-function keyMinusDays(k: number, days: number): number {
-  const d = new Date(Date.UTC(Math.floor(k / 10000), (Math.floor(k / 100) % 100) - 1, k % 100));
+/** Back-compat: the data period of one string. */
+export function periodOf(raw: string | null | undefined): Period | null {
+  return dataPeriod([raw], stampKey(raw));
+}
+
+/** "Mon YYYY–Mon YYYY" (same year: "Jan–Sep 2026"); month and year at both ends. */
+export function spanLabel(start: number, end: number): string {
+  const a = monLabel(start);
+  const b = monLabel(end);
+  if (a === b) return a;
+  return kY(start) === kY(end) ? `${MONTH_NAMES[kM(start) - 1]}–${b}` : `${a}–${b}`;
+}
+
+function keyMinusDays(x: number, days: number): number {
+  const d = new Date(Date.UTC(kY(x), kM(x) - 1, kD(x)));
   d.setUTCDate(d.getUTCDate() - days);
-  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+  return k(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
 }
 
 /** First day (yyyymmdd) of a date window; 0 for All. */
@@ -299,47 +421,39 @@ export function rangeCutoff(range: DateRange, today = todayKey()): number {
   return 0;
 }
 
-/**
- * True when a cited date falls in the window: its period overlaps [cutoff, today]. Undated or
- * future-dated rows are outside any window (we can't show they're in it); All keeps every row.
- */
-export function inRange(asOf: string | null | undefined, range: DateRange, today = todayKey()): boolean {
+/** A data period is in a window when it ends inside it. Undated facts are outside every window (All keeps them). */
+export function periodInRange(p: Period | null | undefined, range: DateRange, today = todayKey()): boolean {
   if (range === "all") return true;
-  const p = periodOf(asOf);
   if (!p) return false;
-  // Fiscal years count only when they surely reach the window (their earliest possible end does).
-  return (p.minEnd ?? p.end) >= rangeCutoff(range, today) && p.start <= today;
+  return p.end >= rangeCutoff(range, today) && p.start <= today;
 }
 
-/** Count and date span of the citations in an answer, from their own dates. */
+export function inRange(text: string | null | undefined, range: DateRange, today = todayKey()): boolean {
+  return periodInRange(periodOf(text), range, today);
+}
+
+/** Count and date span of the citations in an answer, from their data periods. */
 export function dataSpan(cites: Citation[]): DataSpan {
   const byKey = new Map<string, Period[]>();
   for (const c of cites) {
     if (!c.key) continue;
     const list = byKey.get(c.key) ?? [];
-    const p = periodOf(c.asOf);
+    const p = c.period !== undefined ? c.period : periodOf(c.asOf);
     if (p) list.push(p);
     byKey.set(c.key, list);
   }
-  let first: Period | null = null;
-  let last: Period | null = null;
+  let start = 0;
+  let end = 0;
   let dated = 0;
   for (const ps of byKey.values()) {
     if (ps.length) dated += 1;
     for (const p of ps) {
-      if (!first || p.start < first.start) first = p;
-      if (!last || p.end > last.end) last = p;
+      if (!start || p.start < start) start = p.start;
+      if (p.end > end) end = p.end;
     }
   }
-  let label: string | null = null;
-  if (first && last) {
-    const a = first.startLabel;
-    const b = last.endLabel;
-    const ma = /^([A-Z][a-z]{2}) (20\d{2})$/.exec(a);
-    const mb = /^([A-Z][a-z]{2}) (20\d{2})$/.exec(b);
-    label = a === b ? a : ma && mb && ma[2] === mb[2] ? `${ma[1]}–${mb[1]} ${mb[2]}` : `${a}–${b}`;
-  }
-  return { sources: byKey.size, dated, from: first?.startLabel ?? null, to: last?.endLabel ?? null, label };
+  const label = start ? spanLabel(start, end) : null;
+  return { sources: byKey.size, dated, from: start ? monLabel(start) : null, to: end ? monLabel(end) : null, label };
 }
 
 function todayKey(): number {
@@ -372,14 +486,14 @@ export function chipKind(url: string | undefined, label: string): ChipKind {
 function sourceFrom(link: SourceLink | undefined, fallbackLabel: string): BriefSource {
   if (link) {
     // Link labels are "<item> — <publisher>"; without a publisher part, name the publisher by URL.
-    const parts = link.label.split(/\s+—\s+/);
+    const parts = linkText(link).split(/\s+—\s+/);
     const raw = scrubInternal(parts.length > 1 ? parts[parts.length - 1] : publisherName(link.url)) || publisherName(link.url);
     // The read shows its own date, so drop a trailing "(Oct 13)" from the publisher.
     const label = raw.replace(/\s*\((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}(, ?20\d{2})?\)$/, "") || raw;
     // Popover fields, only from the link itself: title = the label's item part, publisher = its
     // publisher part (else the URL's publisher). A host-only label is not a title.
     const host = hostOf(link.url);
-    const titleRaw = parts.length > 1 ? parts.slice(0, -1).join(" — ") : link.label;
+    const titleRaw = parts.length > 1 ? parts.slice(0, -1).join(" — ") : parts[0];
     const title = scrubInternal(titleRaw).trim();
     const publisher = label || publisherName(link.url);
     return {
@@ -435,10 +549,11 @@ export type Fact = {
   topic?: string;
   /** Eligible for a key read (dated, sourced, not a gap / rule row, fits 140 chars). */
   readable: boolean;
+  /** Data period of the fact (not its load date); null when the fact carries none. */
+  period?: Period | null;
 };
 
 const NO_READ = /no public read|\bn\/a\b|\bgaps?\b.*no public read|\btag:\s*none\b|\(none: national applies\)/i;
-const INLINE_DATE = /\b20\d{2}-\d{2}(-\d{2})?\b|\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? (\d{1,2},? )?20\d{2}\b/;
 /** A fact worth a key read carries a figure (%, $, counts, keys, bp…), not just a year. */
 const METRIC = /\d(\.\d+)?\s?%|\$\s?\d|\b\d{1,3}(,\d{3})+\b|\b\d+(\.\d+)?\s?(M|B|k|K|x|bp|bps|pts?|keys|rooms|projects|hotels|visitors|passengers)\b|[+−]\s?\d|\b\d+\s?\/\s?\d+\b/;
 const RULE_ROW = /\bis not the same as\b|\brule\b|\bNOT RevPAR\b/i;
@@ -466,14 +581,85 @@ function stripRestatedTitle(title: string, body: string): string {
   return m ? after.slice(m[0].length) : body;
 }
 
-/** Split a signal into one row per item (bodies join items with " | "). */
-export function signalItems(s: SignalLike): { text: string; asOf: string | null }[] {
+function rawItems(s: SignalLike): string[] {
   const body = dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
   const parts = body.split(/\s+\|\s+/).map((x) => x.trim()).filter(Boolean);
   if (parts.length < 2) return [];
   parts[0] = stripRestatedTitle(s.title, parts[0]);
-  // Items keep their own "·" segments verbatim; their date is the cited row's as-of date.
-  return parts.map((p) => ({ text: p.replace(/\.$/, ""), asOf: null }));
+  return parts.map((p) => p.replace(/\.$/, ""));
+}
+
+/** Items a date window kept for a windowed copy of a signal. */
+const KEPT = new WeakMap<object, string[]>();
+
+/** Split a signal into one row per item (bodies join items with " | "). */
+export function signalItems(s: SignalLike): { text: string; asOf: string | null }[] {
+  const kept = KEPT.get(s);
+  return (kept ?? rawItems(s)).map((text) => ({ text, asOf: null }));
+}
+
+/** Data period of a whole row: its title, magnitude and as-of (a load stamp is not a period). */
+export function rowPeriod(s: SignalLike): Period | null {
+  const links = parseSourceUrls(s.sourceUrls);
+  const single = rawItems(s).length === 0;
+  return dataPeriod([s.title, s.magnitude, s.asOf, single ? s.body.slice(0, 240) : null, single ? links[0]?.label : null], stampKey(s.asOf));
+}
+
+/** Data period of one item: its own text, then its own source link, then the row's. */
+export function itemPeriod(s: SignalLike, text: string, links = parseSourceUrls(s.sourceUrls)): Period | null {
+  return dataPeriod([text, specificLink(text, links)?.label], stampKey(s.asOf)) ?? rowPeriod(s);
+}
+
+/**
+ * A copy of the signal holding only the items whose data period falls in the window (and only the
+ * links those items cite); null when nothing is in it.
+ */
+export function windowSignal<T extends SignalLike>(s: T, range: DateRange): T | null {
+  if (range === "all") return s;
+  const links = parseSourceUrls(s.sourceUrls);
+  const items = rawItems(s);
+  if (!items.length) return periodInRange(rowPeriod(s), range) ? s : null;
+  const kept = items.filter((t) => periodInRange(itemPeriod(s, t, links), range));
+  if (!kept.length) return null;
+  const used = new Set(kept.map((t) => linkFor(t, links)?.url).filter(Boolean) as string[]);
+  const copy = { ...s, sourceUrls: links.filter((l) => used.has(l.url)) as unknown as T["sourceUrls"] };
+  KEPT.set(copy, kept);
+  return copy;
+}
+
+/** Labels that note a gap or a method, not a source; never counted or listed as a source. */
+const NOT_A_SOURCE = /gap note|no public read|no linked public source|not (yet )?(linked|public)|synthesis|Bungah|Capital Intel|\breviewed\b|\brules?\b|methodology|internal/i;
+export function isSourceLabel(label: string | null | undefined): boolean {
+  const t = (label ?? "").trim();
+  return Boolean(t) && !NOT_A_SOURCE.test(t);
+}
+
+/** One citation per source a signal's shown facts rest on (item-level, with each item's data period). */
+export function signalCites(s: SignalLike): Citation[] {
+  const links = parseSourceUrls(s.sourceUrls);
+  const items = signalItems(s);
+  if (!items.length) {
+    const l = links[0];
+    if (l) return [{ key: l.url, url: l.url, label: s.sourceLabel, text: linkText(l), asOf: s.asOf, period: rowPeriod(s) }];
+    return isSourceLabel(s.sourceLabel) ? [{ key: s.sourceLabel, label: s.sourceLabel, text: cleanSourceLabel(s.sourceLabel), asOf: s.asOf, period: rowPeriod(s) }] : [];
+  }
+  return items.flatMap((it) => {
+    const l = linkFor(it.text, links);
+    const period = itemPeriod(s, it.text, links);
+    if (l) return [{ key: l.url, url: l.url, label: s.sourceLabel, text: linkText(l), asOf: s.asOf, period }];
+    return isSourceLabel(s.sourceLabel) ? [{ key: s.sourceLabel, label: s.sourceLabel, text: cleanSourceLabel(s.sourceLabel), asOf: s.asOf, period }] : [];
+  });
+}
+
+/** A link's display label; a label naming three or more publishers is replaced by the URL's own publisher. */
+export function linkText(l: { url: string; label: string }): string {
+  const t = scrubInternal(l.label).replace(/\s*\((accessed|reviewed)[^)]*\)/gi, "").trim();
+  const head = t.split(/\s+—\s+/).pop() ?? t;
+  if (head.split(/\s+·\s+/).length >= 3) {
+    const lead = t.split(/\s+—\s+/).length > 1 ? t.split(/\s+—\s+/).slice(0, -1).join(" — ") + " — " : "";
+    return `${lead}${publisherName(l.url)}`;
+  }
+  return t || publisherName(l.url);
 }
 
 function specificLink(item: string, links: SourceLink[]): SourceLink | undefined {
@@ -505,30 +691,32 @@ function signalFactsRaw(s: SignalLike): Fact[] {
     const withMag = mag ? fitFact(`${title}: ${mag}`) : null;
     const head = withMag ?? title;
     const text = fitFact(dropOffLimitsSentences(head));
+    const period = rowPeriod(s);
     out.push({
       text: text ?? plain(head),
-      asOf: s.asOf,
-      key: dateKey(s.asOf),
-      source: withDate(sourceFrom(links[0], s.sourceLabel), s.asOf),
+      asOf: period?.label ?? null,
+      period,
+      key: period?.end ?? 0,
+      source: withDate(sourceFrom(links[0], s.sourceLabel), period?.label),
       kind: s.kind,
       title,
-      readable: Boolean(text) && !sigBad && !NO_READ.test(`${title} ${s.body}`.slice(0, 400)) && METRIC.test(text ?? "") && !OFF_LIMITS.test(head),
+      readable: Boolean(text) && Boolean(period) && !sigBad && !NO_READ.test(`${title} ${s.body}`.slice(0, 400)) && METRIC.test(text ?? "") && !OFF_LIMITS.test(head),
     });
     return out;
   }
   for (const it of items) {
     const text = fitFact(it.text);
-    // An item that carries its own date ("… · 2025-11-05", "Sep 2026") sorts by it and shows no second date.
-    const inline = INLINE_DATE.exec(text ?? it.text)?.[0] ?? null;
-    const asOf = inline ? null : it.asOf ?? s.asOf;
+    // Each fact is dated by the period its data covers (week, month, quarter…), never the load date.
+    const period = itemPeriod(s, it.text, links);
     out.push({
       text: text ?? plain(it.text),
-      asOf,
-      key: dateKey(inline ?? asOf),
-      source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), s.asOf),
+      asOf: period?.label ?? null,
+      period,
+      key: period?.end ?? 0,
+      source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), period?.label),
       kind: s.kind,
       title,
-      readable: Boolean(text) && !sigBad && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),
+      readable: Boolean(text) && Boolean(period) && !sigBad && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),
     });
   }
   return out;
@@ -607,7 +795,8 @@ export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> 
 }
 
 export function toRead(f: Fact): BriefRead {
-  return { text: f.text, asOf: fmtAsOf(f.asOf), source: f.source };
+  const shown = f.asOf && !f.text.includes(f.asOf) ? f.asOf : null;
+  return { text: f.text, asOf: f.period === undefined ? fmtAsOf(f.asOf) : shown, source: f.source };
 }
 
 /* ------------------------------------------------------------------ */
@@ -676,7 +865,8 @@ export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefi
       const links = parseSourceUrls(s.sourceUrls);
       const items = signalItems(s);
       const title = scrubInternal(s.title);
-      const date = fmtAsOf(s.asOf);
+      const rp = rowPeriod(s);
+      const date = rp && !title.includes(rp.label) && !(s.magnitude ?? "").includes(rp.label) ? rp.label : null;
       if (!items.length) {
         count += 1;
         const body = dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
@@ -737,8 +927,26 @@ export type Coverage = { text: string; basedOn: string; notes: string[]; span: D
  * count toward N but not the span, and the line says how many were dated.
  */
 export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange }): Coverage {
-  const span = dataSpan(opts.cites);
   const range = opts.range ?? "all";
+  // One entry per source; a gap note or method label is never a source.
+  const byKey = new Map<string, Citation>();
+  for (const c of opts.cites) {
+    if (!c.key || (!c.url && !isSourceLabel(c.text ?? c.label))) continue;
+    const p = c.period !== undefined ? c.period : periodOf(c.asOf);
+    const prev = byKey.get(c.key);
+    if (!prev) {
+      byKey.set(c.key, { key: c.key, label: scrubInternal(c.label), text: scrubInternal(c.text ?? cleanSourceLabel(c.label)), ...(c.url ? { url: c.url } : {}), asOf: c.asOf ?? null, period: p ?? null });
+      continue;
+    }
+    const q = prev.period;
+    if (p && (!q || p.start < q.start || p.end > q.end)) {
+      const start = q ? Math.min(q.start, p.start) : p.start;
+      const end = q ? Math.max(q.end, p.end) : p.end;
+      prev.period = { start, end, label: q ? (start === q.start && end === q.end ? q.label : start === p.start && end === p.end ? p.label : spanLabel(start, end)) : p.label };
+    }
+  }
+  const cited = [...byKey.values()];
+  const span = dataSpan(cited);
   const n = span.sources;
   const win = range === "all" ? "" : ` (${RANGE_LABEL[range].toLowerCase()})`;
   const basedOn =
@@ -746,19 +954,34 @@ export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?
       ? `Based on ${n} cited source${n === 1 ? "" : "s"}${span.dated && span.dated < n ? ` (${span.dated} dated)` : ""}${span.label ? `, ${span.label}` : ""}${win}.`
       : range === "all"
         ? "No cited figures for this question."
-        : `No cited sources dated in the ${RANGE_LABEL[range].toLowerCase()} for this question.`;
+        : `0 cited sources (${RANGE_LABEL[range].toLowerCase()}).`;
   const notes = (opts.notes ?? []).filter(Boolean);
-  const seen = new Set<string>();
-  const cited = opts.cites
-    .filter((c) => c.key)
-    .map((c) => ({ key: c.key, label: scrubInternal(c.label), asOf: c.asOf ?? null }))
-    .filter((c) => {
-      const k = `${c.key}\u0000${c.asOf ?? ""}`;
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
   return { text: [basedOn, ...notes].join(" "), basedOn, notes, span, cited };
+}
+
+/** The Sources list: exactly the answer's cited sources, one row each (count = the based-on count). */
+export function citedSourcesSection(cited: Citation[]): BriefSection | null {
+  if (!cited.length) return null;
+  const rows = cited.map((c) => {
+    const t = scrubInternal(c.text ?? c.label).replace(/\s*\((accessed|reviewed)[^)]*\)/gi, "").trim() || "Cited source";
+    const d = c.period && !t.includes(c.period.label) ? ` · ${c.period.label}` : "";
+    return c.url ? `- [${t}](${c.url})${d}` : `- ${t}${d}`;
+  });
+  return { id: "sources", title: "Sources", count: rows.length, markdown: rows.join("\n") };
+}
+
+/** Background links that no figure in the answer rests on (not counted as sources). */
+export function furtherReadingSection(links: { url: string; label: string }[], cited: Citation[] = []): BriefSection | null {
+  const skip = new Set(cited.map((c) => c.key));
+  const seen = new Set<string>();
+  const rows: string[] = [];
+  for (const l of links) {
+    if (!l.url || skip.has(l.url) || seen.has(l.url)) continue;
+    seen.add(l.url);
+    rows.push(`- [${linkText(l)}](${l.url})`);
+  }
+  if (!rows.length) return null;
+  return { id: "further", title: "Further reading", count: rows.length, markdown: rows.join("\n") };
 }
 
 function readVisible(r: BriefRead): string {
@@ -790,7 +1013,7 @@ export function makeBrief(
       },
     })),
     coverage: scrubInternal(b.coverage),
-    sections: b.sections
+    sections: withCitedSources(b.sections, cov)
       .filter((s) => s.count > 0 && s.markdown.trim())
       .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)) })),
     footer: b.footer ?? DECISION_LINE,
@@ -798,6 +1021,19 @@ export function makeBrief(
   };
   clean.collapsedChars = collapsedLength(clean);
   return clean;
+}
+
+/** Sources always lists the cited rows (built from the coverage); Further reading stays last. */
+function withCitedSources(sections: BriefSection[], cov: Coverage | null): BriefSection[] {
+  if (!cov) return sections;
+  const rest = sections.filter((x) => x.id !== "sources" && x.id !== "further");
+  const further = sections.find((x) => x.id === "further");
+  const furtherClean = further ? furtherReadingSection(
+    [...further.markdown.matchAll(/\[([^\]]+)\]\((https?:[^)]+|\/[^)]+)\)/g)].map((m) => ({ label: m[1], url: m[2] })),
+    cov.cited
+  ) : null;
+  const src = citedSourcesSection(cov.cited);
+  return [...rest, ...(src ? [src] : []), ...(furtherClean ? [furtherClean] : [])];
 }
 
 /** Markdown rendering of a brief: stored as the answer text (threads / logs) and used without JS. */
@@ -859,8 +1095,26 @@ export type DigestFacts = {
   links: { url: string; label: string }[];
   guidanceMd: string;
   balanceMd: string;
+  /** Operating KPIs, supply / pipeline and segment mix, as published (every read's number is in one of these). */
+  kpiMd: string;
+  supplyMd: string;
+  segmentMd: string;
+  /** The quarter the digest reports (its data period). */
+  dataPeriod: Period | null;
   excerpt: string;
 };
+
+/** A digest section as shown to readers: no file paths, backticked notes or internal lines. */
+export function cleanDigestMd(md: string): string {
+  return md
+    .split("\n")
+    .filter((l) => !/Capital Graph|\bHal\b|decision support|_raw\//i.test(l))
+    .join("\n")
+    .replace(/\(`([^`]*)`\)/g, "($1)")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/\s*\|\s*Source\s*\|\s*$/gim, " |")
+    .trim();
+}
 
 /** A link label as a title: drop dangling separators left by markdown ("8-K Item 2.02: — exhibits…"). */
 export function tidyTitle(t: string | undefined): string | undefined {
@@ -898,10 +1152,11 @@ export function digestFacts(d: DigestHit, raw: string): DigestFacts {
     ? { kind: "Filing", label: `${d.name} ${periodLabel} earnings release (8-K)`, url: filing.url, title: tidyTitle(filing.label), publisher: d.name, date: relDate }
     : { kind: "Press", label: `${d.name} ${periodLabel} earnings release`, url: releaseLink?.url, title: tidyTitle(releaseLink?.label), publisher: d.name, date: relDate };
 
+  const qp = periodOf(periodLabel);
   const fact = (text: string | null): Fact | null => {
     if (!text) return null;
     const t = fitFact(text);
-    return t ? { text: t, asOf: release, key: dateKey(release), source, kind: "reit", title: d.name, readable: true } : null;
+    return t ? { text: t, asOf: qp?.label ?? release, period: qp, key: qp?.end ?? dateKey(release), source: { ...source, date: qp?.label ?? source.date }, kind: "reit", title: d.name, readable: true } : null;
   };
 
   // Headline: the first RevPAR row of the operating KPI table (value and change as reported).
@@ -971,6 +1226,10 @@ export function digestFacts(d: DigestHit, raw: string): DigestFacts {
     links,
     guidanceMd: guideMd.replace(/\(`([^`]*)`\)/g, "($1)").replace(/`[^`]*_raw\/[^`]*`/g, ""),
     balanceMd: balMd.replace(/\(`([^`]*)`\)/g, "($1)").replace(/^\*\*capital note:\*\*.*$/im, "").trim(),
+    kpiMd: cleanDigestMd(section(md, /Operating KPIs/)),
+    supplyMd: cleanDigestMd(section(md, /^## Supply/)),
+    segmentMd: cleanDigestMd(section(md, /Segment|geography/)),
+    dataPeriod: qp,
     excerpt: headlinePara,
   };
 }

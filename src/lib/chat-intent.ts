@@ -10,6 +10,7 @@ export const CHAT_INTENTS = [
   "which_submarket",
   "talent_greenlight",
   "debt_overlay",
+  "rates",
   "tax_collections",
   "compare_markets",
   "general_thesis",
@@ -18,6 +19,7 @@ export const CHAT_INTENTS = [
   "uncovered_market",
   "supply_ranking",
   "property_asset",
+  "reit_call",
   "unknown",
 ] as const;
 
@@ -83,6 +85,13 @@ const RULES: Rule[] = [
       /\brefinanc/.test(q) ||
       /\b\bdy\b/.test(q) ||
       /\bdebt[- ]wall\b/.test(q),
+  },
+  {
+    // Benchmark rates: answered from the cited national rate rows (10-year by default).
+    intent: "rates",
+    weight: 8.5,
+    test: (q) =>
+      /\b10[- ]?(year|yr)\b|\b10y\b|\btreasur(y|ies)\b|\byield curve\b|\bsofr\b|\bfed funds\b|\binterest rates?\b|\bbond yields?\b|\bfomc\b/.test(q),
   },
   {
     intent: "supply_pipeline",

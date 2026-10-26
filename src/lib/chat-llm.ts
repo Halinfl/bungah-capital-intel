@@ -44,6 +44,7 @@ import {
 import { radarChatAnswer } from "./radars-preview";
 import {
   DATE_RANGES,
+  registerSweepStamps,
   DECISION_LINE,
   RANGE_LABEL,
   briefMarkdown,
@@ -62,6 +63,7 @@ import {
   digestReads,
   marketBrief,
   nationalDebtBrief,
+  ratesBrief,
   propertyBrief,
   uncoveredBrief,
   windowDigests,
@@ -166,6 +168,7 @@ function answeredWellHeuristic(
   if (hadMarket || hadCorpus) return true;
   if (
     intent === "debt_overlay" ||
+    intent === "rates" ||
     intent === "talent_greenlight" ||
     intent === "compare_markets"
   ) {
@@ -233,6 +236,7 @@ function subjectBrief(
       ...opts,
       extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
       extraSections: extra ? extra.sections : undefined,
+      extraCites: extra?.cites,
     });
   }
   if (digests.length) return digestBrief(digests, question, opts);
@@ -334,10 +338,12 @@ export async function answerChat(
 /** A date window with no cited source in it: a plain statement, no figures, the chip stays. */
 export function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAnswer {
   const label = RANGE_LABEL[range].toLowerCase();
-  const others = DATE_RANGES.filter((r) => r !== range).map((r) => (r === "all" ? "All" : RANGE_LABEL[r]));
+  // Only wider windows can add older sources: 90 days → 12 months or All; 12 months → All.
+  const wider = range === "90d" ? "Last 12 months or All" : "All";
+  void DATE_RANGES;
   const brief = makeBrief({
     decline: full.brief?.decline,
-    answer: `No cited sources for this question are dated in the ${label}, so there is nothing to show for that window. Choose ${others.join(" or ")} to include older sources.`,
+    answer: `Nothing cited for this question is dated in the ${label}. Choose ${wider} to include older sources.`,
     reads: [],
     coverage: coverageLine({ cites: [], range }),
     window: { range, filterable: true },
@@ -386,6 +392,8 @@ async function answerChatIn(
     retrieveGraphContext(question, opts?.marketSlug),
     retrieveAllowedCorpus(question),
   ]);
+  // Load / sweep stamps (a date shared by many rows) are when rows were collected, never a data period.
+  registerSweepStamps([...ctxAll.markets.flatMap((m) => m.signals.map((s) => s.asOf)), ...ctxAll.nationalSignals.map((s) => s.asOf)]);
   // Date window: every brief below is built only from rows dated inside it.
   const ctx = range === "all" ? ctxAll : windowContext(ctxAll, range);
   const corpus = range === "all" ? corpusAll : { ...corpusAll, digests: windowDigests(corpusAll.digests, range) };
@@ -516,7 +524,8 @@ async function answerChatIn(
       content: digestMemo,
       brief: digestBrief(digests, question, { range }),
       citations: digestCites,
-      intent: ctx.intent,
+      // Earnings-call / REIT digest answer (a question naming Pebblebrook classifies as unknown otherwise).
+      intent: ctx.intent === "unknown" || ctx.intent === "general_thesis" || ctx.intent === "revpar_metrics" ? "reit_call" : ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
       mode: "deterministic",
     };
@@ -583,8 +592,10 @@ function briefForGraph(question: string, ctx: GraphContext, namedDigests: Corpus
       nationalOverlay: overlay,
       extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
       extraSections: extra?.sections,
+      extraCites: extra?.cites,
     });
   }
+  if (intent === "rates") return ratesBrief(nationalSignals, question, { range });
   if (intent === "debt_overlay") {
     const findings = radars.filter((r) => r.slug.includes("debt")).flatMap((r) => r.findings);
     return nationalDebtBrief(nationalSignals, findings, { range });
