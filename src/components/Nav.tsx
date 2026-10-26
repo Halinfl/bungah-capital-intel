@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { MobileMenu } from "./MobileMenu";
 
-/** Primary nav. Pricing lives on the homepage and in the footer; Trust lives in the footer. */
+/** Primary nav. The footer mirrors these links and adds Tuesday Trends and the Trust Contract. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/reits", label: "REITs" },
@@ -64,10 +64,10 @@ export async function Nav() {
             </span>
           ) : (
             <Link
-              href="/signup"
+              href="/chat"
               className="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
             >
-              Start free
+              Ask a capital question
             </Link>
           )}
           <MobileMenu items={mobileItems} />

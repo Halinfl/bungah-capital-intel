@@ -43,30 +43,22 @@ export default function RootLayout({
                 <div className="text-slate-300">Decision support for hotel capital. Every number cited; you make the call.</div>
               </div>
               <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
-                <Link href="/tuesday-trends" className="text-slate-200 hover:text-white">
-                  Tuesday Trends
-                </Link>
-                <Link href="/trust" className="text-slate-200 hover:text-white">
-                  Trust Contract
-                </Link>
-                <Link href="/pricing" className="text-slate-200 hover:text-white">
-                  Pricing
-                </Link>
-                <Link href="/podcast" className="text-slate-200 hover:text-white">
-                  Podcast
-                </Link>
-                <Link href="/hard-assets" className="text-slate-200 hover:text-white">
-                  Sound Assets
-                </Link>
-                <Link href="/sound-money-lodging" className="text-slate-200 hover:text-white">
-                  Sound Asset Lodging
-                </Link>
-                <Link href="/errata" className="text-slate-200 hover:text-white">
-                  Errata
-                </Link>
-                <Link href="/sponsorship-policy" className="text-slate-200 hover:text-white">
-                  Sponsorship policy
-                </Link>
+                {[
+                  ["/markets", "Markets"],
+                  ["/reits", "REITs"],
+                  ["/chat", "Chat"],
+                  ["/radars", "Radars"],
+                  ["/hard-assets", "Sound Assets"],
+                  ["/podcast", "Podcast"],
+                  ["/tuesday-trends", "Tuesday Trends"],
+                  ["/trust", "Trust Contract"],
+                  ["/errata", "Errata"],
+                  ["/sponsorship-policy", "Sponsorship policy"],
+                ].map(([href, label]) => (
+                  <Link key={href} href={href} className="text-slate-200 hover:text-white">
+                    {label}
+                  </Link>
+                ))}
               </nav>
             </div>
           </footer>
