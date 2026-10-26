@@ -3,19 +3,18 @@ import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { MobileMenu } from "./MobileMenu";
+import { NavLinks } from "./NavLinks";
 
 /** Primary nav. The footer mirrors these links and adds Tuesday Trends and the Trust Contract. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/reits", label: "REITs" },
+  { href: "/deals", label: "Deals" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
   { href: "/hard-assets", label: "Sound Assets" },
   { href: "/podcast", label: "Podcast" },
 ];
-
-const linkCls =
-  "rounded-md px-2.5 py-1.5 text-slate-200 transition hover:bg-white/[0.05] hover:text-white";
 
 export async function Nav() {
   const { userId } = await auth();
@@ -31,26 +30,14 @@ export async function Nav() {
             B
           </span>
           <span className="whitespace-nowrap text-[15px] font-medium tracking-tight text-white">
-            Bungah<span className="hidden lg:inline"> Capital Intel</span>
+            Bungah<span className="hidden xl:inline"> Capital Intel</span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 text-sm md:flex">
-          {links.map((l) => (
-            <Link key={l.href} href={l.href} className={linkCls}>
-              {l.label}
-            </Link>
-          ))}
-          {userId ? (
-            <>
-              <Link href="/workspace" className={linkCls}>
-                Workspace
-              </Link>
-              <Link href="/account/org" className={linkCls}>
-                Account
-              </Link>
-            </>
-          ) : null}
+        <nav className="hidden items-center gap-0.5 text-sm lg:flex">
+          <NavLinks
+            items={userId ? [...links, { href: "/workspace", label: "Workspace" }, { href: "/account/org", label: "Account" }] : links}
+          />
         </nav>
 
         <div className="flex items-center gap-2">
@@ -62,7 +49,7 @@ export async function Nav() {
             <>
               <Link
                 href="/login"
-                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white md:inline"
+                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white lg:inline"
               >
                 Sign in
               </Link>

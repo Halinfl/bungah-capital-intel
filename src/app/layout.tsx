@@ -48,6 +48,7 @@ export default function RootLayout({
                 {[
                   ["/markets", "Markets"],
                   ["/reits", "REITs"],
+                  ["/deals", "Deals"],
                   ["/chat", "Chat"],
                   ["/radars", "Radars"],
                   ["/hard-assets", "Sound Assets"],

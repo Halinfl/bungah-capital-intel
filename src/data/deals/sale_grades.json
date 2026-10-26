@@ -1,0 +1,80 @@
+[
+  {
+    "sale_id": "grande-lakes-orlando-2026",
+    "rubric_version": "v1",
+    "graded_on": "2026-10-25",
+    "public_data_as_of": "2026-08-10",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.353,
+        "score": 3,
+        "value": -1.8,
+        "input_text": "$867k/key vs $883k replacement per key (HVS 2026 median incl. land, blended by keys: Ritz-Carlton 582 keys at the luxury median $1,604,356; JW Marriott 1,010 keys at the full-service median $467,244); 2% below",
+        "band_text": "3 = within 20% either way",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": 0.294,
+        "score": 2,
+        "value": 188,
+        "input_text": "6.60% cap rate (trailing 12 months to 2026-06-30) vs 4.72% 10-year (2026-08-10 close); 188bp",
+        "band_text": "2 = 100bp to under 200bp",
+        "as_of": "2026-08-10",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm",
+        "graded": true,
+        "reason": null
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No free source published Orlando's total pipeline (under construction plus planned) as a share of existing rooms as of Aug 10, 2026. Partial-stage figures are shown as context only."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.176,
+        "score": 5,
+        "value": 8.1,
+        "input_text": "Lodging tax receipts +8.1% (trailing 12 months vs prior 12, through Jun 2026; $404.6M vs $374.4M)",
+        "band_text": "5 = up 5% or more",
+        "as_of": "2026-08-04",
+        "source_uri": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
+        "graded": true,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.176,
+        "score": 4,
+        "value": "arms_length_structured",
+        "input_text": "Arm's-length; no public distress (latest rating action on the $800M CMBS loan: confirmed, Stable, Dec 2025). Buyer held an option to assume that loan, with modification terms not public, so the price could be paid partly in assumed debt.",
+        "band_text": "4 = Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization",
+        "as_of": "2026-08-10",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex10-1.htm",
+        "graded": true,
+        "reason": null
+      }
+    ],
+    "factors_graded": 4,
+    "factors_total": 5,
+    "overall": 3.2,
+    "overall_label": "3.2 / 5",
+    "output_text": "Underwritten at a 2% discount to replacement with a 188bp spread; 4 of 5 factors graded."
+  }
+]

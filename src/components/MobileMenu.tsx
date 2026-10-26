@@ -20,7 +20,7 @@ export function MobileMenu({ items }: { items: Item[] }) {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         aria-expanded={open}
@@ -47,8 +47,9 @@ export function MobileMenu({ items }: { items: Item[] }) {
               <li key={l.href}>
                 <Link
                   href={l.href}
+                  aria-current={pathname === l.href || pathname?.startsWith(`${l.href}/`) ? "page" : undefined}
                   className={`block rounded-md px-2 py-3 text-base ${
-                    pathname === l.href ? "text-white" : "text-slate-200"
+                    pathname === l.href || pathname?.startsWith(`${l.href}/`) ? "bg-white/[0.06] text-white" : "text-slate-200"
                   } hover:bg-white/[0.05]`}
                 >
                   {l.label}

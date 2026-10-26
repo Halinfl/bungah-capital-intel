@@ -1,0 +1,502 @@
+{
+  "rubric_version": "v1",
+  "status": "Approved by Hal 2026-10-25",
+  "drafted_on": "2026-10-25",
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "integer_scores": true
+  },
+  "provenance": {
+    "factors_and_weights": "spec v3 section 4 (carried from v2), approved by Hal",
+    "top_bands": "Hal, 2026-10-25",
+    "lower_bands": "Derived lower bands (stepping down evenly from Hal's top bands) approved as drafted by Hal, 2026-10-25."
+  },
+  "factors": [
+    {
+      "id": "replacement_cost",
+      "label": "Price per key vs replacement cost per key",
+      "weight": 0.3,
+      "metric": "premium_pct",
+      "metric_definition": "(price_per_key - replacement_cost_per_key) / replacement_cost_per_key * 100. Negative = below replacement cost. Replacement cost per key = the HVS U.S. Hotel Development Cost Survey MEDIAN total development cost per key, INCLUDING land, from the latest edition published before the announcement date, blended by keys across the HVS classes of the hotels in the deal (each hotel's class stated on the entry).",
+      "unit": "percent",
+      "bands": [
+        {
+          "score": 5,
+          "rule": "premium_pct <= -40",
+          "text": "40% or more below replacement cost",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "-40 < premium_pct <= -20",
+          "text": "20% to 40% below",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "-20 < premium_pct < 20",
+          "text": "within 20% either way",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "20 <= premium_pct <= 40",
+          "text": "20% to 40% above",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "premium_pct > 40",
+          "text": "more than 40% above",
+          "set_by": "derived"
+        }
+      ],
+      "cuts": {
+        "direction": "lower_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "max": -40,
+            "max_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": -40,
+            "min_inclusive": false,
+            "max": -20,
+            "max_inclusive": true
+          },
+          {
+            "score": 3,
+            "min": -20,
+            "min_inclusive": false,
+            "max": 20,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 20,
+            "min_inclusive": true,
+            "max": 40,
+            "max_inclusive": true
+          },
+          {
+            "score": 1,
+            "min": 40,
+            "min_inclusive": false
+          }
+        ]
+      },
+      "basis_rule": {
+        "statistic": "median",
+        "land": "included",
+        "blend": "key-weighted across the HVS classes of the hotels in the deal",
+        "edition": "latest published before announcement",
+        "status": "Approved by Hal 2026-10-25"
+      }
+    },
+    {
+      "id": "spread",
+      "label": "Implied cap rate vs 10-year Treasury spread",
+      "weight": 0.25,
+      "metric": "spread_bp",
+      "metric_definition": "(cap rate - 10-year Treasury par yield) in basis points. Cap rate basis: NOI for the trailing 12 months through the last completed quarter before the announcement, divided by the price, or a disclosed cap rate on that same basis. NOI as the company defines and discloses it (e.g. Adjusted EBITDAre less FF&E reserve) counts; EBITDA alone is not NOI. Cap rates on other bases (a prior fiscal year, forward or pro forma NOI) are recorded but not graded. 10-year: the Treasury daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). If no NOI or cap rate on the trailing-12-month basis was disclosed, the factor is not gradeable. Stated as a plain number of basis points.",
+      "unit": "bp",
+      "bands": [
+        {
+          "score": 5,
+          "rule": "spread_bp >= 400",
+          "text": "400bp or more",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "300 <= spread_bp < 400",
+          "text": "300bp to under 400bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "200 <= spread_bp < 300",
+          "text": "200bp to under 300bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "100 <= spread_bp < 200",
+          "text": "100bp to under 200bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "spread_bp < 100",
+          "text": "under 100bp",
+          "set_by": "derived"
+        }
+      ],
+      "cuts": {
+        "direction": "higher_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "min": 400,
+            "min_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": 300,
+            "min_inclusive": true,
+            "max": 400,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": 200,
+            "min_inclusive": true,
+            "max": 300,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 100,
+            "min_inclusive": true,
+            "max": 200,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "max": 100,
+            "max_inclusive": false
+          }
+        ]
+      },
+      "basis_rule": {
+        "cap_rate_basis": "ttm_through_last_quarter_before_announcement",
+        "cap_rate_period_end_must_be": "the last calendar quarter-end before the announcement date",
+        "other_bases": "recorded, not graded",
+        "treasury_date": "announcement_date_close",
+        "treasury_series": "U.S. Treasury daily par yield curve, 10 Yr",
+        "status": "Approved by Hal 2026-10-25 (Treasury timing replaced by the announcement-date close)",
+        "reasoning": [
+          "Trailing 12 months through the last quarter before the announcement is the most recent full year of operations the market could see at signing. It removes seasonality, it's the convention REITs use when they price acquisitions, and it can be applied the same way to every deal.",
+          "A prior fiscal year (e.g. FY25) is staler, and its age depends on when in the year a deal is announced, so deals wouldn't be compared on the same footing."
+        ],
+        "treasury_note": "Hal, 2026-10-25: the announcement-date close, per spec v3 section 4. This replaces the Amendment A proposal (prior trading day's close)."
+      }
+    },
+    {
+      "id": "supply",
+      "label": "Supply backdrop",
+      "weight": 0.15,
+      "metric": "pipeline_pct_of_rooms",
+      "metric_definition": "Total market (MSA) hotel pipeline, under construction plus planned, as a percent of the market's existing rooms, taken from a SINGLE public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is Not graded with a reason. Partial-stage figures (e.g. early planning only, announcements only, projected openings only) may appear only as cited, ungraded context.",
+      "unit": "percent",
+      "bands": [
+        {
+          "score": 5,
+          "rule": "pipeline_pct_of_rooms < 2",
+          "text": "under 2% of existing rooms",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "2 <= pipeline_pct_of_rooms < 4",
+          "text": "2% to under 4%",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "4 <= pipeline_pct_of_rooms < 6",
+          "text": "4% to under 6%",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "6 <= pipeline_pct_of_rooms < 8",
+          "text": "6% to under 8%",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "pipeline_pct_of_rooms >= 8",
+          "text": "8% or more",
+          "set_by": "derived"
+        }
+      ],
+      "cuts": {
+        "direction": "lower_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "max": 2,
+            "max_inclusive": false
+          },
+          {
+            "score": 4,
+            "min": 2,
+            "min_inclusive": true,
+            "max": 4,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": 4,
+            "min_inclusive": true,
+            "max": 6,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 6,
+            "min_inclusive": true,
+            "max": 8,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "min": 8,
+            "min_inclusive": true
+          }
+        ]
+      },
+      "source_rule": {
+        "single_source_required": true,
+        "required_stage": "total_under_construction_plus_planned",
+        "no_stitching": "across publishers or stages",
+        "if_unavailable": "Not graded, with a reason; partial-stage figures shown as cited, ungraded context",
+        "status": "Approved by Hal 2026-10-25",
+        "reasoning": [
+          "A share of existing rooms only means something if the numerator and denominator cover the same thing. Different publishers define stages differently (announced, early planning, final planning, under construction, projected openings), count different projects, and use different market boundaries and dates. Adding their stages together double-counts some rooms and misses others.",
+          "A rule fixed on one source and one definition applies the same way to every deal and can't be steered by picking which pieces to add.",
+          "When the public record doesn't have the number, the honest result is 'Not graded'. The missing-factor rule already handles that by spreading the weight across the graded factors and showing coverage."
+        ],
+        "context_rule": "Partial-stage figures from public press releases, CoStar's included, may appear only as cited, ungraded context."
+      }
+    },
+    {
+      "id": "demand",
+      "label": "Demand trajectory",
+      "weight": 0.15,
+      "metric": "tax_receipts_yoy_pct",
+      "metric_definition": "Year-over-year change in published lodging (tourist development) tax receipts for the market: the latest 12 months published by the announcement date vs the 12 months before that (sums of the monthly collections). Fallback, only if a trailing-12-month series can't be built from public monthly numbers: fiscal year to date vs the same period of the prior fiscal year, through the same latest published month. Single-month changes are shown as context only and never scored. The measure used is stated on the entry. Tuesday Trends forward curve is context only for deals from Oct 2026 on.",
+      "unit": "percent",
+      "bands": [
+        {
+          "score": 5,
+          "rule": "tax_receipts_yoy_pct >= 5",
+          "text": "up 5% or more",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "0 <= tax_receipts_yoy_pct < 5",
+          "text": "flat to up under 5%",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "-5 <= tax_receipts_yoy_pct < 0",
+          "text": "down under 5%",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "-10 <= tax_receipts_yoy_pct < -5",
+          "text": "down 5% to 10%",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "tax_receipts_yoy_pct < -10",
+          "text": "down more than 10%",
+          "set_by": "derived"
+        }
+      ],
+      "cuts": {
+        "direction": "higher_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "min": 5,
+            "min_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": 0,
+            "min_inclusive": true,
+            "max": 5,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": -5,
+            "min_inclusive": true,
+            "max": 0,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": -10,
+            "min_inclusive": true,
+            "max": -5,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "max": -10,
+            "max_inclusive": false
+          }
+        ]
+      },
+      "measure_rule": {
+        "primary": "ttm_vs_prior_ttm",
+        "fallback": "fytd_vs_prior_fytd",
+        "fallback_condition": "a trailing-12-month series can't be built from public monthly numbers published by the announcement date",
+        "latest_month": "the latest month published on or before the announcement date",
+        "never_scored": "single month YoY",
+        "status": "Approved by Hal 2026-10-25",
+        "reasoning": [
+          "One month of tax receipts is noisy: timing of collections, holidays, Easter and convention calendars, and one-off events can swing it either way. One month is too thin to call a trajectory.",
+          "Fiscal year to date depends on where in the fiscal year the deal is announced. Early in the year it's nearly a single month; late in the year it's nearly 12. Deals wouldn't be measured on the same footing.",
+          "Trailing 12 vs the prior 12 months is the same length for every deal, removes seasonality, and uses only what had been published by the announcement date. It's a trajectory measure that applies the same way across markets with different fiscal years.",
+          "Fallback to fiscal year to date only when monthly data needed for the trailing 12 months isn't public. That's stated on the entry."
+        ]
+      }
+    },
+    {
+      "id": "debt_context",
+      "label": "Debt and transaction context",
+      "weight": 0.15,
+      "metric": "context_category",
+      "metric_definition": "Categorical. Assigned from filings, court and receiver records, public loan notices and press public before the announcement date. When more than one category applies, the lowest applicable score is used.",
+      "unit": "category",
+      "bands": [
+        {
+          "score": 5,
+          "category": "clean_arms_length",
+          "text": "Clean arm's-length sale with no distress",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "category": "arms_length_structured",
+          "text": "Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "category": "pressured_or_related",
+          "text": "Pressured seller without formal distress (publicly flagged loan maturity within 12 months, watchlist, fund wind-down) or a related-party / non-arm's-length transaction",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "category": "formal_distress",
+          "text": "Formal distress: loan in special servicing, notice of default, or a lender-negotiated sale (discounted payoff, deed in lieu)",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "category": "forced_or_receiver",
+          "text": "Forced or receiver sale: receivership, foreclosure, bankruptcy (Section 363) or court-ordered sale",
+          "set_by": "derived"
+        }
+      ]
+    }
+  ],
+  "missing_factor_rule": {
+    "text": "A factor without qualifying public input is not graded. Its weight is spread pro rata across the graded factors, and the entry shows coverage (\"k of 5 factors graded\"). With fewer than 3 of 5 factors graded there is no overall grade (\"Insufficient public data\").",
+    "min_factors_graded": 3,
+    "insufficient_label": "Insufficient public data",
+    "ungraded_label": "not graded yet"
+  },
+  "overall": {
+    "method": "weighted mean of graded factor scores using renormalized weights (weight_i / sum of graded weights)",
+    "rounding": "one decimal place",
+    "display": "X.X of 5",
+    "note": "Approved by Hal 2026-10-25."
+  },
+  "no_look_ahead_rule": {
+    "text": "Every input must have been public on or before the deal's announcement date. Replacement cost uses the latest HVS edition published before announcement. The 10-year yield is the Treasury daily par yield curve close on the announcement date. The cap rate uses trailing-12-month NOI through the last quarter before announcement. Demand uses tax receipts through the latest month published by the announcement date. Supply inputs must be published before announcement. Inputs dated after announcement are rejected and the factor is left ungraded. Later data (closes, resales, RevPAR, tax receipts) goes only to the anniversary tracker, never the grade.",
+    "anchor": "announced_on"
+  },
+  "inclusion_rule": {
+    "text": "A deal is added if either (a) one of the 13 tracked hotel REITs is buyer or seller, at any size; or (b) it is a US hotel sale with a disclosed price of $100M or more. US means the 50 states and DC; Puerto Rico and other US territories are excluded. Every qualifying deal is logged, including ones not yet graded. Unpriced deals in non-disclosure states are listed as unpriced and never estimated; they are graded only if they qualify under (a). Event date = announcement date; a later close is a status update on the same entry.",
+    "tracked_reits": [
+      "AHT",
+      "APLE",
+      "BHR",
+      "CLDT",
+      "DRH",
+      "HST",
+      "INN",
+      "PEB",
+      "PK",
+      "RHP",
+      "RLJ",
+      "SHO",
+      "XHR"
+    ],
+    "price_threshold_usd": 100000000,
+    "basis_values": [
+      "reit",
+      "100m+",
+      "both"
+    ],
+    "geography": "50 states and DC; US territories (e.g. Puerto Rico) excluded (Hal, 2026-10-25)"
+  },
+  "output_template": {
+    "text": "Underwritten at a {abs_premium}% {discount|premium} to replacement with a {spread_bp}bp spread; {k} of 5 factors graded.",
+    "ungraded_replacement": "replacement cost not graded",
+    "ungraded_spread": "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)"
+  },
+  "versioning": "A rubric change re-grades every entry and shows both versions.",
+  "disclaimer": "Public-data underwrite. The buyer's information set was larger.",
+  "amendments": [
+    {
+      "date": "2026-10-25",
+      "before_any_grade": true,
+      "status": "Approved by Hal 2026-10-25, except the Amendment A Treasury timing, which Hal replaced with the announcement-date close",
+      "summary": "Named the cap-rate basis, the Treasury timing, the demand measure and the supply source rule before any deal was graded."
+    }
+  ],
+  "approved_on": "2026-10-25",
+  "hal_decisions": [
+    {
+      "date": "2026-10-25",
+      "topic": "lower_bands_and_overall",
+      "decision": "All derived lower bands approved as drafted, with the weighted-mean overall shown as \"X.X of 5\", pro-rata reweighting of ungraded factors, and \"Insufficient public data\" when fewer than 3 of 5 factors are graded."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "treasury_timing",
+      "decision": "10-year Treasury = the daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). This overrides the Amendment A timing (prior trading day's close)."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "cap_rate_basis",
+      "decision": "Cap rate = NOI for the trailing 12 months through the last quarter before the announcement, divided by price, or a disclosed cap rate on that basis. NOI as the company itself defines and discloses it (e.g. Adjusted EBITDAre minus FF&E reserve) counts. EBITDA alone is not NOI."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "demand_measure",
+      "decision": "Lodging tax receipts, trailing 12 months vs the prior 12 months, through the latest month published by the announcement date; fiscal year to date only as a stated fallback. Approved."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "replacement_cost_basis",
+      "decision": "HVS median total development cost per key, INCLUDING land, from the latest edition published before the announcement, blended by keys across the HVS classes of the hotels in the deal. Each hotel's class is stated on the entry."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "inclusion_geography",
+      "decision": "US means the 50 states and DC. Puerto Rico and other US territories are excluded."
+    },
+    {
+      "date": "2026-10-25",
+      "topic": "supply_source_rule",
+      "decision": "Amendment C approved. Supply is graded only from a single public source giving the total pipeline (under construction plus planned) as a share of existing rooms. Partial-stage figures from public press releases, CoStar's included, may appear only as cited, ungraded context."
+    }
+  ]
+}
