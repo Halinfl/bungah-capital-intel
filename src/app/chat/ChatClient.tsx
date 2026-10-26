@@ -5,13 +5,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
+import { ChatBriefView, type ChatBrief, type DateRange } from "@/components/ChatBriefView";
 
 type Msg = {
   role: "user" | "assistant";
   content: string;
   citations?: string[];
   sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
+  brief?: ChatBrief | null;
+  /** The question this message asks / answers, and its date window (re-ask chip). */
+  question?: string;
+  range?: DateRange;
 };
+
+const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
 
 
 function marketLabel(slug: string): string {
@@ -103,13 +110,14 @@ export function ChatClient() {
   }, [initialQuestionKey, initialQuestion]);
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, range: DateRange = "all") => {
       const q = text.trim();
       if (!q || busy) return;
       setBusy(true);
-      setInput("");
+      // A re-ask from the date chip keeps whatever is being typed.
+      if (range === "all") setInput("");
 
-      setMessages((m) => [...m, { role: "user", content: q }]);
+      setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
 
       const seq = ++requestSeq.current;
       inFlight.current?.abort();
@@ -123,12 +131,13 @@ export function ChatClient() {
           body: JSON.stringify({
             question: q,
             marketSlug: marketSlug || undefined,
+            ...(range !== "all" ? { range } : {}),
           }),
           signal: controller.signal,
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] };
+        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
       } catch (e) {
         reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
       }
@@ -205,17 +214,32 @@ export function ChatClient() {
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
               {m.role === "assistant" ? (
-                <MarkdownLite text={m.content} />
+                m.brief ? (
+                  <ChatBriefView
+                    brief={m.brief}
+                    onReask={m.question ? (r) => void send(m.question!, r) : undefined}
+                  />
+                ) : (
+                  <MarkdownLite text={m.content} />
+                )
               ) : (
-                <p className="text-sm text-slate-200">{m.content}</p>
+                <p className="text-sm text-slate-200">
+                  {m.content}
+                  {m.range && m.range !== "all" ? (
+                    <span className="ml-2 inline-flex items-center rounded-full border border-white/20 px-2 py-0.5 align-middle text-xs leading-none text-slate-300">
+                      {RANGE_TAG[m.range]}
+                    </span>
+                  ) : null}
+                </p>
               )}
-              {m.sources && m.sources.length > 0 ? (
+              {/* With a brief, sources live in its own "Sources (N)" section. */}
+              {!m.brief && m.sources && m.sources.length > 0 ? (
                 <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Sources (open original)</div>
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
-              {m.citations && m.citations.length > 0 ? (
+              {!m.brief && m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Citations</div>
                   {m.citations.map((c, j) => (
@@ -241,12 +265,12 @@ export function ChatClient() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Capital question…"
-          className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
+          className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
+          className="min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
         >
           Send
         </button>

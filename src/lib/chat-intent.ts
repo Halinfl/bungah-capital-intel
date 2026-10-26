@@ -10,6 +10,7 @@ export const CHAT_INTENTS = [
   "which_submarket",
   "talent_greenlight",
   "debt_overlay",
+  "rates",
   "tax_collections",
   "compare_markets",
   "general_thesis",
@@ -17,6 +18,8 @@ export const CHAT_INTENTS = [
   "advice_declined",
   "uncovered_market",
   "supply_ranking",
+  "property_asset",
+  "reit_call",
   "unknown",
 ] as const;
 
@@ -84,6 +87,13 @@ const RULES: Rule[] = [
       /\bdebt[- ]wall\b/.test(q),
   },
   {
+    // Benchmark rates: answered from the cited national rate rows (10-year by default).
+    intent: "rates",
+    weight: 8.5,
+    test: (q) =>
+      /\b10[- ]?(year|yr)\b|\b10y\b|\btreasur(y|ies)\b|\byield curve\b|\bsofr\b|\bfed funds\b|\binterest rates?\b|\bbond yields?\b|\bfomc\b/.test(q),
+  },
+  {
     intent: "supply_pipeline",
     weight: 7,
     test: (q) =>
@@ -114,6 +124,9 @@ const RULES: Rule[] = [
     intent: "revpar_metrics",
     weight: 6,
     test: (q) =>
+      // "How is Chicago CBD doing?", "how's the Strip performing", "how are Miami hotels holding up"
+      /\bhow(['’]s| is| are| has| have)\b.{1,60}\b(doing|performing|faring|trending|holding up|shaping up|going)\b/.test(q) ||
+      /\b(cbd|downtown|midtown|uptown|the strip|central business district)\b.{0,40}\b(doing|now|today|lately|this year|right now)\b/.test(q) ||
       /\brevpar\b/.test(q) ||
       /\badr\b/.test(q) ||
       /\boccupanc(?:y|ies)?\b|\bocc\b/.test(q) ||

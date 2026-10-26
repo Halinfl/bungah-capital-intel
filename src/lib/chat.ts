@@ -14,6 +14,7 @@ import {
 import { parseSourceUrls } from "./source-links";
 import { scrubInternal } from "./public-text";
 import { splitTaxSeries } from "./tax-series";
+import { coverageLine, dataPeriod, fitFact, makeBrief, sourcesSection, stampKey, type BriefRead, type ChatBrief } from "./chat-brief";
 
 export type ChatAnswer = {
   content: string;
@@ -23,6 +24,8 @@ export type ChatAnswer = {
   intent?: ChatIntent;
   marketSlug?: string | null;
   mode?: "llm" | "deterministic";
+  /** Short-answer view (answer line, key reads, coverage, collapsed detail). */
+  brief?: ChatBrief;
 };
 
 export type MarketRow = Prisma.MarketGetPayload<{
@@ -895,7 +898,7 @@ export async function answerFromGraph(
 
 
   // National debt (no market or debt-led)
-  if (intent === "debt_overlay" && !matched) {
+  if ((intent === "debt_overlay" || intent === "rates") && !matched) {
     const debt = nationalSignals.find((s) => s.kind === "debt");
     const debtSweep = nationalSignals.filter(
       (s) => s.kind === "rates" || s.kind === "cmbs" || s.kind === "cap_rate"
@@ -1185,7 +1188,62 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     }
   }
 
+  // Short answer: top two score tiers in the answer line; the first three ranked rows as reads.
+  const short = (m: MarketRow) => m.name.split(/[–—]/)[0].replace(/\s+MSA$/, "").trim();
+  const tiers = [...new Set(rows.map((r) => r.score))].slice(0, 2);
+  const answerLine = `${light ? "Lightest" : "Heaviest"} supply pressure among ${rows.length} scored markets (cited 1–5 score): ${tiers
+    .map((t) => `${rows.filter((r) => r.score === t).map((r) => `[${short(r.m)}](/markets/${r.m.slug})`).join(", ")} ${t}/5`)
+    .join("; ")}.`;
+  const reads: BriefRead[] = rows.slice(0, 3).flatMap((r) => {
+    const links = parseSourceUrls(r.s.sourceUrls);
+    const ucLink = links.find((l) => /^UC intensity/i.test(l.label)) ?? links[0];
+    const text = fitFact(`${short(r.m)} ${r.score}/5: ${r.uc ?? "under-construction share: no public read"}`);
+    if (!text) return [];
+    // Dated by the data period the score row states (YE 2025, Q2 2026), never its load date.
+    const period = dataPeriod([r.uc, r.s.title, r.s.magnitude, r.s.asOf], stampKey(r.s.asOf));
+    return [{
+      text,
+      asOf: period && !text.includes(period.label) ? period.label : null,
+      source: {
+        kind: "Data" as const,
+        label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel,
+        url: ucLink?.url,
+        ...(ucLink && ucLink.label.split(/\s+—\s+/)[0] !== publisherHost(ucLink.url) ? { title: ucLink.label.split(/\s+—\s+/)[0] } : {}),
+        ...(ucLink ? { publisher: publisherHost(ucLink.url) } : {}),
+        ...(period ? { date: period.label } : {}),
+      },
+    }];
+  });
+  const rankTable = rows.map((r, i) => table[i]);
+  const brief = makeBrief({
+    answer: answerLine,
+    reads,
+    coverage: coverageLine({
+      cites: rows.flatMap((r) =>
+        parseSourceUrls(r.s.sourceUrls).map((l) => ({ key: l.url, url: l.url, label: r.s.sourceLabel, text: l.label, asOf: r.s.asOf, period: dataPeriod([r.uc, r.s.title, r.s.magnitude, r.s.asOf], stampKey(r.s.asOf)) }))
+      ),
+      notes: unscored.length ? [`Not ranked (no score yet): ${unscored.map(short).join(", ")}.`] : [],
+    }),
+    // A ranking needs every scored market on one basis; dropping rows by date would change the ranking itself.
+    window: { range: "all", filterable: false },
+    sections: [
+      { id: "ranking", title: "Ranking", count: rows.length, markdown: ["| Rank | Market | Score | Under construction (as cited) | Source |", "| --- | --- | --- | --- | --- |", ...rankTable].join("\n") },
+      ...(unscored.length
+        ? [{ id: "unscored", title: "Not ranked", count: unscored.length, markdown: unscored.map((m) => `- [${m.name}](/markets/${m.slug}): cited pipeline rows, no supply-pressure score yet`).join("\n") }]
+        : []),
+      {
+        id: "method",
+        title: "How this is ranked",
+        count: 1,
+        markdown:
+          "No publisher reports pipeline against existing rooms on one basis for every market, so this ranks by each market's supply-pressure score (1–5), built from its cited pipeline rows: rooms under construction, starts against history, openings and conversions. On each score row, 4–5 is heavy pressure, 3 is mixed (read by submarket) and 1–2 is a supply tailwind. Where a source states under-construction rooms as a share of inventory, the share is quoted as published. Markets without cited pipeline rows aren't ranked.",
+      },
+      ...[sourcesSection(sources)].filter((x): x is NonNullable<typeof x> => Boolean(x)),
+    ],
+  });
+
   return {
+    brief,
     content,
     citations: cites(...rows.map((r) => r.s.sourceLabel)),
     sources,

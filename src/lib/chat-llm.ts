@@ -42,6 +42,36 @@ import {
   type CorpusPack,
 } from "./chat-retrieve";
 import { radarChatAnswer } from "./radars-preview";
+import {
+  DATE_RANGES,
+  registerSweepStamps,
+  DECISION_LINE,
+  RANGE_LABEL,
+  briefMarkdown,
+  coverageLine,
+  makeBrief,
+  type DateRange,
+  dedupeMarkdown,
+  dropOffLimitsSentences,
+  stripDecisionBoilerplate,
+  toRead,
+  type ChatBrief,
+} from "./chat-brief";
+import {
+  compareBrief,
+  digestBrief,
+  digestReads,
+  marketBrief,
+  nationalDebtBrief,
+  ratesBrief,
+  propertyBrief,
+  uncoveredBrief,
+  windowDigests,
+  windowMarket,
+  windowSignals,
+  type BriefOpts,
+} from "./chat-brief-build";
+import { matchProperty } from "./chat-property";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -138,6 +168,7 @@ function answeredWellHeuristic(
   if (hadMarket || hadCorpus) return true;
   if (
     intent === "debt_overlay" ||
+    intent === "rates" ||
     intent === "talent_greenlight" ||
     intent === "compare_markets"
   ) {
@@ -146,19 +177,73 @@ function answeredWellHeuristic(
   return (answer.citations?.length ?? 0) > 0;
 }
 
-type FinalAnswer = ChatAnswer & { answeredWell: boolean };
+type FinalAnswer = ChatAnswer & { answeredWell: boolean; brief?: ChatBrief };
+
+const FOOTER_LINES =
+  /^_Decision support:_.*$|^_Decision support:_ digest facts.*$|^Decision support, not a recommendation\. You make the call\.$/gm;
+
+/** Answers without a brief: drop per-row "Decision support" repeats and duplicate paragraphs; one footer. */
+function cleanLegacy(content: string): string {
+  const body = dedupeMarkdown(
+    dropOffLimitsSentences(stripDecisionBoilerplate(content.replace(FOOTER_LINES, "")))
+  );
+  return `${body}\n\n${DECISION_LINE}`;
+}
 
 /**
  * The single place an answer becomes final: display guards (seed wording, internal labels)
  * run once here, so the text returned, stored and rendered is the same text. Callers must not
  * rewrite `content` afterwards (one answer per question, no post-render swap).
+ * With a brief, the stored text is the brief's own markdown (same facts, same order).
  */
-function finalize(answer: ChatAnswer, answeredWell: boolean): FinalAnswer {
+function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
+  const content = answer.brief ? briefMarkdown(answer.brief) : cleanLegacy(answer.content);
+  // Under a date window the answer's citations are exactly the windowed brief's citations.
+  const windowed = answer.brief?.window && answer.brief.window.range !== "all";
   return {
     ...answer,
-    content: scrubInternal(scrubSeedLines(answer.content)),
+    ...(windowed ? { citations: [...new Set((answer.brief!.cited ?? []).map((c) => c.label))] } : {}),
+    content: scrubInternal(scrubSeedLines(content)),
+    // Stored field names never reach readers ("roomsK" → "rooms").
+    ...(answer.citations ? { citations: (windowed ? [...new Set((answer.brief!.cited ?? []).map((c) => c.label))] : answer.citations).map((c) => c.replace(/\broomsK\b/g, "rooms")) } : {}),
     answeredWell,
   };
+}
+
+function declineText(kind: AdviceKind): string {
+  return kind === "staff_cut"
+    ? "**We don't recommend staff cuts.** Labor is underwritten at the cited wage floors and contracts, human touch first. Here's what the data shows."
+    : "**We don't give buy or sell recommendations.** Here's what the data shows.";
+}
+
+/** Brief for whatever the question names: a hotel, a market (+ named REIT), or REIT digests. */
+function subjectBrief(
+  question: string,
+  ctx: GraphContext,
+  corpus: CorpusPack,
+  marketSlug: string | null | undefined,
+  opts: BriefOpts
+): ChatBrief | null {
+  const prop = matchProperty(question);
+  if (prop) {
+    const market = ctx.markets.find((m) => m.slug === prop.marketSlug) ?? null;
+    return propertyBrief(prop, market, opts);
+  }
+  const digests = issuerDigests(question, corpus);
+  const { places, alsoCovered } = uncoveredFor(question, ctx, marketSlug);
+  const market = ctx.matched && (!places.length || alsoCovered) ? ctx.matched : null;
+  if (market) {
+    const extra = digests.length ? digestReads(digests[0], question) : null;
+    return marketBrief(market, ctx.intent, {
+      ...opts,
+      extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
+      extraSections: extra ? extra.sections : undefined,
+      extraCites: extra?.cites,
+    });
+  }
+  if (digests.length) return digestBrief(digests, question, opts);
+  if (places.length) return uncoveredBrief(places, ctx.markets, opts);
+  return null;
 }
 
 /** Digests count as issuer-led only when the question names the issuer or asks about REITs / brands / earnings. */
@@ -189,8 +274,9 @@ function adviceAnswer(
   question: string,
   ctx: GraphContext,
   corpus: CorpusPack,
-  marketSlug: string | null | undefined
-): ChatAnswer {
+  marketSlug: string | null | undefined,
+  range: DateRange = "all"
+): ChatAnswer & { brief?: ChatBrief } {
   const lines = [...adviceDeclineLines(kind), ""];
   const citations: string[] = [];
   const { places, alsoCovered } = uncoveredFor(question, ctx, marketSlug);
@@ -213,13 +299,16 @@ function adviceAnswer(
     , "");
   }
   if (!digestMemo) lines.push(decisionSupportFooter());
+  const brief = subjectBrief(question, ctx, corpus, marketSlug, { decline: declineText(kind), range });
+  const prop = matchProperty(question);
   return {
     content: lines.join("\n").replace(/\n{3,}/g, "\n\n").trim(),
     citations: [...new Set(citations)],
     intent: "advice_declined",
-    marketSlug: market?.slug ?? marketSlug ?? null,
+    marketSlug: prop?.marketSlug ?? market?.slug ?? marketSlug ?? null,
     mode: "deterministic",
-  };
+    ...(brief ? { brief } : {}),
+  } as ChatAnswer & { brief?: ChatBrief };
 }
 
 /**
@@ -233,8 +322,58 @@ function adviceAnswer(
  */
 export async function answerChat(
   question: string,
-  opts?: { marketSlug?: string | null }
+  opts?: { marketSlug?: string | null; range?: DateRange }
 ): Promise<FinalAnswer> {
+  const range = opts?.range ?? "all";
+  const res = await answerChatIn(question, { marketSlug: opts?.marketSlug, range });
+  if (range === "all") return res;
+  if (!res.brief?.window?.filterable) {
+    // Either an intent that can't filter by date (answered in full, no chip), or the window
+    // removed everything the answer was built on (say so plainly, keep the chip).
+    const full = await answerChatIn(question, { marketSlug: opts?.marketSlug, range: "all" });
+    return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
+  }
+  if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
+  return res;
+}
+
+/** A date window with no cited source in it: a plain statement, no figures, the chip stays. */
+export function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAnswer {
+  const label = RANGE_LABEL[range].toLowerCase();
+  // Only wider windows can add older sources: 90 days → 12 months or All; 12 months → All.
+  const wider = range === "90d" ? "Last 12 months or All" : "All";
+  void DATE_RANGES;
+  const brief = makeBrief({
+    decline: full.brief?.decline,
+    answer: `Nothing cited for this question is dated in the ${label}. Choose ${wider} to include older sources.`,
+    reads: [],
+    coverage: coverageLine({ cites: [], range }),
+    window: { range, filterable: true },
+    sections: [],
+  });
+  return finalize({ ...full, brief, citations: [], sources: [] }, full.answeredWell);
+}
+
+/** Restrict a retrieved graph to a date window (matching and intent are unchanged). */
+function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
+  const markets = ctx.markets.map((m) => windowMarket(m, range));
+  const byId = new Map(markets.map((m) => [m.id, m]));
+  return {
+    ...ctx,
+    markets,
+    matched: ctx.matched ? byId.get(ctx.matched.id) ?? null : null,
+    secondary: ctx.secondary.map((m) => byId.get(m.id)!).filter(Boolean),
+    nationalSignals: windowSignals(ctx.nationalSignals, range),
+    // Radar findings carry no data date of their own, so a window leaves them out.
+    radars: ctx.radars.map((r) => ({ ...r, findings: [] })),
+  };
+}
+
+async function answerChatIn(
+  question: string,
+  opts: { marketSlug?: string | null; range: DateRange }
+): Promise<FinalAnswer> {
+  const range = opts.range;
   const advice = classifyAdviceRequest(question);
 
   // Radar cards' "Ask Chat about this": answer with the full verified radar detail.
@@ -251,13 +390,18 @@ export async function answerChat(
       true
     );
   }
-  const [ctx, corpus] = await Promise.all([
+  const [ctxAll, corpusAll] = await Promise.all([
     retrieveGraphContext(question, opts?.marketSlug),
     retrieveAllowedCorpus(question),
   ]);
+  // Load / sweep stamps (a date shared by many rows) are when rows were collected, never a data period.
+  registerSweepStamps([...ctxAll.markets.flatMap((m) => m.signals.map((s) => s.asOf)), ...ctxAll.nationalSignals.map((s) => s.asOf)]);
+  // Date window: every brief below is built only from rows dated inside it.
+  const ctx = range === "all" ? ctxAll : windowContext(ctxAll, range);
+  const corpus = range === "all" ? corpusAll : { ...corpusAll, digests: windowDigests(corpusAll.digests, range) };
 
   if (advice) {
-    return finalize(adviceAnswer(advice, question, ctx, corpus, opts?.marketSlug), true);
+    return finalize(adviceAnswer(advice, question, ctx, corpus, opts?.marketSlug, range), true);
   }
 
   const { places, alsoCovered } = uncoveredFor(question, ctx, opts?.marketSlug);
@@ -265,6 +409,7 @@ export async function answerChat(
     return finalize(
       {
         content: [...uncoveredMarketLines(places, ctx.markets), "", decisionSupportFooter()].join("\n"),
+        brief: uncoveredBrief(places, ctx.markets),
         citations: [],
         sources: [],
         intent: "uncovered_market",
@@ -279,17 +424,37 @@ export async function answerChat(
   const coverageNote = places.length
     ? uncoveredMarketLines(places, ctx.markets).filter((l) => !/Browse every market/.test(l))
     : [];
-  const withNote = (a: FinalAnswer): FinalAnswer =>
-    coverageNote.length ? finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell) : a;
+  const noteText = places.map((p) => (p.kind === "international" ? `${p.label} isn't covered (US markets only).` : `${p.label} isn't covered yet.`));
+  const withNote = (a: FinalAnswer): FinalAnswer => {
+    if (!coverageNote.length) return a;
+    if (a.brief) {
+      const brief = { ...a.brief, coverage: `${a.brief.coverage} ${noteText.join(" ")}`, coverageNotes: [...(a.brief.coverageNotes ?? []), ...noteText] };
+      return finalize({ ...a, brief: { ...brief, collapsedChars: a.brief.collapsedChars + noteText.join(" ").length + 1 } }, a.answeredWell);
+    }
+    return finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell);
+  };
+
+  // A named hotel from the REIT property schedules: owner, what's on file, submarket context.
+  const prop = matchProperty(question);
+  if (prop) {
+    const market = ctxAll.markets.find((m) => m.slug === prop.marketSlug) ?? null;
+    const brief = propertyBrief(prop, market);
+    return withNote(
+      finalize(
+        { content: "", brief, citations: [prop.source, ...(prop.curated?.facts.map((f) => f.label) ?? [])], intent: "property_asset", marketSlug: prop.marketSlug, mode: "deterministic" },
+        true
+      )
+    );
+  }
 
   // "Compare Boise and Denver": only one side is covered, so answer that market alone.
   if (coverageNote.length && ctx.intent === "compare_markets" && ctx.matched) {
     const memo = formatMarketMemo(ctx.matched, "general_thesis");
-    return withNote(finalize({ ...memo, intent: "compare_markets" }, true));
+    return withNote(finalize({ ...memo, brief: marketBrief(ctx.matched, "general_thesis"), intent: "compare_markets" }, true));
   }
 
   if (!opts?.marketSlug && isSupplyRankingQuestion(question, ctx.matched)) {
-    const ranked = formatSupplyRanking(ctx.markets, question);
+    const ranked = formatSupplyRanking(ctxAll.markets, question);
     return withNote(finalize({ ...ranked, intent: "supply_ranking" }, ranked.citations.length > 0));
   }
 
@@ -299,7 +464,7 @@ export async function answerChat(
   ];
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;
 
-  const model = resolveModel();
+  const model = range === "all" ? resolveModel() : null;
   if (model) {
     try {
       const { text } = await generateText({
@@ -355,19 +520,23 @@ export async function answerChat(
   const digestCites = digests.map((d) => d.citePath);
   // National debt questions answer from cited graph rows, not REIT digest soft-pulls.
   const nationalDebtFromGraph =
-    ctx.intent === "debt_overlay" && !corpus.digests.some((d) => d.score >= 5);
+    ctx.intent === "debt_overlay" && !corpusAll.digests.some((d) => d.score >= 5);
   if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
-    const answer: ChatAnswer = {
+    const answer: ChatAnswer & { brief?: ChatBrief } = {
       content: digestMemo,
+      brief: digestBrief(digests, question, { range }),
       citations: digestCites,
-      intent: ctx.intent,
+      // Earnings-call / REIT digest answer (a question naming Pebblebrook classifies as unknown otherwise).
+      intent: ctx.intent === "unknown" || ctx.intent === "general_thesis" || ctx.intent === "revpar_metrics" ? "reit_call" : ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
       mode: "deterministic",
     };
     return withNote(finalize(answer, answeredWellHeuristic(answer, ctx.intent, false, true)));
   }
 
-  const fallback = await answerFromGraph(question, opts);
+  const fallback: ChatAnswer & { brief?: ChatBrief } = await answerFromGraph(question, opts);
+  const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : [], range);
+  if (graphBrief) fallback.brief = graphBrief;
   // A named issuer alongside a market: one memo with a REIT section, not a second answer.
   if (digestMemo && ctx.matched) {
     const merged: ChatAnswer = {
@@ -384,7 +553,8 @@ export async function answerChat(
       marketSlug:
         fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
       mode: "deterministic",
-    };
+      brief: fallback.brief,
+    } as ChatAnswer & { brief?: ChatBrief };
     return withNote(
       finalize(merged, answeredWellHeuristic(merged, ctx.intent, Boolean(ctx.matched), true))
     );
@@ -399,4 +569,41 @@ export async function answerChat(
   return withNote(
     finalize(answer, answeredWellHeuristic(fallback, ctx.intent, Boolean(ctx.matched), hadCorpus))
   );
+}
+
+/** Brief for the deterministic graph answer (same branch order as answerFromGraph). */
+function briefForGraph(question: string, ctx: GraphContext, namedDigests: CorpusPack["digests"], range: DateRange = "all"): ChatBrief | null {
+  const { matched, intent, nationalSignals, radars } = ctx;
+  if (!question.trim()) return null;
+  if (intent === "compare_markets") {
+    const unique = [matched, ...ctx.secondary].filter((m, i, arr): m is NonNullable<typeof m> => Boolean(m) && arr.findIndex((x) => x?.id === m!.id) === i);
+    if (unique.length >= 2) return compareBrief(unique[0], unique[1], question, intent);
+    return null;
+  }
+  // Hotel-tax series answers keep their newest-first table (no brief).
+  if (intent === "tax_collections") return null;
+  if (matched) {
+    const overlay =
+      intent === "talent_greenlight"
+        ? nationalSignals.find((s) => s.kind === "talent") ?? null
+        : intent === "debt_overlay"
+          ? nationalSignals.find((s) => s.kind === "debt") ?? null
+          : null;
+    const extra = namedDigests.length ? digestReads(namedDigests[0], question) : null;
+    // Refinancing questions lead with the 10-year Treasury (same rule as the rates answers).
+    const rateLead = intent === "debt_overlay" && /\b(refinanc\w*|refi)\b/i.test(question) ? nationalSignals.filter((s) => s.kind === "rates" || /\b(10-year|10Y)\b/i.test(s.title)) : undefined;
+    return marketBrief(matched, intent, {
+      nationalOverlay: overlay,
+      rateLead,
+      extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
+      extraSections: extra?.sections,
+      extraCites: extra?.cites,
+    });
+  }
+  if (intent === "rates") return ratesBrief(nationalSignals, question, { range });
+  if (intent === "debt_overlay") {
+    const findings = radars.filter((r) => r.slug.includes("debt")).flatMap((r) => r.findings);
+    return nationalDebtBrief(nationalSignals, findings, { range });
+  }
+  return null;
 }

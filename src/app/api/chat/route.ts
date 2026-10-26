@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
 import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
+import { parseRange } from "@/lib/chat-brief";
 
 /**
  * Preview deployments share the production database: they answer but never write threads
@@ -42,7 +43,9 @@ export async function POST(req: Request) {
 
     // answerChat returns the one final answer: seed wording and internal labels are already
     // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
-    const answer = await answerChat(question, { marketSlug });
+    // Date window for the re-ask chip (Last 90 days / Last 12 months / All); anything else is All.
+    const range = parseRange(body.range);
+    const answer = await answerChat(question, { marketSlug, range });
     const modelUsed = toModelUsed(answer.mode);
     const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
     const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
@@ -92,6 +95,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       content: answer.content,
+      brief: answer.brief ?? null,
       citations,
       sources,
       threadId,
