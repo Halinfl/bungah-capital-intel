@@ -107,6 +107,15 @@ export function lastQuarterEnd(iso: string): string {
 }
 const isDate = (s: unknown) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
 /** Round half up to one decimal, robust to binary float error (e.g. 4.25 -> 4.3, not 4.2). */
+/** "a" or "an" before a spoken number: an 8, an 11, an 18, an 80-89, an 800... */
+const article = (n: number) => (/^8/.test(String(n)) || n === 11 || n === 18 ? "an" : "a");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** House date format for rendered text: 2026-06-30 -> "Jun 30, 2026". Non-ISO strings pass through. */
+const humanDate = (iso: unknown) => {
+  if (typeof iso !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return String(iso);
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${d}, ${y}`;
+};
 const round1 = (x: number) => Math.round(Number((x * 10).toFixed(6))) / 10;
 
 export function scoreFromCuts(value: number, thresholds: Threshold[]): number | null {
@@ -138,9 +147,11 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       }
       if (p === null || r === null || r <= 0) return { error: "Missing price per key or replacement cost per key." };
       const prem = ((p - r) / r) * 100;
-      const pct = Math.round(Math.abs(prem));
+      // One rounding rule everywhere (Hal, 2026-10-26): the stored one-decimal value, rounded half up to a whole percent,
+      // so -67.47 -> -67.5 -> "68%" in both the factor line and the output line.
+      const pct = Math.round(Math.abs(round1(prem)));
       const dir = prem < 0 ? "below" : "above";
-      return { value: round1(prem), text: `${usdK(p)}/key vs ${usdK(r)} replacement per key (${a.replacement_basis}); ${pct}% ${dir}` };
+      return { value: round1(prem), text: `${usdK(p)} per key vs ${usdK(r)} replacement cost per key (${a.replacement_basis}); ${pct}% ${dir}` };
     }
     case "spread": {
       const c = num("cap_rate_pct"), t = num("treasury_10y_pct");
@@ -160,13 +171,13 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
         const lq = lastQuarterEnd(anchor);
         const ok = isDate(pe) && (pe === lq || (pe === priorQuarterEnd(lq) && typeof a.results_public_note === "string" && a.results_public_note.length > 0));
         if (!ok)
-          return { error: `Cap rate period must end at the last quarter-end whose results were public by the announcement (${lq}, or ${priorQuarterEnd(lq)} if ${lq} results weren't out yet).` };
+          return { error: `Cap rate period must end at the last quarter-end whose results were public by the announcement (${humanDate(lq)}, or ${humanDate(priorQuarterEnd(lq))} if ${humanDate(lq)} results weren't out yet).` };
       }
       // Hal 2026-10-25: 10-year = close on the announcement date (prior trading day only if the market was closed).
       if (rule && rule.treasury_date === "announcement_date_close" && (a.treasury_as_of as string) > anchor)
         return { error: "10-year must be the close on the announcement date." };
       const bp = Math.round((c - t) * 100);
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year (${a.treasury_as_of} close); ${bp}bp spread` };
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${humanDate(a.cap_rate_period_end)}) vs ${t.toFixed(2)}% 10-year (${humanDate(a.treasury_as_of)} close); ${bp}bp spread` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -218,7 +229,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     // No look-ahead: every dated input must be public on or before the announcement.
     const dates = [c.as_of, (inp as { treasury_as_of?: string }).treasury_as_of, ...(c.also_sources ?? []).map((x) => x.date)].filter(Boolean) as string[];
     if (dates.some((d) => d > anchor)) {
-      return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: `Input dated after the announcement (${anchor}); not used.` };
+      return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: `Input dated after the announcement (${humanDate(anchor)}); not used.` };
     }
     const m = measure(f, inp, anchor);
     if ("error" in m) return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: m.error };
@@ -228,7 +239,8 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
         : scoreFromCuts(m.value as number, f.cuts!.thresholds);
     if (score === null) return { ...base, graded: false, reason: "Value fell outside every band." };
     const band = f.bands.find((b) => b.score === score)!;
-    const text = c.label ? `${m.text} (${c.label})` : m.text;
+    // Print a qualifier like "preliminary" once: skip the suffix when the measured text already says it.
+    const text = c.label && !m.text.toLowerCase().includes(c.label.toLowerCase()) ? `${m.text} (${c.label})` : m.text;
     return { ...base, graded: true, score, value: m.value, input_text: text, band_text: `${score} = ${band.text}`, as_of: c.as_of, source_uri: c.source_uri, also_sources: c.also_sources ?? [], label: c.label ?? null, reason: null };
   });
 
@@ -245,7 +257,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
   const repText = rep.graded
     ? (rep.value as number) === 0
       ? "Underwritten at replacement cost"
-      : `Underwritten at a ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
+      : `Underwritten at ${article(Math.round(Math.abs(rep.value as number)))} ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
     : `Underwritten with ${rubric.output_template.ungraded_replacement}`;
   const sprText = spr.graded ? `with a ${spr.value}bp spread` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
   const coverage = `${graded.length} of ${rows.length} factors graded`;

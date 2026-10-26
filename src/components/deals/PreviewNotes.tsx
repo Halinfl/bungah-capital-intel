@@ -61,7 +61,7 @@ export function PreviewNotes() {
                     <span className="block text-[12px] text-slate-300">{s.log_id}</span>
                   </td>
                   <td className={`${td} tabular-nums`}>
-                    {cur?.score ?? "n/a"} → {alt?.score ?? "n/a"}
+                    {cur?.score ?? "not graded"} → {alt?.score ?? "not graded"}
                   </td>
                   <td className={`${td} tabular-nums`}>
                     {fmtOverall(g)} → {fmtOverall(p)}
@@ -80,8 +80,8 @@ export function PreviewNotes() {
           </table>
         </div>
         <p className="max-w-3xl text-[13px] text-slate-300">
-          Note on Embassy Suites Dulles: the v1.1 draft lists its ~$20.6M lender paydown as a trigger, but that paydown was first disclosed in the
-          closing 8-K of Aug 27, 2026, after the Aug 12 announcement, so the side-by-side doesn&rsquo;t count it. If it counted, v1.1 would score that
+          Note on Embassy Suites Dulles: the v1.1 draft lists its roughly $20.6M lender paydown as a trigger, but that paydown was first disclosed in the
+          closing 8-K filed Aug 27, 2026 (sale closed Aug 24), after the Aug 12 announcement, so the side-by-side doesn&rsquo;t count it. If it counted, v1.1 would score that
           factor 2 and the overall would be 4.0 of 5.
         </p>
       </div>
@@ -91,7 +91,7 @@ export function PreviewNotes() {
         <ol className="max-w-3xl list-[lower-alpha] space-y-2 pl-5 text-[14px] text-slate-200">
           <li>Adopt v1.1 for debt/transaction context (documented triggers only)? If yes, which band does each trigger take?</li>
           <li>
-            Should a trailing 12 months ending August count for the cap rate? It affects the Four Seasons Scottsdale (printed after the announcement),
+            Should trailing 12 months ending in August count for the cap rate? It affects the Four Seasons Scottsdale (published after the announcement),
             The Bellmoor (8.6% at announcement) and The Hotel Zags (negative NOI). Under v1 all three are ungraded on the spread.
           </li>
           <li>

@@ -1,25 +1,25 @@
 {
   "grande-lakes-orlando-2026": {
-    "tape": "On Aug 10, 2026, RHP agreed to buy the fee simple interest in the 1,010-room JW Marriott and the 582-room Ritz-Carlton at Grande Lakes, with a Greg Norman 18-hole course on 409 acres, for approximately $1.38 billion, and put $50 million into escrow. RHP disclosed a 6.6% cap rate on trailing-12-month NOI of $91.2 million to June 30, 2026 (Adjusted EBITDAre of $110.0 million less an $18.8 million FF&E reserve, from unaudited seller data) and a 12.5x Adjusted EBITDAre multiple. The resort carried an $800 million floating-rate CMBS loan (ORL 2024-GLKS) that the buyer could elect to assume. RHP said funding would come from cash on hand and debt, which may include that assumption, alongside an equity offering of 5.1 million shares launched the same day. Marriott continues to manage both hotels under their existing brands.",
+    "tape": "On Aug 10, 2026, RHP agreed to buy the fee-simple interest in the 1,010-room JW Marriott and the 582-room Ritz-Carlton at Grande Lakes, with an 18-hole Greg Norman course on 409 acres, for approximately $1.38 billion, and put $50 million into escrow. RHP disclosed a 6.6% cap rate on trailing-12-month net operating income (NOI) of $91.2 million to June 30, 2026 (Adjusted EBITDAre of $110.0 million less an $18.8 million FF&E reserve, from unaudited, seller-provided data) and a 12.5x Adjusted EBITDAre multiple. The resort carried an $800 million floating-rate CMBS loan (ORL 2024-GLKS) that the buyer could elect to assume. RHP said it would fund the purchase with cash on hand and debt, which may include assuming that loan, alongside an equity offering of 5.1 million shares launched the same day. Marriott continues to manage both hotels under their existing brands.",
     "financing_tags": [
       "Assumable CMBS loan",
       "Concurrent equity offering"
     ],
-    "watches_for": "The $867k per key is an average across a luxury hotel, an upper-upscale hotel, a golf course and 409 acres, and the public documents don't split the price between them, so it shouldn't be read as the value of either hotel on its own.",
+    "watches_for": "The $867k per key is an average across a luxury hotel, an upper-upscale hotel, a golf course and 409 acres. The public documents don't split the price among them, so it shouldn't be read as the value of either hotel on its own.",
     "factor_context": {
       "supply": [
         {
-          "text": "Early-planning pipeline at end Q2 2026: 54 projects, 5,474 rooms (Lodging Econometrics, free release). Equal to 4.13% of Visit Orlando's YE2025 inventory of 132,685 rooms. Early planning only, not the total pipeline.",
+          "text": "Early-planning pipeline at the end of Q2 2026: 54 projects, 5,474 rooms (Lodging Econometrics, free release), equal to 4.13% of Visit Orlando's year-end 2025 inventory of 132,685 rooms. Early planning only, not the total pipeline.",
           "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
           "date": "2026-07-27"
         },
         {
-          "text": "New project announcements in Q2 2026: 8 projects, 1,292 rooms (Lodging Econometrics). Equal to 0.97% of the same base. A one-quarter flow.",
+          "text": "New project announcements in Q2 2026: 8 projects, 1,292 rooms (Lodging Econometrics), equal to 0.97% of the same base. A single quarter's flow.",
           "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
           "date": "2026-07-27"
         },
         {
-          "text": "Projected 2026 new-build openings: 1,988 rooms (CoStar, free press release). Equal to 1.50% of the same base.",
+          "text": "Projected 2026 new-build openings: 1,988 rooms (CoStar, free press release), equal to 1.50% of the same base.",
           "url": "https://www.costar.com/products/str-benchmark/resources/press-releases/nyc-phoenix-projected-open-most-hotel-rooms-2026",
           "date": "2026-01-16"
         },
@@ -31,12 +31,12 @@
       ],
       "demand": [
         {
-          "text": "June 2026 alone: $33.6M of tourist development tax collections, down 0.4% from June 2025. Fiscal year to date (Oct 2025 to Jun 2026): up 8.7% on the county's basis. Neither is scored.",
+          "text": "June 2026 alone: $33.6M of tourist development tax collections, down 0.4% from June 2025. Fiscal year to date (Oct 2025 to Jun 2026): up 8.7% on the county's basis. Neither figure is scored.",
           "url": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
           "date": "2026-08-04"
         },
         {
-          "text": "Orange County Convention Center: FY2025-26 projection of 185 events and 2.3M attendees.",
+          "text": "Orange County Convention Center (OCCC): FY2025-26 projection of 185 events and 2.3M attendees.",
           "url": "https://www.idrivedistrict.com/editorFiles/Minutes/20260304%20DAB%20PP%20OCCC.pdf",
           "date": "2026-03-23"
         },
@@ -46,12 +46,12 @@
           "date": "2026-07-17"
         },
         {
-          "text": "OCCC Phase 5A Grand Concourse ($560M, funded by the tourist development tax): a 100,000 sq ft ballroom plus 44,000 sq ft of meeting space. Groundbreaking was Dec 17, 2025, and construction is set to conclude in 2029.",
+          "text": "OCCC Phase 5A Grand Concourse ($560M, funded by the tourist development tax): a 100,000 sq ft ballroom plus 44,000 sq ft of meeting space. Groundbreaking was Dec 17, 2025, and completion is scheduled for 2029.",
           "url": "https://occc.net/About-Us-Media-Relations-Press-Releases/ArticleID/1057/Orange%20County%20Convention%20Center%20Celebrates%20Grand%20Concourse%20Expansion%20Groundbreaking",
           "date": "2025-12-17"
         },
         {
-          "text": "Visit Orlando board minutes (June 9, 2026 meeting): group attendance 18.8% to goal through April 2026, with room nights slightly below target.",
+          "text": "Visit Orlando board minutes (June 9, 2026 meeting): group attendance had reached 18.8% of its goal through April 2026 (reported under progress toward Visit Orlando's organizational goals), with room nights slightly below target.",
           "url": "https://visitorlando.widen.net/s/clrvj8tnpg/2026-q2-vo-bod-meeting-minutes-06.06.26",
           "date": "2026-07-15"
         }
@@ -65,12 +65,12 @@
       ],
       "access": [
         {
-          "text": "Airlift: Orlando International (MCO) passengers, rolling 12 months Jun 2025 to May 2026, +3.39%.",
+          "text": "Airlift: Orlando International (MCO) passengers, trailing 12 months Jun 2025 to May 2026, +3.39%.",
           "url": "https://assets.ctfassets.net/qiecpoxp4bka/2wuiulOSnI8sypGWLoStju/c4f6b2258184d5c2f12cea613aaafc7e/trfc202605.pdf",
           "date": "2026-07-01"
         },
         {
-          "text": "Drive, not eligible: Central Florida Expressway toll revenue traffic, trailing 12 months Jun 2025 to May 2026, +3.08%; a hurricane toll suspension (Oct 2024) falls inside the prior window.",
+          "text": "Drive, not eligible: Central Florida Expressway toll revenue traffic, trailing 12 months Jun 2025 to May 2026, +3.08%; a hurricane toll suspension (Oct 2024) falls inside the prior-year comparison period.",
           "url": "https://www.cfxway.com/wp-content/uploads/2026/07/May.pdf",
           "date": "2026-07-09"
         }
@@ -249,14 +249,14 @@
     "factor_context": {
       "replacement_cost": [
         {
-          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 0.325 ($152,000 ÷ $467,244). Shown for reference; the score uses the premium.",
+          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 0.325 ($152,000 ÷ $467,244). Shown for reference; the score uses the percentage difference.",
           "url": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
           "date": "2026-07-13"
         }
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-08-12 close: 4.68%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-08-12"
         }
@@ -270,19 +270,19 @@
       ],
       "debt_context": [
         {
-          "text": "After the announcement: the closing 8-K says about $20.6M of the ~$22.3M net proceeds was paid to the lender on a 13-hotel loan.",
+          "text": "After the announcement: the closing 8-K filed Aug 27, 2026 says about $20.6M of the roughly $22.3M in net proceeds was paid to the lender on a 13-hotel loan.",
           "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000188/ahtesdullesproformas.htm",
           "date": "2026-08-27"
         }
       ],
       "access": [
         {
-          "text": "Airlift: Washington Dulles (IAD) total passengers, last 12 months Jun 2025 to May 2026, +1.49%.",
+          "text": "Airlift: Washington Dulles (IAD) total passengers, trailing 12 months Jun 2025 to May 2026, +1.49%.",
           "url": "https://www.mwaa.com/sites/mwaa.com/files/2026-07/5-26%20ATS%20%287.7.26%29.pdf",
           "date": "2026-07-27"
         },
         {
-          "text": "Drive: Dulles Toll Road transactions, trailing 12 months Jul 2025 to Jun 2026, +2.64% (corridor serves the hotel; posted 8:40 AM, before the 10-Q).",
+          "text": "Drive: Dulles Toll Road transactions, trailing 12 months Jul 2025 to Jun 2026, +2.64% (the corridor serves the hotel; data posted at 8:40 AM, before the 10-Q).",
           "url": "https://www.mwaa.com/sites/mwaa.com/files/DCE%20Board%20Financials%20June%202026.pdf",
           "date": "2026-08-12"
         }
@@ -302,7 +302,7 @@
       },
       {
         "kind": "filing",
-        "title": "Form 8-K: closing of the sale (Aug 24, 2026)",
+        "title": "Form 8-K filed Aug 27, 2026: sale closed Aug 24, 2026",
         "publisher": "Ashford Hospitality Trust, SEC EDGAR",
         "date": "2026-08-27",
         "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000188/aht-20260824.htm"
@@ -342,14 +342,14 @@
     "factor_context": {
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-09-17 close: 4.94%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-09-17"
         }
       ],
       "supply": [
         {
-          "text": "Choose Chicago downtown (CBD) lodging supply: 46,901 daily rooms at YE2025, with the pipeline listed by project and no share of existing rooms stated.",
+          "text": "Choose Chicago downtown (CBD) lodging supply: 46,901 daily rooms at year-end 2025, with the pipeline listed by project and no share of existing rooms stated.",
           "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
           "date": "2026-08-25"
         }
@@ -361,19 +361,19 @@
           "date": "2012-08-21"
         },
         {
-          "text": "Cited context only: PK recognized an ~$18M impairment on two unnamed non-core hotels in Q2 2026; the filing doesn't say whether The Wade was one.",
+          "text": "Cited context only: PK recognized an impairment of about $18M on two unnamed non-core hotels in Q2 2026; the filing doesn't say whether The Wade was one.",
           "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
           "date": "2026-08-07"
         }
       ],
       "access": [
         {
-          "text": "Airlift: Chicago O'Hare (ORD) passengers, calendar YTD Jan to Jun 2026, +6.67% (year-to-date fallback).",
+          "text": "Airlift: Chicago O'Hare (ORD) passengers, calendar year to date Jan to Jun 2026, +6.67% (year-to-date fallback).",
           "url": "https://www.flychicago.com/SiteCollectionDocuments/Business/AccessiblePDFs/FactsandFigures/AirTraffic/0626%20ORD%20SUMMARY.pdf",
           "date": "2026-08-24"
         },
         {
-          "text": "Drive, context only: Illinois Tollway vehicle transactions H1 2026 +2.49%; the Tollway doesn't serve downtown.",
+          "text": "Drive, context only: Illinois Tollway vehicle transactions, H1 2026: +2.49%; the Tollway doesn't serve downtown.",
           "url": "https://agency.illinoistollway.com/documents/20184/1590275/20260816_Q2%202026%20PPT%20%20-%20Final.pdf/8fc2d590-c961-f507-a98f-e18ef1ef5405",
           "date": "2026-08-19"
         }
@@ -433,14 +433,14 @@
     "factor_context": {
       "replacement_cost": [
         {
-          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 2.396 ($1,119,403 ÷ $467,244). The hotel had no brand at announcement and no dated source supports a luxury class.",
+          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 2.396 ($1,119,403 ÷ $467,244). The hotel had no brand at announcement, and no dated source supports a luxury class.",
           "url": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
           "date": "2026-07-13"
         }
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-09-17 close: 4.94%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-09-17"
         }
@@ -461,7 +461,7 @@
       ],
       "access": [
         {
-          "text": "Airlift: Palm Beach International (PBI) passengers, 12 months Aug 2025 to Jul 2026, +1.81%. No corridor drive read.",
+          "text": "Airlift: Palm Beach International (PBI) passengers, trailing 12 months Aug 2025 to Jul 2026, +1.81%. No drive-corridor data.",
           "url": "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/pbi/July_2026_Traffic_Report_REMEDIATED_ce237cda-9414-497d-b06d-2bcaad2fdd95.pdf",
           "date": "2026-08-31"
         }
@@ -521,33 +521,33 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-09-29 close: 5.26%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Sep 29, 2026 close: 5.26%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-09-29"
         },
         {
-          "text": "Status only, after the announcement: BHR printed a 6.2% cap rate on NOI for the trailing 12 months ended August 2026, including $23M of anticipated capex. Not graded: published after the announcement and not on a quarter-end period.",
+          "text": "Status after announcement: BHR published a 6.2% cap rate on net operating income (NOI) for the trailing 12 months ended August 2026, including $23M of anticipated capex. Not graded: published after the announcement and not on a quarter-end period.",
           "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000151/ex991portfolioupdatepressr.htm",
           "date": "2026-10-08"
         }
       ],
       "supply": [
         {
-          "text": "Phoenix metro: 4,200 rooms under construction at YE2025, 5.7% of inventory (broker report). Under construction only, a subset of the total pipeline; the page was modified after the announcement.",
+          "text": "Phoenix metro: 4,200 rooms under construction at year-end 2025, 5.7% of inventory (broker report). Under construction only, a subset of the total pipeline; the source page was updated after the announcement.",
           "url": "https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/",
           "date": "2026-05-07"
         }
       ],
       "debt_context": [
         {
-          "text": "$180M floating-rate mortgage on the hotel at Jun 30, 2026; its treatment at sale wasn't stated.",
+          "text": "$180M floating-rate mortgage on the hotel at Jun 30, 2026; its treatment in the sale wasn't stated.",
           "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000130/bhr-20260630.htm",
           "date": "2026-08-06"
         }
       ],
       "access": [
         {
-          "text": "Airlift: Phoenix Sky Harbor (PHX) passengers, trailing 12 months Aug 2025 to Jul 2026, −0.36%. No corridor drive read.",
+          "text": "Airlift: Phoenix Sky Harbor (PHX) passengers, trailing 12 months Aug 2025 to Jul 2026, −0.36%. No drive-corridor data.",
           "url": "https://www.skyharbor.com/media/pscmshlb/monthly-stats-july-2026.pdf",
           "date": "2026-08-28"
         }
@@ -621,7 +621,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-10-01 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-01"
         }
@@ -635,7 +635,7 @@
       ],
       "demand": [
         {
-          "text": "All Stadium District jurisdictions combined: −3.22% ($61,405,812 vs $63,450,442; printed −3.2%), trailing 12 months to June 2026, preliminary.",
+          "text": "All Stadium District jurisdictions combined: −3.22% ($61,405,812 vs $63,450,442; printed as −3.2%), trailing 12 months to June 2026, preliminary.",
           "url": "https://www.lvstadiumauthority.com/docs/2026/08/20/allegiant/Item%208%20Attchmt%20FYE%202026%20YE%20Prelim%20Room%20Tax%20Report.pdf",
           "date": "2026-08-20"
         }
@@ -647,7 +647,7 @@
           "date": "2026-09-29"
         },
         {
-          "text": "Drive (preliminary): I-15 at the Nevada/California border, average daily traffic, calendar YTD through Jul 2026, +6.3% (year-to-date fallback; August pending).",
+          "text": "Drive (preliminary): I-15 at the Nevada/California border, average daily traffic, calendar year to date through Jul 2026, +6.3% (year-to-date fallback; August not yet published).",
           "url": "https://assets.simpleviewcms.com/simpleview/image/upload/v1/clients/lasvegas/ES_Aug2026_3d0e4c3b-10da-4e90-9d6b-86610adeec6c.pdf",
           "date": "2026-09-30"
         }
@@ -700,14 +700,14 @@
     "factor_context": {
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-10-01 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-01"
         }
       ],
       "supply": [
         {
-          "text": "Phoenix metro: 4,200 rooms under construction at YE2025, 5.7% of inventory (broker report). Under construction only, a subset of the total pipeline.",
+          "text": "Phoenix metro: 4,200 rooms under construction at year-end 2025, 5.7% of inventory (broker report). Under construction only, a subset of the total pipeline.",
           "url": "https://cornovuscapital.com/southwest-hospitality-market-report-q1-2026/",
           "date": "2026-05-07"
         }
@@ -721,7 +721,7 @@
       ],
       "access": [
         {
-          "text": "Airlift: Phoenix Sky Harbor (PHX) passengers, trailing 12 months Aug 2025 to Jul 2026, −0.36%. No corridor drive read.",
+          "text": "Airlift: Phoenix Sky Harbor (PHX) passengers, trailing 12 months Aug 2025 to Jul 2026, −0.36%. No drive-corridor data.",
           "url": "https://www.skyharbor.com/media/pscmshlb/monthly-stats-july-2026.pdf",
           "date": "2026-08-28"
         }
@@ -774,33 +774,33 @@
     "factor_context": {
       "replacement_cost": [
         {
-          "text": "Deal price per key ÷ HVS luxury replacement cost per key: 0.245 ($392,405 ÷ $1,604,356). Luxury class on DRH's \"luxury resort\" wording; the hotel is small next to HVS's luxury sample, which increasingly includes residential projects.",
+          "text": "Deal price per key ÷ HVS luxury replacement cost per key: 0.245 ($392,405 ÷ $1,604,356). Luxury class based on DRH's \"luxury resort\" wording; the hotel is small next to HVS's luxury sample, which increasingly includes residential projects.",
           "url": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
           "date": "2026-07-13"
         }
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-10-08 close: 5.22%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 8, 2026 close: 5.22%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-08"
         },
         {
-          "text": "Printed at announcement, other basis: 8.6% cap rate on hotel NOI ($2.7M) and 10.4x hotel EBITDA, both for the trailing 12 months ended August 2026. Ungraded under v1; period question pending Hal.",
+          "text": "Published at announcement, on another basis: 8.6% cap rate on hotel net operating income (NOI) of $2.7M and 10.4x hotel EBITDA, both for the trailing 12 months ended August 2026. Not graded under v1; the period question is under review.",
           "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
           "date": "2026-10-08"
         }
       ],
       "supply": [
         {
-          "text": "Belhaven Hotel (105 rooms, Boardwalk): approved, developers paused for financing. A single project, not a pipeline share.",
+          "text": "Belhaven Hotel (105 rooms, Boardwalk): approved; the developers have paused while they seek financing. A single project, not a pipeline share.",
           "url": "https://www.capegazette.com/article/belhaven-hotel-developers-take-pause/353798",
           "date": "2026-08-04"
         }
       ],
       "access": [
         {
-          "text": "No primary commercial airport. Context only: Philadelphia (PHL) passengers calendar YTD Jan to Jul 2026, +0.2%. No corridor drive read.",
+          "text": "No primary commercial airport. Context only: Philadelphia (PHL) passengers, calendar year to date Jan to Jul 2026, +0.2%. No drive-corridor data.",
           "url": "https://www.phl.org/drupalbin/media/phl-aviation-activity-report-july-2026.pdf",
           "date": "2026-09-23"
         }
@@ -860,7 +860,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-08-12 close: 4.68%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-08-12"
         }
@@ -874,14 +874,14 @@
       ],
       "debt_context": [
         {
-          "text": "After the announcement: the closing 8-K says about $24.6M was paid to the lender on a 12-hotel loan.",
+          "text": "After the announcement: the closing 8-K filed Oct 9, 2026 says about $24.6M was paid to the lender on a 12-hotel loan.",
           "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000207/aht-20261006.htm",
           "date": "2026-10-09"
         }
       ],
       "access": [
         {
-          "text": "Airlift: Philadelphia International (PHL) passengers, trailing 12 months Jun 2025 to May 2026, −3.09%. Drive: statewide Turnpike only, not graded.",
+          "text": "Airlift: Philadelphia International (PHL) passengers, trailing 12 months Jun 2025 to May 2026, −3.09%. Drive: statewide Turnpike data only, not graded.",
           "url": "https://www.phl.org/drupalbin/media/phl-aviation-activity-report-may-2026.pdf",
           "date": "2026-07-17"
         }
@@ -901,7 +901,7 @@
       },
       {
         "kind": "filing",
-        "title": "Form 8-K: closing of the sale (Oct 6, 2026); lender paydown",
+        "title": "Form 8-K filed Oct 9, 2026: sale closed Oct 6, 2026; lender paydown",
         "publisher": "Ashford Hospitality Trust, SEC EDGAR",
         "date": "2026-10-09",
         "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000207/aht-20261006.htm"
@@ -934,19 +934,19 @@
     "factor_context": {
       "replacement_cost": [
         {
-          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 0.123 ($57,471 ÷ $467,244). Full-service on the hotel's on-site restaurant.",
+          "text": "Deal price per key ÷ HVS full-service replacement cost per key: 0.123 ($57,471 ÷ $467,244). Full-service class based on the hotel's on-site restaurant.",
           "url": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
           "date": "2026-07-13"
         }
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-10-09 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 9, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-09"
         },
         {
-          "text": "Sold on negative trailing NOI: net operating loss of $0.8M and hotel EBITDA of ($0.6M), trailing 12 months ended August 2026, as printed.",
+          "text": "Sold with negative trailing net operating income (NOI): a net operating loss of $0.8M and hotel EBITDA of ($0.6M) for the trailing 12 months ended August 2026, as printed.",
           "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
           "date": "2026-10-09"
         }
@@ -960,14 +960,14 @@
       ],
       "demand": [
         {
-          "text": "Multnomah County lodging tax received by the convention venues, FY2025-26: $16.4M, up $246,000 (+1.5% computed; the document says 2 percent). A formula-based allocation, so context only.",
+          "text": "Multnomah County lodging tax received by the convention venues, FY2025-26: $16.4M, up $246,000 (+1.5% by our calculation; the document says 2 percent). A formula-based allocation, so context only.",
           "url": "https://www.oregonmetro.gov/sites/default/files/2026-09/3718_pa_metropolitan_exposition_recreation_commission-merc-26-10-07_agenda.pdf",
           "date": "2026-09-30"
         }
       ],
       "debt_context": [
         {
-          "text": "Cited context only: PEB recorded an $8.8M impairment on one unnamed hotel in the first half of 2026; no filing ties it to the Zags.",
+          "text": "Cited context only: PEB recorded an $8.8M impairment on one unnamed hotel in the first half of 2026; no filing ties it to The Hotel Zags.",
           "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000055/peb-20260630.htm",
           "date": "2026-07-29"
         },
@@ -979,7 +979,7 @@
       ],
       "access": [
         {
-          "text": "Airlift: Portland International (PDX) passengers, trailing 12 months Jul 2025 to Jun 2026, +4.61%. No corridor drive read.",
+          "text": "Airlift: Portland International (PDX) passengers, trailing 12 months Jul 2025 to Jun 2026, +4.61%. No drive-corridor data.",
           "url": "https://cdn.portofportland.com/pdfs/June%202026%20Statistics.pdf",
           "date": "2026-07-29"
         }
@@ -1039,7 +1039,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, 2026-10-23 close: 5.00% (prior trading day; Oct 25 was a Sunday). No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 23, 2026 close: 5.00% (prior trading day; Oct 25 was a Sunday). No gradeable cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-23"
         }
@@ -1060,19 +1060,19 @@
       ],
       "debt_context": [
         {
-          "text": "Cited context only: RLJ bought the properties for $139M in 2006, and the buyer used a $90M mortgage (press, from Cook County records).",
+          "text": "Cited context only: RLJ bought the properties for $139M in 2006, and the buyer used a $90M mortgage (press report citing Cook County records).",
           "url": "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html",
           "date": "2026-10-25"
         }
       ],
       "access": [
         {
-          "text": "Airlift (preliminary): Chicago Midway (MDW) passengers, calendar YTD Jan to Aug 2026, +2.36% (year-to-date fallback; total used as printed).",
+          "text": "Airlift (preliminary): Chicago Midway (MDW) passengers, calendar year to date Jan to Aug 2026, +2.36% (year-to-date fallback; total used as printed).",
           "url": "https://www.flychicago.com/SiteCollectionDocuments/Business/AccessiblePDFs/FactsandFigures/AirTraffic/0826%20MDW%20SUMMARY.pdf",
           "date": "2026-10-20"
         },
         {
-          "text": "Drive, context only: Illinois Tollway transactions H1 2026 +2.49%; none of the 1,057 keys is Tollway-served (all seven hotels are reached via I-55, untolled).",
+          "text": "Drive, context only: Illinois Tollway transactions, H1 2026: +2.49%; none of the 1,057 keys is served by the Tollway (all seven hotels are reached via I-55, which is untolled).",
           "url": "https://agency.illinoistollway.com/documents/20184/1590275/20260816_Q2%202026%20PPT%20%20-%20Final.pdf/8fc2d590-c961-f507-a98f-e18ef1ef5405",
           "date": "2026-08-19"
         }

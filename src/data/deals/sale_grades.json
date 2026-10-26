@@ -12,7 +12,7 @@
         "effective_weight": 0.353,
         "score": 3,
         "value": -1.8,
-        "input_text": "$867k/key vs $883k replacement per key (HVS 2026 median incl. land, blended by keys: Ritz-Carlton 582 keys at the luxury median $1,604,356; JW Marriott 1,010 keys at the full-service median $467,244); 2% below",
+        "input_text": "$867k per key vs $883k replacement cost per key (HVS 2026 median including land, blended by keys: Ritz-Carlton 582 keys at the luxury median $1,604,356; JW Marriott 1,010 keys at the full-service median $467,244); 2% below",
         "band_text": "3 = within 20% either way",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
@@ -33,7 +33,7 @@
         "effective_weight": 0.294,
         "score": 2,
         "value": 188,
-        "input_text": "6.60% cap rate (trailing 12 months to 2026-06-30) vs 4.72% 10-year (2026-08-10 close); 188bp spread (NOI unaudited, seller-provided)",
+        "input_text": "6.60% cap rate (trailing 12 months to Jun 30, 2026) vs 4.72% 10-year (Aug 10, 2026 close); 188bp spread (NOI unaudited, seller-provided)",
         "band_text": "2 = 100bp to under 200bp",
         "as_of": "2026-08-10",
         "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm",
@@ -111,7 +111,7 @@
         "effective_weight": 0.5,
         "score": 5,
         "value": -67.5,
-        "input_text": "$152k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 67% below",
+        "input_text": "$152k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 68% below",
         "band_text": "5 = 40% or more below replacement cost",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
@@ -291,7 +291,7 @@
         "effective_weight": 0.5,
         "score": 1,
         "value": 139.6,
-        "input_text": "$1.12M/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class; press price includes personal property and intangibles); 140% above",
+        "input_text": "$1.12M per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class; press price includes personal property and intangibles); 140% above",
         "band_text": "1 = more than 40% above",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
@@ -317,7 +317,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "No trailing-12-month cap rate or NOI disclosed (private seller, press-sourced)."
+        "reason": "No trailing-12-month cap rate or NOI disclosed (private seller; price from press reports)."
       },
       {
         "factor": "supply",
@@ -382,14 +382,14 @@
         "effective_weight": 0.5,
         "score": 3,
         "value": 10.4,
-        "input_text": "$1.77M/key vs $1.6M replacement per key (HVS 2026 luxury median incl. land, $1,604,356; single class); 10% above",
+        "input_text": "$1.77M per key vs $1.6M replacement cost per key (HVS 2026 luxury median including land, $1,604,356; single class); 10% above",
         "band_text": "3 = within 20% either way",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
         "graded": true,
         "also_sources": [
           {
-            "label": "Price $372.0M, BHR 8-K (Sep 29, 2026)",
+            "label": "Price $372.0M, BHR 8-K filed Sep 29, 2026",
             "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
             "date": "2026-09-29"
           }
@@ -408,7 +408,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "Ungraded under v1; period question pending Hal. Nothing was disclosed at announcement (Sep 29, 2026); the 6.2% printed Oct 8 is after the announcement and on trailing 12 months to August 2026 including $23M of capex."
+        "reason": "Not graded under v1; the period question is under review. Nothing was disclosed at announcement (Sep 29, 2026). The 6.2% cap rate published Oct 8 came after the announcement and covers the trailing 12 months to August 2026 and includes $23M of capex."
       },
       {
         "factor": "supply",
@@ -479,14 +479,14 @@
         "effective_weight": 0.5,
         "score": 5,
         "value": -57.7,
-        "input_text": "$198k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 58% below",
+        "input_text": "$198k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 58% below",
         "band_text": "5 = 40% or more below replacement cost",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
         "graded": true,
         "also_sources": [
           {
-            "label": "Price ~$43.5M, AHT 8-K (Oct 1, 2026)",
+            "label": "Price ~$43.5M, AHT 8-K filed Oct 1, 2026",
             "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
             "date": "2026-10-01"
           }
@@ -526,7 +526,7 @@
         "effective_weight": 0.25,
         "score": 3,
         "value": -2.5,
-        "input_text": "Lodging tax receipts -2.5% (trailing 12 months vs prior 12, Clark County (unincorporated) Stadium District room tax, Jul 2025 to Jun 2026 vs prior 12, as printed; June 2026 data marked preliminary) (preliminary)",
+        "input_text": "Lodging tax receipts -2.5% (trailing 12 months vs prior 12, Clark County (unincorporated) Stadium District room tax, Jul 2025 to Jun 2026 vs prior 12, as printed; June 2026 data marked preliminary)",
         "band_text": "3 = down under 5%",
         "as_of": "2026-08-20",
         "source_uri": "https://www.lvstadiumauthority.com/docs/2026/08/20/allegiant/Item%208%20Attchmt%20FYE%202026%20YE%20Prelim%20Room%20Tax%20Report.pdf",
@@ -541,14 +541,14 @@
         "effective_weight": 0.25,
         "score": 3,
         "value": "pressured_or_related",
-        "input_text": "Pressured seller without formal distress: AHT's 10-Q (Aug 12, 2026) states substantial doubt about its ability to continue as a going concern and names hotel sales as a source of cash. The Oct 1 closing 8-K says about $41.2M went to the lender on a seven-hotel loan; v1 has no category for proceeds to a lender unless the sale was lender-negotiated, which isn't stated.",
+        "input_text": "Pressured seller without formal distress: AHT's 10-Q (Aug 12, 2026) states substantial doubt about its ability to continue as a going concern and names hotel sales as a source of cash. The closing 8-K filed Oct 1, 2026 (sale closed Sep 25) says about $41.2M went to the lender on a seven-hotel loan; rubric v1 has no category for proceeds to a lender unless the sale was lender-negotiated, which isn't stated.",
         "band_text": "3 = Pressured seller without formal distress (publicly flagged loan maturity within 12 months, watchlist, fund wind-down) or a related-party / non-arm's-length transaction",
         "as_of": "2026-08-12",
         "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
         "graded": true,
         "also_sources": [
           {
-            "label": "AHT 8-K (Oct 1, 2026): ~$41.2M paid to the mortgage lender",
+            "label": "AHT 8-K filed Oct 1, 2026: ~$41.2M paid to the mortgage lender",
             "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
             "date": "2026-10-01"
           }
@@ -659,14 +659,14 @@
         "effective_weight": 0.5,
         "score": 5,
         "value": -75.5,
-        "input_text": "$392k/key vs $1.6M replacement per key (HVS 2026 luxury median incl. land, $1,604,356; single class, on DRH's \"luxury resort\" wording); 76% below",
+        "input_text": "$392k per key vs $1.6M replacement cost per key (HVS 2026 luxury median including land, $1,604,356; single class, on DRH's \"luxury resort\" wording); 76% below",
         "band_text": "5 = 40% or more below replacement cost",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
         "graded": true,
         "also_sources": [
           {
-            "label": "Price $31.0M, DRH 8-K (Oct 8, 2026)",
+            "label": "Price $31.0M, DRH 8-K filed Oct 8, 2026",
             "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
             "date": "2026-10-08"
           }
@@ -685,7 +685,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "Ungraded under v1; period question pending Hal. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, not a quarter-end; no trailing-12-month NOI to June 30, 2026 was disclosed."
+        "reason": "Not graded under v1; the period question is under review. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, which is not a quarter-end. No trailing-12-month NOI to June 30, 2026 was disclosed."
       },
       {
         "factor": "supply",
@@ -727,7 +727,7 @@
         "effective_weight": 0.25,
         "score": 5,
         "value": "clean_arms_length",
-        "input_text": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K, Oct 8, 2026).",
+        "input_text": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K filed Oct 8, 2026).",
         "band_text": "5 = Clean arm's-length sale with no distress",
         "as_of": "2026-10-08",
         "source_uri": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
@@ -756,7 +756,7 @@
         "effective_weight": 0.5,
         "score": 5,
         "value": -78.8,
-        "input_text": "$99k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 79% below",
+        "input_text": "$99k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 79% below",
         "band_text": "5 = 40% or more below replacement cost",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
@@ -847,14 +847,14 @@
         "effective_weight": 0.667,
         "score": 5,
         "value": -87.7,
-        "input_text": "$57k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 88% below",
+        "input_text": "$57k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 88% below",
         "band_text": "5 = 40% or more below replacement cost",
         "as_of": "2026-07-13",
         "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
         "graded": true,
         "also_sources": [
           {
-            "label": "Price $10.0M, PEB 8-K (Oct 9, 2026)",
+            "label": "Price $10.0M, PEB 8-K filed Oct 9, 2026",
             "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
             "date": "2026-10-09"
           }
@@ -873,7 +873,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "Ungraded: trailing NOI was negative (net operating loss of $0.8M, trailing 12 months to August 2026), so there is no meaningful cap rate."
+        "reason": "Not graded: trailing NOI was negative (net operating loss of $0.8M, trailing 12 months to August 2026), so there is no meaningful cap rate."
       },
       {
         "factor": "supply",
@@ -907,7 +907,7 @@
         "effective_weight": 0.333,
         "score": 5,
         "value": "clean_arms_length",
-        "input_text": "Cash sale to an unnamed third party; the hotel was unencumbered; no loan event or distress disclosed (PEB 8-K, Oct 9, 2026).",
+        "input_text": "Cash sale to an unnamed third party; the hotel was unencumbered; no loan event or distress disclosed (PEB 8-K filed Oct 9, 2026).",
         "band_text": "5 = Clean arm's-length sale with no distress",
         "as_of": "2026-10-09",
         "source_uri": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
@@ -921,7 +921,7 @@
     "factors_total": 5,
     "overall": null,
     "overall_label": "Insufficient public data",
-    "output_text": "Underwritten at a 88% discount to replacement; spread not graded; 2 of 5 factors graded; insufficient public data."
+    "output_text": "Underwritten at an 88% discount to replacement; spread not graded; 2 of 5 factors graded; insufficient public data."
   },
   {
     "log_id": "DL-2026-013",
@@ -954,7 +954,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "No trailing-12-month cap rate or NOI disclosed (press-only deal; no RLJ filing)."
+        "reason": "No trailing-12-month cap rate or NOI disclosed (reported only in the press; no RLJ filing)."
       },
       {
         "factor": "supply",

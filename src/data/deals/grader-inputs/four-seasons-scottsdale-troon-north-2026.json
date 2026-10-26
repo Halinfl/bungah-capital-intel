@@ -11,7 +11,7 @@
       "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
       "price_per_key": 1771429,
       "total_keys": 210,
-      "replacement_basis": "HVS 2026 luxury median incl. land, $1,604,356; single class",
+      "replacement_basis": "HVS 2026 luxury median including land, $1,604,356; single class",
       "components": [
         {
           "label": "Four Seasons Resort Scottsdale at Troon North",
@@ -22,14 +22,14 @@
       ],
       "also_sources": [
         {
-          "label": "Price $372.0M, BHR 8-K (Sep 29, 2026)",
+          "label": "Price $372.0M, BHR 8-K filed Sep 29, 2026",
           "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
           "date": "2026-09-29"
         }
       ]
     },
     "spread": {
-      "missing": "Ungraded under v1; period question pending Hal. Nothing was disclosed at announcement (Sep 29, 2026); the 6.2% printed Oct 8 is after the announcement and on trailing 12 months to August 2026 including $23M of capex."
+      "missing": "Not graded under v1; the period question is under review. Nothing was disclosed at announcement (Sep 29, 2026). The 6.2% cap rate published Oct 8 came after the announcement and covers the trailing 12 months to August 2026 and includes $23M of capex."
     },
     "supply": {
       "missing": "Only an under-construction share is public (Phoenix metro 5.7%), a subset of the total pipeline; no single source gave the total pipeline share by Sep 29, 2026."

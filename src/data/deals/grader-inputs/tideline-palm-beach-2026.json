@@ -11,7 +11,7 @@
       "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
       "price_per_key": 1119403,
       "total_keys": 134,
-      "replacement_basis": "HVS 2026 full-service median incl. land, $467,244; single class; press price includes personal property and intangibles",
+      "replacement_basis": "HVS 2026 full-service median including land, $467,244; single class; press price includes personal property and intangibles",
       "components": [
         {
           "label": "Tideline Palm Beach Resort",
@@ -29,7 +29,7 @@
       ]
     },
     "spread": {
-      "missing": "No trailing-12-month cap rate or NOI disclosed (private seller, press-sourced)."
+      "missing": "No trailing-12-month cap rate or NOI disclosed (private seller; price from press reports)."
     },
     "supply": {
       "missing": "No dated single public source gave Palm Beach County's total pipeline as a share of existing rooms by Sep 17, 2026."

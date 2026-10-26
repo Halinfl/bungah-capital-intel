@@ -11,7 +11,7 @@
       "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
       "price_per_key": 392405,
       "total_keys": 79,
-      "replacement_basis": "HVS 2026 luxury median incl. land, $1,604,356; single class, on DRH's \"luxury resort\" wording",
+      "replacement_basis": "HVS 2026 luxury median including land, $1,604,356; single class, on DRH's \"luxury resort\" wording",
       "components": [
         {
           "label": "The Bellmoor Inn & Spa",
@@ -22,14 +22,14 @@
       ],
       "also_sources": [
         {
-          "label": "Price $31.0M, DRH 8-K (Oct 8, 2026)",
+          "label": "Price $31.0M, DRH 8-K filed Oct 8, 2026",
           "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
           "date": "2026-10-08"
         }
       ]
     },
     "spread": {
-      "missing": "Ungraded under v1; period question pending Hal. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, not a quarter-end; no trailing-12-month NOI to June 30, 2026 was disclosed."
+      "missing": "Not graded under v1; the period question is under review. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, which is not a quarter-end. No trailing-12-month NOI to June 30, 2026 was disclosed."
     },
     "supply": {
       "missing": "No dated room count or pipeline share for Rehoboth Beach or Sussex County was public by Oct 8, 2026."
@@ -54,7 +54,7 @@
       "as_of": "2026-10-08",
       "source_uri": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
       "category": "clean_arms_length",
-      "summary": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K, Oct 8, 2026)."
+      "summary": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K filed Oct 8, 2026)."
     }
   }
 }

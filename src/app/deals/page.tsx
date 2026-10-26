@@ -14,7 +14,9 @@ import {
   salePrice,
   sales,
   SHOW_PREVIEW_NOTES,
-  statusLabel,
+  closeLabel,
+  displayMarket,
+  fmtKeys,
   type LogRow,
   type Sale,
 } from "@/lib/deals";
@@ -60,7 +62,7 @@ function DealCard({ sale }: { sale: Sale }) {
         <span className="text-slate-300"> · {sale.market}</span>
       </div>
       <div className="text-sm tabular-nums text-slate-200">
-        {salePrice(sale)} · {fmtPerKey(sale.price_per_key)} · {sale.keys?.toLocaleString("en-US") ?? "n/d"} keys
+        {salePrice(sale)} · {fmtPerKey(sale.price_per_key)} · {fmtKeys(sale.keys)}
       </div>
       <div className="text-[13px] text-slate-300">
         Buyer {sale.buyer} · Seller {sale.seller}
@@ -68,7 +70,7 @@ function DealCard({ sale }: { sale: Sale }) {
       <GradeRow sale={sale} />
       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
         <span>Announced {fmtDate(sale.announced_on)}</span>
-        <Chip>{statusLabel(sale.status)}</Chip>
+        <Chip>{closeLabel(sale)}</Chip>
       </div>
     </Link>
   );
@@ -124,7 +126,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
                   {r.hotel}
                 </a>
               </td>
-              <td className="py-2 pr-3">{r.market}</td>
+              <td className="py-2 pr-3">{displayMarket(r.market)}</td>
               <td className="py-2 pr-3 tabular-nums">{logPrice(r)}</td>
               <td className="py-2 pr-3">{basisLabel(r.inclusion_basis)}</td>
               <td className="py-2">{logStatus(r)}</td>
@@ -140,7 +142,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
               <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
               </a>{" "}
-              <span className="text-slate-300">· {r.market}</span>
+              <span className="text-slate-300">· {displayMarket(r.market)}</span>
             </div>
             <div className="text-[13px] text-slate-300">
               {fmtDate(r.announce_date)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}

@@ -28,6 +28,8 @@ export type Sale = {
   keys_detail?: string;
   announced_on: string;
   closed_on: string | null;
+  /** When the close date isn't company-confirmed: the dated press report of the close. */
+  close_report?: { by: "press"; date: string; url: string; source: string };
   status: "announced" | "closed" | "terminated";
   inclusion_basis: "reit" | "100m+" | "both";
   price_source_kind: "filing" | "press" | "record";
@@ -131,8 +133,24 @@ export function salePrice(s: Sale): string {
   return s.price === null && s.price_display ? s.price_display : fmtPrice(s.price);
 }
 export function fmtPerKey(n: number | null): string {
-  if (n === null) return "n/d";
-  return n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M/key` : `$${Math.round(n / 1000).toLocaleString("en-US")}k/key`;
+  if (n === null) return "Not disclosed";
+  return n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M per key` : `$${Math.round(n / 1000).toLocaleString("en-US")}k per key`;
+}
+/** Key count for running text: "520 keys", or "Keys not disclosed". */
+export const fmtKeys = (n: number | null) => (n === null ? "Keys not disclosed" : `${n.toLocaleString("en-US")} keys`);
+/** Card-style "City, ST" for display only; the append-only deal log keeps its recorded market text. */
+const STATE_FOR_CITY: Record<string, string> = { Orlando: "FL", Scottsdale: "AZ", "Las Vegas": "NV", Philadelphia: "PA" };
+export function displayMarket(m: string): string {
+  if (/,\s*[A-Z]{2}\b/.test(m)) return m;
+  const st = STATE_FOR_CITY[m.trim()];
+  return st ? `${m.trim()}, ${st}` : m;
+}
+/** Status text. A close with no company-confirmed date says who reported it and when. */
+export function closeLabel(s: Sale): string {
+  if (s.status !== "closed") return statusLabel(s.status);
+  if (s.closed_on) return `Closed ${fmtDate(s.closed_on)}`;
+  if (s.close_report?.date) return `Closed (reported by press, ${fmtDate(s.close_report.date)})`;
+  return "Close reported by press, not company-confirmed";
 }
 export const basisLabel = (b: string) =>
   b === "reit" ? "REIT" : b === "100m+" || b.startsWith("included") ? "$100M+" : b === "both" ? "Both" : b;

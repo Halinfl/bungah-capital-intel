@@ -20,7 +20,8 @@ import {
   horizons,
   saleBySlug,
   sales,
-  statusLabel,
+  closeLabel,
+  fmtKeys,
   type FactorResult,
   type GradeResult,
   type Sale,
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {};
   return {
     title: `${s.property} · Recent Deals · Bungah Capital Intel`,
-    description: `${s.property}, ${s.market}: ${salePrice(s)}, ${s.keys ?? "n/d"} keys, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
+    description: `${s.property}, ${s.market}: ${salePrice(s)}, ${fmtKeys(s.keys)}, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
     alternates: { canonical: `/deals/${s.slug}` },
   };
 }
@@ -248,7 +249,7 @@ function ProposedNote({ saleId, current }: { saleId: string; current: GradeResul
       <span className="font-semibold uppercase tracking-wider text-slate-200">Preview · proposed v1.1, not live</span>{" "}
       {changed ? (
         <>
-          Debt/transaction context would score {d?.score ?? "n/a"} instead of {current.factor_scores.find((r) => r.factor === "debt_context")?.score ?? "n/a"}
+          Debt/transaction context would score {d?.score ?? "not graded"} instead of {current.factor_scores.find((r) => r.factor === "debt_context")?.score ?? "not graded"}
           , making the overall {p.overall === null ? p.overall_label : `${p.overall.toFixed(1)} of ${RUBRIC.scale.max}`}. {d?.input_text}
         </>
       ) : (
@@ -362,14 +363,24 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             {salePrice(sale)}
             {sale.price_qualifier ? <span className="block text-xs text-slate-300">{sale.price_qualifier}</span> : null}
           </Fact>
-          <Fact label="Price/key">{fmtPerKey(sale.price_per_key)}</Fact>
+          <Fact label="Price per key">{fmtPerKey(sale.price_per_key)}</Fact>
           <Fact label="Keys">
-            {sale.keys?.toLocaleString("en-US") ?? "n/d"}
+            {sale.keys?.toLocaleString("en-US") ?? "Not disclosed"}
             {sale.keys_detail ? <span className="block text-xs text-slate-300">{sale.keys_detail}</span> : null}
           </Fact>
           <Fact label="Announced">{fmtDate(sale.announced_on)}</Fact>
           <Fact label="Status">
-            {sale.status === "closed" && sale.closed_on ? `Closed ${fmtDate(sale.closed_on)}` : statusLabel(sale.status)}
+            {closeLabel(sale)}
+            {sale.status === "closed" && !sale.closed_on && sale.close_report ? (
+              <a
+                href={sale.close_report.url}
+                className="block text-xs text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+                rel="noopener"
+                target="_blank"
+              >
+                {sale.close_report.source}
+              </a>
+            ) : null}
           </Fact>
         </dl>
         {sale.seller_note ? <p className="text-[13px] text-slate-300">{sale.seller_note}</p> : null}

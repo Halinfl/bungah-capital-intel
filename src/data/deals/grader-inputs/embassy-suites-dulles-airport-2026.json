@@ -11,7 +11,7 @@
       "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
       "price_per_key": 152000,
       "total_keys": 150,
-      "replacement_basis": "HVS 2026 full-service median incl. land, $467,244; single class",
+      "replacement_basis": "HVS 2026 full-service median including land, $467,244; single class",
       "components": [
         {
           "label": "Embassy Suites Dulles Airport",
@@ -55,7 +55,7 @@
       "category": "clean_arms_length",
       "as_of": "2026-08-12",
       "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
-      "summary": "No documented trigger dated by Aug 12, 2026. The ~$20.6M lender paydown appears only in the closing 8-K of Aug 27, 2026, after the announcement. Going-concern doubt is not a v1.1 trigger."
+      "summary": "No documented trigger dated by Aug 12, 2026. The roughly $20.6M lender paydown appears only in the closing 8-K filed Aug 27, 2026 (sale closed Aug 24), after the announcement. Going-concern doubt is not a v1.1 trigger."
     }
   }
 }
