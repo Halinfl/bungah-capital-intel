@@ -1,0 +1,600 @@
+{
+  "status": "Draft, for Hal's review",
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "labels": {
+      "5": "Very strong",
+      "4": "Strong",
+      "3": "Mixed",
+      "2": "Weak",
+      "1": "Very weak"
+    },
+    "direction": "Higher = stronger on that criterion."
+  },
+  "scored_on": "2026-10-25",
+  "assets": [
+    {
+      "id": "btc",
+      "name": "Bitcoin"
+    },
+    {
+      "id": "gold",
+      "name": "Gold"
+    },
+    {
+      "id": "hotel",
+      "name": "Hotel real estate"
+    },
+    {
+      "id": "tbills",
+      "name": "U.S. T-bills"
+    },
+    {
+      "id": "fiat",
+      "name": "Fiat (U.S. dollar)"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "scarcity",
+      "name": "Scarcity",
+      "definition": "How much can total supply grow, and who decides? Higher = supply growth is lower and harder to change."
+    },
+    {
+      "id": "verifiability",
+      "name": "Verifiability",
+      "definition": "Can a holder check authenticity and total supply on their own, without trusting a third party?"
+    },
+    {
+      "id": "counterparty",
+      "name": "Counterparty risk",
+      "definition": "Is the asset someone else's liability, or does it depend on an operator, issuer or custodian to keep its value? Higher = less dependence."
+    },
+    {
+      "id": "durability",
+      "name": "Durability",
+      "definition": "Does the asset persist over time without decay, upkeep or an external system to keep it alive?"
+    },
+    {
+      "id": "portability",
+      "name": "Portability",
+      "definition": "How easily can the holder move it across distance and borders?"
+    },
+    {
+      "id": "censorship",
+      "name": "Censorship resistance",
+      "definition": "How hard is it for a third party (including a state) to block, freeze or seize it?"
+    },
+    {
+      "id": "finality",
+      "name": "Settlement finality",
+      "definition": "Once transferred, how quickly and firmly is the transfer irreversible?"
+    },
+    {
+      "id": "debasement",
+      "name": "Debasement risk",
+      "definition": "How exposed is the holder to dilution of supply or loss of purchasing power by design? Higher = less exposed."
+    }
+  ],
+  "cells": [
+    {
+      "asset": "btc",
+      "criterion": "scarcity",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Consensus code caps issuance: subsidy halves every 210,000 blocks; total converges on 20,999,999.9769 BTC.",
+      "evidence": [
+        "btc-amount-h",
+        "btc-subsidy",
+        "btc-supply-wiki"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "scarcity",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Supply grows only by mining: about 3,300 t mined in 2025 (USGS) against about 222,600 t ever mined (WGC), roughly 1.5% a year; WGC's own 10-year average is about 1.8%.",
+      "evidence": [
+        "usgs-gold",
+        "wgc-stocks",
+        "wgc-primer",
+        "wgc-gdt-supply"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "scarcity",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "New rooms can always be built. Public outlooks put U.S. supply growth at 0.7% CAGR over three years (CBRE) to 2.3% in 2026 (PwC).",
+      "evidence": [
+        "cbre-2026",
+        "pwc-2026"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "scarcity",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Issued at the Treasury's discretion to fund the government; total debt outstanding is published daily and has no fixed cap.",
+      "evidence": [
+        "debt-penny",
+        "td-tbills"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "scarcity",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "M2 grew from $286.6B (Jan 1959) to $23,342.8B (Aug 2026), about 81x.",
+      "evidence": [
+        "frb-h6-m2"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "verifiability",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Any user running a full node checks every block against the rules, including the supply limit, without trusting miners.",
+      "evidence": [
+        "btc-validation",
+        "btc-fullnode"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "verifiability",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Purity and weight need assay. The London market relies on accredited refiners and a bar specification (Good Delivery).",
+      "evidence": [
+        "lbma-gd"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "verifiability",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Title is recorded, but value is an estimate: the issuer's fair-value tests rest on 'subjective assumptions' such as discount and terminal cap rates.",
+      "evidence": [
+        "sho-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "verifiability",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Outstanding debt is published daily and holdings are book-entry records, but holders rely on the record-keeper rather than checking independently.",
+      "evidence": [
+        "debt-penny",
+        "fedwire-sec"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "verifiability",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Money stock is published monthly, but holders cannot independently audit money creation.",
+      "evidence": [
+        "frb-h6-m2"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "counterparty",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Self-custodied bitcoin is nobody's liability. Held on an exchange it carries the full counterparty risk: see the FTX fraud charges (SEC, 2022).",
+      "evidence": [
+        "btc-whitepaper",
+        "sec-ftx"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "counterparty",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Bullion held directly is nobody's liability. Vaulted or pooled gold adds custodian dependence.",
+      "evidence": [
+        "lbma-gd"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "counterparty",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Value depends on third-party managers, brands, lenders and ground lessors. All of the issuer's hotels are run by third-party managers.",
+      "evidence": [
+        "sho-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "counterparty",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "A direct obligation of the U.S. Treasury, the market's reference credit, but still a promise from an issuer.",
+      "evidence": [
+        "td-tbills"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "counterparty",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Bank deposits are bank liabilities, insured to at least $250,000 per depositor per bank. Cash is a central-bank liability.",
+      "evidence": [
+        "fdic"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "durability",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "No physical decay, but it persists only while the network runs. Under 18 years of history since the genesis block; mining uses an estimated 0.6\u20132.3% of U.S. electricity (EIA).",
+      "evidence": [
+        "btc-genesis",
+        "eia-mining"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "durability",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Virtually indestructible: almost all gold ever mined still exists.",
+      "evidence": [
+        "wgc-stocks"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "durability",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Buildings depreciate over 5\u201340 years and FF&E over 3\u201312 years. Owners fund FF&E reserves of 3.0\u20135.5% of hotel revenue.",
+      "evidence": [
+        "sho-10k",
+        "hst-10k",
+        "pk-10k",
+        "aple-10k",
+        "hst-supp"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "durability",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Book-entry claims don't decay, but each bill matures within 4\u201352 weeks and must be rolled over.",
+      "evidence": [
+        "td-tbills"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "durability",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Notes wear out (Fed estimate for a $1 note: 7.2 years); balances depend on the banking system.",
+      "evidence": [
+        "fed-lifespan"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "portability",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Control is a key that can be written as a 12- to 24-word phrase and carried across any border.",
+      "evidence": [
+        "btc-bip39"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "portability",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Physical: an institutional bar weighs roughly 400 troy oz and needs secure transport and insurance.",
+      "evidence": [
+        "lbma-gd"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "portability",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "Immovable. The issuer flags real estate illiquidity and the lack of alternative uses for hotels.",
+      "evidence": [
+        "sho-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "portability",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Transferable within the regulated custody chain (Fedwire Securities), not outside it.",
+      "evidence": [
+        "fedwire-sec"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "portability",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Moves electronically within the banking system. Carrying more than $10,000 in or out of the U.S. must be reported.",
+      "evidence": [
+        "fedwire-funds",
+        "cbp-money"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "censorship",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Self-custody transfers need no permission, but access points are regulated: OFAC lists addresses on the SDN list, and China declared all crypto transactions illegal in 2021.",
+      "evidence": [
+        "ofac-562",
+        "pboc-2021"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "censorship",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Physical gold can be seized or its holding prohibited: the 1933 U.S. order required delivery of gold to the Federal Reserve.",
+      "evidence": [
+        "eo-6102"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "censorship",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "Fixed in a jurisdiction: subject to eminent domain, including for economic development (Kelo, 2005), and to property tax.",
+      "evidence": [
+        "kelo",
+        "sho-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "censorship",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "Freezable at the custodian: Treasury immobilized the Russian central bank's U.S.-held assets in 2022.",
+      "evidence": [
+        "treasury-russia"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "censorship",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Accounts can be blocked under sanctions programs. Cash moves hand to hand but is reportable above $10,000 at the border.",
+      "evidence": [
+        "treasury-russia",
+        "cbp-money"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "finality",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Probabilistic: each new block (10-minute target) makes reversal exponentially less likely. No chargebacks.",
+      "evidence": [
+        "btc-whitepaper"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "finality",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Physical delivery is final but slow. Bar-for-bar settlement depends on a standard specification.",
+      "evidence": [
+        "lbma-gd"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "finality",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "Sales are subject to contingencies and closings can fail or take months.",
+      "evidence": [
+        "sho-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "finality",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Delivery-versus-payment on Fedwire Securities, with final payment in Federal Reserve master accounts (during operating hours).",
+      "evidence": [
+        "fedwire-sec"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "finality",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Fedwire payments are final, but consumer electronic transfers carry error-resolution rights (Regulation E).",
+      "evidence": [
+        "fedwire-funds",
+        "cfpb-rege"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "btc",
+      "criterion": "debasement",
+      "score": 5,
+      "label": "Very strong",
+      "rationale": "Issuance is fixed in code: currently 3.125 BTC per block (about 0.8% a year at target spacing), halving again at block 1,050,000.",
+      "evidence": [
+        "btc-subsidy",
+        "btc-halving-2024",
+        "btc-tip"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "gold",
+      "criterion": "debasement",
+      "score": 4,
+      "label": "Strong",
+      "rationale": "Mining adds roughly 1.5\u20131.8% a year to the above-ground stock (USGS-based estimate; WGC 10-year average).",
+      "evidence": [
+        "usgs-gold",
+        "wgc-stocks",
+        "wgc-primer",
+        "wgc-gdt-supply"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "hotel",
+      "criterion": "debasement",
+      "score": 3,
+      "label": "Mixed",
+      "rationale": "Room rates reprice nightly, but wages, property taxes and insurance also rise with inflation, per the issuer's 10-K.",
+      "evidence": [
+        "sho-10k",
+        "hst-10k"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "tbills",
+      "criterion": "debasement",
+      "score": 2,
+      "label": "Weak",
+      "rationale": "Nominal. Using fed funds as a proxy, the yield sat below CPI inflation in 192 of 320 months since 2000 (June 2022: CPI +9.0% vs 1.21%).",
+      "evidence": [
+        "frb-h15-effr",
+        "bls-cpi",
+        "frb-h15-tbill"
+      ],
+      "scored_on": "2026-10-25"
+    },
+    {
+      "asset": "fiat",
+      "criterion": "debasement",
+      "score": 1,
+      "label": "Very weak",
+      "rationale": "The Fed targets 2% inflation over the longer run. The dollar has lost 87.9% of its purchasing power since August 1971 (CPI).",
+      "evidence": [
+        "fed-2pct",
+        "bls-cpi"
+      ],
+      "scored_on": "2026-10-25"
+    }
+  ],
+  "btc_weak_spots": [
+    {
+      "label": "Price volatility",
+      "detail": "Coinbase BTC price fell 76.7% from $67,510.06 (2021-11-08) to $15,755.75 (2022-11-21).",
+      "evidence": [
+        "fred-cbbtcusd",
+        "fred-sp500",
+        "wf-vol"
+      ]
+    },
+    {
+      "label": "Short history",
+      "detail": "Genesis block: 2009-01-03, under 18 years of data. Statistical claims carry that caveat.",
+      "evidence": [
+        "btc-genesis"
+      ]
+    },
+    {
+      "label": "Exchange / custody risk",
+      "detail": "Coins held on a platform are a claim on that platform (FTX, 2022).",
+      "evidence": [
+        "sec-ftx",
+        "doj-binance"
+      ]
+    },
+    {
+      "label": "Regulatory risk",
+      "detail": "States can outlaw on-ramps (China, 2021) and sanction addresses (OFAC).",
+      "evidence": [
+        "pboc-2021",
+        "ofac-562",
+        "ndrc-2021"
+      ]
+    },
+    {
+      "label": "Energy dependence",
+      "detail": "Mining uses an estimated 0.6\u20132.3% of U.S. electricity (EIA preliminary estimate).",
+      "evidence": [
+        "eia-mining"
+      ]
+    },
+    {
+      "label": "Software risk",
+      "detail": "A 2010 bug briefly created about 184 billion BTC before a software fix (value overflow incident).",
+      "evidence": [
+        "btc-overflow"
+      ]
+    }
+  ]
+}

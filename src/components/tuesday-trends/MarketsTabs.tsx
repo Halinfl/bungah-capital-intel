@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-/** Two-tab sub-nav shared by the markets index and the Tuesday Trends board. */
-export function MarketsTabs({ active }: { active: "markets" | "tuesday-trends" }) {
+/** Sub-nav shared by the markets index, the Tuesday Trends board and the Monday Ledger. */
+export function MarketsTabs({ active }: { active: "markets" | "tuesday-trends" | "ledger" }) {
   const tabs = [
     { key: "markets", href: "/markets", label: "Markets" },
     { key: "tuesday-trends", href: "/tuesday-trends", label: "Tuesday Trends" },
+    { key: "ledger", href: "/markets/ledger", label: "Ledger" },
   ] as const;
   return (
     <nav aria-label="Markets sections" className="border-b border-white/10">

@@ -1,0 +1,362 @@
+{
+  "btc-amount-h": {
+    "title": "Bitcoin Core source: consensus/amount.h (MAX_MONEY = 21,000,000 \u00d7 COIN)",
+    "publisher": "Bitcoin Core (GitHub)",
+    "url": "https://github.com/bitcoin/bitcoin/blob/master/src/consensus/amount.h",
+    "accessed": "2026-10-25"
+  },
+  "btc-subsidy": {
+    "title": "Bitcoin Core source: GetBlockSubsidy in validation.cpp (subsidy halves every 210,000 blocks)",
+    "publisher": "Bitcoin Core (GitHub)",
+    "url": "https://github.com/bitcoin/bitcoin/blob/master/src/validation.cpp",
+    "accessed": "2026-10-25"
+  },
+  "btc-supply-wiki": {
+    "title": "Controlled supply (total issuance 20,999,999.9769 BTC)",
+    "publisher": "Bitcoin Wiki",
+    "url": "https://en.bitcoin.it/wiki/Controlled_supply",
+    "accessed": "2026-10-25"
+  },
+  "btc-validation": {
+    "title": "Bitcoin Core features: Validation",
+    "publisher": "Bitcoin.org",
+    "url": "https://bitcoin.org/en/bitcoin-core/features/validation",
+    "accessed": "2026-10-25"
+  },
+  "btc-fullnode": {
+    "title": "Running a full node",
+    "publisher": "Bitcoin.org",
+    "url": "https://bitcoin.org/en/full-node",
+    "accessed": "2026-10-25"
+  },
+  "btc-whitepaper": {
+    "title": "Bitcoin: A Peer-to-Peer Electronic Cash System (2008)",
+    "publisher": "Satoshi Nakamoto / Bitcoin.org",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "accessed": "2026-10-25"
+  },
+  "btc-bip39": {
+    "title": "BIP 39: Mnemonic code for generating deterministic keys",
+    "publisher": "Bitcoin BIPs (GitHub)",
+    "url": "https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki",
+    "accessed": "2026-10-25"
+  },
+  "btc-genesis": {
+    "title": "Block 0 (genesis), timestamp 2009-01-03 18:15:05 UTC",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+    "accessed": "2026-10-25"
+  },
+  "btc-halving-2012": {
+    "title": "Block 210,000 (first halving), 2012-11-28 UTC",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/block/000000000000048b95347e83192f69cf0366076336c639f9b7228e9ba171342e",
+    "accessed": "2026-10-25"
+  },
+  "btc-halving-2016": {
+    "title": "Block 420,000 (second halving), 2016-07-09 UTC",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/block/000000000000000002cce816c0ab2c5c269cb081896b7dcb34b8422d6b74ffa1",
+    "accessed": "2026-10-25"
+  },
+  "btc-halving-2020": {
+    "title": "Block 630,000 (third halving), 2020-05-11 UTC",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/block/000000000000000000024bead8df69990852c202db0e0097c1a12ea637d7e96d",
+    "accessed": "2026-10-25"
+  },
+  "btc-halving-2024": {
+    "title": "Block 840,000 (fourth halving), 2024-04-20 UTC",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/block/0000000000000000000320283a032748cef8227873ff4872689bf23f1cda83a5",
+    "accessed": "2026-10-25"
+  },
+  "btc-overflow": {
+    "title": "Value overflow incident (block 74638, August 15, 2010)",
+    "publisher": "Bitcoin Wiki",
+    "url": "https://en.bitcoin.it/wiki/Value_overflow_incident",
+    "accessed": "2026-10-25"
+  },
+  "fred-cbbtcusd": {
+    "title": "Coinbase Bitcoin [CBBTCUSD], daily close (Coinbase via FRED; Copyrighted: citation required). Figures are cited with a link; the series is not stored.",
+    "publisher": "Coinbase, via FRED (link only)",
+    "url": "https://fred.stlouisfed.org/series/CBBTCUSD",
+    "accessed": "2026-10-25"
+  },
+  "sec-ftx": {
+    "title": "SEC Charges Samuel Bankman-Fried with Defrauding Investors in Crypto Asset Trading Platform FTX (Dec 13, 2022)",
+    "publisher": "U.S. Securities and Exchange Commission",
+    "url": "https://www.sec.gov/news/press-release/2022-219",
+    "accessed": "2026-10-25"
+  },
+  "ofac-562": {
+    "title": "OFAC FAQ 562: digital currency addresses on the SDN List",
+    "publisher": "U.S. Treasury, OFAC",
+    "url": "https://ofac.treasury.gov/faqs/562",
+    "accessed": "2026-10-25"
+  },
+  "pboc-2021": {
+    "title": "Circular on further preventing and disposing of speculative risks in virtual currency trading (Yinfa [2021] No. 237)",
+    "publisher": "People's Bank of China",
+    "url": "https://www.pbc.gov.cn/tiaofasi/144941/3581332/4348658/index.html",
+    "accessed": "2026-10-25"
+  },
+  "eia-mining": {
+    "title": "Tracking electricity consumption from U.S. cryptocurrency mining operations (Feb 2024)",
+    "publisher": "U.S. Energy Information Administration",
+    "url": "https://www.eia.gov/todayinenergy/detail.php?id=61364",
+    "accessed": "2026-10-25"
+  },
+  "wgc-stocks": {
+    "title": "How much gold has been mined? (about 222,600 tonnes in total)",
+    "publisher": "World Gold Council",
+    "url": "https://www.gold.org/goldhub/data/how-much-gold",
+    "accessed": "2026-10-25"
+  },
+  "usgs-gold": {
+    "title": "Mineral Commodity Summaries 2026: Gold (world mine production about 3,300 t in 2025)",
+    "publisher": "U.S. Geological Survey",
+    "url": "https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-gold.pdf",
+    "accessed": "2026-10-25"
+  },
+  "lbma-gd": {
+    "title": "About Good Delivery (bar specification, roughly 400 troy oz; accredited refiners)",
+    "publisher": "LBMA",
+    "url": "https://www.lbma.org.uk/good-delivery/about-good-delivery",
+    "accessed": "2026-10-25"
+  },
+  "eo-6102": {
+    "title": "Executive Order 6102: Forbidding the Hoarding of Gold Coin, Gold Bullion and Gold Certificates (April 5, 1933)",
+    "publisher": "The American Presidency Project, UC Santa Barbara",
+    "url": "https://www.presidency.ucsb.edu/documents/executive-order-6102-forbidding-the-hoarding-gold-coin-gold-bullion-and-gold-certificates",
+    "accessed": "2026-10-25"
+  },
+  "sho-10k": {
+    "title": "Sunstone Hotel Investors, Form 10-K for fiscal year 2025",
+    "publisher": "SEC EDGAR",
+    "url": "https://www.sec.gov/Archives/edgar/data/1295810/000110465926021440/sho-20251231x10k.htm",
+    "accessed": "2026-10-25"
+  },
+  "cbre-2026": {
+    "title": "U.S. Real Estate Market Outlook Midyear Review 2026: Hotels",
+    "publisher": "CBRE",
+    "url": "https://www.cbre.com/insights/books/us-real-estate-market-outlook-midyear-review-2026/hotels",
+    "accessed": "2026-10-25"
+  },
+  "pwc-2026": {
+    "title": "US Hospitality Directions: May 2026",
+    "publisher": "PwC",
+    "url": "https://www.pwc.com/us/en/industries/consumer-markets/hospitality-leisure/us-hospitality-directions.html",
+    "accessed": "2026-10-25"
+  },
+  "kelo": {
+    "title": "Kelo v. City of New London, 545 U.S. 469 (2005), syllabus",
+    "publisher": "Legal Information Institute, Cornell Law School",
+    "url": "https://www.law.cornell.edu/supct/html/04-108.ZS.html",
+    "accessed": "2026-10-25"
+  },
+  "td-tbills": {
+    "title": "Treasury Bills (terms from 4 to 52 weeks)",
+    "publisher": "TreasuryDirect, U.S. Treasury",
+    "url": "https://www.treasurydirect.gov/marketable-securities/treasury-bills/",
+    "accessed": "2026-10-25"
+  },
+  "debt-penny": {
+    "title": "Debt to the Penny",
+    "publisher": "U.S. Treasury Fiscal Data",
+    "url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/",
+    "accessed": "2026-10-25"
+  },
+  "fedwire-sec": {
+    "title": "Fedwire Securities Service",
+    "publisher": "Federal Reserve Financial Services",
+    "url": "https://www.frbservices.org/financial-services/securities",
+    "accessed": "2026-10-25"
+  },
+  "fedwire-funds": {
+    "title": "Fedwire Funds Service",
+    "publisher": "Federal Reserve Financial Services",
+    "url": "https://www.frbservices.org/financial-services/wires",
+    "accessed": "2026-10-25"
+  },
+  "treasury-russia": {
+    "title": "Treasury Prohibits Transactions with Central Bank of Russia (Feb 28, 2022)",
+    "publisher": "U.S. Department of the Treasury",
+    "url": "https://home.treasury.gov/news/press-releases/jy0612",
+    "accessed": "2026-10-25"
+  },
+  "fed-2pct": {
+    "title": "Why does the Federal Reserve aim for inflation of 2 percent over the longer run?",
+    "publisher": "Board of Governors of the Federal Reserve System",
+    "url": "https://www.federalreserve.gov/faqs/economy_14400.htm",
+    "accessed": "2026-10-25"
+  },
+  "fed-lifespan": {
+    "title": "How long is the life span of U.S. paper money? ($1 note: 7.2 years, May 2025 estimate)",
+    "publisher": "Board of Governors of the Federal Reserve System",
+    "url": "https://www.federalreserve.gov/faqs/how-long-is-the-life-span-of-us-paper-money.htm",
+    "accessed": "2026-10-25"
+  },
+  "fdic": {
+    "title": "Deposit Insurance (at least $250,000 per depositor, per insured bank)",
+    "publisher": "FDIC",
+    "url": "https://www.fdic.gov/resources/deposit-insurance",
+    "accessed": "2026-10-25"
+  },
+  "cbp-money": {
+    "title": "Money and other monetary instruments: report amounts over $10,000",
+    "publisher": "U.S. Customs and Border Protection",
+    "url": "https://www.cbp.gov/travel/international-visitors/kbyg/money",
+    "accessed": "2026-10-25"
+  },
+  "cfpb-rege": {
+    "title": "Regulation E \u00a71005.11: procedures for resolving errors",
+    "publisher": "Consumer Financial Protection Bureau",
+    "url": "https://www.consumerfinance.gov/rules-policy/regulations/1005/11/",
+    "accessed": "2026-10-25"
+  },
+  "ecb-ire-2025": {
+    "title": "The international role of the euro, June 2025 (Box 1: central bank gold purchases)",
+    "publisher": "European Central Bank",
+    "url": "https://www.ecb.europa.eu/press/other-publications/ire/html/ecb.ire202506.en.html",
+    "accessed": "2026-10-25"
+  },
+  "wgc-cb-survey-2025": {
+    "title": "Central Bank Gold Reserves Survey 2025: Perspectives on gold reserves",
+    "publisher": "World Gold Council",
+    "url": "https://www.gold.org/goldhub/research/central-bank-gold-reserve-survey-2025/perspectives-on-gold-reserves",
+    "accessed": "2026-10-25"
+  },
+  "ecb-blog-2022": {
+    "title": "Bitcoin's last stand (Bindseil & Schaaf, Nov 30, 2022)",
+    "publisher": "ECB Blog",
+    "url": "https://www.ecb.europa.eu/press/blog/date/2022/html/ecb.blog221130~5301eecd19.en.html",
+    "accessed": "2026-10-25"
+  },
+  "ecb-blog-2024": {
+    "title": "ETF approval for bitcoin: the naked emperor's new clothes (Bindseil & Schaaf, Feb 22, 2024)",
+    "publisher": "ECB Blog",
+    "url": "https://www.ecb.europa.eu/press/blog/date/2024/html/ecb.blog20240222~0929f86e23.en.html",
+    "accessed": "2026-10-25"
+  },
+  "imf-slv-2025": {
+    "title": "Press Release No. 25/043: IMF approves 40-month US$1.4 billion EFF for El Salvador (Feb 26, 2025)",
+    "publisher": "International Monetary Fund",
+    "url": "https://www.imf.org/en/news/articles/2025/02/26/pr25043-el-salvador-imf-approves-new-40-month-us1-bn-eff-arr",
+    "accessed": "2026-10-25"
+  },
+  "wgc-primer": {
+    "title": "Gold market primer: market size and structure (stock grows ~1.8% a year)",
+    "publisher": "World Gold Council",
+    "url": "https://www.gold.org/goldhub/research/market-primer/gold-market-primer-market-size-and-structure",
+    "accessed": "2026-10-25"
+  },
+  "wgc-gdt-supply": {
+    "title": "Gold Demand Trends full year 2025: Supply",
+    "publisher": "World Gold Council",
+    "url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply",
+    "accessed": "2026-10-25"
+  },
+  "wgc-gdt-cb": {
+    "title": "Gold Demand Trends full year 2025: Central banks",
+    "publisher": "World Gold Council",
+    "url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/central-banks",
+    "accessed": "2026-10-25"
+  },
+  "fred-sp500": {
+    "title": "S&P 500 [SP500], daily close (S&P Dow Jones Indices via FRED; Copyrighted: pre-approval required). Figures are cited with a link; the series is not stored.",
+    "publisher": "S&P Dow Jones Indices, via FRED (link only)",
+    "url": "https://fred.stlouisfed.org/series/SP500",
+    "accessed": "2026-10-25"
+  },
+  "hst-10k": {
+    "title": "Host Hotels & Resorts, Form 10-K for fiscal year 2025",
+    "publisher": "SEC EDGAR",
+    "url": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm",
+    "accessed": "2026-10-25"
+  },
+  "hst-supp": {
+    "title": "Host Hotels & Resorts, supplemental financial information (Feb 18, 2026)",
+    "publisher": "SEC EDGAR",
+    "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000038/hst-supplementalfinanciali.htm",
+    "accessed": "2026-10-25"
+  },
+  "pk-10k": {
+    "title": "Park Hotels & Resorts, Form 10-K for fiscal year 2025",
+    "publisher": "SEC EDGAR",
+    "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+    "accessed": "2026-10-25"
+  },
+  "aple-10k": {
+    "title": "Apple Hospitality REIT, Form 10-K for fiscal year 2025",
+    "publisher": "SEC EDGAR",
+    "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526064008/aple-20251231.htm",
+    "accessed": "2026-10-25"
+  },
+  "sec-etp-2024": {
+    "title": "Statement on the Approval of Spot Bitcoin Exchange-Traded Products (Gensler, Jan 10, 2024)",
+    "publisher": "U.S. Securities and Exchange Commission",
+    "url": "https://www.sec.gov/newsroom/speeches-statements/gensler-statement-spot-bitcoin-011023",
+    "accessed": "2026-10-25"
+  },
+  "wf-vol": {
+    "title": "Digital asset volatility (Bloomberg daily data, 2018\u20132026)",
+    "publisher": "Wells Fargo Investment Institute",
+    "url": "https://www.wellsfargoadvisors.com/research-analysis/reports/digital-assets/digital-asset-volatility.htm",
+    "accessed": "2026-10-25"
+  },
+  "ndrc-2021": {
+    "title": "Notice on rectifying virtual currency mining activities (Fagai Yunxing [2021] No. 1283)",
+    "publisher": "National Development and Reform Commission, via gov.cn",
+    "url": "https://www.gov.cn/zhengce/zhengceku/2021-09/25/content_5639225.htm",
+    "accessed": "2026-10-25"
+  },
+  "doj-binance": {
+    "title": "Binance and CEO Plead Guilty to Federal Charges in $4B Resolution (Nov 21, 2023)",
+    "publisher": "U.S. Department of Justice",
+    "url": "https://www.justice.gov/archives/opa/pr/binance-and-ceo-plead-guilty-federal-charges-4b-resolution",
+    "accessed": "2026-10-25"
+  },
+  "esma-mica": {
+    "title": "Markets in Crypto-Assets Regulation (MiCA)",
+    "publisher": "European Securities and Markets Authority",
+    "url": "https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica",
+    "accessed": "2026-10-25"
+  },
+  "btc-tip": {
+    "title": "Chain tip height (973,150 on 2026-10-25)",
+    "publisher": "mempool.space",
+    "url": "https://mempool.space/api/blocks/tip/height",
+    "accessed": "2026-10-25"
+  },
+  "bls-cpi": {
+    "title": "CPI for All Urban Consumers (CPI-U), U.S. city average, all items, seasonally adjusted [CUSR0000SA0]",
+    "publisher": "U.S. Bureau of Labor Statistics",
+    "url": "https://data.bls.gov/timeseries/CUSR0000SA0",
+    "accessed": "2026-10-25"
+  },
+  "frb-h6-m2": {
+    "title": "H.6 Money Stock Measures: M2, seasonally adjusted",
+    "publisher": "Board of Governors of the Federal Reserve System",
+    "url": "https://www.federalreserve.gov/releases/h6/",
+    "accessed": "2026-10-25"
+  },
+  "frb-h15-effr": {
+    "title": "H.15 Selected Interest Rates: federal funds effective rate (EFFR administered by the Federal Reserve Bank of New York)",
+    "publisher": "Board of Governors of the Federal Reserve System",
+    "url": "https://www.federalreserve.gov/releases/h15/",
+    "accessed": "2026-10-25"
+  },
+  "frb-h15-tbill": {
+    "title": "H.15 Selected Interest Rates: 3-month Treasury bill, secondary market (monthly and daily)",
+    "publisher": "Board of Governors of the Federal Reserve System",
+    "url": "https://www.federalreserve.gov/releases/h15/",
+    "accessed": "2026-10-25"
+  },
+  "ust-par-curve": {
+    "title": "Daily Treasury par yield curve rates",
+    "publisher": "U.S. Department of the Treasury",
+    "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+    "accessed": "2026-10-25"
+  }
+}

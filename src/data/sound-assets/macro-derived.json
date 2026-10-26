@@ -1,0 +1,128 @@
+{
+  "computed_at": "2026-10-26T00:25:20.092Z",
+  "inputs": "src/data/sound-assets/primary/*.csv (see manifest.json for source, vintage, license/terms)",
+  "cpi_missing_months": [
+    "2025-10"
+  ],
+  "usd_purchasing_power_since_1971_08": {
+    "from": "1971-08-01",
+    "cpi_from": 40.7,
+    "to": "2026-09-01",
+    "cpi_to": 336.298,
+    "purchasing_power_remaining": 0.121,
+    "loss_pct": 87.9,
+    "series": "BLS CUSR0000SA0",
+    "note": "CPI is a consumer basket, seasonally adjusted; it is not a measure of any single asset price."
+  },
+  "usd_purchasing_power_since_1947_01": {
+    "from": "1947-01-01",
+    "cpi_from": 21.48,
+    "to": "2026-09-01",
+    "cpi_to": 336.298,
+    "purchasing_power_remaining": 0.064,
+    "loss_pct": 93.6,
+    "series": "BLS CUSR0000SA0"
+  },
+  "m2_multiple_since_1959_01": {
+    "from": "1959-01-01",
+    "m2_from_bn": 286.6,
+    "to": "2026-08-01",
+    "m2_to_bn": 23342.8,
+    "multiple": 81.4,
+    "series": "FRB H.6 M2.M"
+  },
+  "m2_2020_surge": {
+    "from": "2020-02-01",
+    "m2_from_bn": 15492.8,
+    "to": "2020-06-01",
+    "m2_to_bn": 18180,
+    "change_pct": 17.3,
+    "series": "FRB H.6 M2.M"
+  },
+  "m2_2022_2023_contraction": {
+    "from": "2022-03-01",
+    "m2_from_bn": 21788.1,
+    "to": "2023-10-01",
+    "m2_to_bn": 20737.4,
+    "change_pct": -4.8,
+    "series": "FRB H.6 M2.M"
+  },
+  "cpi_yoy_peak_2021_2023": {
+    "month": "2022-06-01",
+    "cpi_yoy_pct": 9,
+    "fedfunds_pct_same_month": 1.21,
+    "series": [
+      "BLS CUSR0000SA0",
+      "FRB H.15 RIFSPFF_N.M"
+    ]
+  },
+  "months_fedfunds_below_cpi_yoy_since_2000": {
+    "months_below": 192,
+    "months_total": 320,
+    "through": "2026-09-01",
+    "note": "Effective fed funds (H.15 monthly average) used as a cash/T-bill yield proxy; CPI year-over-year change computed from BLS CUSR0000SA0."
+  },
+  "real_tbill_2000_2026": {
+    "start": "2000-01-01",
+    "end": "2026-09-01",
+    "months": 320,
+    "nominal_pct": 67.3,
+    "cpi_pct": 98.6,
+    "real_pct": -15.8,
+    "real_annualized_pct": -0.64,
+    "series": [
+      "FRB H.15 RIFSGFSM03_N.M",
+      "BLS CUSR0000SA0"
+    ],
+    "note": "Monthly-average discount-basis yield compounded monthly; an approximation, not an investable total return."
+  },
+  "real_tbill_2009_2022": {
+    "start": "2009-01-01",
+    "end": "2022-01-01",
+    "months": 156,
+    "nominal_pct": 6.4,
+    "cpi_pct": 33.3,
+    "real_pct": -20.2,
+    "real_annualized_pct": -1.72,
+    "series": [
+      "FRB H.15 RIFSGFSM03_N.M",
+      "BLS CUSR0000SA0"
+    ]
+  },
+  "real_tbill_2023_2026": {
+    "start": "2023-01-01",
+    "end": "2026-09-01",
+    "months": 44,
+    "nominal_pct": 17.9,
+    "cpi_pct": 11.9,
+    "real_pct": 5.4,
+    "real_annualized_pct": 1.43,
+    "series": [
+      "FRB H.15 RIFSGFSM03_N.M",
+      "BLS CUSR0000SA0"
+    ]
+  },
+  "latest_bill_vs_cpi": {
+    "tbill3m_monthly": {
+      "month": "2026-09-01",
+      "pct": 3.94
+    },
+    "tbill3m_daily": {
+      "date": "2026-10-22",
+      "pct": 4.04
+    },
+    "cpi_yoy": {
+      "month": "2026-09-01",
+      "pct": 3.72
+    },
+    "series": [
+      "FRB H.15",
+      "BLS CUSR0000SA0"
+    ]
+  },
+  "ust10y_latest": {
+    "date": "2026-10-23",
+    "pct": 5,
+    "series": "U.S. Treasury daily par yield curve"
+  }
+}

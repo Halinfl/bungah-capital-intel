@@ -1,0 +1,157 @@
+{
+  "retrieved_at": "2026-10-26T00:23:54.936Z",
+  "note": "Primary federal sources only. No FRED data is stored.",
+  "series": [
+    {
+      "file": "bls_CUSR0000SA0.csv",
+      "series_id": "CUSR0000SA0",
+      "name": "CPI for All Urban Consumers (CPI-U), U.S. city average, all items, seasonally adjusted",
+      "units": "Index 1982-84=100",
+      "frequency": "Monthly",
+      "source": "U.S. Bureau of Labor Statistics",
+      "series_url": "https://data.bls.gov/timeseries/CUSR0000SA0",
+      "download_url": "https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems",
+      "terms_url": "https://www.bls.gov/opub/copyright-information.htm",
+      "license_note": "Public domain (U.S. Bureau of Labor Statistics: 'everything that we publish ... is in the public domain'); BLS asks that it be cited as the source.",
+      "first_observation": "1947-01-01",
+      "latest_observation": {
+        "date": "2026-09-01",
+        "value": 336.298
+      },
+      "observations": 956,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-09-01"
+    },
+    {
+      "file": "bls_CUUR0000SA0.csv",
+      "series_id": "CUUR0000SA0",
+      "name": "CPI for All Urban Consumers (CPI-U), U.S. city average, all items, not seasonally adjusted",
+      "units": "Index 1982-84=100",
+      "frequency": "Monthly",
+      "source": "U.S. Bureau of Labor Statistics",
+      "series_url": "https://data.bls.gov/timeseries/CUUR0000SA0",
+      "download_url": "https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems",
+      "terms_url": "https://www.bls.gov/opub/copyright-information.htm",
+      "license_note": "Public domain (U.S. Bureau of Labor Statistics: 'everything that we publish ... is in the public domain'); BLS asks that it be cited as the source.",
+      "first_observation": "1913-01-01",
+      "latest_observation": {
+        "date": "2026-09-01",
+        "value": 336.94
+      },
+      "observations": 1364,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-09-01"
+    },
+    {
+      "file": "frb_h6_M2.M.csv",
+      "series_id": "H6/M2.M",
+      "name": "M2, seasonally adjusted (H.6 Money Stock Measures)",
+      "units": "Billions of dollars",
+      "frequency": "Monthly (dated to month start)",
+      "source": "Board of Governors of the Federal Reserve System, H.6 release",
+      "series_url": "https://www.federalreserve.gov/releases/h6/",
+      "download_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&filetype=zip",
+      "terms_url": "https://www.federalreserve.gov/disclaimer.htm",
+      "license_note": "Public domain unless otherwise indicated ('may be copied and distributed without permission'); cite the Board of Governors of the Federal Reserve System as the source.",
+      "first_observation": "1959-01-01",
+      "latest_observation": {
+        "date": "2026-08-01",
+        "value": 23342.8
+      },
+      "observations": 812,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-08-01"
+    },
+    {
+      "file": "frb_h15_RIFSPFF_N.M.csv",
+      "series_id": "H15/RIFSPFF_N.M",
+      "name": "Federal funds effective rate, monthly average (H.15)",
+      "units": "Percent per year",
+      "frequency": "Monthly (dated to month start)",
+      "source": "Board of Governors of the Federal Reserve System, H.15 release (EFFR administered by the Federal Reserve Bank of New York)",
+      "series_url": "https://www.federalreserve.gov/releases/h15/",
+      "download_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "terms_url": "https://www.newyorkfed.org/privacy/termsofuse",
+      "license_note": "Published by the Board in H.15; since March 2016 the effective federal funds rate is calculated and administered by the Federal Reserve Bank of New York. Reference-rate terms require this notice with any presentation: 'The EFFR is subject to the Terms of Use posted at newyorkfed.org. The New York Fed is not responsible for publication of the EFFR by bungah.io, does not sanction or endorse any particular republication, and has no liability for your use.'",
+      "first_observation": "1954-07-01",
+      "latest_observation": {
+        "date": "2026-09-01",
+        "value": 3.75
+      },
+      "observations": 867,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-09-01"
+    },
+    {
+      "file": "frb_h15_RIFSGFSM03_N.M.csv",
+      "series_id": "H15/RIFSGFSM03_N.M",
+      "name": "3-month Treasury bill, secondary market, discount basis, monthly average (H.15)",
+      "units": "Percent per year",
+      "frequency": "Monthly (dated to month start)",
+      "source": "Board of Governors of the Federal Reserve System, H.15 release",
+      "series_url": "https://www.federalreserve.gov/releases/h15/",
+      "download_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "terms_url": "https://www.federalreserve.gov/disclaimer.htm",
+      "license_note": "Public domain unless otherwise indicated ('may be copied and distributed without permission'); cite the Board of Governors of the Federal Reserve System as the source.",
+      "first_observation": "1934-01-01",
+      "latest_observation": {
+        "date": "2026-09-01",
+        "value": 3.94
+      },
+      "observations": 1113,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-09-01"
+    },
+    {
+      "file": "frb_h15_RIFSGFSM03_N.B.csv",
+      "series_id": "H15/RIFSGFSM03_N.B",
+      "name": "3-month Treasury bill, secondary market, discount basis, daily (H.15), from 2020",
+      "units": "Percent per year",
+      "frequency": "Business day",
+      "source": "Board of Governors of the Federal Reserve System, H.15 release",
+      "series_url": "https://www.federalreserve.gov/releases/h15/",
+      "download_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "terms_url": "https://www.federalreserve.gov/disclaimer.htm",
+      "license_note": "Public domain unless otherwise indicated ('may be copied and distributed without permission'); cite the Board of Governors of the Federal Reserve System as the source.",
+      "first_observation": "2020-01-02",
+      "latest_observation": {
+        "date": "2026-10-22",
+        "value": 4.04
+      },
+      "observations": 1703,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-10-22"
+    },
+    {
+      "file": "ust_par_10y.csv",
+      "series_id": "Treasury par yield curve, 10 Yr",
+      "name": "Daily Treasury par yield curve rate, 10-year",
+      "units": "Percent",
+      "frequency": "Business day",
+      "source": "U.S. Department of the Treasury",
+      "series_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+      "download_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/<YEAR>/all?type=daily_treasury_yield_curve&field_tdr_date_value=<YEAR>&_format=csv",
+      "terms_url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics",
+      "license_note": "U.S. government work, not subject to copyright in the U.S. (17 U.S.C. § 105). Cite U.S. Department of the Treasury; do not imply Treasury endorsement (31 U.S.C. § 333).",
+      "first_observation": "1990-01-02",
+      "latest_observation": {
+        "date": "2026-10-23",
+        "value": 5
+      },
+      "observations": 9209,
+      "vintage": "Retrieved 2026-10-26; latest observation 2026-10-23"
+    }
+  ],
+  "terms": {
+    "bls": {
+      "terms_url": "https://www.bls.gov/opub/copyright-information.htm",
+      "license_note": "Public domain (U.S. Bureau of Labor Statistics: 'everything that we publish ... is in the public domain'); BLS asks that it be cited as the source."
+    },
+    "frb": {
+      "terms_url": "https://www.federalreserve.gov/disclaimer.htm",
+      "license_note": "Public domain unless otherwise indicated ('may be copied and distributed without permission'); cite the Board of Governors of the Federal Reserve System as the source."
+    },
+    "effr": {
+      "terms_url": "https://www.newyorkfed.org/privacy/termsofuse",
+      "license_note": "Published by the Board in H.15; since March 2016 the effective federal funds rate is calculated and administered by the Federal Reserve Bank of New York. Reference-rate terms require this notice with any presentation: 'The EFFR is subject to the Terms of Use posted at newyorkfed.org. The New York Fed is not responsible for publication of the EFFR by bungah.io, does not sanction or endorse any particular republication, and has no liability for your use.'"
+    },
+    "ust": {
+      "terms_url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics",
+      "license_note": "U.S. government work, not subject to copyright in the U.S. (17 U.S.C. § 105). Cite U.S. Department of the Treasury; do not imply Treasury endorsement (31 U.S.C. § 333)."
+    }
+  }
+}

@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bungah Capital Intel",
   description:
-    "Cited hotel capital intelligence for owners, investors, asset managers and developers: Capital Graph, Chat, Radars and Sound Asset Lodging.",
+    "Cited hotel capital intelligence for owners, investors, asset managers and developers: Capital Graph, Chat, Radars, Sound Assets and Sound Asset Lodging.",
 };
 
 export default function RootLayout({
@@ -55,8 +55,17 @@ export default function RootLayout({
                 <Link href="/podcast" className="text-slate-200 hover:text-white">
                   Podcast
                 </Link>
+                <Link href="/hard-assets" className="text-slate-200 hover:text-white">
+                  Sound Assets
+                </Link>
                 <Link href="/sound-money-lodging" className="text-slate-200 hover:text-white">
-                  Sound Asset
+                  Sound Asset Lodging
+                </Link>
+                <Link href="/errata" className="text-slate-200 hover:text-white">
+                  Errata
+                </Link>
+                <Link href="/sponsorship-policy" className="text-slate-200 hover:text-white">
+                  Sponsorship policy
                 </Link>
               </nav>
             </div>
