@@ -249,7 +249,26 @@ export function fmtAsOf(s: string | null | undefined): string | null {
  * "accessed" dates say when a row was collected, not what it measures, so they are never a data
  * period. `label` is the period as shown to readers.
  */
-export type Period = { start: number; end: number; label: string };
+/**
+ * A data period (yyyymmdd keys). `yearOnly`: the text gives just a year (or a fiscal year whose
+ * end is unknown), so the period is only "sometime that year": it never counts for 90 days, counts
+ * for 12 months only when Dec 31 of that year is inside the window, and never sets a date span.
+ * `fiscal`: a fiscal year with a known end date.
+ */
+export type Period = { start: number; end: number; label: string; yearOnly?: boolean; fiscal?: boolean };
+
+/**
+ * Month (1–12) a fiscal year ends in, from what the text and its source say; null when unknown.
+ * Company filings (10-K) are calendar years for the companies here; city and county budgets vary.
+ */
+function fiscalEndMonth(ctx: string): number | null {
+  if (/\b(MPEA|Metropolitan Pier)\b/i.test(ctx)) return 6;
+  if (/\b10-[KQ]\b|sec\.gov|edgar|annual report/i.test(ctx)) return 12;
+  if (/\b(Orange County|Orlando|Osceola|Miami-Dade|Miami|Broward|Fort Lauderdale|Austin|Dallas|Houston|District of Columbia|Washington,? D\.?C\.?|\bDC\b|federal|U\.?S\.? Treasury)\b/i.test(ctx)) return 9;
+  if (/\b(New York|NYC|nyc\.gov|Comptroller|Nashville|Davidson|LVCVA|Las Vegas|Clark County|Nevada|Phoenix|Arizona|San Diego|Los Angeles|San Francisco|California|Salt Lake|Utah|Boston|Massachusetts|Philadelphia|Portland|Oregon|Honolulu|Hawai.?i|Illinois)\b/i.test(ctx)) return 6;
+  if (/\b(Chicago|Denver|Seattle)\b/i.test(ctx)) return 12;
+  return null;
+}
 
 const MON = "(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?";
 const monNum = (s: string) => MONTHS[s.toLowerCase().slice(0, 3)];
@@ -287,7 +306,7 @@ function yearFor(mo: number, d: number, ref: number): number {
 }
 
 /** Every data period written in one text (future-starting ones dropped, ends capped at today). */
-export function periodsIn(raw: string | null | undefined, ref: number = todayKey()): Period[] {
+export function periodsIn(raw: string | null | undefined, ref: number = todayKey(), ctx = ""): Period[] {
   if (!raw) return [];
   const today = todayKey();
   let s = ` ${raw} `
@@ -340,6 +359,8 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     const d = m[3] ? +m[3] : null;
     return { start: k(y, 1, 1), end: k(y, mo, d ?? dim(y, mo)), label: d ? `YTD through ${MONTH_NAMES[mo - 1]} ${d}, ${y}` : `Jan–${MONTH_NAMES[mo - 1]} ${y}` };
   });
+  // "FY2026 YTD …": the YTD part (already read) is the data period, not the full fiscal year.
+  take(/\bFY\s?'?(?:\d{2}|20\d{2})(?:\s?[-–]\s?(?:FY)?'?(?:\d{2}|20\d{2}))?\s+(?=YTD\b)/gi, () => undefined);
   // Single days and months.
   take(/\b(20\d{2})-(\d{2})-(\d{2})\b/g, (m) => {
     const d = k(+m[1], +m[2], +m[3]);
@@ -362,15 +383,26 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     const q = +(m[1] ?? m[4]), y = +(m[2] ?? m[3]);
     return { start: k(y, q * 3 - 2, 1), end: k(y, q * 3, dim(y, q * 3)), label: `Q${q} ${y}` };
   });
+  // Fiscal years ("FY2025", "FY2025-26", "FY26"), ending on the issuer's fiscal year end.
+  take(/\bFY\s?'?(\d{2}|20\d{2})(?:\s?[-–]\s?(?:FY)?'?(\d{2}|20\d{2}))?\b(?![-–_.]?\d)/gi, (m) => {
+    const yy = (x: string) => (x.length === 2 ? 2000 + +x : +x);
+    const y = yy(m[2] ?? m[1]);
+    const label = `FY${m[2] ? `${yy(m[1])}–${String(y).slice(-2)}` : y}`;
+    const em = fiscalEndMonth(`${raw} ${ctx}`);
+    if (!em) return { start: k(y, 1, 1), end: k(y, 12, 31), label, yearOnly: true };
+    const sy = em === 12 ? (m[2] ? yy(m[1]) : y) : (m[2] ? yy(m[1]) : y - 1);
+    return { start: em === 12 ? k(sy, 1, 1) : k(sy, em + 1, 1), end: k(y, em, dim(y, em)), label, fiscal: true };
+  });
   take(/\b(YE|CY)\s?(20\d{2})\b/gi, (m) => ({ start: k(+m[2], 1, 1), end: k(+m[2], 12, 31), label: `${m[1].toUpperCase() === "YE" ? "YE " : ""}${m[2]}` }));
   // A bare year counts only when nothing finer is written (fiscal years without months never do).
   if (!out.length) {
-    take(/(?<![A-Za-z\d-])(?<!FY\s|TY\s)(20\d{2})\b(?![-–]\d)/g, (m) => ({ start: k(+m[1], 1, 1), end: k(+m[1], 12, 31), label: `${m[1]}` }));
+    take(/(?<![A-Za-z\d-])(?<!FY\s|TY\s)(20\d{2})\b(?![-–]\d)/g, (m) => ({ start: k(+m[1], 1, 1), end: k(+m[1], 12, 31), label: `${m[1]}`, yearOnly: true }));
   }
   return out
     .filter((p) => p.start <= today && p.start <= p.end)
     .map((p) => {
-      const end = Math.min(p.end, today);
+      // A year-only period keeps Dec 31 as its end (the window test needs it); others stop at today.
+      const end = p.yearOnly ? p.end : Math.min(p.end, today);
       const label =
         p.label ||
         (p.start === p.end
@@ -378,7 +410,7 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
           : kD(p.start) === 1 && kM(p.start) === kM(p.end) && kY(p.start) === kY(p.end)
             ? monLabel(p.start)
             : spanLabel(p.start, p.end));
-      return { start: p.start, end, label };
+      return { start: p.start, end, label, ...(p.yearOnly ? { yearOnly: true } : {}), ...(p.fiscal ? { fiscal: true } : {}) };
     });
 }
 
@@ -387,17 +419,45 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
  * parentheses ("(2026-09-25; source: …)", "(report dated …)") are usually publication dates, so
  * the text outside parentheses is read first.
  */
-export function dataPeriod(texts: (string | null | undefined)[], ref?: number | null): Period | null {
-  const latest = (ps: Period[]) => (ps.length ? ps.reduce((a, b) => (b.end > a.end ? b : a)) : null);
+export function dataPeriod(texts: (string | null | undefined)[], ref?: number | null, ctx?: string): Period | null {
+  const r = periodPick(texts, ref, ctx);
+  return r.explicit ?? r.yearOnly;
+}
+
+/**
+ * The explicit data period of the first text that has one, and separately the first year-only
+ * one. Explicit periods (a month, a week, a quarter, a fiscal year with a known end…) always win
+ * over a bare year anywhere. Within one text a fiscal year beats a stray month, which is usually
+ * the report's publication month ("FY2025 · Jul 2026").
+ */
+export function periodPick(texts: (string | null | undefined)[], ref?: number | null, ctx?: string): { explicit: Period | null; yearOnly: Period | null } {
+  const rk = ref ?? todayKey();
+  const context = ctx ?? texts.filter(Boolean).join(" ");
+  const best = (ps: Period[]) => {
+    const ex = ps.filter((p) => !p.yearOnly);
+    const fy = ex.filter((p) => p.fiscal);
+    const pool = fy.length ? fy : ex;
+    return pool.length ? pool.reduce((a, b) => (b.end > a.end ? b : a)) : null;
+  };
+  const latestYear = (ps: Period[]) => {
+    const ys = ps.filter((p) => p.yearOnly);
+    return ys.length ? ys.reduce((a, b) => (b.end > a.end ? b : a)) : null;
+  };
+  let yearOnly: Period | null = null;
   for (const t of texts) {
     if (!t) continue;
+    // A fiscal year with its months in parentheses ("FY2025 (Jul 2024–Jun 2025)") is those months.
+    const t2 = t.replace(new RegExp(`\\bFY\\s?'?\\d{2,4}(?:[-–]\\d{2,4})?\\s*\\((${MON}\\s+20\\d{2}\\s*[–-]\\s*${MON}\\s+20\\d{2})\\)`, "gi"), " $1 ");
     // A forecast's own vintage ("(Jul 2025 vintage)") is when its numbers were set.
-    let outside = t.replace(/\(([^()]*\bvintage\b[^()]*)\)/gi, " $1 ").replace(/(?<![A-Za-z])20\d{2}(?=\s+(lodging\s+)?(forecast|outlook|projection))/gi, " ");
+    let outside = t2.replace(/\(([^()]*\bvintage\b[^()]*)\)/gi, " $1 ").replace(/(?<![A-Za-z])20\d{2}(?=\s+(lodging\s+)?(forecast|outlook|projection))/gi, " ");
     for (let i = 0; i < 3; i++) outside = outside.replace(/\([^()]*\)/g, " ");
-    const p = latest(periodsIn(outside, ref ?? todayKey())) ?? latest(periodsIn(t, ref ?? todayKey()));
-    if (p) return p;
+    const po = periodsIn(outside, rk, context);
+    const pa = periodsIn(t2, rk, context);
+    const ex = best(po) ?? best(pa);
+    if (ex) return { explicit: ex, yearOnly };
+    yearOnly ??= latestYear(po) ?? latestYear(pa);
   }
-  return null;
+  return { explicit: null, yearOnly };
 }
 
 /** Back-compat: the data period of one string. */
@@ -430,6 +490,8 @@ export function rangeCutoff(range: DateRange, today = todayKey()): number {
 export function periodInRange(p: Period | null | undefined, range: DateRange, today = todayKey()): boolean {
   if (range === "all") return true;
   if (!p) return false;
+  // A year alone never counts for 90 days; for 12 months only if that year's Dec 31 is inside the window.
+  if (p.yearOnly) return range === "12m" && p.end >= rangeCutoff(range, today) && p.end <= today;
   return p.end >= rangeCutoff(range, today) && p.start <= today;
 }
 
@@ -444,7 +506,8 @@ export function dataSpan(cites: Citation[]): DataSpan {
     if (!c.key) continue;
     const list = byKey.get(c.key) ?? [];
     const p = c.period !== undefined ? c.period : periodOf(c.asOf);
-    if (p) list.push(p);
+    // A year alone has no month, so it never sets the span; that source counts as undated.
+    if (p && !p.yearOnly) list.push(p);
     byKey.set(c.key, list);
   }
   // The span runs from the oldest to the newest data date (each source dated by the end of its period).
@@ -557,6 +620,8 @@ export type Fact = {
   readable: boolean;
   /** Data period of the fact (not its load date); null when the fact carries none. */
   period?: Period | null;
+  /** About a place in the metro but outside the market proper (e.g. Jersey City for NYC): ranked last. */
+  offCore?: boolean;
 };
 
 const NO_READ = /no public read|\bn\/a\b|\bgaps?\b.*no public read|\btag:\s*none\b|\(none: national applies\)/i;
@@ -607,13 +672,27 @@ export function signalItems(s: SignalLike): { text: string; asOf: string | null 
 /** Data period of a whole row: its title, magnitude and as-of (a load stamp is not a period). */
 export function rowPeriod(s: SignalLike): Period | null {
   const links = parseSourceUrls(s.sourceUrls);
+  return dataPeriod(rowTexts(s, links), stampKey(s.asOf), rowCtx(s, links));
+}
+
+function rowTexts(s: SignalLike, links: ReturnType<typeof parseSourceUrls>) {
   const single = rawItems(s).length === 0;
-  return dataPeriod([s.title, s.magnitude, s.asOf, single ? s.body.slice(0, 240) : null, single ? links[0]?.label : null], stampKey(s.asOf));
+  return [s.title, s.magnitude, s.asOf, single ? s.body.slice(0, 240) : null, single ? links[0]?.label : null];
+}
+
+function rowCtx(s: SignalLike, links: ReturnType<typeof parseSourceUrls>) {
+  return `${s.title} ${s.magnitude ?? ""} ${links.map((l) => `${l.label} ${l.url}`).join(" ")}`;
 }
 
 /** Data period of one item: its own text, then its own source link, then the row's. */
 export function itemPeriod(s: SignalLike, text: string, links = parseSourceUrls(s.sourceUrls)): Period | null {
-  return dataPeriod([text, specificLink(text, links)?.label], stampKey(s.asOf)) ?? rowPeriod(s);
+  const own = specificLink(text, links);
+  const ref = stampKey(s.asOf);
+  // Explicit periods first (the item's text, its own link, then the row); a bare year only after.
+  const it = periodPick([text, own?.label], ref, `${text} ${own?.label ?? ""} ${own?.url ?? ""} ${s.title}`);
+  if (it.explicit) return it.explicit;
+  const row = periodPick(rowTexts(s, links), ref, rowCtx(s, links));
+  return row.explicit ?? it.yearOnly ?? row.yearOnly;
 }
 
 /**
@@ -702,7 +781,7 @@ function signalFactsRaw(s: SignalLike): Fact[] {
       text: text ?? plain(head),
       asOf: period?.label ?? null,
       period,
-      key: period?.end ?? 0,
+      key: period ? (period.yearOnly ? period.start : period.end) : 0,
       source: withDate(sourceFrom(links[0], s.sourceLabel), period?.label),
       kind: s.kind,
       title,
@@ -718,7 +797,7 @@ function signalFactsRaw(s: SignalLike): Fact[] {
       text: text ?? plain(it.text),
       asOf: period?.label ?? null,
       period,
-      key: period?.end ?? 0,
+      key: period ? (period.yearOnly ? period.start : period.end) : 0,
       source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), period?.label),
       kind: s.kind,
       title,
@@ -789,12 +868,38 @@ export const SLOT_RULES: Record<Lens, { name: string; test: Slot }[]> = {
  * Pick at most `max` reads: one per slot, in slot order, newest matching fact first; a slot with
  * no matching fact is skipped. Reads are then shown most recent first.
  */
+/** Normalized text of a fact (case, punctuation and spacing folded) for duplicate checks. */
+function normFact(t: string): string {
+  return t.toLowerCase().replace(/[^a-z0-9%$.+-]+/g, " ").trim();
+}
+
+/** Headline figures of a fact ("+11.6%", "$206.21"), years and small counts left out. */
+function factFigures(t: string): string[] {
+  return [...t.matchAll(/[+\-−]?\$?\d[\d,]*(?:\.\d+)?\s?(?:%|pts?|bps|[MBK]\b)/g)].map((m) => m[0].replace(/[\s,−+]/g, "").replace(/^-/, "")).filter(Boolean);
+}
+
+/**
+ * Two facts say the same thing when they come from the same source and either read the same
+ * once normalized, or share a headline figure (one source restating "+11.6% YTD Aug").
+ */
+export function sameFact(a: Fact, b: Fact): boolean {
+  const ua = a.source.url ?? a.source.label;
+  const ub = b.source.url ?? b.source.label;
+  if (ua !== ub) return false;
+  if (normFact(a.text) === normFact(b.text)) return true;
+  const fb = new Set(factFigures(b.text));
+  return factFigures(a.text).some((x) => fb.has(x));
+}
+
 export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> = new Set()): Fact[] {
-  const pool = facts.filter((f) => f.readable).sort((a, b) => b.key - a.key);
+  const pool = facts.filter((f) => f.readable).sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
   const out: Fact[] = [];
+  // Facts already said (the answer line's own fact) are excluded, and so is anything restating them.
+  const said = facts.filter((f) => used.has(f.text));
+  const dup = (x: Fact) => said.some((y) => y === x || sameFact(x, y)) || out.some((y) => sameFact(x, y));
   for (const slot of SLOT_RULES[lens]) {
     if (out.length >= max) break;
-    const f = pool.find((x) => slot.test(x) && !used.has(x.text) && !out.includes(x));
+    const f = pool.find((x) => slot.test(x) && !used.has(x.text) && !out.includes(x) && !dup(x));
     if (f) out.push(f);
   }
   return out.sort((a, b) => b.key - a.key);
@@ -809,7 +914,8 @@ export function dateShown(text: string, p: Period | null | undefined, ref?: numb
   if (text.includes(p.label)) return null;
   const own = periodsIn(text, ref ?? p.end).some((q) => q.end === p.end || (q.start === p.start && Math.min(q.end, p.end) === p.end));
   // A single-day fact always carries its full date (e.g. a strike start), so the read is dated at a glance.
-  if (!own || p.start === p.end) return p.label;
+  // So does a weekly read ("w/e Sep 26, 2026"), not just its year.
+  if (!own || p.start === p.end || /^w\/e /.test(p.label)) return p.label;
   const year = String(Math.floor(p.end / 10000));
   return text.includes(year) ? null : year;
 }
@@ -946,7 +1052,13 @@ export type Coverage = { text: string; basedOn: string; notes: string[]; span: D
  * (distinct URL / label, each with its cited row's date); nothing is estimated. Undated sources
  * count toward N but not the span, and the line says how many were dated.
  */
-export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange }): Coverage {
+/**
+ * "We haven't checked enough sources…" is shown only below this many cited sources; at 14+ the
+ * answer itself shows the market is covered, so the note would undercut it.
+ */
+export const SEED_NOTE_BELOW = 14;
+
+export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange; seedNote?: string }): Coverage {
   const range = opts.range ?? "all";
   // One entry per source; a gap note or method label is never a source.
   const byKey = new Map<string, Citation>();
@@ -959,10 +1071,15 @@ export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?
       continue;
     }
     const q = prev.period;
+    if (p && q && q.yearOnly && !p.yearOnly) {
+      prev.period = p;
+      continue;
+    }
+    if (p && q && p.yearOnly && !q.yearOnly) continue;
     if (p && (!q || p.start < q.start || p.end > q.end)) {
       const start = q ? Math.min(q.start, p.start) : p.start;
       const end = q ? Math.max(q.end, p.end) : p.end;
-      prev.period = { start, end, label: q ? (start === q.start && end === q.end ? q.label : start === p.start && end === p.end ? p.label : spanLabel(start, end)) : p.label };
+      prev.period = { start, end, label: q ? (start === q.start && end === q.end ? q.label : start === p.start && end === p.end ? p.label : p.yearOnly ? `${kY(start)}–${kY(end)}` : spanLabel(start, end)) : p.label, ...(p.yearOnly ? { yearOnly: true } : {}) };
     }
   }
   const cited = [...byKey.values()];
@@ -975,7 +1092,7 @@ export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?
       : range === "all"
         ? "No cited figures for this question."
         : `0 cited sources (${RANGE_LABEL[range].toLowerCase()}).`;
-  const notes = (opts.notes ?? []).filter(Boolean);
+  const notes = [...(opts.notes ?? []), ...(opts.seedNote && n < SEED_NOTE_BELOW ? [opts.seedNote] : [])].filter(Boolean);
   return { text: [basedOn, ...notes].join(" "), basedOn, notes, span, cited };
 }
 

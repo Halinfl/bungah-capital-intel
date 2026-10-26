@@ -198,7 +198,13 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
   );
 
   return (
-    <span className="relative inline-block align-middle">
+    <span
+      className="relative inline-block align-middle"
+      // Desktop popover is not modal: tabbing out of it (and off its chip) closes it.
+      onBlur={(e) => {
+        if (!mobile && open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget as Node)) onClose();
+      }}
+    >
       <button
         ref={btn}
         type="button"
@@ -279,7 +285,7 @@ function RangeChip({ range, onPick }: { range: DateRange; onPick: (r: DateRange)
                 setOpen(false);
                 if (r.id !== range) onPick(r.id);
               }}
-              className="flex min-h-11 w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm text-slate-100 hover:bg-white/[0.06] focus-visible:bg-white/[0.08] focus-visible:outline-none"
+              className="flex min-h-11 w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm text-slate-100 hover:bg-white/[0.06] focus-visible:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-slate-300"
             >
               {r.label}
               {r.id === range ? <span aria-hidden className="text-slate-300">✓</span> : null}
@@ -357,7 +363,7 @@ export function ChatBriefView({ brief, onReask }: { brief: ChatBrief; onReask?: 
                   aria-expanded={isOpen}
                   aria-controls={panel}
                   onClick={() => toggle(s.id)}
-                  className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-slate-100 hover:bg-white/[0.03] focus-visible:bg-white/[0.04] focus-visible:outline-none"
+                  className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-slate-100 hover:bg-white/[0.03] focus-visible:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-slate-300"
                 >
                   <span>
                     {s.title} <span className="text-slate-300">({s.count})</span>

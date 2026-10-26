@@ -203,8 +203,31 @@ function registryLinks(m: MarketRow): { url: string; label: string }[] {
   ];
 }
 
+/**
+ * Places in a market's metro that are outside the market proper (NYC: the five boroughs). Their
+ * facts rank after the market's own, and when one is shown it is labelled as metro.
+ */
+const OUTSIDE_PROPER: Record<string, { re: RegExp; metro: string; nj?: RegExp }> = {
+  "new-york-city": {
+    re: /\b(Jersey City|Hoboken|Newark|Secaucus|Weehawken|Fort Lee|Long Island|Westchester|White Plains|Stamford|New Jersey)\b/,
+    metro: "NYC metro",
+    nj: /^(Jersey City|Hoboken|Newark|Secaucus|Weehawken|Fort Lee)$/,
+  },
+};
+
+function metroLabel(slug: string, text: string): string {
+  const o = OUTSIDE_PROPER[slug];
+  if (!o) return text;
+  return text.replace(new RegExp(o.re.source), (place) =>
+    o.nj?.test(place) ? `${place}, NJ (${o.metro})` : `${place} (${o.metro})`
+  ).replace(/, NJ \(NYC metro\),? NJ\b/, ", NJ (NYC metro)");
+}
+
 function marketFacts(m: MarketRow): Fact[] {
-  return m.signals.flatMap((s) => signalFacts(s as SignalLike));
+  const o = OUTSIDE_PROPER[m.slug];
+  return m.signals.flatMap((s) =>
+    signalFacts(s as SignalLike).map((f) => (o && o.re.test(f.text) ? { ...f, offCore: true, text: metroLabel(m.slug, f.text) } : f))
+  );
 }
 
 /**
@@ -311,14 +334,14 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     if (answer.startsWith(`${short}: no dated, cited`)) answer = answer.replace(`${short}: `, `Limited recent data for ${short}: `);
     else notes.unshift(`Limited recent data for ${short}: no other dated key reads; the cited rows are in the sections below.`);
   }
-  if (isSeedMarket(m)) notes.push(coverageInProgressLine(m.name));
+  const seedNote = isSeedMarket(m) ? coverageInProgressLine(m.name) : undefined;
   const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
   const range = windowOf(m)?.range ?? opts.range ?? "all";
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: readList,
-    coverage: coverageLine({ cites, notes, range }),
+    coverage: coverageLine({ cites, notes, range, seedNote }),
     window: { range, filterable: true },
     sections,
   });
@@ -361,7 +384,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
   if (further) sections.push(further);
   const notes = [...(opts.notes ?? [])];
   const seeds = [a, b].filter((m) => isSeedMarket(m)).map(shortName);
-  if (seeds.length) notes.push(`We haven't checked enough sources for ${seeds.join(" or ")} yet.`);
+  const seedNote = seeds.length ? `We haven't checked enough sources for ${seeds.join(" or ")} yet.` : undefined;
   return makeBrief({
     decline: opts.decline,
     answer,
@@ -370,6 +393,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
       cites: citationsOf(reads, [...a.signals, ...b.signals] as SignalLike[], [...snapshotCite(a), ...snapshotCite(b)]),
       notes,
       range: windowOf(a)?.range ?? opts.range,
+      seedNote,
     }),
     window: { range: windowOf(a)?.range ?? opts.range ?? "all", filterable: true },
     sections,
@@ -508,6 +532,10 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
   const readList = reads.slice(0, 3).map(toRead);
   const sections = parts.flatMap((p) => p.sections);
   void links;
+  // Every source of a digest answer reports one period (the quarter): a date window can't change
+  // it, so the date chip is hidden unless the digests span more than one reporting period.
+  const periods = new Set(parts.map((p) => (p.period ? `${p.period.start}-${p.period.end}` : "")));
+  const filterable = periods.size > 1;
   return makeBrief({
     decline: opts.decline,
     answer,
@@ -522,7 +550,7 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
       notes: ["Editor-authored digests of company-reported results; no licensed STR."],
       range: opts.range,
     }),
-    window: { range: opts.range ?? "all", filterable: true },
+    window: { range: filterable ? (opts.range ?? "all") : "all", filterable },
     sections,
   });
 }

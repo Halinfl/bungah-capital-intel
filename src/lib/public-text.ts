@@ -288,8 +288,17 @@ const PATH_PUBLISHERS: [RegExp, string][] = [
 ];
 
 /** Real publisher name for a URL (falls back to the registrable domain). */
+const LINKEDIN_AUTHORS: Record<string, string> = { costar: "CoStar", "costar-group": "CoStar", str: "STR", cbre: "CBRE", jll: "JLL", hvs: "HVS" };
+
 export function publisherName(url: string): string {
   for (const [re, name] of PATH_PUBLISHERS) if (re.test(url)) return name;
+  // A LinkedIn post is published by its author, not by LinkedIn.
+  const li = url.match(/^https?:\/\/(?:[a-z]+\.)?linkedin\.com\/(?:posts\/([a-z0-9-]+?)_|company\/([a-z0-9-]+))/i);
+  if (li) {
+    const slug = (li[1] ?? li[2] ?? "").toLowerCase();
+    const who = LINKEDIN_AUTHORS[slug];
+    if (who) return `${who} (LinkedIn post)`;
+  }
   let host = "";
   try {
     host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
