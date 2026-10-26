@@ -80,8 +80,19 @@ export default function DealsMethodologyPage() {
           Each factor is scored {r.scale.min} to {r.scale.max}. Public data only: no Trepp loan-level data, CoStar, STR or CBRE Horizons, and no paid
           sources. Spreads are stated as a plain number of basis points.
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm">
+        <ul className="space-y-3 md:hidden">
+          {r.factors.map((f) => (
+            <li key={`${f.id}-m`} className="rounded-xl border border-white/10 p-3 text-sm">
+              <div className="font-medium text-white">
+                {f.label} <span className="font-normal text-slate-400">{Math.round(f.weight * 100)}%</span>
+              </div>
+              <p className="mt-1 text-[13px] text-slate-200">{SOURCES[f.id].source}</p>
+              <p className="mt-1 text-[13px] text-slate-300">As of: {SOURCES[f.id].asOf}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden md:block">
+          <table className="w-full text-left text-sm">
             <thead className="text-xs uppercase tracking-wider text-slate-400">
               <tr className="border-b border-white/10">
                 <th className="py-2 pr-3 font-medium">Factor</th>
