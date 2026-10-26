@@ -15,13 +15,15 @@ const SOURCES: Record<string, { source: string; asOf: string }> = {
     asOf: "Latest edition published before the announcement",
   },
   spread: {
-    source: "Cap rate or NOI as disclosed; 10-year yield from the U.S. Treasury daily par yield curve",
-    asOf: "10-year yield on the announcement date (or the prior business day)",
+    source:
+      "Cap rate on NOI for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
+    asOf: "10-year yield at the close of the last trading day before the announcement",
   },
   supply: { source: "Public CBRE and PwC outlooks plus our supply radars", asOf: "Published before the announcement" },
   demand: {
-    source: "Published lodging tax receipts; Tuesday Trends forward curve for deals announced from October 2026",
-    asOf: "Only data that existed before the announcement",
+    source:
+      "Published lodging tax receipts, trailing 12 months vs the prior 12 months (fiscal year to date only if a 12-month series can't be built from public numbers); single months are context, never scored; Tuesday Trends forward curve as context for deals from October 2026",
+    asOf: "Latest month published by the announcement date",
   },
   debt_context: {
     source: "Filings, court and receiver records, public loan notices, press",
@@ -42,7 +44,10 @@ export default function DealsMethodologyPage() {
         <p className="max-w-3xl t-lead">
           How we choose deals and grade them. This page was published before the first grade. Decision support, not a recommendation.
         </p>
-        <DealsDraftNote>Rubric {r.rubric_version}: top bands set by the editor; lower bands derived and awaiting sign-off.</DealsDraftNote>
+        <DealsDraftNote>
+          Rubric {r.rubric_version}: top bands set by the editor; lower bands, the cap-rate basis, the 10-year timing and the demand measure are
+          awaiting sign-off.
+        </DealsDraftNote>
         <UnderwriteNote text={r.disclaimer} />
       </header>
 

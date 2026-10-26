@@ -2,7 +2,11 @@
   "rubric_version": "v1",
   "status": "draft for Hal: lower bands derived; Hal set top bands",
   "drafted_on": "2026-10-25",
-  "scale": { "min": 1, "max": 5, "integer_scores": true },
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "integer_scores": true
+  },
   "provenance": {
     "factors_and_weights": "spec v3 section 4 (carried from v2), approved by Hal",
     "top_bands": "Hal, 2026-10-25",
@@ -12,46 +16,168 @@
     {
       "id": "replacement_cost",
       "label": "Price per key vs replacement cost per key",
-      "weight": 0.30,
+      "weight": 0.3,
       "metric": "premium_pct",
       "metric_definition": "(price_per_key - replacement_cost_per_key) / replacement_cost_per_key * 100. Negative = below replacement cost. Replacement cost from the HVS US Hotel Development Cost Survey, latest edition published before the announcement date, hotel class stated, land excluded.",
       "unit": "percent",
       "bands": [
-        { "score": 5, "rule": "premium_pct <= -40", "text": "40% or more below replacement cost", "set_by": "Hal" },
-        { "score": 4, "rule": "-40 < premium_pct <= -20", "text": "20% to 40% below", "set_by": "derived" },
-        { "score": 3, "rule": "-20 < premium_pct < 20", "text": "within 20% either way", "set_by": "derived" },
-        { "score": 2, "rule": "20 <= premium_pct <= 40", "text": "20% to 40% above", "set_by": "derived" },
-        { "score": 1, "rule": "premium_pct > 40", "text": "more than 40% above", "set_by": "derived" }
+        {
+          "score": 5,
+          "rule": "premium_pct <= -40",
+          "text": "40% or more below replacement cost",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "-40 < premium_pct <= -20",
+          "text": "20% to 40% below",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "-20 < premium_pct < 20",
+          "text": "within 20% either way",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "20 <= premium_pct <= 40",
+          "text": "20% to 40% above",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "premium_pct > 40",
+          "text": "more than 40% above",
+          "set_by": "derived"
+        }
       ],
-      "cuts": { "direction": "lower_is_better", "thresholds": [
-        { "score": 5, "max": -40, "max_inclusive": true },
-        { "score": 4, "min": -40, "min_inclusive": false, "max": -20, "max_inclusive": true },
-        { "score": 3, "min": -20, "min_inclusive": false, "max": 20, "max_inclusive": false },
-        { "score": 2, "min": 20, "min_inclusive": true, "max": 40, "max_inclusive": true },
-        { "score": 1, "min": 40, "min_inclusive": false }
-      ]}
+      "cuts": {
+        "direction": "lower_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "max": -40,
+            "max_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": -40,
+            "min_inclusive": false,
+            "max": -20,
+            "max_inclusive": true
+          },
+          {
+            "score": 3,
+            "min": -20,
+            "min_inclusive": false,
+            "max": 20,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 20,
+            "min_inclusive": true,
+            "max": 40,
+            "max_inclusive": true
+          },
+          {
+            "score": 1,
+            "min": 40,
+            "min_inclusive": false
+          }
+        ]
+      }
     },
     {
       "id": "spread",
       "label": "Implied cap rate vs 10-year Treasury spread",
       "weight": 0.25,
       "metric": "spread_bp",
-      "metric_definition": "(disclosed or implied cap rate - 10-year Treasury par yield on the announcement date, or the prior business day) in basis points. Cap rate from disclosed cap rate, or disclosed NOI / price. If neither a cap rate nor NOI was disclosed, the factor is not gradeable. Stated as a plain number of basis points.",
+      "metric_definition": "(cap rate - 10-year Treasury par yield) in basis points. Cap rate basis: NOI for the trailing 12 months through the last completed quarter before the announcement, divided by the price; or the seller's or buyer's disclosed cap rate on that same basis. Cap rates on other bases (a prior fiscal year, forward or pro forma NOI) are recorded but not graded. If only an EBITDA figure is disclosed it is not treated as NOI. 10-year: the Treasury daily par yield curve value for the last trading day before the announcement date. If no NOI or cap rate on the trailing-12-month basis was disclosed, the factor is not gradeable. Stated as a plain number of basis points.",
       "unit": "bp",
       "bands": [
-        { "score": 5, "rule": "spread_bp >= 400", "text": "400bp or more", "set_by": "Hal" },
-        { "score": 4, "rule": "300 <= spread_bp < 400", "text": "300bp to under 400bp", "set_by": "derived" },
-        { "score": 3, "rule": "200 <= spread_bp < 300", "text": "200bp to under 300bp", "set_by": "derived" },
-        { "score": 2, "rule": "100 <= spread_bp < 200", "text": "100bp to under 200bp", "set_by": "derived" },
-        { "score": 1, "rule": "spread_bp < 100", "text": "under 100bp", "set_by": "derived" }
+        {
+          "score": 5,
+          "rule": "spread_bp >= 400",
+          "text": "400bp or more",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "300 <= spread_bp < 400",
+          "text": "300bp to under 400bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "200 <= spread_bp < 300",
+          "text": "200bp to under 300bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "100 <= spread_bp < 200",
+          "text": "100bp to under 200bp",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "spread_bp < 100",
+          "text": "under 100bp",
+          "set_by": "derived"
+        }
       ],
-      "cuts": { "direction": "higher_is_better", "thresholds": [
-        { "score": 5, "min": 400, "min_inclusive": true },
-        { "score": 4, "min": 300, "min_inclusive": true, "max": 400, "max_inclusive": false },
-        { "score": 3, "min": 200, "min_inclusive": true, "max": 300, "max_inclusive": false },
-        { "score": 2, "min": 100, "min_inclusive": true, "max": 200, "max_inclusive": false },
-        { "score": 1, "max": 100, "max_inclusive": false }
-      ]}
+      "cuts": {
+        "direction": "higher_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "min": 400,
+            "min_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": 300,
+            "min_inclusive": true,
+            "max": 400,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": 200,
+            "min_inclusive": true,
+            "max": 300,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 100,
+            "min_inclusive": true,
+            "max": 200,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "max": 100,
+            "max_inclusive": false
+          }
+        ]
+      },
+      "basis_rule": {
+        "cap_rate_basis": "ttm_through_last_quarter_before_announcement",
+        "cap_rate_period_end_must_be": "the last calendar quarter-end before the announcement date",
+        "other_bases": "recorded, not graded",
+        "treasury_date": "last_trading_day_before_announcement",
+        "treasury_series": "U.S. Treasury daily par yield curve, 10 Yr",
+        "status": "proposed default, pending Hal's approval",
+        "reasoning": [
+          "Trailing 12 months through the last quarter before the announcement is the most recent full year of operations the market could see at signing. It removes seasonality, it's the convention REITs use when they price acquisitions, and it can be applied the same way to every deal.",
+          "A prior fiscal year (e.g. FY25) is staler, and its age depends on when in the year a deal is announced, so deals wouldn't be compared on the same footing.",
+          "10-year from the prior trading day's close: an announcement can land before or during the trading day, so the announcement-day curve (published after the close) may include the market's reaction to the deal and other same-day news. The prior close is the last value fully known before the announcement. That's the strict reading of no look-ahead.",
+          "Note: spec v3 section 4 says '10-yr on announcement date'. This default changes that, so Hal needs to approve it."
+        ]
+      }
     },
     {
       "id": "supply",
@@ -61,41 +187,163 @@
       "metric_definition": "Market (MSA) hotel rooms in the pipeline as a percent of existing rooms, from public CBRE/PwC outlooks or Bungah supply radars published before the announcement date. The pipeline definition used by the cited source (e.g. under construction) is recorded with the input.",
       "unit": "percent",
       "bands": [
-        { "score": 5, "rule": "pipeline_pct_of_rooms < 2", "text": "under 2% of existing rooms", "set_by": "Hal" },
-        { "score": 4, "rule": "2 <= pipeline_pct_of_rooms < 4", "text": "2% to under 4%", "set_by": "derived" },
-        { "score": 3, "rule": "4 <= pipeline_pct_of_rooms < 6", "text": "4% to under 6%", "set_by": "derived" },
-        { "score": 2, "rule": "6 <= pipeline_pct_of_rooms < 8", "text": "6% to under 8%", "set_by": "derived" },
-        { "score": 1, "rule": "pipeline_pct_of_rooms >= 8", "text": "8% or more", "set_by": "derived" }
+        {
+          "score": 5,
+          "rule": "pipeline_pct_of_rooms < 2",
+          "text": "under 2% of existing rooms",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "2 <= pipeline_pct_of_rooms < 4",
+          "text": "2% to under 4%",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "4 <= pipeline_pct_of_rooms < 6",
+          "text": "4% to under 6%",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "6 <= pipeline_pct_of_rooms < 8",
+          "text": "6% to under 8%",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "pipeline_pct_of_rooms >= 8",
+          "text": "8% or more",
+          "set_by": "derived"
+        }
       ],
-      "cuts": { "direction": "lower_is_better", "thresholds": [
-        { "score": 5, "max": 2, "max_inclusive": false },
-        { "score": 4, "min": 2, "min_inclusive": true, "max": 4, "max_inclusive": false },
-        { "score": 3, "min": 4, "min_inclusive": true, "max": 6, "max_inclusive": false },
-        { "score": 2, "min": 6, "min_inclusive": true, "max": 8, "max_inclusive": false },
-        { "score": 1, "min": 8, "min_inclusive": true }
-      ]}
+      "cuts": {
+        "direction": "lower_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "max": 2,
+            "max_inclusive": false
+          },
+          {
+            "score": 4,
+            "min": 2,
+            "min_inclusive": true,
+            "max": 4,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": 4,
+            "min_inclusive": true,
+            "max": 6,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": 6,
+            "min_inclusive": true,
+            "max": 8,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "min": 8,
+            "min_inclusive": true
+          }
+        ]
+      }
     },
     {
       "id": "demand",
       "label": "Demand trajectory",
       "weight": 0.15,
       "metric": "tax_receipts_yoy_pct",
-      "metric_definition": "Year-over-year change in published lodging (tourist development) tax receipts for the market, latest period published before the announcement date. Tuesday Trends forward curve is added as context only for deals announced from Oct 2026 on. Group context (e.g. convention center bookings) is shown alongside but does not change the score.",
+      "metric_definition": "Year-over-year change in published lodging (tourist development) tax receipts for the market: the latest 12 months published by the announcement date vs the 12 months before that (sums of the monthly collections). Fallback, only if a trailing-12-month series can't be built from public monthly numbers: fiscal year to date vs the same period of the prior fiscal year, through the same latest published month. Single-month changes are shown as context only and never scored. The measure used is stated on the entry. Tuesday Trends forward curve is context only for deals from Oct 2026 on.",
       "unit": "percent",
       "bands": [
-        { "score": 5, "rule": "tax_receipts_yoy_pct >= 5", "text": "up 5% or more", "set_by": "Hal" },
-        { "score": 4, "rule": "0 <= tax_receipts_yoy_pct < 5", "text": "flat to up under 5%", "set_by": "derived" },
-        { "score": 3, "rule": "-5 <= tax_receipts_yoy_pct < 0", "text": "down under 5%", "set_by": "derived" },
-        { "score": 2, "rule": "-10 <= tax_receipts_yoy_pct < -5", "text": "down 5% to 10%", "set_by": "derived" },
-        { "score": 1, "rule": "tax_receipts_yoy_pct < -10", "text": "down more than 10%", "set_by": "derived" }
+        {
+          "score": 5,
+          "rule": "tax_receipts_yoy_pct >= 5",
+          "text": "up 5% or more",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "rule": "0 <= tax_receipts_yoy_pct < 5",
+          "text": "flat to up under 5%",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "rule": "-5 <= tax_receipts_yoy_pct < 0",
+          "text": "down under 5%",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "rule": "-10 <= tax_receipts_yoy_pct < -5",
+          "text": "down 5% to 10%",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "rule": "tax_receipts_yoy_pct < -10",
+          "text": "down more than 10%",
+          "set_by": "derived"
+        }
       ],
-      "cuts": { "direction": "higher_is_better", "thresholds": [
-        { "score": 5, "min": 5, "min_inclusive": true },
-        { "score": 4, "min": 0, "min_inclusive": true, "max": 5, "max_inclusive": false },
-        { "score": 3, "min": -5, "min_inclusive": true, "max": 0, "max_inclusive": false },
-        { "score": 2, "min": -10, "min_inclusive": true, "max": -5, "max_inclusive": false },
-        { "score": 1, "max": -10, "max_inclusive": false }
-      ]}
+      "cuts": {
+        "direction": "higher_is_better",
+        "thresholds": [
+          {
+            "score": 5,
+            "min": 5,
+            "min_inclusive": true
+          },
+          {
+            "score": 4,
+            "min": 0,
+            "min_inclusive": true,
+            "max": 5,
+            "max_inclusive": false
+          },
+          {
+            "score": 3,
+            "min": -5,
+            "min_inclusive": true,
+            "max": 0,
+            "max_inclusive": false
+          },
+          {
+            "score": 2,
+            "min": -10,
+            "min_inclusive": true,
+            "max": -5,
+            "max_inclusive": false
+          },
+          {
+            "score": 1,
+            "max": -10,
+            "max_inclusive": false
+          }
+        ]
+      },
+      "measure_rule": {
+        "primary": "ttm_vs_prior_ttm",
+        "fallback": "fytd_vs_prior_fytd",
+        "fallback_condition": "a trailing-12-month series can't be built from public monthly numbers published by the announcement date",
+        "latest_month": "the latest month published on or before the announcement date",
+        "never_scored": "single month YoY",
+        "status": "proposed default, pending Hal's approval",
+        "reasoning": [
+          "One month of tax receipts is noisy: timing of collections, holidays, Easter and convention calendars, and one-off events can swing it either way. One month is too thin to call a trajectory.",
+          "Fiscal year to date depends on where in the fiscal year the deal is announced. Early in the year it's nearly a single month; late in the year it's nearly 12. Deals wouldn't be measured on the same footing.",
+          "Trailing 12 vs the prior 12 months is the same length for every deal, removes seasonality, and uses only what had been published by the announcement date. It's a trajectory measure that applies the same way across markets with different fiscal years.",
+          "Fallback to fiscal year to date only when monthly data needed for the trailing 12 months isn't public. That's stated on the entry."
+        ]
+      }
     },
     {
       "id": "debt_context",
@@ -105,11 +353,36 @@
       "metric_definition": "Categorical. Assigned from filings, court and receiver records, public loan notices and press public before the announcement date. When more than one category applies, the lowest applicable score is used.",
       "unit": "category",
       "bands": [
-        { "score": 5, "category": "clean_arms_length", "text": "Clean arm's-length sale with no distress", "set_by": "Hal" },
-        { "score": 4, "category": "arms_length_structured", "text": "Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization", "set_by": "derived" },
-        { "score": 3, "category": "pressured_or_related", "text": "Pressured seller without formal distress (publicly flagged loan maturity within 12 months, watchlist, fund wind-down) or a related-party / non-arm's-length transaction", "set_by": "derived" },
-        { "score": 2, "category": "formal_distress", "text": "Formal distress: loan in special servicing, notice of default, or a lender-negotiated sale (discounted payoff, deed in lieu)", "set_by": "derived" },
-        { "score": 1, "category": "forced_or_receiver", "text": "Forced or receiver sale: receivership, foreclosure, bankruptcy (Section 363) or court-ordered sale", "set_by": "derived" }
+        {
+          "score": 5,
+          "category": "clean_arms_length",
+          "text": "Clean arm's-length sale with no distress",
+          "set_by": "Hal"
+        },
+        {
+          "score": 4,
+          "category": "arms_length_structured",
+          "text": "Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization",
+          "set_by": "derived"
+        },
+        {
+          "score": 3,
+          "category": "pressured_or_related",
+          "text": "Pressured seller without formal distress (publicly flagged loan maturity within 12 months, watchlist, fund wind-down) or a related-party / non-arm's-length transaction",
+          "set_by": "derived"
+        },
+        {
+          "score": 2,
+          "category": "formal_distress",
+          "text": "Formal distress: loan in special servicing, notice of default, or a lender-negotiated sale (discounted payoff, deed in lieu)",
+          "set_by": "derived"
+        },
+        {
+          "score": 1,
+          "category": "forced_or_receiver",
+          "text": "Forced or receiver sale: receivership, foreclosure, bankruptcy (Section 363) or court-ordered sale",
+          "set_by": "derived"
+        }
       ]
     }
   ],
@@ -126,20 +399,46 @@
     "note": "Derived; Hal set the factors, weights and top bands."
   },
   "no_look_ahead_rule": {
-    "text": "Every input must have been public on or before the deal's announcement date. Replacement cost uses the latest HVS edition published before announcement. The 10-year yield is the Treasury daily par yield curve value on the announcement date, or the prior business day if the market was closed. Supply and demand inputs must be published before announcement. Inputs dated after announcement are rejected and the factor is left ungraded. Later data (closes, resales, RevPAR, tax receipts) goes only to the anniversary tracker, never the grade.",
+    "text": "Every input must have been public on or before the deal's announcement date. Replacement cost uses the latest HVS edition published before announcement. The 10-year yield is the Treasury daily par yield curve value for the last trading day before the announcement date. The cap rate uses trailing-12-month NOI through the last quarter before announcement. Demand uses tax receipts through the latest month published by the announcement date. Supply inputs must be published before announcement. Inputs dated after announcement are rejected and the factor is left ungraded. Later data (closes, resales, RevPAR, tax receipts) goes only to the anniversary tracker, never the grade.",
     "anchor": "announced_on"
   },
   "inclusion_rule": {
     "text": "A deal is added if either (a) one of the 13 tracked hotel REITs is buyer or seller, at any size; or (b) it is a US hotel sale with a disclosed price of $100M or more. Every qualifying deal is logged, including ones not yet graded. Unpriced deals in non-disclosure states are listed as unpriced and never estimated; they are graded only if they qualify under (a). Event date = announcement date; a later close is a status update on the same entry.",
-    "tracked_reits": ["AHT", "APLE", "BHR", "CLDT", "DRH", "HST", "INN", "PEB", "PK", "RHP", "RLJ", "SHO", "XHR"],
+    "tracked_reits": [
+      "AHT",
+      "APLE",
+      "BHR",
+      "CLDT",
+      "DRH",
+      "HST",
+      "INN",
+      "PEB",
+      "PK",
+      "RHP",
+      "RLJ",
+      "SHO",
+      "XHR"
+    ],
     "price_threshold_usd": 100000000,
-    "basis_values": ["reit", "100m+", "both"]
+    "basis_values": [
+      "reit",
+      "100m+",
+      "both"
+    ]
   },
   "output_template": {
     "text": "Underwritten at a {abs_premium}% {discount|premium} to replacement with a {spread_bp}bp spread; {k} of 5 factors graded.",
     "ungraded_replacement": "replacement cost not graded",
-    "ungraded_spread": "spread not gradeable (no cap rate or NOI disclosed)"
+    "ungraded_spread": "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)"
   },
   "versioning": "A rubric change re-grades every entry and shows both versions.",
-  "disclaimer": "Public-data underwrite. The buyer's information set was larger."
+  "disclaimer": "Public-data underwrite. The buyer's information set was larger.",
+  "amendments": [
+    {
+      "date": "2026-10-25",
+      "before_any_grade": true,
+      "status": "proposed default, pending Hal's approval",
+      "summary": "Named the cap-rate basis, the 10-year timing and the demand measure. Chosen on principle (no look-ahead, consistency across deals), before any deal was graded and without checking which choice changes a score."
+    }
+  ]
 }

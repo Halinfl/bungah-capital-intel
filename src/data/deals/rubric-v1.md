@@ -16,9 +16,9 @@ Each factor is scored as a whole number from 1 to 5.
 | # | Factor | Weight | Metric | Source (public only) | As-of rule |
 |---|---|---|---|---|---|
 | 1 | Price/key vs replacement cost/key | 30% | % above (+) or below (−) replacement cost | HVS US Hotel Development Cost Survey (free); class and edition stated; land excluded | Latest edition published before announcement |
-| 2 | Implied cap rate vs 10-yr spread | 25% | cap rate − 10-yr, in bp | Disclosed cap rate, or disclosed NOI ÷ price; 10-yr from Treasury daily par yield curve | 10-yr on announcement date (or prior business day) |
+| 2 | Implied cap rate vs 10-yr spread | 25% | cap rate − 10-yr, in bp | Cap rate on trailing-12-month NOI through the last quarter before announcement (disclosed, or disclosed NOI ÷ price); 10-yr from Treasury daily par yield curve | 10-yr at the close of the last trading day before announcement (amended; pending Hal) |
 | 3 | Supply backdrop | 15% | market pipeline as % of existing rooms | Public CBRE/PwC outlooks plus Bungah supply radars | Published before announcement |
-| 4 | Demand trajectory | 15% | lodging tax receipts, YoY % | Published tax receipts; Tuesday Trends forward curve for deals from Oct 2026 | Only data that existed before announcement |
+| 4 | Demand trajectory | 15% | lodging tax receipts, trailing 12 months vs prior 12 months (fallback: fiscal YTD) | Published tax receipts; Tuesday Trends forward curve for deals from Oct 2026 | Only data that existed before announcement |
 | 5 | Debt/transaction context | 15% | category | Filings, court and receiver records, public loan notices, press | Public before announcement |
 
 ## Bands (exact cut points)
@@ -35,7 +35,7 @@ premium = (price/key − replacement cost/key) ÷ replacement cost/key. Negative
 | 1 | more than 40% above (premium > +40%) | derived |
 
 ### 2. Cap rate vs 10-year spread (25%)
-spread_bp = (cap rate − 10-yr yield) × 100. Stated as a plain number of basis points. No cap rate or NOI disclosed = "not gradeable".
+spread_bp = (cap rate − 10-yr yield) × 100. Stated as a plain number of basis points. No trailing-12-month cap rate or NOI disclosed = "not gradeable". Basis and timing: see Amendment A below.
 
 | Score | Cut | Set by |
 |---|---|---|
@@ -61,7 +61,7 @@ Market (MSA) pipeline rooms ÷ existing rooms. The cited source's pipeline defin
 Step: 2 percentage points.
 
 ### 4. Demand trajectory (15%)
-YoY change in published lodging (tourist development) tax receipts, latest period published before announcement. Group context (e.g. convention center) is shown beside the score but doesn't change it.
+Change in published lodging (tourist development) tax receipts: trailing 12 months vs the prior 12 months, through the latest month published by the announcement date (fallback: fiscal year to date). See Amendment B below. Group context (e.g. convention center) is shown beside the score but doesn't change it.
 
 | Score | Cut | Set by |
 |---|---|---|
@@ -93,7 +93,7 @@ Weighted mean of the graded factor scores using the renormalized weights, rounde
 ## No-look-ahead rule
 Every input must have been public on or before the announcement date.
 - Replacement cost: latest HVS edition published before announcement.
-- 10-yr: Treasury daily par yield curve on the announcement date, or the prior business day.
+- 10-yr: Treasury daily par yield curve at the close of the last trading day before the announcement (Amendment A).
 - Supply and demand: published before announcement. (Grande Lakes, announced Aug 10, 2026, predates Tuesday Trends, so its demand factor uses tax receipts and OCCC group context published by Aug 10.)
 - An input dated after announcement is rejected and that factor stays ungraded.
 - Later data (closing, resale, RevPAR, tax receipts) goes only to the anniversary tracker (T+1, T+2), never into the grade.
@@ -113,3 +113,23 @@ Ungraded pieces read "replacement cost not graded" / "spread not gradeable (no c
 - Public data only. No Trepp loan-level, CoStar, STR or CBRE Horizons. No paid sources.
 - Grade deals, never buyers. Spread in plain bp; no comparative framing against Treasuries; no internal IC thresholds.
 - Versioned: a rubric change re-grades every entry and shows both versions.
+
+## Amendments before any grade (2026-10-25): PROPOSED DEFAULTS, PENDING HAL'S APPROVAL
+The team inputs showed two places where the rubric didn't name a measure. Both are settled here on principle, before any deal is graded and without checking which answer changes a score. They're flagged for Hal. Rubric stays v1 because no grade exists yet.
+
+### Amendment A: cap-rate basis and 10-year timing (factor 2)
+**Rule.** The cap rate is NOI for the **trailing 12 months through the last completed quarter before the announcement**, divided by the price (or a disclosed cap rate on that same basis). Cap rates on other bases (a prior fiscal year, forward or pro forma) are recorded on the entry but not graded. An EBITDA figure alone isn't treated as NOI. The 10-year is the Treasury daily par yield curve value for the **last trading day before the announcement date**.
+
+**Why.**
+- Trailing 12 months through the last quarter is the most recent full year of operations visible at signing. It removes seasonality, it's how REITs usually price acquisitions, and it applies the same way to every deal.
+- A prior fiscal year (e.g. FY25) is staler, and how stale depends on when in the year the deal lands, so deals wouldn't be compared on the same footing.
+- An announcement can come before or during the trading day. The announcement-day curve is set after the close, so it can include the reaction to the deal and other same-day news. The prior close is the last value fully known beforehand, which is the strict reading of no look-ahead.
+- **Conflict to resolve:** spec v3 §4 says "10-yr on announcement date". This default replaces that, so Hal needs to approve it.
+
+### Amendment B: demand measure (factor 4)
+**Rule.** Lodging tax receipts, **trailing 12 months vs the 12 months before that**, through the latest month published on or before the announcement date. **Fallback**, only if a trailing-12-month series can't be built from public monthly numbers: fiscal year to date vs the same period a year earlier, through the same latest month. A single month's YoY change is shown as context and never scored. The entry states which measure it used.
+
+**Why.**
+- One month is noisy: collection timing, holiday and convention calendars, and one-off events can swing it. One month is too thin to call a trajectory.
+- Fiscal year to date depends on where in the fiscal year the deal is announced (one month early in the year, nearly twelve late in it), so it doesn't measure deals on the same footing.
+- Trailing 12 vs the prior 12 months is the same length for every deal, removes seasonality, uses only what was published by the announcement date, and works across markets with different fiscal years.

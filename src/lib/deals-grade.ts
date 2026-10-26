@@ -15,6 +15,8 @@ export type RubricFactor = {
   unit: string;
   bands: RubricBand[];
   cuts?: { direction: string; thresholds: Threshold[] };
+  basis_rule?: { cap_rate_basis: string; treasury_date: string };
+  measure_rule?: { primary: string; fallback: string };
 };
 export type Rubric = {
   rubric_version: string;
@@ -38,9 +40,9 @@ type Common = { as_of: string; source_uri: string; source_label?: string; note?:
 export type FactorInput =
   | { missing: string }
   | (Common & { price_per_key: number; replacement_cost_per_key: number; replacement_basis: string })
-  | (Common & { cap_rate_pct: number; cap_rate_basis: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
+  | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
   | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string })
-  | (Common & { tax_receipts_yoy_pct: number; period: string })
+  | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
   | (Common & { category: string });
 
 export type DealInputs = {
@@ -78,6 +80,15 @@ export type GradeResult = {
   output_text: string;
 };
 
+const NO_CAP = "No trailing-12-month cap rate or NOI disclosed.";
+/** Last calendar quarter-end strictly before the date (YYYY-MM-DD). */
+export function lastQuarterEnd(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const ends = [[y - 1, 12, 31], [y, 3, 31], [y, 6, 30], [y, 9, 30], [y, 12, 31]];
+  let best = ends[0];
+  for (const e of ends) if (e[1] < m || (e[1] === m && e[2] < d)) best = e;
+  return `${best[0]}-${String(best[1]).padStart(2, "0")}-${String(best[2]).padStart(2, "0")}`;
+}
 const isDate = (s: unknown) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const round1 = (x: number) => Math.round(x * 10) / 10;
 
@@ -93,7 +104,7 @@ export function scoreFromCuts(value: number, thresholds: Threshold[]): number | 
 const usdK = (n: number) =>
   n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2).replace(/0$/, "")}M` : `$${Math.round(n / 1000).toLocaleString("en-US")}k`;
 
-function measure(f: RubricFactor, inp: FactorInput): { value: number | string; text: string } | { error: string } {
+function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: number | string; text: string } | { error: string } {
   const a = inp as Record<string, unknown>;
   const num = (k: string) => (typeof a[k] === "number" && Number.isFinite(a[k]) ? (a[k] as number) : null);
   switch (f.id) {
@@ -107,11 +118,20 @@ function measure(f: RubricFactor, inp: FactorInput): { value: number | string; t
     }
     case "spread": {
       const c = num("cap_rate_pct"), t = num("treasury_10y_pct");
-      if (c === null) return { error: "No cap rate or NOI disclosed." };
+      if (c === null) return { error: NO_CAP };
       if (t === null) return { error: "Missing 10-year yield." };
       if (!isDate(a.treasury_as_of) || !a.treasury_source_uri) return { error: "10-year yield lacks a date or source." };
+      // Amendment A: cap rate on trailing-12-month NOI through the last quarter before announcement;
+      // 10-year from the last trading day BEFORE the announcement.
+      const rule = f.basis_rule;
+      if (rule && a.cap_rate_basis !== rule.cap_rate_basis)
+        return { error: `Cap rate basis "${String(a.cap_rate_basis)}" isn't the rubric basis (trailing 12 months through the last quarter before announcement); recorded, not graded.` };
+      if (rule && (!isDate(a.cap_rate_period_end) || (a.cap_rate_period_end as string) !== lastQuarterEnd(anchor)))
+        return { error: `Cap rate period must end ${lastQuarterEnd(anchor)} (the last quarter-end before the announcement).` };
+      if (rule && !((a.treasury_as_of as string) < anchor))
+        return { error: "10-year must be from the last trading day before the announcement." };
       const bp = Math.round((c - t) * 100);
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (${a.cap_rate_basis}) vs ${t.toFixed(2)}% 10-year on ${a.treasury_as_of}; ${bp}bp` };
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year at the ${a.treasury_as_of} close; ${bp}bp` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -121,7 +141,18 @@ function measure(f: RubricFactor, inp: FactorInput): { value: number | string; t
     case "demand": {
       const v = num("tax_receipts_yoy_pct");
       if (v === null) return { error: "Missing tax receipts change." };
-      return { value: v, text: `Lodging tax receipts ${v > 0 ? "+" : ""}${v}% YoY (${a.period})` };
+      // Amendment B: trailing 12 vs prior 12 months; fiscal YTD only as a stated fallback; single months never scored.
+      const mr = f.measure_rule;
+      if (mr) {
+        if (a.measure !== mr.primary && a.measure !== mr.fallback)
+          return { error: `Demand measure "${String(a.measure)}" isn't scored (trailing 12 months, or fiscal year to date as a fallback).` };
+        if (a.measure === mr.fallback && !a.fallback_reason)
+          return { error: "Fiscal-year-to-date fallback used without saying why trailing 12 months couldn't be built." };
+        if (!isDate(a.latest_month_end) || (a.latest_month_end as string) > anchor)
+          return { error: "Latest month must be published by the announcement date." };
+      }
+      const label = a.measure === "fytd_vs_prior_fytd" ? "fiscal year to date vs prior" : "trailing 12 months vs prior 12";
+      return { value: v, text: `Lodging tax receipts ${v > 0 ? "+" : ""}${v}% (${label}, through ${a.period})` };
     }
     case "debt_context": {
       const cat = a.category;
@@ -147,7 +178,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     if (dates.some((d) => d > anchor)) {
       return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: `Input dated after the announcement (${anchor}); not used.` };
     }
-    const m = measure(f, inp);
+    const m = measure(f, inp, anchor);
     if ("error" in m) return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: m.error };
     const score =
       f.id === "debt_context"
@@ -171,7 +202,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
       ? "Underwritten at replacement cost"
       : `Underwritten at a ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
     : `Underwritten with ${rubric.output_template.ungraded_replacement}`;
-  const sprText = spr.graded ? `with a ${spr.value}bp spread` : spr.reason === "No cap rate or NOI disclosed." ? rubric.output_template.ungraded_spread : "spread not graded";
+  const sprText = spr.graded ? `with a ${spr.value}bp spread` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
   const coverage = `${graded.length} of ${rows.length} factors graded`;
   const output_text = `${repText} ${spr.graded ? sprText : `; ${sprText}`}; ${coverage}${enough ? "" : `; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}`}.`.replace(" ;", ";");
 
