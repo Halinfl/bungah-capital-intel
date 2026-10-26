@@ -197,9 +197,9 @@ export default function ReitsMethodologyPage() {
             </ul>
             <p className={p}>
               On the board each REIT shows its median captured rate for a stay 30 days out (Mon–Thu) and how many of its
-              current hotels were priced (&ldquo;X of N&rdquo;); each REIT&apos;s page shows all ten stays. A median needs at
-              least 15 hotels with a refundable rate, so smaller REITs, or stays with fewer prices, show &ldquo;thin&rdquo;
-              instead of a number. Every captured figure carries its capture date. Until the first capture, those columns
+              current hotels were priced (&ldquo;X of N&rdquo;); each REIT&apos;s page shows all ten stays. A REIT median is
+              shown when at least 8 of its hotels have a refundable rate for that stay; below 8 it shows &ldquo;thin&rdquo;
+              instead of a number. (Tuesday Trends market pages keep their own rule of 15 of 50 hotels.) Every captured figure carries its capture date. Until the first capture, those columns
               stay empty rather than show an estimate.
             </p>
           </section>

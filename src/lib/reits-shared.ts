@@ -96,7 +96,7 @@ export type PanelCapture = {
   methodUrl: string;
   /** The stay the board's per-REIT median uses. */
   headline: { horizon: string; stay: string; checkIn: string | null; checkOut: string | null; nights: number | null };
-  /** Medians need at least this many hotels (Tuesday Trends thin-data rule). */
+  /** A REIT median needs at least this many hotels with a refundable rate (REIT rule: 8; market pages keep 15 of 50). */
   thinBelow: number;
 };
 

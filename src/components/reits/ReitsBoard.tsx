@@ -458,7 +458,7 @@ export function ReitsBoard({
                           ) : cap?.thin ? (
                             <span
                               className="text-[13px] text-slate-300"
-                              title={`Thin: fewer than ${panel?.thinBelow ?? 15} hotels with a refundable rate on this stay, so no median is shown.`}
+                              title={`Thin: fewer than ${panel?.thinBelow ?? 8} hotels with a refundable rate on this stay, so no median is shown.`}
                             >
                               thin
                             </span>
