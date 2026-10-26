@@ -32,11 +32,11 @@ export async function Nav() {
             B
           </span>
           <span className="whitespace-nowrap text-[15px] font-medium tracking-tight text-white">
-            Bungah<span className="hidden lg:inline"> Capital Intel</span>
+            Bungah<span className="hidden xl:inline"> Capital Intel</span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-0.5 text-sm md:flex">
+        <nav className="hidden items-center gap-0.5 text-sm lg:flex">
           {links.map((l) => (
             <Link key={l.href} href={l.href} className={linkCls}>
               {l.label}
@@ -63,7 +63,7 @@ export async function Nav() {
             <>
               <Link
                 href="/login"
-                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white md:inline"
+                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white lg:inline"
               >
                 Sign in
               </Link>

@@ -187,7 +187,7 @@ function FactorTable({ rows }: { rows: FactorResult[] }) {
 function GradeSection({ sale, grades }: { sale: Sale; grades: GradeResult[] }) {
   const [current, ...older] = grades;
   const rows = current ? current.factor_scores : blankRows();
-  const ungraded = rows.some((r) => !r.graded);
+  const ungraded = !!current && rows.some((r) => !r.graded);
   return (
     <section aria-labelledby="grade" className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
