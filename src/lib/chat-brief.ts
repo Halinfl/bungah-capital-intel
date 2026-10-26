@@ -427,7 +427,7 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     .map((p) => (p.fiscal && p.end > today ? { ...p, fiscal: false, yearOnly: true } : p))
     .map((p) => {
       // A year-only period keeps Dec 31 as its end (the window test needs it); others stop at today.
-      const end = p.yearOnly ? p.end : Math.min(p.end, today);
+      const end = p.yearOnly || (p.marker && p.end > today) ? p.end : Math.min(p.end, today);
       const label =
         p.label ||
         (p.start === p.end
@@ -459,16 +459,16 @@ export function periodPick(texts: (string | null | undefined)[], ref?: number | 
   const rk = ref ?? todayKey();
   const context = ctx ?? texts.filter(Boolean).join(" ");
   const best = (ps: Period[]) => {
-    // A quarter or half year still in progress ("H2 2026" opening) is a plan, not data: other dates win.
-    const ex0 = ps.filter((p) => !p.yearOnly);
-    const ex = ex0.some((p) => !p.open) ? ex0.filter((p) => !p.open) : ex0;
+    // A quarter or half year still in progress ("Renovation from H2 2026") is a plan, not data: it
+    // never dates a fact while any other date is written (it is a year-only fallback below).
+    const ex = ps.filter((p) => !p.yearOnly && !p.open);
     // A fiscal year, quarter or half year written in the fact is its data period (a stray month is usually the publish month).
     const fy = ex.filter((p) => p.fiscal || p.marker);
     const pool = fy.length ? fy : ex;
     return pool.length ? pool.reduce((a, b) => (b.end > a.end ? b : a)) : null;
   };
   const latestYear = (ps: Period[]) => {
-    const ys = ps.filter((p) => p.yearOnly);
+    const ys = ps.filter((p) => p.yearOnly || p.open).map((p) => (p.open ? { ...p, yearOnly: true } : p));
     return ys.length ? ys.reduce((a, b) => (b.end > a.end ? b : a)) : null;
   };
   let yearOnly: Period | null = null;
