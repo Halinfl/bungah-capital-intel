@@ -230,7 +230,15 @@ export function fmtAsOf(s: string | null | undefined): string | null {
 }
 
 /** A date as a period (yyyymmdd keys) at the granularity it was written; null when undated. */
-export type Period = { start: number; end: number; startLabel: string; endLabel: string; gran: "day" | "month" | "quarter" | "year" };
+export type Period = {
+  start: number;
+  end: number;
+  startLabel: string;
+  endLabel: string;
+  gran: "day" | "month" | "quarter" | "year";
+  /** Earliest the period can end. A fiscal year ("FY 2025") can end in any month of that year. */
+  minEnd?: number;
+};
 const DIM = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const monthPeriod = (y: number, mo: number): Period => ({
   start: y * 10000 + mo * 100 + 1,
@@ -272,7 +280,7 @@ export function periodOf(raw: string | null | undefined): Period | null {
   m = /\b(?:YE|CY)\s?(20\d{2})\b/i.exec(s);
   if (m) return yearPeriod(+m[1]);
   m = /\bFY\s?(20\d{2})\b/i.exec(s);
-  if (m) return yearPeriod(+m[1], "FY ");
+  if (m) return { ...yearPeriod(+m[1], "FY "), minEnd: +m[1] * 10000 + 131 };
   m = /\b(20\d{2})\b/.exec(s);
   if (m) return yearPeriod(+m[1]);
   return null;
@@ -299,7 +307,8 @@ export function inRange(asOf: string | null | undefined, range: DateRange, today
   if (range === "all") return true;
   const p = periodOf(asOf);
   if (!p) return false;
-  return p.end >= rangeCutoff(range, today) && p.start <= today;
+  // Fiscal years count only when they surely reach the window (their earliest possible end does).
+  return (p.minEnd ?? p.end) >= rangeCutoff(range, today) && p.start <= today;
 }
 
 /** Count and date span of the citations in an answer, from their own dates. */

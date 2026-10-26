@@ -307,7 +307,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
   const answer =
     ma && mb
       ? `${sa}: ${ma} (${snapshotSource(a).label}) · ${sb}: ${mb} (${snapshotSource(b).label}).`
-      : `${sa} vs ${sb}: no cited OCC/ADR snapshot${windowOf(a) ? ` in the ${RANGE_LABEL[windowOf(a)!.range].toLowerCase()}` : ""} for ${seedNames.length === 2 ? "either" : seedNames[0]}, cited reads for each below.`;
+      : `${sa} vs ${sb}: no cited OCC/ADR snapshot${windowOf(a) && [a, b].some((m) => !metricsLine(m) && !isSeedMarket(m)) ? ` in the ${RANGE_LABEL[windowOf(a)!.range].toLowerCase()}` : ""} for ${seedNames.length === 2 ? "either" : seedNames[0]}, cited reads for each below.`;
   const fa = marketFacts(a);
   const fb = marketFacts(b);
   const label = (m: string, f: Fact): Fact => ({ ...f, text: `${m}: ${f.text}` });
