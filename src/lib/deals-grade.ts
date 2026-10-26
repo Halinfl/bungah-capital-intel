@@ -17,6 +17,7 @@ export type RubricFactor = {
   cuts?: { direction: string; thresholds: Threshold[] };
   basis_rule?: { cap_rate_basis: string; treasury_date: string };
   measure_rule?: { primary: string; fallback: string };
+  source_rule?: { single_source_required: boolean; required_stage: string };
 };
 export type Rubric = {
   rubric_version: string;
@@ -41,7 +42,7 @@ export type FactorInput =
   | { missing: string }
   | (Common & { price_per_key: number; replacement_cost_per_key: number; replacement_basis: string })
   | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
-  | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string })
+  | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string })
   | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
   | (Common & { category: string });
 
@@ -136,6 +137,13 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
       if (v === null) return { error: "Missing pipeline share of rooms." };
+      // Amendment C: one public source giving the total pipeline (under construction plus planned); never stitched.
+      if (f.source_rule) {
+        if (a.single_source !== true)
+          return { error: "No single public source gives the total pipeline as a share of existing rooms; figures aren't combined across sources or stages." };
+        if (a.stage !== f.source_rule.required_stage)
+          return { error: "Only partial pipeline stages are public (not under construction plus planned); shown as context, not graded." };
+      }
       return { value: v, text: `Pipeline ${v}% of existing rooms (${a.pipeline_definition})` };
     }
     case "demand": {

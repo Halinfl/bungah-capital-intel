@@ -184,7 +184,7 @@
       "label": "Supply backdrop",
       "weight": 0.15,
       "metric": "pipeline_pct_of_rooms",
-      "metric_definition": "Market (MSA) hotel rooms in the pipeline as a percent of existing rooms, from public CBRE/PwC outlooks or Bungah supply radars published before the announcement date. The pipeline definition used by the cited source (e.g. under construction) is recorded with the input.",
+      "metric_definition": "Total market (MSA) hotel pipeline, under construction plus planned, as a percent of the market's existing rooms, taken from a SINGLE public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is Not graded with a reason. Partial-stage figures (e.g. early planning only, announcements only, projected openings only) may appear only as cited, ungraded context.",
       "unit": "percent",
       "bands": [
         {
@@ -252,6 +252,18 @@
             "min": 8,
             "min_inclusive": true
           }
+        ]
+      },
+      "source_rule": {
+        "single_source_required": true,
+        "required_stage": "total_under_construction_plus_planned",
+        "no_stitching": "across publishers or stages",
+        "if_unavailable": "Not graded, with a reason; partial-stage figures shown as cited, ungraded context",
+        "status": "proposed default, pending Hal's approval",
+        "reasoning": [
+          "A share of existing rooms only means something if the numerator and denominator cover the same thing. Different publishers define stages differently (announced, early planning, final planning, under construction, projected openings), count different projects, and use different market boundaries and dates. Adding their stages together double-counts some rooms and misses others.",
+          "A rule fixed on one source and one definition applies the same way to every deal and can't be steered by picking which pieces to add.",
+          "When the public record doesn't have the number, the honest result is 'Not graded'. The missing-factor rule already handles that by spreading the weight across the graded factors and showing coverage."
         ]
       }
     },
@@ -438,7 +450,7 @@
       "date": "2026-10-25",
       "before_any_grade": true,
       "status": "proposed default, pending Hal's approval",
-      "summary": "Named the cap-rate basis, the 10-year timing and the demand measure. Chosen on principle (no look-ahead, consistency across deals), before any deal was graded and without checking which choice changes a score."
+      "summary": "Named the cap-rate basis, the 10-year timing, the demand measure and the supply source rule. Chosen on principle (no look-ahead, consistency across deals, no stitching), before any deal was graded and without checking which choice changes a score."
     }
   ]
 }

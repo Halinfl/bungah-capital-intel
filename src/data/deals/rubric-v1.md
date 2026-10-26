@@ -48,7 +48,7 @@ spread_bp = (cap rate − 10-yr yield) × 100. Stated as a plain number of basis
 Step: 100bp.
 
 ### 3. Supply backdrop (15%)
-Market (MSA) pipeline rooms ÷ existing rooms. The cited source's pipeline definition (e.g. under construction) is recorded with the input.
+Total market (MSA) pipeline (under construction plus planned) ÷ existing rooms, from ONE public source. No stitching across publishers or stages. See Amendment C below.
 
 | Score | Cut | Set by |
 |---|---|---|
@@ -115,7 +115,7 @@ Ungraded pieces read "replacement cost not graded" / "spread not gradeable (no c
 - Versioned: a rubric change re-grades every entry and shows both versions.
 
 ## Amendments before any grade (2026-10-25): PROPOSED DEFAULTS, PENDING HAL'S APPROVAL
-The team inputs showed two places where the rubric didn't name a measure. Both are settled here on principle, before any deal is graded and without checking which answer changes a score. They're flagged for Hal. Rubric stays v1 because no grade exists yet.
+The team inputs showed three places where the rubric didn't name a measure or source. All three are settled here on principle, before any deal is graded and without checking which answer changes a score. They're flagged for Hal. Rubric stays v1 because no grade exists yet.
 
 ### Amendment A: cap-rate basis and 10-year timing (factor 2)
 **Rule.** The cap rate is NOI for the **trailing 12 months through the last completed quarter before the announcement**, divided by the price (or a disclosed cap rate on that same basis). Cap rates on other bases (a prior fiscal year, forward or pro forma) are recorded on the entry but not graded. An EBITDA figure alone isn't treated as NOI. The 10-year is the Treasury daily par yield curve value for the **last trading day before the announcement date**.
@@ -133,3 +133,14 @@ The team inputs showed two places where the rubric didn't name a measure. Both a
 - One month is noisy: collection timing, holiday and convention calendars, and one-off events can swing it. One month is too thin to call a trajectory.
 - Fiscal year to date depends on where in the fiscal year the deal is announced (one month early in the year, nearly twelve late in it), so it doesn't measure deals on the same footing.
 - Trailing 12 vs the prior 12 months is the same length for every deal, removes seasonality, uses only what was published by the announcement date, and works across markets with different fiscal years.
+
+### Amendment C: supply source rule (factor 3)
+**Rule.** Supply is graded only when a **single public source** published before the announcement gives the market's **total pipeline (under construction plus planned) as a share of existing rooms**, or gives both of those numbers. **Figures are never stitched together across publishers or pipeline stages.** If no such source exists, the factor is **Not graded** and shows a reason. Partial-stage figures (early planning only, announcements only, projected openings only) may appear only as cited, ungraded context.
+
+**Why.**
+- A share of existing rooms only means something if the numerator and denominator cover the same thing. Publishers define stages differently (announced, early planning, final planning, under construction, projected openings), count different projects, and use different boundaries and dates. Adding their stages together double-counts some rooms and misses others.
+- A rule fixed on one source and one definition applies the same way to every deal and can't be steered by picking which pieces to add.
+- When the public record doesn't have the number, the honest result is "Not graded". The missing-factor rule already spreads the weight across the graded factors and shows coverage.
+
+**Effect on Grande Lakes (from the team's supply input; not a grade).** No free source published Orlando's total pipeline share as of Aug 10, 2026. The public figures are partial stages from different publishers: early planning 4.13% (Lodging Econometrics), Q2 announcements 0.97%, and projected 2026 openings 1.50% (CoStar), each over a 132,685-room base. Under this rule, supply would be Not graded for Grande Lakes, and those figures could appear only as cited context.
+**Open point for Hal:** the rubric excludes CoStar data. Whether a CoStar figure republished in free press can appear even as ungraded context is Hal's call.
