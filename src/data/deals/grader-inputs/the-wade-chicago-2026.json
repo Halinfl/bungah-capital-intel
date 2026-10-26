@@ -1,0 +1,40 @@
+{
+  "sale_id": "the-wade-chicago-2026",
+  "log_id": "DL-2026-005",
+  "announced_on": "2026-09-17",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "missing": "Only a $20M to $25M price range was public at announcement (Sep 17, 2026), so price per key isn't graded."
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed at announcement."
+    },
+    "supply": {
+      "missing": "Choose Chicago lists the downtown pipeline (Aug 2026) but states no share of existing rooms; no single public source gave the total pipeline share by Sep 17, 2026."
+    },
+    "demand": {
+      "as_of": "2026-06-25",
+      "source_uri": "https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf",
+      "source_label": "Choose Chicago, Chicago Economic Impact 2025",
+      "tax_receipts_yoy_pct": 2.87,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2025-12-31",
+      "period": "City of Chicago hotel tax revenue, calendar 2025 vs 2024, the latest full year published; $161.1M vs $156.6M (printed +$4.5M)",
+      "also_sources": [
+        {
+          "label": "Choose Chicago economic impact page",
+          "url": "https://www.choosechicago.com/chicago-economic-impact-2025/",
+          "date": "2026-06-25"
+        }
+      ]
+    },
+    "debt_context": {
+      "as_of": "2026-09-17",
+      "source_uri": "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
+      "category": "clean_arms_length",
+      "summary": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026."
+    }
+  }
+}

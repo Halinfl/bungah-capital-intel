@@ -1,0 +1,1022 @@
+[
+  {
+    "log_id": "DL-2026-001",
+    "sale_id": "grande-lakes-orlando-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-08-10",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.353,
+        "score": 3,
+        "value": -1.8,
+        "input_text": "$867k/key vs $883k replacement per key (HVS 2026 median incl. land, blended by keys: Ritz-Carlton 582 keys at the luxury median $1,604,356; JW Marriott 1,010 keys at the full-service median $467,244); 2% below",
+        "band_text": "3 = within 20% either way",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price ~$1.38B, RHP 8-K Ex. 99.1",
+            "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex99-1.htm",
+            "date": "2026-08-10"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": 0.294,
+        "score": 2,
+        "value": 188,
+        "input_text": "6.60% cap rate (trailing 12 months to 2026-06-30) vs 4.72% 10-year (2026-08-10 close); 188bp spread (NOI unaudited, seller-provided)",
+        "band_text": "2 = 100bp to under 200bp",
+        "as_of": "2026-08-10",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "10-year par yield 4.72%, Aug 10, 2026 (U.S. Treasury)",
+            "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+            "date": "2026-08-10"
+          }
+        ],
+        "label": "NOI unaudited, seller-provided",
+        "reason": null
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No free source published Orlando's total pipeline (under construction plus planned) as a share of existing rooms as of Aug 10, 2026. Partial-stage figures are shown as context only."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.176,
+        "score": 5,
+        "value": 8.06,
+        "input_text": "Lodging tax receipts +8.06% (trailing 12 months vs prior 12, Orange County tourist development tax, Jul 2025 to Jun 2026 vs prior 12; $404,587,100 vs $374,402,700)",
+        "band_text": "5 = up 5% or more",
+        "as_of": "2026-08-04",
+        "source_uri": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.176,
+        "score": 4,
+        "value": "arms_length_structured",
+        "input_text": "Arm's-length; no public distress (latest rating action on the $800M CMBS loan: confirmed, Stable, Dec 2025). Buyer held an option to assume that loan, with modification terms not public, so the price could be paid partly in assumed debt.",
+        "band_text": "4 = Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization",
+        "as_of": "2026-08-10",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex10-1.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 4,
+    "factors_total": 5,
+    "overall": 3.2,
+    "overall_label": "3.2 of 5",
+    "output_text": "Underwritten at a 2% discount to replacement with a 188bp spread; 4 of 5 factors graded.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-003",
+    "sale_id": "embassy-suites-dulles-airport-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-08-12",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": -67.5,
+        "input_text": "$152k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 67% below",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $22.8M, AHT 10-Q (Aug 12, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+            "date": "2026-08-12"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement (AHT 10-Q, Aug 12, 2026)."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No single public source gave the total pipeline (under construction plus planned) as a share of existing rooms for Dulles, Fairfax, Loudoun or the DC metro by Aug 12, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 4,
+        "value": 4.86,
+        "input_text": "Lodging tax receipts +4.86% (trailing 12 months vs prior 12, Fairfax County transient occupancy tax (General Fund), FY2025 (Jul 2024 to Jun 2025) vs FY2024, the latest full year published; $26,155,022 vs $24,941,910)",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2025-07-24",
+        "source_uri": "https://www.fairfaxcounty.gov/budget/sites/budget/files/Assets/Documents/fy2025/carryover/Att%20II%20-%20Revenue.pdf",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "No documented trigger dated by Aug 12, 2026. The ~$20.6M lender paydown appears only in the closing 8-K of Aug 27, 2026, after the announcement. Going-concern doubt is not a v1.1 trigger.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-08-12",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 4.8,
+    "overall_label": "4.8 of 5",
+    "output_text": "Underwritten at a 68% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded.",
+    "changed_factors": [
+      "debt_context"
+    ]
+  },
+  {
+    "log_id": "DL-2026-005",
+    "sale_id": "the-wade-chicago-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-09-17",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Only a $20M to $25M price range was public at announcement (Sep 17, 2026), so price per key isn't graded."
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Choose Chicago lists the downtown pipeline (Aug 2026) but states no share of existing rooms; no single public source gave the total pipeline share by Sep 17, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 4,
+        "value": 2.87,
+        "input_text": "Lodging tax receipts +2.87% (trailing 12 months vs prior 12, City of Chicago hotel tax revenue, calendar 2025 vs 2024, the latest full year published; $161.1M vs $156.6M (printed +$4.5M))",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-06-25",
+        "source_uri": "https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Choose Chicago economic impact page",
+            "url": "https://www.choosechicago.com/chicago-economic-impact-2025/",
+            "date": "2026-06-25"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-09-17",
+        "source_uri": "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 2,
+    "factors_total": 5,
+    "overall": null,
+    "overall_label": "Insufficient public data",
+    "output_text": "Underwritten with replacement cost not graded; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 2 of 5 factors graded; insufficient public data.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-006",
+    "sale_id": "tideline-palm-beach-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-09-17",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 1,
+        "value": 139.6,
+        "input_text": "$1.12M/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class; press price includes personal property and intangibles); 140% above",
+        "band_text": "1 = more than 40% above",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $150M, seller-confirmed (The Real Deal, Sep 17, 2026)",
+            "url": "https://therealdeal.com/miami/2026/09/17/jeff-greene-sells-tideline-palm-beach-ocean-resort/",
+            "date": "2026-09-17"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed (private seller, press-sourced)."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No dated single public source gave Palm Beach County's total pipeline as a share of existing rooms by Sep 17, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": 7.72,
+        "input_text": "Lodging tax receipts +7.72% (trailing 12 months vs prior 12, Palm Beach County tourist development tax, Apr 2025 to Mar 2026 vs prior 12; $98,337,638 vs $91,288,713)",
+        "band_text": "5 = up 5% or more",
+        "as_of": "2026-06-11",
+        "source_uri": "https://web.archive.org/web/20260611013017/https://discover.pbc.gov/touristdevelopment/PDF/Tourist_Development_Tax2025-2026.pdf",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "Seller-confirmed sale by a private owner to an affiliate of Fort Partners; no lender, receiver or distress named and no relationship between the parties stated (The Real Deal, Sep 17, 2026).",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-09-17",
+        "source_uri": "https://therealdeal.com/miami/2026/09/17/jeff-greene-sells-tideline-palm-beach-ocean-resort/",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 3,
+    "overall_label": "3.0 of 5",
+    "output_text": "Underwritten at a 140% premium to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-007",
+    "sale_id": "four-seasons-scottsdale-troon-north-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-09-29",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 3,
+        "value": 10.4,
+        "input_text": "$1.77M/key vs $1.6M replacement per key (HVS 2026 luxury median incl. land, $1,604,356; single class); 10% above",
+        "band_text": "3 = within 20% either way",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $372.0M, BHR 8-K (Sep 29, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+            "date": "2026-09-29"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Ungraded under v1; period question pending Hal. Nothing was disclosed at announcement (Sep 29, 2026); the 6.2% printed Oct 8 is after the announcement and on trailing 12 months to August 2026 including $23M of capex."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Only an under-construction share is public (Phoenix metro 5.7%), a subset of the total pipeline; no single source gave the total pipeline share by Sep 29, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 4,
+        "value": 3.86,
+        "input_text": "Lodging tax receipts +3.86% (fiscal year to date vs prior, City of Scottsdale bed tax, fiscal year to date Jul 2025 to Mar 2026 vs prior; $25,401,992 vs $24,458,616)",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-05-19",
+        "source_uri": "https://web.archive.org/web/20260519032616/https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/taxes/monthly-tax-collection-report.pdf?sfvrsn=d045412b_23",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "No documented trigger: no foreclosure, receivership, lender-directed sale, named-hotel impairment or company statement of distress by Sep 29, 2026.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-09-29",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 3.8,
+    "overall_label": "3.8 of 5",
+    "output_text": "Underwritten at a 10% premium to replacement; spread not graded; 3 of 5 factors graded.",
+    "changed_factors": [
+      "debt_context"
+    ]
+  },
+  {
+    "log_id": "DL-2026-008",
+    "sale_id": "embassy-suites-las-vegas-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-10-01",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": -57.7,
+        "input_text": "$198k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 58% below",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price ~$43.5M, AHT 8-K (Oct 1, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
+            "date": "2026-10-01"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed; the 8-K pro forma columns aren't NOI."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No single public source gave the market's total hotel pipeline (under construction plus planned) as a share of existing rooms by the announcement date; figures aren't combined across sources or stages."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 3,
+        "value": -2.5,
+        "input_text": "Lodging tax receipts -2.5% (trailing 12 months vs prior 12, Clark County (unincorporated) Stadium District room tax, Jul 2025 to Jun 2026 vs prior 12, as printed; June 2026 data marked preliminary) (preliminary)",
+        "band_text": "3 = down under 5%",
+        "as_of": "2026-08-20",
+        "source_uri": "https://www.lvstadiumauthority.com/docs/2026/08/20/allegiant/Item%208%20Attchmt%20FYE%202026%20YE%20Prelim%20Room%20Tax%20Report.pdf",
+        "graded": true,
+        "also_sources": [],
+        "label": "preliminary",
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 2,
+        "value": "formal_distress",
+        "input_text": "Documented trigger at announcement: the Oct 1, 2026 8-K says about $41.2M of the ~$43.5M price was paid to the mortgage lender. Scored at the v1 lender-negotiated band (2); v1.1 doesn't say which band a trigger takes.",
+        "band_text": "2 = Formal distress: loan in special servicing, notice of default, or a lender-negotiated sale (discounted payoff, deed in lieu)",
+        "as_of": "2026-10-01",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 3.8,
+    "overall_label": "3.8 of 5",
+    "output_text": "Underwritten at a 58% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded.",
+    "changed_factors": [
+      "debt_context"
+    ]
+  },
+  {
+    "log_id": "DL-2026-009",
+    "sale_id": "fairmont-scottsdale-princess-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-10-01",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No price was public at announcement (Oct 1, 2026). The $241.4M hotel-portion figure comes from a deed recorded Oct 2, after the announcement, so price per key isn't graded."
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed, and no price at announcement."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Only an under-construction share is public (Phoenix metro 5.7%), a subset of the total pipeline; no single source gave the total pipeline share by Oct 1, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 4,
+        "value": 3.86,
+        "input_text": "Lodging tax receipts +3.86% (fiscal year to date vs prior, City of Scottsdale bed tax, fiscal year to date Jul 2025 to Mar 2026 vs prior; $25,401,992 vs $24,458,616)",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-05-19",
+        "source_uri": "https://web.archive.org/web/20260519032616/https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/taxes/monthly-tax-collection-report.pdf?sfvrsn=d045412b_23",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "Acquisition announced by the buyer, a tribal investment authority; no distress, lender action or relationship between the parties public by Oct 1, 2026. The hotel is CMBS collateral (SHR 2024-LXRY); its release amount isn't public.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-10-01",
+        "source_uri": "https://sanmanuel-nsn.gov/news/san-manuel-investment-authority-acquires-fairmont-scottsdale-princess",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 2,
+    "factors_total": 5,
+    "overall": null,
+    "overall_label": "Insufficient public data",
+    "output_text": "Underwritten with replacement cost not graded; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 2 of 5 factors graded; insufficient public data.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-010",
+    "sale_id": "bellmoor-rehoboth-beach-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-10-08",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": -75.5,
+        "input_text": "$392k/key vs $1.6M replacement per key (HVS 2026 luxury median incl. land, $1,604,356; single class, on DRH's \"luxury resort\" wording); 76% below",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $31.0M, DRH 8-K (Oct 8, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
+            "date": "2026-10-08"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Ungraded under v1; period question pending Hal. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, not a quarter-end; no trailing-12-month NOI to June 30, 2026 was disclosed."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No dated room count or pipeline share for Rehoboth Beach or Sussex County was public by Oct 8, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 4,
+        "value": 2.74,
+        "input_text": "Lodging tax receipts +2.74% (trailing 12 months vs prior 12, City of Rehoboth Beach 3% hotel accommodation tax, FY2025 (Apr 2024 to Mar 2025) vs FY2024, the latest full year published; $1,582,032 vs $1,539,801.58)",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-02-09",
+        "source_uri": "https://cityofrehoboth.civicweb.net/document/262052/Mayor%20_%20Commissioners%20Special%20Budget%20Meeting%20No.pdf",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Rehoboth Beach FY2026 budget (FY2024 actual)",
+            "url": "https://www.capegazette.com/sites/default/files/2025/03/field/attachments/Rehoboth%20Beach%20FY2026%20budget.pdf",
+            "date": "2025-03-19"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K, Oct 8, 2026).",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-10-08",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 4.8,
+    "overall_label": "4.8 of 5",
+    "output_text": "Underwritten at a 76% discount to replacement; spread not graded; 3 of 5 factors graded.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-011",
+    "sale_id": "embassy-suites-philadelphia-airport-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-08-12",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.5,
+        "score": 5,
+        "value": -78.8,
+        "input_text": "$99k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 79% below",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $26.0M, AHT 10-Q (Aug 12, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+            "date": "2026-08-12"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement (AHT 10-Q, Aug 12, 2026)."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No single public source gave the Philadelphia airport submarket's or the metro's total pipeline as a share of existing rooms by Aug 12, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 4,
+        "value": 0.63,
+        "input_text": "Lodging tax receipts +0.63% (trailing 12 months vs prior 12, City of Philadelphia hotel taxes (Hotel Fund, cash), Jun 2025 to May 2026 vs prior 12; $85,195,224 vs $84,662,031)",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-07-02",
+        "source_uri": "https://www.phila.gov/media/20260702130259/City-revenue-collections-May-2026-report.pdf",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.25,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "No documented trigger dated by Aug 12, 2026. The ~$24.6M lender paydown appears only in the closing 8-K of Oct 9, 2026, after the announcement. Going-concern doubt is not a v1.1 trigger.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-08-12",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 3,
+    "factors_total": 5,
+    "overall": 4.8,
+    "overall_label": "4.8 of 5",
+    "output_text": "Underwritten at a 79% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded.",
+    "changed_factors": [
+      "debt_context"
+    ]
+  },
+  {
+    "log_id": "DL-2026-012",
+    "sale_id": "hotel-zags-portland-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-10-09",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.667,
+        "score": 5,
+        "value": -87.7,
+        "input_text": "$57k/key vs $467k replacement per key (HVS 2026 full-service median incl. land, $467,244; single class); 88% below",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Price $10.0M, PEB 8-K (Oct 9, 2026)",
+            "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
+            "date": "2026-10-09"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Ungraded: trailing NOI was negative (net operating loss of $0.8M, trailing 12 months to August 2026), so there is no meaningful cap rate."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No dated room count or single-source pipeline share for central Portland was public by Oct 9, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Not graded: the only public 2026 receipts series (Multnomah County lodging tax as received by the convention venues) is a formula-based allocation, not total lodging tax. Shown as context."
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.333,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "Cash sale to an unnamed third party; the hotel was unencumbered; no loan event or distress disclosed (PEB 8-K, Oct 9, 2026).",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-10-09",
+        "source_uri": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 2,
+    "factors_total": 5,
+    "overall": null,
+    "overall_label": "Insufficient public data",
+    "output_text": "Underwritten at a 88% discount to replacement; spread not graded; 2 of 5 factors graded; insufficient public data.",
+    "changed_factors": []
+  },
+  {
+    "log_id": "DL-2026-013",
+    "sale_id": "midway-portfolio-chicago-2026",
+    "rubric_version": "v1.1-proposed",
+    "graded_on": "2026-10-26",
+    "public_data_as_of": "2026-10-25",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "Not graded: the $68M recorded price includes a restaurant parcel with no public allocation, so price per key isn't comparable. The blended replacement cost ($249,350 per key) is context only."
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed (press-only deal; no RLJ filing)."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No dated room count or pipeline share for the Midway submarket was public by Oct 25, 2026."
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 3,
+        "value": -2.81,
+        "input_text": "Lodging tax receipts -2.81% (trailing 12 months vs prior 12, Village of Bedford Park hotel tax (cash), calendar 2025 vs 2024, the latest full year published; $6,081,591 vs $6,257,174)",
+        "band_text": "3 = down under 5%",
+        "as_of": "2026-06-30",
+        "source_uri": "https://files.illinoiscomptroller.gov/LocGovAudits/FY2025/01603532/25Audit01603532_01.pdf",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Village of Bedford Park FY2024 audit, CY2024 hotel tax (Illinois Comptroller copy; PDF created Jun 11, 2025)",
+            "url": "https://files.illinoiscomptroller.gov/LocGovAudits/FY2024/01603532/24Audit01603532_01.pdf",
+            "date": "2025-06-11"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.5,
+        "score": 4,
+        "value": "arms_length_structured",
+        "input_text": "Arm's-length, no distress reported, but one recorded price covers seven hotels plus a restaurant parcel with no public allocation (The Real Deal, Oct 25, 2026, from Cook County records).",
+        "band_text": "4 = Arm's-length, no distress, but the structure blurs the price signal: portfolio-allocated price, loan assumption or seller financing, earn-out or contingent consideration, partial-interest or JV recapitalization",
+        "as_of": "2026-10-25",
+        "source_uri": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 2,
+    "factors_total": 5,
+    "overall": null,
+    "overall_label": "Insufficient public data",
+    "output_text": "Underwritten with replacement cost not graded; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 2 of 5 factors graded; insufficient public data.",
+    "changed_factors": []
+  }
+]

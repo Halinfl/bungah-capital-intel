@@ -12,8 +12,11 @@ import {
   fmtDate,
   fmtMonthYear,
   fmtPerKey,
-  fmtPrice,
   gradesFor,
+  salePrice,
+  proposedFor,
+  SHOW_PREVIEW_NOTES,
+  CONTEXT_LABELS,
   horizons,
   saleBySlug,
   sales,
@@ -34,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {};
   return {
     title: `${s.property} · Recent Deals · Bungah Capital Intel`,
-    description: `${s.property}, ${s.market}: ${fmtPrice(s.price)}, ${s.keys ?? "n/d"} keys, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
+    description: `${s.property}, ${s.market}: ${salePrice(s)}, ${s.keys ?? "n/d"} keys, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
     alternates: { canonical: `/deals/${s.slug}` },
   };
 }
@@ -81,7 +84,7 @@ function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
               <>
                 <span className="text-2xl font-semibold tabular-nums text-white">
                   {g.overall.toFixed(1)}
-                  <span className="text-sm font-normal text-slate-300"> / {RUBRIC.scale.max}</span>
+                  <span className="text-sm font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
                 </span>
                 <DotBar score={g.overall} />
               </>
@@ -123,12 +126,26 @@ function kindResolver(sources: Source[]): KindOf {
 function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
   if (!r.source_uri) return <span className="text-slate-300">None (not graded)</span>;
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-      <Chip>{kindLabel(kindOf(r.source_uri))}</Chip>
-      <a href={r.source_uri} className="underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
-        {r.as_of ? fmtDate(r.as_of) : "Source"}
-        <span className="sr-only"> (opens source)</span>
-      </a>
+    <span className="inline-flex flex-col gap-1">
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <Chip>{kindLabel(kindOf(r.source_uri))}</Chip>
+        <a href={r.source_uri} className="underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+          {r.as_of ? fmtDate(r.as_of) : "Source"}
+          <span className="sr-only"> (opens source)</span>
+        </a>
+      </span>
+      {(r.also_sources ?? []).map((x) => (
+        <a
+          key={x.url + x.label}
+          href={x.url}
+          title={x.label}
+          className="whitespace-normal text-[12px] text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+          rel="noopener"
+          target="_blank"
+        >
+          + {x.label}
+        </a>
+      ))}
     </span>
   );
 }
@@ -220,6 +237,27 @@ function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf })
   );
 }
 
+/** Preview only: how the PROPOSED rubric v1.1 (distress on documented triggers only) would grade this deal. Not live. */
+function ProposedNote({ saleId, current }: { saleId: string; current: GradeResult | undefined }) {
+  const p = proposedFor(saleId);
+  if (!p || !current) return null;
+  const changed = p.changed_factors.length > 0;
+  const d = p.factor_scores.find((r) => r.factor === "debt_context");
+  return (
+    <div className="rounded-md border border-dashed border-white/25 px-3 py-2 text-[13px] text-slate-300">
+      <span className="font-semibold uppercase tracking-wider text-slate-200">Preview · proposed v1.1, not live</span>{" "}
+      {changed ? (
+        <>
+          Debt/transaction context would score {d?.score ?? "n/a"} instead of {current.factor_scores.find((r) => r.factor === "debt_context")?.score ?? "n/a"}
+          , making the overall {p.overall === null ? p.overall_label : `${p.overall.toFixed(1)} of ${RUBRIC.scale.max}`}. {d?.input_text}
+        </>
+      ) : (
+        <>No change under v1.1.</>
+      )}
+    </div>
+  );
+}
+
 function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResult[]; kindOf: KindOf }) {
   const [current, ...older] = grades;
   const rows = current ? current.factor_scores : blankRows();
@@ -239,7 +277,7 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         {current && current.overall !== null ? (
           <>
             <span className="tabular-nums text-white">
-              {current.overall.toFixed(1)} / {RUBRIC.scale.max}
+              {current.overall.toFixed(1)} of {RUBRIC.scale.max}
             </span>
             <span className="text-slate-300">· {current.factors_graded} of {current.factors_total} factors graded</span>
           </>
@@ -251,6 +289,7 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
           <span className="text-slate-300">Not graded yet · 0 of {RUBRIC.factors.length} factors graded</span>
         )}
       </div>
+      {SHOW_PREVIEW_NOTES ? <ProposedNote saleId={sale.sale_id} current={current} /> : null}
       {older.map((g) => (
         <details key={g.rubric_version} className="text-sm text-slate-200">
           <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}</summary>
@@ -320,7 +359,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           <Fact label="Buyer">{sale.buyer}</Fact>
           <Fact label="Seller">{sale.seller}</Fact>
           <Fact label="Price">
-            {fmtPrice(sale.price)}
+            {salePrice(sale)}
             {sale.price_qualifier ? <span className="block text-xs text-slate-300">{sale.price_qualifier}</span> : null}
           </Fact>
           <Fact label="Price/key">{fmtPerKey(sale.price_per_key)}</Fact>
@@ -364,7 +403,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           </div>
           {Object.entries(entry.factor_context).map(([fid, items]) => (
             <div key={fid} className="space-y-1">
-              <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? fid}</h3>
+              <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? CONTEXT_LABELS[fid] ?? fid}</h3>
               <ul className="space-y-1.5 text-[13px] text-slate-200">
                 {items.map((c) => (
                   <li key={c.text} className="max-w-3xl">

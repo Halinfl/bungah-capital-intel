@@ -1,0 +1,40 @@
+{
+  "sale_id": "midway-portfolio-chicago-2026",
+  "log_id": "DL-2026-013",
+  "announced_on": "2026-10-25",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "missing": "Not graded: the $68M recorded price includes a restaurant parcel with no public allocation, so price per key isn't comparable. The blended replacement cost ($249,350 per key) is context only."
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed (press-only deal; no RLJ filing)."
+    },
+    "supply": {
+      "missing": "No dated room count or pipeline share for the Midway submarket was public by Oct 25, 2026."
+    },
+    "demand": {
+      "as_of": "2026-06-30",
+      "source_uri": "https://files.illinoiscomptroller.gov/LocGovAudits/FY2025/01603532/25Audit01603532_01.pdf",
+      "source_label": "Village of Bedford Park FY2025 audit (Illinois Comptroller copy)",
+      "tax_receipts_yoy_pct": -2.81,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2025-12-31",
+      "period": "Village of Bedford Park hotel tax (cash), calendar 2025 vs 2024, the latest full year published; $6,081,591 vs $6,257,174",
+      "also_sources": [
+        {
+          "label": "Village of Bedford Park FY2024 audit, CY2024 hotel tax (Illinois Comptroller copy; PDF created Jun 11, 2025)",
+          "url": "https://files.illinoiscomptroller.gov/LocGovAudits/FY2024/01603532/24Audit01603532_01.pdf",
+          "date": "2025-06-11"
+        }
+      ]
+    },
+    "debt_context": {
+      "as_of": "2026-10-25",
+      "source_uri": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
+      "category": "arms_length_structured",
+      "summary": "Arm's-length, no distress reported, but one recorded price covers seven hotels plus a restaurant parcel with no public allocation (The Real Deal, Oct 25, 2026, from Cook County records)."
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "sale_id": "embassy-suites-dulles-airport-2026",
+  "log_id": "DL-2026-003",
+  "announced_on": "2026-08-12",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 152000,
+      "total_keys": 150,
+      "replacement_basis": "HVS 2026 full-service median incl. land, $467,244; single class",
+      "components": [
+        {
+          "label": "Embassy Suites Dulles Airport",
+          "hvs_class": "full-service",
+          "keys": 150,
+          "median_per_key": 467244
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $22.8M, AHT 10-Q (Aug 12, 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+          "date": "2026-08-12"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed at announcement (AHT 10-Q, Aug 12, 2026)."
+    },
+    "supply": {
+      "missing": "No single public source gave the total pipeline (under construction plus planned) as a share of existing rooms for Dulles, Fairfax, Loudoun or the DC metro by Aug 12, 2026."
+    },
+    "demand": {
+      "as_of": "2025-07-24",
+      "source_uri": "https://www.fairfaxcounty.gov/budget/sites/budget/files/Assets/Documents/fy2025/carryover/Att%20II%20-%20Revenue.pdf",
+      "source_label": "Fairfax County FY2025 Carryover Review, Attachment II",
+      "tax_receipts_yoy_pct": 4.86,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2025-06-30",
+      "period": "Fairfax County transient occupancy tax (General Fund), FY2025 (Jul 2024 to Jun 2025) vs FY2024, the latest full year published; $26,155,022 vs $24,941,910"
+    },
+    "debt_context": {
+      "as_of": "2026-08-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "category": "pressured_or_related",
+      "summary": "Pressured seller without formal distress at announcement: AHT's 10-Q (Aug 12, 2026) states substantial doubt about its ability to continue as a going concern and names hotel sales as a source of cash. No loan event was tied to this hotel by then."
+    }
+  },
+  "proposed_v1_1": {
+    "debt_context": {
+      "category": "clean_arms_length",
+      "as_of": "2026-08-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "summary": "No documented trigger dated by Aug 12, 2026. The ~$20.6M lender paydown appears only in the closing 8-K of Aug 27, 2026, after the announcement. Going-concern doubt is not a v1.1 trigger."
+    }
+  }
+}

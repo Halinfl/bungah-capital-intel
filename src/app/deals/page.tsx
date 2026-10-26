@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { Chip, DotBar } from "@/components/deals/DotBar";
+import { PreviewNotes } from "@/components/deals/PreviewNotes";
 import {
   RUBRIC,
   basisLabel,
@@ -10,7 +11,9 @@ import {
   fmtPerKey,
   fmtPrice,
   gradesFor,
+  salePrice,
   sales,
+  SHOW_PREVIEW_NOTES,
   statusLabel,
   type LogRow,
   type Sale,
@@ -36,7 +39,7 @@ function GradeRow({ sale }: { sale: Sale }) {
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
       <span className="text-base font-semibold tabular-nums text-white">
         {g.overall.toFixed(1)}
-        <span className="text-xs font-normal text-slate-300"> / {RUBRIC.scale.max}</span>
+        <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
       </span>
       <DotBar score={g.overall} />
       <span className="text-slate-300">
@@ -57,7 +60,7 @@ function DealCard({ sale }: { sale: Sale }) {
         <span className="text-slate-300"> · {sale.market}</span>
       </div>
       <div className="text-sm tabular-nums text-slate-200">
-        {fmtPrice(sale.price)} · {fmtPerKey(sale.price_per_key)} · {sale.keys?.toLocaleString("en-US") ?? "n/d"} keys
+        {salePrice(sale)} · {fmtPerKey(sale.price_per_key)} · {sale.keys?.toLocaleString("en-US") ?? "n/d"} keys
       </div>
       <div className="text-[13px] text-slate-300">
         Buyer {sale.buyer} · Seller {sale.seller}
@@ -91,6 +94,8 @@ function logStatus(r: LogRow): React.ReactNode {
 /** Disclosed price, or the partial figure exactly as recorded, or Unpriced. Never estimated. */
 function logPrice(r: LogRow): string {
   if (r.price_usd) return fmtPrice(Number(r.price_usd));
+  const sale = sales().find((s) => s.log_id === r.log_id);
+  if (sale?.price_display) return sale.price_display;
   if (r.inclusion_basis.startsWith("included") && r.disclosed_metric) return r.disclosed_metric;
   return "Unpriced";
 }
@@ -175,6 +180,8 @@ export default function DealsIndexPage() {
           <DealCard key={s.sale_id} sale={s} />
         ))}
       </section>
+
+      {SHOW_PREVIEW_NOTES ? <PreviewNotes /> : null}
 
       <section aria-labelledby="deal-log" className="space-y-3">
         <h2 id="deal-log" className="text-xl font-semibold tracking-tight text-white">

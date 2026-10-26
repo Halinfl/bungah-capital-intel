@@ -1,0 +1,60 @@
+{
+  "sale_id": "bellmoor-rehoboth-beach-2026",
+  "log_id": "DL-2026-010",
+  "announced_on": "2026-10-08",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 392405,
+      "total_keys": 79,
+      "replacement_basis": "HVS 2026 luxury median incl. land, $1,604,356; single class, on DRH's \"luxury resort\" wording",
+      "components": [
+        {
+          "label": "The Bellmoor Inn & Spa",
+          "hvs_class": "luxury",
+          "keys": 79,
+          "median_per_key": 1604356
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $31.0M, DRH 8-K (Oct 8, 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
+          "date": "2026-10-08"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "Ungraded under v1; period question pending Hal. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, not a quarter-end; no trailing-12-month NOI to June 30, 2026 was disclosed."
+    },
+    "supply": {
+      "missing": "No dated room count or pipeline share for Rehoboth Beach or Sussex County was public by Oct 8, 2026."
+    },
+    "demand": {
+      "as_of": "2026-02-09",
+      "source_uri": "https://cityofrehoboth.civicweb.net/document/262052/Mayor%20_%20Commissioners%20Special%20Budget%20Meeting%20No.pdf",
+      "source_label": "City of Rehoboth Beach budget packet, Feb 9, 2026",
+      "tax_receipts_yoy_pct": 2.74,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2025-03-31",
+      "period": "City of Rehoboth Beach 3% hotel accommodation tax, FY2025 (Apr 2024 to Mar 2025) vs FY2024, the latest full year published; $1,582,032 vs $1,539,801.58",
+      "also_sources": [
+        {
+          "label": "Rehoboth Beach FY2026 budget (FY2024 actual)",
+          "url": "https://www.capegazette.com/sites/default/files/2025/03/field/attachments/Rehoboth%20Beach%20FY2026%20budget.pdf",
+          "date": "2025-03-19"
+        }
+      ]
+    },
+    "debt_context": {
+      "as_of": "2026-10-08",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
+      "category": "clean_arms_length",
+      "summary": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K, Oct 8, 2026)."
+    }
+  }
+}

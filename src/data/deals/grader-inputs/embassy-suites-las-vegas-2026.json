@@ -1,0 +1,69 @@
+{
+  "sale_id": "embassy-suites-las-vegas-2026",
+  "log_id": "DL-2026-008",
+  "announced_on": "2026-10-01",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 197727,
+      "total_keys": 220,
+      "replacement_basis": "HVS 2026 full-service median incl. land, $467,244; single class",
+      "components": [
+        {
+          "label": "Embassy Suites Las Vegas",
+          "hvs_class": "full-service",
+          "keys": 220,
+          "median_per_key": 467244
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price ~$43.5M, AHT 8-K (Oct 1, 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
+          "date": "2026-10-01"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed; the 8-K pro forma columns aren't NOI."
+    },
+    "supply": {
+      "missing": "No single public source gave the market's total hotel pipeline (under construction plus planned) as a share of existing rooms by the announcement date; figures aren't combined across sources or stages."
+    },
+    "demand": {
+      "as_of": "2026-08-20",
+      "source_uri": "https://www.lvstadiumauthority.com/docs/2026/08/20/allegiant/Item%208%20Attchmt%20FYE%202026%20YE%20Prelim%20Room%20Tax%20Report.pdf",
+      "source_label": "Las Vegas Stadium Authority room tax report, board packet Aug 20, 2026",
+      "tax_receipts_yoy_pct": -2.5,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2026-06-30",
+      "label": "preliminary",
+      "period": "Clark County (unincorporated) Stadium District room tax, Jul 2025 to Jun 2026 vs prior 12, as printed; June 2026 data marked preliminary"
+    },
+    "debt_context": {
+      "as_of": "2026-08-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "category": "pressured_or_related",
+      "summary": "Pressured seller without formal distress: AHT's 10-Q (Aug 12, 2026) states substantial doubt about its ability to continue as a going concern and names hotel sales as a source of cash. The Oct 1 closing 8-K says about $41.2M went to the lender on a seven-hotel loan; v1 has no category for proceeds to a lender unless the sale was lender-negotiated, which isn't stated.",
+      "also_sources": [
+        {
+          "label": "AHT 8-K (Oct 1, 2026): ~$41.2M paid to the mortgage lender",
+          "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
+          "date": "2026-10-01"
+        }
+      ]
+    }
+  },
+  "proposed_v1_1": {
+    "debt_context": {
+      "category": "formal_distress",
+      "as_of": "2026-10-01",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm",
+      "summary": "Documented trigger at announcement: the Oct 1, 2026 8-K says about $41.2M of the ~$43.5M price was paid to the mortgage lender. Scored at the v1 lender-negotiated band (2); v1.1 doesn't say which band a trigger takes."
+    }
+  }
+}

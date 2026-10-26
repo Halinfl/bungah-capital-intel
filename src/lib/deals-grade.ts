@@ -36,12 +36,18 @@ export type Rubric = {
 
 export type FactorId = "replacement_cost" | "spread" | "supply" | "demand" | "debt_context";
 
-type Common = { as_of: string; source_uri: string; source_label?: string; note?: string };
+export type AlsoSource = { label: string; url: string; date: string };
+/**
+ * Shared fields. `also_sources` lists every further public source behind the factor's numbers (e.g. the filing that
+ * gives the price, or the Treasury file); each must be dated on or before the announcement. `label` is a short tag
+ * printed with the input (e.g. "preliminary", "NOI unaudited, seller-provided").
+ */
+type Common = { as_of: string; source_uri: string; source_label?: string; note?: string; also_sources?: AlsoSource[]; label?: string };
 /** One factor's input. Omit a factor, or pass { missing: reason }, to leave it ungraded. */
 export type FactorInput =
   | { missing: string }
   | (Common & { price_per_key: number; replacement_cost_per_key?: number; replacement_basis: string; total_keys?: number; components?: { label: string; hvs_class: string; keys: number; median_per_key: number }[] })
-  | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
+  | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; results_public_note?: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
   | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string })
   | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
   | (Common & { category: string });
@@ -66,6 +72,8 @@ export type FactorResult = {
   reason: string | null;
   as_of: string | null;
   source_uri: string | null;
+  also_sources?: AlsoSource[];
+  label?: string | null;
 };
 
 export type GradeResult = {
@@ -82,6 +90,13 @@ export type GradeResult = {
 };
 
 const NO_CAP = "No trailing-12-month cap rate or NOI disclosed.";
+/** Calendar quarter-end immediately before the given quarter-end (YYYY-MM-DD). */
+export function priorQuarterEnd(qe: string): string {
+  const [y, m] = qe.split("-").map(Number);
+  if (m === 3) return `${y - 1}-12-31`;
+  const pm = m - 3;
+  return `${y}-${String(pm).padStart(2, "0")}-${pm === 6 ? "30" : pm === 9 ? "30" : "31"}`;
+}
 /** Last calendar quarter-end strictly before the date (YYYY-MM-DD). */
 export function lastQuarterEnd(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
@@ -91,7 +106,8 @@ export function lastQuarterEnd(iso: string): string {
   return `${best[0]}-${String(best[1]).padStart(2, "0")}-${String(best[2]).padStart(2, "0")}`;
 }
 const isDate = (s: unknown) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
-const round1 = (x: number) => Math.round(x * 10) / 10;
+/** Round half up to one decimal, robust to binary float error (e.g. 4.25 -> 4.3, not 4.2). */
+const round1 = (x: number) => Math.round(Number((x * 10).toFixed(6))) / 10;
 
 export function scoreFromCuts(value: number, thresholds: Threshold[]): number | null {
   for (const t of thresholds) {
@@ -136,13 +152,21 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       const rule = f.basis_rule;
       if (rule && a.cap_rate_basis !== rule.cap_rate_basis)
         return { error: `Cap rate basis "${String(a.cap_rate_basis)}" isn't the rubric basis (trailing 12 months through the last quarter before announcement); recorded, not graded.` };
-      if (rule && (!isDate(a.cap_rate_period_end) || (a.cap_rate_period_end as string) !== lastQuarterEnd(anchor)))
-        return { error: `Cap rate period must end ${lastQuarterEnd(anchor)} (the last quarter-end before the announcement).` };
+      // Rule as applied 2026-10-26 (wording pending Hal's confirmation): the last quarter-end whose results were
+      // public by the announcement date. That is the last calendar quarter-end before the announcement, or the one
+      // before it when the later quarter's results weren't out yet (the input must say so in results_public_note).
+      if (rule) {
+        const pe = a.cap_rate_period_end as string;
+        const lq = lastQuarterEnd(anchor);
+        const ok = isDate(pe) && (pe === lq || (pe === priorQuarterEnd(lq) && typeof a.results_public_note === "string" && a.results_public_note.length > 0));
+        if (!ok)
+          return { error: `Cap rate period must end at the last quarter-end whose results were public by the announcement (${lq}, or ${priorQuarterEnd(lq)} if ${lq} results weren't out yet).` };
+      }
       // Hal 2026-10-25: 10-year = close on the announcement date (prior trading day only if the market was closed).
       if (rule && rule.treasury_date === "announcement_date_close" && (a.treasury_as_of as string) > anchor)
         return { error: "10-year must be the close on the announcement date." };
       const bp = Math.round((c - t) * 100);
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year (${a.treasury_as_of} close); ${bp}bp` };
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year (${a.treasury_as_of} close); ${bp}bp spread` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -170,7 +194,7 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
           return { error: "Latest month must be published by the announcement date." };
       }
       const label = a.measure === "fytd_vs_prior_fytd" ? "fiscal year to date vs prior" : "trailing 12 months vs prior 12";
-      return { value: v, text: `Lodging tax receipts ${v > 0 ? "+" : ""}${v}% (${label}, through ${a.period})` };
+      return { value: v, text: `Lodging tax receipts ${v > 0 ? "+" : ""}${v}% (${label}, ${a.period})` };
     }
     case "debt_context": {
       const cat = a.category;
@@ -192,7 +216,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     if (!isDate(c.as_of)) return { ...base, graded: false, reason: "Input has no publication date." };
     if (!c.source_uri) return { ...base, graded: false, reason: "Input has no source." };
     // No look-ahead: every dated input must be public on or before the announcement.
-    const dates = [c.as_of, (inp as { treasury_as_of?: string }).treasury_as_of].filter(Boolean) as string[];
+    const dates = [c.as_of, (inp as { treasury_as_of?: string }).treasury_as_of, ...(c.also_sources ?? []).map((x) => x.date)].filter(Boolean) as string[];
     if (dates.some((d) => d > anchor)) {
       return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: `Input dated after the announcement (${anchor}); not used.` };
     }
@@ -204,14 +228,17 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
         : scoreFromCuts(m.value as number, f.cuts!.thresholds);
     if (score === null) return { ...base, graded: false, reason: "Value fell outside every band." };
     const band = f.bands.find((b) => b.score === score)!;
-    return { ...base, graded: true, score, value: m.value, input_text: m.text, band_text: `${score} = ${band.text}`, as_of: c.as_of, source_uri: c.source_uri, reason: null };
+    const text = c.label ? `${m.text} (${c.label})` : m.text;
+    return { ...base, graded: true, score, value: m.value, input_text: text, band_text: `${score} = ${band.text}`, as_of: c.as_of, source_uri: c.source_uri, also_sources: c.also_sources ?? [], label: c.label ?? null, reason: null };
   });
 
   const graded = rows.filter((r) => r.graded);
   const wSum = graded.reduce((s, r) => s + r.weight, 0);
   for (const r of graded) r.effective_weight = Math.round((r.weight / wSum) * 1000) / 1000;
   const enough = graded.length >= rubric.missing_factor_rule.min_factors_graded;
-  const overall = enough ? round1(graded.reduce((s, r) => s + (r.score as number) * (r.weight / wSum), 0)) : null;
+  // Integer weights (percent) avoid float drift in the weighted mean.
+  const wInt = graded.reduce((s, r) => s + Math.round(r.weight * 100), 0);
+  const overall = enough ? round1(graded.reduce((s, r) => s + (r.score as number) * Math.round(r.weight * 100), 0) / wInt) : null;
 
   const rep = rows.find((r) => r.factor === "replacement_cost")!;
   const spr = rows.find((r) => r.factor === "spread")!;
@@ -234,7 +261,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     factors_graded: graded.length,
     factors_total: rows.length,
     overall,
-    overall_label: enough ? `${overall!.toFixed(1)} / ${rubric.scale.max}` : rubric.missing_factor_rule.insufficient_label,
+    overall_label: enough ? `${overall!.toFixed(1)} of ${rubric.scale.max}` : rubric.missing_factor_rule.insufficient_label,
     output_text,
   };
 }

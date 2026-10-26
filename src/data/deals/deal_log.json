@@ -349,5 +349,32 @@
     "date_found": "2026-10-25",
     "graded": "no",
     "notes": "NOT IN transactions.csv. 7 hotels, 1,057 rooms per press. Price from public records via press, not company. $68M and $/key include the TGI Friday's restaurant parcel (no allocation public). Buyer financing: $90M Access Point Financial mortgage (press). Verify against RLJ Q3-2026 release. Included on the seller rule (REIT seller, any size); below $100M. Syndicated copy on Yahoo (secondary)."
+  },
+  {
+    "log_id": "DL-2026-014",
+    "announce_date": "2026-04-24",
+    "announce_date_basis": "county record (Develop Fulton agenda + fact sheet posted 2026-04-24, per PDF server Last-Modified, for the 2026-04-28 meeting: assignment of the Avalon Hotel project, 9000 Avalon Blvd, assignor and assignee named; approved 2026-04-28). Eastdil 'successful sale' post 2026-07-10. Crescent release 2026-09-17 is later",
+    "agreement_date": "",
+    "close_date": "by 2026-07-10 (per Eastdil 'successful sale'; fact sheet est. Q2 2026)",
+    "status_as_of_2026-10-25": "closed per Eastdil/Crescent; no deed located (GSCCCA needs login)",
+    "hotel": "The Hotel at Avalon (Autograph Collection; leasehold under Develop Fulton bond lease), 9000 Avalon Blvd",
+    "market": "Alpharetta, GA",
+    "keys": "330",
+    "buyer": "Endeavor Real Estate Group + Cox (press, from 2026-09-25); county record assignee: Alpharetta Investment Operations LLC / Holdings, LLC (ultimately JMC-IV Real Estate Company LLC)",
+    "seller": "Crescent Real Estate affiliate (Eastdil 2026-07-10); assignor of record GPIF Hotel at Avalon Owner LLC (Develop Fulton)",
+    "price_usd": "",
+    "price_per_key": "",
+    "disclosed_metric": "",
+    "is_reit_deal": "N",
+    "reit_ticker": "",
+    "reit_side": "",
+    "inclusion_basis": "excluded: first disclosed 2026-04-24 (agenda posted) before window; supporting: approval 2026-04-28 and Eastdil post 2026-07-10",
+    "source_kind": "filed (county record)",
+    "source_url": "https://www.developfultoncounty.com/uploads/meetings-and-minutes_396_3860749721.pdf",
+    "source_date": "2026-04-24",
+    "secondary_source_url": "https://www.linkedin.com/posts/eastdil-secured_eastdilsecured-thetrustedadvisor-capitalmarkets-activity-7481316081396080640--B-U",
+    "date_found": "2026-10-26",
+    "graded": "no",
+    "notes": "EXCLUDED (window rule: first public disclosure naming the asset is Develop Fulton's agenda/fact sheet, posted 2026-04-24 for the 2026-04-28 meeting (board approved 2026-04-28); Eastdil's 2026-07-10 post also predates 2026-08-10). Brief had announce date 2026-09-17 (Crescent release https://crescent.com/news/crescent-announces-successful-sale-of-the-hotel-at-avalon/, no price, no buyer); editor confirmed the exclusion and the 2026-04-24 date (2026-10-26). ID kept, not renumbered. Price status-only: $220M first public in Krugman Insights 2026-09-25 (https://www.krugmaninsights.com/article/endeavor-and-cox-acquire-hotel-at-avalon-for-220-million-securing-330-key-alpharetta-luxury-asset), then CPE 2026-09-28, ABC 2026-09-30; press only, after both the 2026-04-24 announce date and the 09-17 release, so price_usd and price_per_key blank (same handling as DL-2026-009). No deed found: GSCCCA search results require login (not used), Fulton qPublic 403. Not a REIT deal (none of the 13 named); inclusion would otherwise rest on rule (b) via the post-announcement $220M. Broker: Eastdil Secured (seller's rep). Manager: HEI. Endeavor's role is press-only; Cox representative appeared at Develop Fulton. See DL-2026-014/tape.md."
   }
 ]

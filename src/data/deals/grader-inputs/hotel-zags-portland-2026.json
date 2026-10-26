@@ -1,0 +1,47 @@
+{
+  "sale_id": "hotel-zags-portland-2026",
+  "log_id": "DL-2026-012",
+  "announced_on": "2026-10-09",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 57471,
+      "total_keys": 174,
+      "replacement_basis": "HVS 2026 full-service median incl. land, $467,244; single class",
+      "components": [
+        {
+          "label": "The Hotel Zags",
+          "hvs_class": "full-service",
+          "keys": 174,
+          "median_per_key": 467244
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $10.0M, PEB 8-K (Oct 9, 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
+          "date": "2026-10-09"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "Ungraded: trailing NOI was negative (net operating loss of $0.8M, trailing 12 months to August 2026), so there is no meaningful cap rate."
+    },
+    "supply": {
+      "missing": "No dated room count or single-source pipeline share for central Portland was public by Oct 9, 2026."
+    },
+    "demand": {
+      "missing": "Not graded: the only public 2026 receipts series (Multnomah County lodging tax as received by the convention venues) is a formula-based allocation, not total lodging tax. Shown as context."
+    },
+    "debt_context": {
+      "as_of": "2026-10-09",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm",
+      "category": "clean_arms_length",
+      "summary": "Cash sale to an unnamed third party; the hotel was unencumbered; no loan event or distress disclosed (PEB 8-K, Oct 9, 2026)."
+    }
+  }
+}
