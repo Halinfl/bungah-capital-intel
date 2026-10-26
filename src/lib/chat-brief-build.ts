@@ -190,6 +190,11 @@ function marketFacts(m: MarketRow): Fact[] {
   return m.signals.flatMap((s) => signalFacts(s as SignalLike));
 }
 
+/** Source labels of cited rows that have no original URL (listed in Sources so the count matches). */
+function unlinkedLabels(signals: SignalLike[]): string[] {
+  return signals.filter((s) => !signalLinks([s]).length).map((s) => s.sourceLabel);
+}
+
 /**
  * The citations behind an answer, each with its cited row's own date: the reads' sources, every
  * signal shown in the detail (one per original URL, else its source label) and extra sources
@@ -217,7 +222,10 @@ const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "d
 
 function headLine(scope: string, lens: Lens, f: Fact): string {
   const date = fmtAsOf(f.asOf);
-  return `${scope}${LENS_WORD[lens] ? ` ${LENS_WORD[lens]}` : ""}: ${f.text} (${[date, f.source.label].filter(Boolean).join(", ")}).`;
+  // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
+  const esc = scope.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const text = f.text.replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
+  return `${scope}${LENS_WORD[lens] ? ` ${LENS_WORD[lens]}` : ""}: ${text} (${[date, f.source.label].filter(Boolean).join(", ")}).`;
 }
 
 export type BriefOpts = {
@@ -278,7 +286,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   sections.push(...(opts.extraSections ?? []));
   const src = sourcesSection(
     [...signalLinks(m.signals as SignalLike[]), ...(opts.nationalOverlay ? signalLinks([opts.nationalOverlay]) : [])],
-    [...(snapOK(m) ? [scrubInternal(m.sourceLabel)] : []), ...registryLine(m)]
+    [...(snapOK(m) ? [scrubInternal(m.sourceLabel)] : []), ...unlinkedLabels([...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])]), ...registryLine(m)]
   );
   if (src) sections.push(src);
 
@@ -329,7 +337,10 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
     const c = contextSection(m);
     if (c) sections.push({ ...c, title: `${s} · Market context` });
   }
-  const src = sourcesSection(signalLinks([...a.signals, ...b.signals] as SignalLike[]), [a, b].filter(snapOK).map((m) => scrubInternal(m.sourceLabel)));
+  const src = sourcesSection(signalLinks([...a.signals, ...b.signals] as SignalLike[]), [
+    ...[a, b].filter(snapOK).map((m) => scrubInternal(m.sourceLabel)),
+    ...unlinkedLabels([...a.signals, ...b.signals] as SignalLike[]),
+  ]);
   if (src) sections.push(src);
   const notes = [...(opts.notes ?? [])];
   const seeds = [a, b].filter((m) => isSeedMarket(m)).map(shortName);
