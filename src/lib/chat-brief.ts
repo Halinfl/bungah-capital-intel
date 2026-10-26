@@ -351,16 +351,27 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     const ok = other.getUTCFullYear() * 10000 + (other.getUTCMonth() + 1) * 100 + other.getUTCDate();
     return /of/i.test(m[1]) ? { start: e, end: ok, label: "" } : { start: ok, end: e, label: `w/e ${dayLabel(e)}` };
   });
+  // "FY2026 YTD through Apr 2026": the YTD part is the data period (from the fiscal year's start), not the full fiscal year.
+  let fytd: { y: number; em: number | null } | null = null;
+  take(/\bFY\s?'?(\d{2}|20\d{2})(?:\s?[-–]\s?(?:FY)?'?(\d{2}|20\d{2}))?\s+(?=YTD\b)/gi, (m) => {
+    const x = m[2] ?? m[1];
+    fytd = { y: x.length === 2 ? 2000 + +x : +x, em: fiscalEndMonth(`${raw} ${ctx}`) };
+    return undefined;
+  });
   // YTD through a month: "2026 YTD through Aug", "YTD Aug 2026", "through Aug 2026".
   take(new RegExp(`\\b(?:(20\\d{2})\\s+)?(?:YTD(?:\\s+(?:through|thru|to))?|through|thru)\\s+${MON}(?:\\s+(\\d{1,2})(?!\\d))?,?(?:\\s+(20\\d{2}))?`, "gi"), (m) => {
     const mo = monNum(m[2]);
     const y = m[4] ? +m[4] : m[1] ? +m[1] : null;
     if (!y) return null;
     const d = m[3] ? +m[3] : null;
+    const f = fytd as { y: number; em: number | null } | null;
+    if (f && /YTD/i.test(m[0])) {
+      // Fiscal YTD: from the month after the prior fiscal year's end.
+      const start = f.em && f.em !== 12 ? k(f.y - 1, f.em + 1, 1) : k(y, 1, 1);
+      return { start: start <= k(y, mo, 1) ? start : k(y, 1, 1), end: k(y, mo, d ?? dim(y, mo)), label: `FY${f.y} YTD through ${MONTH_NAMES[mo - 1]}${d ? ` ${d},` : ""} ${y}` };
+    }
     return { start: k(y, 1, 1), end: k(y, mo, d ?? dim(y, mo)), label: d ? `YTD through ${MONTH_NAMES[mo - 1]} ${d}, ${y}` : `Jan–${MONTH_NAMES[mo - 1]} ${y}` };
   });
-  // "FY2026 YTD …": the YTD part (already read) is the data period, not the full fiscal year.
-  take(/\bFY\s?'?(?:\d{2}|20\d{2})(?:\s?[-–]\s?(?:FY)?'?(?:\d{2}|20\d{2}))?\s+(?=YTD\b)/gi, () => undefined);
   // Single days and months.
   take(/\b(20\d{2})-(\d{2})-(\d{2})\b/g, (m) => {
     const d = k(+m[1], +m[2], +m[3]);
@@ -393,13 +404,20 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     const sy = em === 12 ? (m[2] ? yy(m[1]) : y) : (m[2] ? yy(m[1]) : y - 1);
     return { start: em === 12 ? k(sy, 1, 1) : k(sy, em + 1, 1), end: k(y, em, dim(y, em)), label, fiscal: true };
   });
-  take(/\b(YE|CY)\s?(20\d{2})\b/gi, (m) => ({ start: k(+m[2], 1, 1), end: k(+m[2], 12, 31), label: `${m[1].toUpperCase() === "YE" ? "YE " : ""}${m[2]}` }));
+  // "YE 2025" is year-end data (as of Dec 31); "CY2026" is just a calendar year, so year-only.
+  take(/\b(YE|CY)\s?(20\d{2})\b/gi, (m) =>
+    m[1].toUpperCase() === "YE"
+      ? { start: k(+m[2], 1, 1), end: k(+m[2], 12, 31), label: `YE ${m[2]}` }
+      : { start: k(+m[2], 1, 1), end: k(+m[2], 12, 31), label: `${m[2]}`, yearOnly: true }
+  );
   // A bare year counts only when nothing finer is written (fiscal years without months never do).
   if (!out.length) {
     take(/(?<![A-Za-z\d-])(?<!FY\s|TY\s)(20\d{2})\b(?![-–]\d)/g, (m) => ({ start: k(+m[1], 1, 1), end: k(+m[1], 12, 31), label: `${m[1]}`, yearOnly: true }));
   }
   return out
     .filter((p) => p.start <= today && p.start <= p.end)
+    // A fiscal year still in progress (a budget year) has no data end yet: it is year-only.
+    .map((p) => (p.fiscal && p.end > today ? { ...p, fiscal: false, yearOnly: true } : p))
     .map((p) => {
       // A year-only period keeps Dec 31 as its end (the window test needs it); others stop at today.
       const end = p.yearOnly ? p.end : Math.min(p.end, today);
@@ -1079,7 +1097,13 @@ export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?
     if (p && (!q || p.start < q.start || p.end > q.end)) {
       const start = q ? Math.min(q.start, p.start) : p.start;
       const end = q ? Math.max(q.end, p.end) : p.end;
-      prev.period = { start, end, label: q ? (start === q.start && end === q.end ? q.label : start === p.start && end === p.end ? p.label : p.yearOnly ? `${kY(start)}–${kY(end)}` : spanLabel(start, end)) : p.label, ...(p.yearOnly ? { yearOnly: true } : {}) };
+      prev.period = !q
+        ? p
+        : start === q.start && end === q.end
+          ? q
+          : start === p.start && end === p.end
+            ? p
+            : { start, end, label: p.yearOnly ? `${kY(start)}–${kY(end)}` : spanLabel(start, end), ...(p.yearOnly ? { yearOnly: true } : {}) };
     }
   }
   const cited = [...byKey.values()];
