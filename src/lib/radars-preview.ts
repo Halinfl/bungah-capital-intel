@@ -238,9 +238,9 @@ export const NATIONAL_RADAR: PreviewRadar = {
       },
       title: "Lodging special servicing at 8.95%; October adds maturity transfers",
       summary:
-        "October added Project Prime ($745.7M) and Hyatt Regency Waikiki ($302M), both on maturity. The refinance test decides outcomes: takeout at 7.5–8.0% or higher and a debt yield of at least 10%.",
+        "October added Project Prime ($745.7M) and Hyatt Regency Waikiki ($302M), both on maturity. Refinancing on a normalized trailing twelve months, not missed payments, decides outcomes.",
       detail:
-        "Trepp’s September reads: lodging special servicing rose 21 basis points to 8.95%, and lodging delinquency rose 34 basis points to 6.18%, with a $280.0M Santa Monica beachfront hotel loan among the new delinquencies. October added two maturity-driven transfers: Project Prime, a $745.7M loan on 72 hotels (7,008 keys) that matures in December 2026, and the $302M Hyatt Regency Waikiki loan after a missed final maturity payment. Together that is about $1.05B across two named loans; this is our sum, not a Trepp total. JLL, writing in AHLA’s 2026 State of the Industry, counts $46 billion of hotel loans set to mature in 2026. For capital: Maturity, not missed payments, is driving these transfers, so the refinance test decides outcomes: takeout at 7.5–8.0% or higher, and a debt yield of at least 10% on a normalized trailing twelve months, with 9% or less flagged. Expect more lender-led sales through year end, and keep labor underwritten at current contract levels.",
+        "Trepp’s September reads: lodging special servicing rose 21 basis points to 8.95%, and lodging delinquency rose 34 basis points to 6.18%, with a $280.0M Santa Monica beachfront hotel loan among the new delinquencies. October added two maturity-driven transfers: Project Prime, a $745.7M loan on 72 hotels (7,008 keys) that matures in December 2026, and the $302M Hyatt Regency Waikiki loan after a missed final maturity payment. Together that is about $1.05B across two named loans; this is our sum, not a Trepp total. JLL, writing in AHLA’s 2026 State of the Industry, counts $46 billion of hotel loans set to mature in 2026. For capital: Maturity, not missed payments, is driving these transfers, so whether a loan can refinance on a normalized trailing twelve months decides outcomes. Expect more lender-led sales through year end, and keep labor underwritten at current contract levels.",
       sources: [SRC.treppSs, SRC.connectSs, SRC.treppDq, SRC.kbra, SRC.connectRtl, SRC.coWaikiki, SRC.ahla],
     },
   ],
@@ -399,7 +399,7 @@ export const CITY_ROWS: CityRow[] = [
     trades: "Hyatt Regency SF: $279M at a 3.5% cap rate (Sunstone)",
     labor: NONE,
     detail:
-      "Metro, Q2 2026: Metro (SF/San Mateo) OCC 76.0% · RevPAR $179 (+13.0%) · demand +4.8%. Downtown and other reads: August: largest Top 25 gains; OCC 79.3%, RevPAR $171.84 (+15.8%) (CoStar). Debt and distress: Hilton SF Union Square and Parc 55 ($725M CMBS loan): court-appointed receiver completed the sale in Nov 2025 (Park Hotels & Resorts). Trades: Hyatt Regency SF: $279M / 821 rooms agreed at a 3.5% cap rate, 21.4x EBITDA, below a 7.5% takeout (Sunstone, Jun 2026).",
+      "Metro, Q2 2026: Metro (SF/San Mateo) OCC 76.0% · RevPAR $179 (+13.0%) · demand +4.8%. Downtown and other reads: August: largest Top 25 gains; OCC 79.3%, RevPAR $171.84 (+15.8%) (CoStar). Debt and distress: Hilton SF Union Square and Parc 55 ($725M CMBS loan): court-appointed receiver completed the sale in Nov 2025 (Park Hotels & Resorts). Trades: Hyatt Regency SF: $279M / 821 rooms agreed at a 3.5% cap rate, 21.4x EBITDA (Sunstone, Jun 2026).",
   },
   {
     city: "Washington, DC",

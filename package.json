@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/embed-corpus.mjs && prisma generate && next build",
+    "postbuild": "node scripts/check-ic-frame.mjs",
+    "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",

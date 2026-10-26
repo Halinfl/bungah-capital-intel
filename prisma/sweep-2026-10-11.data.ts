@@ -266,7 +266,7 @@ export const SWEEP_2026_10_11: SweepSignal[] = [
     "marketSlug": null,
     "kind": "rates",
     "title": "US 10Y Treasury 5.24% close Oct 9 (5.31% peak close Oct 5)",
-    "body": "10Y closed 5.244% on Oct 9; intraweek peak close 5.311% on Oct 5 (intraday high ~5.365% Oct 7, a 24-year high per CNBC), then eased after a solid auction. 2Y 4.80%. +6 bp vs the 5.18% lock; peak +13 bp — under the ~25 bp / ~5.43% re-price wire. Next FOMC Oct 27–28. House IC pack holds (takeout ≥7.5–8.0%+, DY ≥10%).",
+    "body": "10Y closed 5.244% on Oct 9; intraweek peak close 5.311% on Oct 5 (intraday high ~5.365% Oct 7, a 24-year high per CNBC), then eased after a solid auction. 2Y 4.80%. Next FOMC Oct 27–28.",
     "magnitude": "10Y 5.244% (peak 5.311%)",
     "asOf": "2026-10-09",
     "sourceLabel": "Advisor Perspectives Treasury snapshot 2026-10-09 https://www.advisorperspectives.com/dshort/updates/2026/10/09/treasury-yields-snapshot-october-9-2026; Investing.com 10Y history https://uk.investing.com/rates-bonds/u.s.-10-year-bond-yield-historical-data; CNBC US10Y https://www.cnbc.com/quotes/US10Y"
@@ -386,7 +386,7 @@ export const SWEEP_2026_10_11: SweepSignal[] = [
     "marketSlug": null,
     "kind": "supply_economics",
     "title": "Hyatt Gen 4 Hyatt Place: ~25% lower building cost [est.]",
-    "body": "Hyatt's owner-economics package: Gen 4 Hyatt Place goes from 140 to 127 keys, building area ~−20%, six-story steel/concrete to four-story wood, projected ~25% lower building cost [company estimate]. Hyatt Studios structured-loan program with HALL Structured Finance (70+ hotels / 8,200+ rooms pipeline). Helps new-build basis but does not on its own clear a ≥7.5–8.0% takeout or DY ≥10%.",
+    "body": "Hyatt's owner-economics package: Gen 4 Hyatt Place goes from 140 to 127 keys, building area ~−20%, six-story steel/concrete to four-story wood, projected ~25% lower building cost [company estimate]. Hyatt Studios structured-loan program with HALL Structured Finance (70+ hotels / 8,200+ rooms pipeline). Helps new-build basis.",
     "magnitude": "~25% lower build cost [est.]",
     "asOf": "2026-10-05",
     "sourceLabel": "Hyatt newsroom https://newsroom.hyatt.com/news-releases?item=124836; Hotel News Resource 2026-10-06 https://www.hotelnewsresource.com/article143218.html"

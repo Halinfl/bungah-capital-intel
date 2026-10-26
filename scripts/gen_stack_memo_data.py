@@ -9,7 +9,8 @@ from datetime import date
 
 ROOT = "/workspace/neo-capital-intel"
 SPEC = f"{ROOT}/product/bitcoin-hotel-stack"
-OUT = "/workspace/bungah-capital-intel/src/data/stack-memo-tier1.json"
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.environ.get("STACK_MEMO_OUT") or os.path.join(REPO, "src", "data", "stack-memo-tier1.json")
 
 TIER1 = ["washington-dc", "san-diego", "houston", "boston", "atlanta", "phoenix", "seattle",
          "san-francisco-bay", "dallas", "nashville", "los-angeles", "honolulu", "new-york-city",
@@ -25,9 +26,38 @@ SECONDARY_DOMAINS = ("cornovuscapital.com", "cmre", "headtopics.com", "stayinthe
 TEAM = re.compile(r"\b(Ledger|Atlas|Vectra|Herald|Quill|Callbook|Neo)\b(?!n)|wave 1|depth-w1|\bw1\b", re.I)
 LOG = []
 
+INTERNAL_TAG = "[INTERNAL, strip from pages]"
+
+def drop_internal(text):
+    """Drop every paragraph tagged [INTERNAL, strip from pages]. A tagged heading drops its whole
+    section (to the next heading of the same or higher level); any other tagged line drops its
+    blank-line-delimited paragraph (including a list that follows it without a blank line)."""
+    if INTERNAL_TAG not in text:
+        return text
+    out, lines, i = [], text.split("\n"), 0
+    while i < len(lines):
+        ln = lines[i]
+        if INTERNAL_TAG not in ln:
+            out.append(ln); i += 1; continue
+        h = re.match(r"^(#{1,6})\s", ln)
+        if h:
+            lv = len(h.group(1)); i += 1
+            while i < len(lines):
+                m = re.match(r"^(#{1,6})\s", lines[i])
+                if m and len(m.group(1)) <= lv:
+                    break
+                i += 1
+        else:
+            while out and out[-1].strip():   # paragraph start
+                out.pop()
+            while i < len(lines) and lines[i].strip():
+                i += 1
+        LOG.append(f"dropped {INTERNAL_TAG} paragraph: {ln.strip()[:80]}")
+    return "\n".join(out)
+
 def read(p):
     with open(p, encoding="utf-8") as f:
-        return f.read()
+        return drop_internal(f.read())
 
 URL_RE = re.compile(r"https?://[^\s)\]|<>\"']+")
 
@@ -588,6 +618,105 @@ for slug, blocks in ORL_LV.items():
         if slug != "las-vegas" and (CTF in txt or "4,149,332" in txt):
             raise SystemExit(f"Las Vegas airport PDF outside Las Vegas: {slug}")
     data["markets"][slug] = blocks
+# ---------------- hand data fixes (committed 2026-10-20, 4cb2cfa / a8f7539) ----------------
+# The research files still carry the pre-fix figures; re-apply the approved fixes so a regen never reverts them.
+DATA_FIXES = [
+    ("boston", "The Godfrey Hotel (505 Washington St, Downtown Crossing) · closed 2026-04-27 · $124.5M (B&T, LWHA). CRE Direct: $124M · 242 keys · $514,460 (LWHA) · cap not disclosed",
+     "The Godfrey Hotel (505 Washington St, Downtown Crossing) · closed 2026-04-27 · $124M (CRE Direct) · 242 keys · $512,397 (CRE Direct) · cap not disclosed"),
+    ("boston", "Boston trades priced at $390–515K/key", "Boston trades priced at $390–512K/key"),
+    ("chicago", "Royal Sonesta River North → Hotel 505 River North (505 N State) · reported 2026-10-08 · $21.0M (−62% vs the $55M 2019 price) · 261 keys · ~$85K · cap not disclosed",
+     "Royal Sonesta River North → Hotel 505 River North (505 N State) · reported 2026-10-08 · $21.0M / 261 keys (−62% vs the $55M 2019 price) · cap not disclosed"),
+]
+# Rows that appeared in the research files after the last reviewed build; held out until reviewed on their own.
+HOLD_ROWS = [("miami", "Mandarin Oriental Miami (North Tower")]
+
+# ---------------- IC frame strip (Hal's standing lock) ----------------
+# Internal investment-committee thresholds (takeout rate, debt-yield target / flag / hard watch, the rate
+# lock) never render on public pages, and nothing is framed against Treasuries. Each rewrite removes the
+# frame and keeps the cited figures; no replacement thresholds are introduced.
+IC_REWRITES = [
+    ("The one clean cap (7.5% on NOI, 5.6% after capex) carries negative leverage against the ≥7.5–8.0% takeout once the PIP is counted.",
+     "The one clean cap is 7.5% on NOI and 5.6% after capex."),
+    ("so a 2025–26 T12 needs a federal-demand haircut before DY is tested. Assume the **≤9% flag** for older CBD full-service until a normalized T12 clears 10%.",
+     "so a 2025–26 T12 needs a federal-demand haircut before debt yield is tested."),
+    ("Without a cap, none can be tested against a ≥7.5–8.0% conduit takeout.", "Without a cap, none can be benchmarked on yield."),
+    ("Underwrite at these floors, never offset by FTE cuts, and treat a sub-10% normalized DY as the **≤9% flag** zone until a T12 shows otherwise.",
+     "Underwrite at these floors, never offset by FTE cuts, and test debt yield on a normalized T12."),
+    ("a refi at ≥7.5–8.0% will size to DY ≥10% only on normalized NOI. Assume most older full-service product sits in the **≤9% flag** band until a normalized T12 shows otherwise.",
+     "a refinance will size only on normalized NOI."),
+    ("At or above the ≥7.5–8.0% conduit takeout, a T12 that includes June–July 2026 will overstate debt yield. Underwrite on a Cup-stripped T12 and treat **≤9% as the flag**.",
+     "A T12 that includes June–July 2026 will overstate debt yield. Underwrite on a Cup-stripped T12."),
+    (" Use the house frame: a ≥7.5–8.0% takeout against a DY target ≥10%.", ""),
+    ("implies the market already prices sub-8% DY risk; treat it as the **≤9% flag** zone.", "implies the market already prices in debt-yield risk."),
+    ("is trophy pricing and carries negative leverage against the house ≥7.5–8.0% takeout. At 60% LTV it would imply a DY of only ~10.3%",
+     "is trophy pricing. At 60% LTV it would imply a debt yield of ~10.3%"),
+    ("Treat those as **flag ≤9% DY until shown otherwise**: no public loan-level DY read exists, and",
+     "No public loan-level debt-yield read exists for those, and"),
+    (", roughly at the ≥7.5–8.0% takeout. That leaves only thin positive leverage, and only for waterfront/cruise-adjacent assets.",
+     ", a read that applies only to waterfront/cruise-adjacent assets."),
+    ("The DY test has to clear ≥10% with that payroll in place, not by trimming FTE. Treat a normalized DY ≤9% as the flag.",
+     "Debt yield has to be tested with that payroll in place, not by trimming FTE."),
+    ("That is a recovery bet on basis, deeply negative leverage against the ≥7.5–8.0% conduit takeout. On in-place NOI, the debt-yield math cannot reach the ≥10% target, so this sits at the **≤8% hard-watch** level.",
+     "That is a recovery bet on basis, not on in-place yield."),
+    ("That clears the ≥7.5–8.0% takeout on paper and fails once the PIP is added.", "That reads well on paper and weakens once the PIP is added."),
+    ("Underwrite to a Cup-stripped T12, test DY at ≥10%, and treat ≤9% as the flag for downtown convention hotels through the convention-center construction.",
+     "Underwrite downtown convention hotels to a Cup-stripped T12 through the convention-center construction."),
+    ("assume new product needs DY ≥10% on stabilized (not ramp) NOI.", "test new product on stabilized (not ramp) NOI."),
+    ("**4.6–5.9% NOI caps**, deeply negative leverage against the ≥7.5–8.0% conduit takeout.", "**4.6–5.9% NOI caps**."),
+    (" On in-place NOI these sit at the **≤8% hard-watch** debt-yield level unless equity is sized to it.", ""),
+    ("holdability can't be benchmarked to the ≥7.5–8.0% takeout.", "holdability can't be benchmarked."),
+    ("Treat any normalized DY ≤9% as the flag, with labor at contract.", "Test debt yield on a normalized T12, with labor at contract."),
+    ("(arithmetic), so with a conduit takeout of ≥7.5–8.0% (10Y ~5.18–5.24%, SOFR ~3.90%) a Cup-inflated T12 will overstate debt yield. Underwrite a Cup-stripped T12 against DY ≥10%, flag ≤9%, hard watch ≤8%.",
+     "(arithmetic), and a Cup-inflated T12 will overstate debt yield. Underwrite a Cup-stripped T12."),
+    ("Against the ≥7.5–8.0% conduit takeout (10Y ~5.18–5.24%, SOFR ~3.90%), a Cup-inflated T12 will overstate debt yield, and after August's 63.6% occupancy anything that only clears on the Cup window sits at or below the ≤9% flag. Underwrite a stripped T12 against DY ≥10%.",
+     "A Cup-inflated T12 will overstate debt yield, and after August's 63.6% occupancy anything that only clears on the Cup window stays watch. Underwrite a stripped T12."),
+    ("Against the ≥7.5–8.0% conduit takeout (10Y ~5.18–5.24%, SOFR ~3.90%), a 2026 T12", "A 2026 T12"),
+    ("Normalize it, and treat anything that only reaches ≥10% DY on the 2026 T12 as a ≤9% flag.", "Normalize it before testing debt yield."),
+]
+IC_GUARD = re.compile(
+    r"house frame|\bhouse\b[^.]{0,40}(?:takeout|DY|debt yield)|hard[- ]watch|(?<!four-conduit )takeout|7\.5[–-]8\.0|"
+    r"DY target|debt[- ]yield target|[≤≥]\s*\d+(?:\.\d+)?%\s*(?:DY|flag|as the flag|target)|(?:DY|flag|target)\s*[≤≥]|≤\s*[89]%|≥\s*10%|"
+    r"sub-(?:8|10)% (?:normalized )?DY|\bIC (?:frame|pack|threshold)|below Treasur|at the lock|re-price wire|10Y ~5\.18|SOFR ~3\.90",
+    re.I)
+
+def strip_ic(slug, mk):
+    for s_, a, b in DATA_FIXES:
+        if s_ == slug:
+            for blk in mk.values():
+                _replace_in(blk, a, b)
+    for s_, pre in HOLD_ROWS:
+        if s_ == slug:
+            for blk in mk.values():
+                for k, v in list(blk.items()):
+                    if isinstance(v, list):
+                        kept = [r for r in v if not (isinstance(r, dict) and str(r.get("t", "")).startswith(pre))]
+                        if len(kept) != len(v):
+                            LOG.append(f"held row {slug}: {pre}")
+                        blk[k] = kept
+    for a, b in IC_REWRITES:
+        for blk in mk.values():
+            _replace_in(blk, a, b)
+
+def _replace_in(o, a, b):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            if isinstance(v, str):
+                o[k] = v.replace(a, b)
+            else:
+                _replace_in(v, a, b)
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            if isinstance(v, str):
+                o[i] = v.replace(a, b)
+            else:
+                _replace_in(v, a, b)
+
+for slug, mk in data["markets"].items():
+    strip_ic(slug, mk)
+    hits = sorted({m.group(0) for m in IC_GUARD.finditer(json.dumps(mk, ensure_ascii=False))})
+    if hits:
+        raise SystemExit(f"IC frame left in {slug}: {hits} (add a rewrite to IC_REWRITES)")
+
 data["omitted"] = OMITTED
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as f:

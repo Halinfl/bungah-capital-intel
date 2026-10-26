@@ -1089,7 +1089,7 @@ async function main() {
         marketId: null,
         kind: "debt",
         title: "National lodging debt-wall stub",
-        body: "Hotels ~30–35% of commercial real estate maturities in near-term wall narratives. Lodging CMBS 2026 maturities stub ~$18.7B. Watchlist: debt yield ≤8% and refinance greenlight risk.",
+        body: "Hotels ~30–35% of commercial real estate maturities in near-term wall narratives. Lodging CMBS 2026 maturities stub ~$18.7B. Watchlist: refinance risk.",
         magnitude: "~$18.7B lodging CMBS 2026",
         asOf: "2026 stub",
         sourceLabel: "Industry debt-wall stubs (Trepp/CRE public commentary aggregates — demo citation)",
@@ -1133,7 +1133,7 @@ async function main() {
       slug: "national-lodging-debt-wall",
       name: "National lodging debt-wall / DY stress",
       description:
-        "Stub radar for lodging maturity wall, CMBS refinance path, and debt-yield ≤8% watchlist names. Propose-only — no auto capital actions.",
+        "Stub radar for lodging maturity wall, CMBS refinance path, and watchlist names. Propose-only — no auto capital actions.",
       marketSlug: null,
       status: "active",
     },
@@ -1164,7 +1164,7 @@ async function main() {
         marketId: null,
         title: "Lodging CMBS maturity stub ~$18.7B (2026)",
         summary:
-          "Hotels remain a material share (~30–35%) of near-term CRE maturity narratives. DY ≤8% names need refinance greenlight + staffing capacity.",
+          "Hotels remain a material share (~30–35%) of near-term CRE maturity narratives. Watchlist names need a refinance path + staffing capacity.",
         severity: "info",
         sourceLabel: "Industry debt-wall stubs (demo citation)",
       },
