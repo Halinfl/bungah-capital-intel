@@ -25,7 +25,7 @@ function capitalPrompts(marketSlug: string) {
       {
         key: "deploy",
         title: "Deploy?",
-        prompt: `Should we put capital into ${name} this cycle — and which submarket / product layer?`,
+        prompt: `What's the capital case for ${name} this cycle?`,
       },
       {
         key: "hold",
@@ -43,8 +43,7 @@ function capitalPrompts(marketSlug: string) {
     {
       key: "deploy",
       title: "Deploy?",
-      prompt:
-        "Should we put capital into a lodging market this cycle — and which submarket / product layer?",
+      prompt: "What's the capital case for a lodging market this cycle?",
     },
     {
       key: "hold",
