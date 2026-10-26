@@ -12,6 +12,7 @@ import { publisherName, scrubInternal } from "./public-text";
 import {
   chipKind,
   coverageLine,
+  SEED_NOTE_BELOW,
   dateShown,
   digestDate,
   furtherReadingSection,
@@ -86,7 +87,7 @@ function snapshotSource(m: MarketRow): BriefSource {
 /* Date windows                                                        */
 /* ------------------------------------------------------------------ */
 
-type WindowInfo = { range: DateRange; snapshotOut: boolean };
+type WindowInfo = { range: DateRange; snapshotOut: boolean; full: MarketRow };
 const WINDOWED = new WeakMap<object, WindowInfo>();
 
 /** Window a market row has been restricted to (undefined = All). */
@@ -115,7 +116,7 @@ export function windowMarket(m: MarketRow, range: DateRange): MarketRow {
       ? { occupancy: null, adr: null, visitorsM: null, roomsK: null, midweekOcc: null, weekendOcc: null, summary: "", nuanceNote: null }
       : {}),
   };
-  WINDOWED.set(out, { range, snapshotOut });
+  WINDOWED.set(out, { range, snapshotOut, full: m });
   return out;
 }
 
@@ -223,6 +224,14 @@ function metroLabel(slug: string, text: string): string {
   ).replace(/, NJ \(NYC metro\),? NJ\b/, ", NJ (NYC metro)");
 }
 
+/** A market's signal rows with rows about places outside the market proper moved last (order otherwise kept). */
+function properFirst(m: MarketRow): SignalLike[] {
+  const o = OUTSIDE_PROPER[m.slug];
+  const rows = m.signals as SignalLike[];
+  if (!o) return rows;
+  return [...rows.filter((s) => !o.re.test(s.title)), ...rows.filter((s) => o.re.test(s.title))];
+}
+
 function marketFacts(m: MarketRow): Fact[] {
   const o = OUTSIDE_PROPER[m.slug];
   return m.signals.flatMap((s) =>
@@ -248,6 +257,13 @@ export function readCite(r: BriefRead): Citation {
   const d = r.source.date ?? r.asOf;
   const text = r.source.url ? [r.source.title, r.source.publisher ?? r.source.label].filter(Boolean).join(" — ") || r.source.label : r.source.label;
   return { key: r.source.url ?? r.source.label, url: r.source.url, label: r.source.label, text, asOf: d, period: periodOf(d) };
+}
+
+/** Cited sources for a market with no date window (the market's All-time count). */
+function allTimeSources(m: MarketRow, opts: BriefOpts = {}): number {
+  const full = windowOf(m)?.full ?? m;
+  const cites = citationsOf([], [...(full.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], [...snapshotCite(full), ...(opts.extraCites ?? [])]);
+  return coverageLine({ cites }).span.sources;
 }
 
 function snapshotCite(m: MarketRow): Citation[] {
@@ -276,6 +292,8 @@ export type BriefOpts = {
   /** Sources behind extraSections / extraReads (e.g. a named REIT's digest links). */
   extraCites?: Citation[];
   nationalOverlay?: SignalLike | null;
+  /** Refinancing questions: national benchmark-rate rows; the newest 10-year read leads the answer. */
+  rateLead?: SignalLike[];
 };
 
 /** One covered market, any intent. */
@@ -289,7 +307,12 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   let answer = "";
   let reads: Fact[];
   const scoreSig = m.signals.find((s) => /supply-pressure score\s*\d\s*\/\s*5/i.test(s.title));
-  if (lens === "demand" && metrics) {
+  const rateRow = lens === "debt" ? (opts.rateLead ?? []).filter((s) => /\b(10-year|10Y)\b/i.test(s.title)).map((s) => ({ s, f: signalFacts(s)[0] })).filter((x) => x.f?.period).sort((a, b) => b.f.key - a.f.key)[0] : undefined;
+  if (rateRow) {
+    // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
+    answer = headLine(short, "debt", rateRow.f);
+    reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
+  } else if (lens === "demand" && metrics) {
     answer = `${short}: ${metrics} (${snap.label}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
   } else if (lens === "supply" && scoreSig) {
@@ -315,7 +338,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   const sections: BriefSection[] = [];
   const mt = metricsTable(m);
   if (mt) sections.push(mt);
-  sections.push(...signalSections(m.signals as SignalLike[], lens, `sig-${m.slug}`));
+  sections.push(...signalSections(properFirst(m), lens, `sig-${m.slug}`));
   const ctx = contextSection(m);
   if (ctx) sections.push(ctx);
   const as = assetsSection(m);
@@ -335,13 +358,15 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     else notes.unshift(`Limited recent data for ${short}: no other dated key reads; the cited rows are in the sections below.`);
   }
   const seedNote = isSeedMarket(m) ? coverageInProgressLine(m.name) : undefined;
-  const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
+  // The seed-note threshold uses the market's All-time cited count, so a short window doesn't bring it back.
+  const seedCount = seedNote ? allTimeSources(m, opts) : undefined;
+  const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : []), ...(rateRow ? [rateRow.s] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
   const range = windowOf(m)?.range ?? opts.range ?? "all";
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: readList,
-    coverage: coverageLine({ cites, notes, range, seedNote }),
+    coverage: coverageLine({ cites, notes, range, seedNote, seedCount }),
     window: { range, filterable: true },
     sections,
   });
@@ -384,7 +409,9 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
   if (further) sections.push(further);
   const notes = [...(opts.notes ?? [])];
   const seeds = [a, b].filter((m) => isSeedMarket(m)).map(shortName);
-  const seedNote = seeds.length ? `We haven't checked enough sources for ${seeds.join(" or ")} yet.` : undefined;
+  // Named only when that market's All-time cited count is under the threshold.
+  const thin = [a, b].filter((m) => isSeedMarket(m) && allTimeSources(m) < SEED_NOTE_BELOW).map(shortName);
+  const seedNote = thin.length ? `We haven't checked enough sources for ${thin.join(" or ")} yet.` : undefined;
   return makeBrief({
     decline: opts.decline,
     answer,
@@ -394,6 +421,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
       notes,
       range: windowOf(a)?.range ?? opts.range,
       seedNote,
+      seedCount: 0,
     }),
     window: { range: windowOf(a)?.range ?? opts.range ?? "all", filterable: true },
     sections,

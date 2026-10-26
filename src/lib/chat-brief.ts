@@ -255,7 +255,7 @@ export function fmtAsOf(s: string | null | undefined): string | null {
  * for 12 months only when Dec 31 of that year is inside the window, and never sets a date span.
  * `fiscal`: a fiscal year with a known end date.
  */
-export type Period = { start: number; end: number; label: string; yearOnly?: boolean; fiscal?: boolean };
+export type Period = { start: number; end: number; label: string; yearOnly?: boolean; fiscal?: boolean; marker?: boolean };
 
 /**
  * Month (1–12) a fiscal year ends in, from what the text and its source say; null when unknown.
@@ -392,7 +392,14 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
   });
   take(/\bQ([1-4])[\s-]?(?:FY)?(20\d{2})\b|\b(20\d{2})[\s-]?Q([1-4])\b/gi, (m) => {
     const q = +(m[1] ?? m[4]), y = +(m[2] ?? m[3]);
-    return { start: k(y, q * 3 - 2, 1), end: k(y, q * 3, dim(y, q * 3)), label: `Q${q} ${y}` };
+    return { start: k(y, q * 3 - 2, 1), end: k(y, q * 3, dim(y, q * 3)), label: `Q${q} ${y}`, marker: true };
+  });
+  // Half years: "H1 2026", "2026 H1", "1H26", "1H 2026".
+  take(/\bH([12])[\s-]?(20\d{2})\b|\b(20\d{2})[\s-]?H([12])\b|\b([12])H[\s-]?(\d{2}|20\d{2})\b/g, (m) => {
+    const h = +(m[1] ?? m[4] ?? m[5]);
+    const yr = m[2] ?? m[3] ?? m[6];
+    const y = yr.length === 2 ? 2000 + +yr : +yr;
+    return { start: k(y, h === 1 ? 1 : 7, 1), end: h === 1 ? k(y, 6, 30) : k(y, 12, 31), label: `H${h} ${y}`, marker: true };
   });
   // Fiscal years ("FY2025", "FY2025-26", "FY26"), ending on the issuer's fiscal year end.
   take(/\bFY\s?'?(\d{2}|20\d{2})(?:\s?[-–]\s?(?:FY)?'?(\d{2}|20\d{2}))?\b(?![-–_.]?\d)/gi, (m) => {
@@ -428,7 +435,7 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
           : kD(p.start) === 1 && kM(p.start) === kM(p.end) && kY(p.start) === kY(p.end)
             ? monLabel(p.start)
             : spanLabel(p.start, p.end));
-      return { start: p.start, end, label, ...(p.yearOnly ? { yearOnly: true } : {}), ...(p.fiscal ? { fiscal: true } : {}) };
+      return { start: p.start, end, label, ...(p.yearOnly ? { yearOnly: true } : {}), ...(p.fiscal ? { fiscal: true } : {}), ...(p.marker ? { marker: true } : {}) };
     });
 }
 
@@ -453,7 +460,8 @@ export function periodPick(texts: (string | null | undefined)[], ref?: number | 
   const context = ctx ?? texts.filter(Boolean).join(" ");
   const best = (ps: Period[]) => {
     const ex = ps.filter((p) => !p.yearOnly);
-    const fy = ex.filter((p) => p.fiscal);
+    // A fiscal year, quarter or half year written in the fact is its data period (a stray month is usually the publish month).
+    const fy = ex.filter((p) => p.fiscal || p.marker);
     const pool = fy.length ? fy : ex;
     return pool.length ? pool.reduce((a, b) => (b.end > a.end ? b : a)) : null;
   };
@@ -920,7 +928,7 @@ export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> 
     const f = pool.find((x) => slot.test(x) && !used.has(x.text) && !out.includes(x) && !dup(x));
     if (f) out.push(f);
   }
-  return out.sort((a, b) => b.key - a.key);
+  return out.sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
 }
 
 /**
@@ -930,7 +938,10 @@ export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> 
 export function dateShown(text: string, p: Period | null | undefined, ref?: number | null): string | null {
   if (!p) return null;
   if (text.includes(p.label)) return null;
-  const own = periodsIn(text, ref ?? p.end).some((q) => q.end === p.end || (q.start === p.start && Math.min(q.end, p.end) === p.end));
+  const inText = periodsIn(text, ref ?? p.end);
+  // The text already states this exact period in some format ("w/e 26 Sep", "Oct 9 2026"): no suffix.
+  if (inText.some((q) => q.start === p.start && q.end === p.end)) return null;
+  const own = inText.some((q) => q.end === p.end || (q.start === p.start && Math.min(q.end, p.end) === p.end));
   // A single-day fact always carries its full date (e.g. a strike start), so the read is dated at a glance.
   // So does a weekly read ("w/e Sep 26, 2026"), not just its year.
   if (!own || p.start === p.end || /^w\/e /.test(p.label)) return p.label;
@@ -1076,7 +1087,7 @@ export type Coverage = { text: string; basedOn: string; notes: string[]; span: D
  */
 export const SEED_NOTE_BELOW = 14;
 
-export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange; seedNote?: string }): Coverage {
+export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange; seedNote?: string; seedCount?: number }): Coverage {
   const range = opts.range ?? "all";
   // One entry per source; a gap note or method label is never a source.
   const byKey = new Map<string, Citation>();
@@ -1116,7 +1127,7 @@ export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?
       : range === "all"
         ? "No cited figures for this question."
         : `0 cited sources (${RANGE_LABEL[range].toLowerCase()}).`;
-  const notes = [...(opts.notes ?? []), ...(opts.seedNote && n < SEED_NOTE_BELOW ? [opts.seedNote] : [])].filter(Boolean);
+  const notes = [...(opts.notes ?? []), ...(opts.seedNote && (opts.seedCount ?? n) < SEED_NOTE_BELOW ? [opts.seedNote] : [])].filter(Boolean);
   return { text: [basedOn, ...notes].join(" "), basedOn, notes, span, cited };
 }
 
@@ -1176,7 +1187,7 @@ export function makeBrief(
     coverage: scrubInternal(b.coverage),
     sections: withCitedSources(b.sections, cov)
       .filter((s) => s.count > 0 && s.markdown.trim())
-      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)).replace(/\s*\(source: TBD\)/gi, "").replace(/(not explained[^()]{0,40}?)\s*\(TBD\)/gi, "$1").replace(/\(timing TBD\)/gi, "(timing not announced)").replace(/\btiming TBD\b/gi, "timing not announced") })),
+      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)).replace(/\s*\(source: TBD\)/gi, "") })),
     footer: b.footer ?? DECISION_LINE,
     collapsedChars: 0,
   };

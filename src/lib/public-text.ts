@@ -297,7 +297,7 @@ export function publisherName(url: string): string {
   if (li) {
     const slug = (li[1] ?? li[2] ?? "").toLowerCase();
     const who = LINKEDIN_AUTHORS[slug];
-    if (who) return `${who} (LinkedIn post)`;
+    if (who) return `${who}, via LinkedIn`;
   }
   let host = "";
   try {
