@@ -1,0 +1,103 @@
+{
+  "name": "Hilton Orlando Lake Buena Vista",
+  "aliases": [
+    "hilton orlando lake buena vista",
+    "hilton lake buena vista",
+    "hilton orlando lbv",
+    "hilton lbv"
+  ],
+  "marketSlug": "orlando",
+  "submarket": "Lake Buena Vista / Disney Springs area",
+  "ownerTicker": "PK",
+  "note": "Public-source facts only, copied from the 2026-10-22 local-market brief. Its internal sections (hotel assumptions, rate snapshot, comp set, gaps, return questions) are deliberately not included.",
+  "facts": [
+    {
+      "slot": "owner",
+      "text": "Park lists Hilton Orlando Lake Buena Vista as a Non-Core hotel: leasehold, 100% owned, 814 rooms",
+      "asOf": "2026-08-06",
+      "chip": "Filing",
+      "label": "Park Hotels & Resorts Q2 2026 supplemental",
+      "url": "https://www.pkhotelsandresorts.com/investors/news-and-events/press-releases/2026/08-06-2026-211554607"
+    },
+    {
+      "slot": "owner",
+      "text": "Park \"intends to divest of all remaining Non-Core hotels\"",
+      "asOf": "Q2 2026",
+      "chip": "Filing",
+      "label": "Park Hotels & Resorts Q2 2026 10-Q",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1617406&type=10-Q"
+    },
+    {
+      "slot": "hotel",
+      "text": "Ground lease runs to Jan 31, 2034, with one 25-year renewal option",
+      "asOf": "FY2025",
+      "chip": "Filing",
+      "label": "Park Hotels & Resorts FY2025 10-K",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1617406&type=10-K"
+    },
+    {
+      "slot": "hotel",
+      "text": "814 rooms, ~87,000 sq ft meeting space, Official Walt Disney World Hotel, skybridge to Disney Springs",
+      "asOf": null,
+      "chip": "Press",
+      "label": "Hilton.com hotel page",
+      "url": "https://www.hilton.com/en/hotels/orldwhh-hilton-orlando-lake-buena-vista/"
+    },
+    {
+      "slot": "hotel",
+      "text": "2026 investment is F&B: an expanded Mainstreet Market plus dining packages",
+      "asOf": "Mar 2026",
+      "chip": "Press",
+      "label": "Chip and Company",
+      "url": "https://chipandco.com/more-convenience-for-guests-as-hilton-orlando-lake-buena-vista-expands-food-options-632369/"
+    },
+    {
+      "slot": "hotel",
+      "text": "Not on Hilton's planned renovations list (Mar 2026)",
+      "asOf": "Mar 2026",
+      "chip": "Press",
+      "label": "Hilton planned renovations 2025–2028 (Mar 2026)",
+      "url": "https://hiltoncontenthub.com/uploads/2024/12/2025-2028-Planned-Renovations-March-2026.pdf"
+    },
+    {
+      "slot": "submarket",
+      "text": "Orange County August 2026: OCC 62.4% (−5.8%), ADR $174.95 (−3.2%), TDT $24.83M (−3.2%)",
+      "asOf": "Aug 2026",
+      "chip": "Record",
+      "label": "Orange County Comptroller, August TDT collections",
+      "url": "https://www.occompt.com/DocumentCenter/View/60606/2026-08-August-TDT-Collection-PDF"
+    },
+    {
+      "slot": "submarket",
+      "text": "Disney's Lakeshore Lodge (967 rooms) opens Jul 1, 2027",
+      "asOf": null,
+      "chip": "Press",
+      "label": "Disney Parks Blog",
+      "url": "https://disneyparksblog.com/wdw/lakeshore-lodge-disney-world-updates/"
+    },
+    {
+      "slot": "submarket",
+      "text": "Sheraton Orlando Lake Buena Vista (490) finished renovating every guest room in May 2026; public spaces from Sep 2026",
+      "asOf": "2026-05-28",
+      "chip": "Press",
+      "label": "Hotel-Online",
+      "url": "https://www.hotel-online.com/news/sheraton-orlando-lake-buena-vista-resort-completes-multimillion-dollar-renovation-of-all-490-guestrooms"
+    },
+    {
+      "slot": "submarket",
+      "text": "Orlando World Center Marriott (2,010 rooms) finished its Grand Ballroom and convention-space renovation in Mar 2026",
+      "asOf": "2026-03-12",
+      "chip": "Press",
+      "label": "PR Newswire",
+      "url": "https://www.prnewswire.com/news-releases/orlando-world-center-marriott-unveils-redesigned-grand-ballroom-and-renovated-meeting-spaces-302712095.html"
+    },
+    {
+      "slot": "submarket",
+      "text": "MCO passengers fell −7.6% in June and −5.4% in July 2026",
+      "asOf": "Jul 2026",
+      "chip": "Data",
+      "label": "BTS via airportdata.net",
+      "url": "https://airportdata.net/airports/orlando-mco/"
+    }
+  ]
+}

@@ -21,6 +21,8 @@ export type DigestHit = {
   period: string;
   /** Truncated markdown excerpt for model context */
   excerpt: string;
+  /** Full digest text (for the short-answer reads: guidance, capital allocation, market color). */
+  raw?: string;
   score: number;
 };
 
@@ -236,6 +238,7 @@ export async function retrieveEarningsDigests(
       name: meta.name,
       period: periodMatch?.[1]?.trim() ?? "Q2 2026",
       excerpt: truncateMarkdown(raw, MAX_DIGEST_CHARS),
+      raw,
       score,
     });
   }

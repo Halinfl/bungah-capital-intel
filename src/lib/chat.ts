@@ -13,6 +13,7 @@ import {
 import { parseSourceUrls } from "./source-links";
 import { scrubInternal } from "./public-text";
 import { splitTaxSeries } from "./tax-series";
+import { coverageLine, fitFact, fmtAsOf, makeBrief, sourcesSection, type BriefRead, type ChatBrief } from "./chat-brief";
 
 export type ChatAnswer = {
   content: string;
@@ -22,6 +23,8 @@ export type ChatAnswer = {
   intent?: ChatIntent;
   marketSlug?: string | null;
   mode?: "llm" | "deterministic";
+  /** Short-answer view (answer line, key reads, coverage, collapsed detail). */
+  brief?: ChatBrief;
 };
 
 export type MarketRow = Prisma.MarketGetPayload<{
@@ -1177,7 +1180,50 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     }
   }
 
+  // Short answer: top two score tiers in the answer line; the first three ranked rows as reads.
+  const short = (m: MarketRow) => m.name.split(/[–—]/)[0].replace(/\s+MSA$/, "").trim();
+  const tiers = [...new Set(rows.map((r) => r.score))].slice(0, 2);
+  const answerLine = `${light ? "Lightest" : "Heaviest"} supply pressure among ${rows.length} scored markets (cited 1–5 score): ${tiers
+    .map((t) => `${rows.filter((r) => r.score === t).map((r) => `[${short(r.m)}](/markets/${r.m.slug})`).join(", ")} ${t}/5`)
+    .join("; ")}.`;
+  const reads: BriefRead[] = rows.slice(0, 3).flatMap((r) => {
+    const links = parseSourceUrls(r.s.sourceUrls);
+    const ucLink = links.find((l) => /^UC intensity/i.test(l.label)) ?? links[0];
+    const text = fitFact(`${short(r.m)} ${r.score}/5: ${r.uc ?? "under-construction share: no public read"}`);
+    if (!text) return [];
+    return [{
+      text,
+      asOf: fmtAsOf(r.s.asOf),
+      source: { kind: "Data" as const, label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel, url: ucLink?.url },
+    }];
+  });
+  const rankTable = rows.map((r, i) => table[i]);
+  const brief = makeBrief({
+    answer: answerLine,
+    reads,
+    coverage: coverageLine({
+      sources: sources.length,
+      dates: rows.map((r) => r.s.asOf),
+      notes: unscored.length ? [`Not ranked (no score yet): ${unscored.map(short).join(", ")}.`] : [],
+    }),
+    sections: [
+      { id: "ranking", title: "Ranking", count: rows.length, markdown: ["| Rank | Market | Score | Under construction (as cited) | Source |", "| --- | --- | --- | --- | --- |", ...rankTable].join("\n") },
+      ...(unscored.length
+        ? [{ id: "unscored", title: "Not ranked", count: unscored.length, markdown: unscored.map((m) => `- [${m.name}](/markets/${m.slug}): cited pipeline rows, no supply-pressure score yet`).join("\n") }]
+        : []),
+      {
+        id: "method",
+        title: "How this is ranked",
+        count: 1,
+        markdown:
+          "No publisher reports pipeline against existing rooms on one basis for every market, so this ranks by each market's supply-pressure score (1–5), built from its cited pipeline rows: rooms under construction, starts against history, openings and conversions. On each score row, 4–5 is heavy pressure, 3 is mixed (read by submarket) and 1–2 is a supply tailwind. Where a source states under-construction rooms as a share of inventory, the share is quoted as published. Markets without cited pipeline rows aren't ranked.",
+      },
+      ...[sourcesSection(sources)].filter((x): x is NonNullable<typeof x> => Boolean(x)),
+    ],
+  });
+
   return {
+    brief,
     content,
     citations: cites(...rows.map((r) => r.s.sourceLabel)),
     sources,

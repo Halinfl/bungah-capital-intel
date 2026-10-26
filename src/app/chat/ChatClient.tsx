@@ -5,12 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
+import { ChatBriefView, type ChatBrief } from "@/components/ChatBriefView";
 
 type Msg = {
   role: "user" | "assistant";
   content: string;
   citations?: string[];
   sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
+  brief?: ChatBrief | null;
 };
 
 
@@ -128,7 +130,7 @@ export function ChatClient() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [] };
+        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null };
       } catch (e) {
         reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
       }
@@ -205,17 +207,18 @@ export function ChatClient() {
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
               {m.role === "assistant" ? (
-                <MarkdownLite text={m.content} />
+                m.brief ? <ChatBriefView brief={m.brief} /> : <MarkdownLite text={m.content} />
               ) : (
                 <p className="text-sm text-slate-200">{m.content}</p>
               )}
-              {m.sources && m.sources.length > 0 ? (
+              {/* With a brief, sources live in its own "Sources (N)" section. */}
+              {!m.brief && m.sources && m.sources.length > 0 ? (
                 <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Sources (open original)</div>
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
-              {m.citations && m.citations.length > 0 ? (
+              {!m.brief && m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Citations</div>
                   {m.citations.map((c, j) => (

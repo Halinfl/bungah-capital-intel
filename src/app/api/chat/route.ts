@@ -89,6 +89,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       content: answer.content,
+      brief: answer.brief ?? null,
       citations,
       sources,
       threadId,

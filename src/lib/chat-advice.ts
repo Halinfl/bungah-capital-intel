@@ -23,6 +23,15 @@ const BUY_SELL: RegExp[] = [
   /\b(should|would)\s+(i|we|you)\s+(invest|be\s+investing)\b/,
   /\bwhat\s+(stock|stocks|reit|reits|hotel|hotels)\s+should\s+(i|we)\s+(buy|sell|own)\b/,
   /\bshould\s+(i|we)\s+.{0,40}\b(stock|shares|reit|equity)\b/,
+  // "if I should buy", "whether we should sell", "I think we should acquire"
+  /\b(i|we)\s+should\s+(buy|sell|short|purchase|acquire|dispose|divest|exit|invest|bid|hold|keep|go\s+long|go\s+short)\b/,
+  // "trying to decide if/whether to buy", "deciding whether to sell"
+  /\b(decid(e|ing)|choos(e|ing)|weigh(ing)?)\s+(if|whether)\s+(to|i|we)\b.{0,20}\b(buy|sell|short|purchase|acquire|dispose|divest|exit|invest|bid|hold)\b/,
+  // "thinking about buying", "considering selling", "looking to acquire", "planning to buy"
+  /\b(thinking|thought|considering|contemplating|looking|planning|hoping|weighing|tempted)\s+(about\s+|of\s+|to\s+)?(buy(ing)?|sell(ing)?|short(ing)?|purchas(e|ing)|acquir(e|ing)|divest(ing)?|invest(ing)?\s+in|bid(ding)?\s+on)\b/,
+  // "a good buy", "a buy right now"
+  /\b(good|great|smart|strong|bad)\s+(buy|sell|investment|bet)\b/,
+  /\b(should|would|do)\s+you\s+(buy|sell|invest)\b/,
 ];
 
 const STAFF_CUT: RegExp[] = [

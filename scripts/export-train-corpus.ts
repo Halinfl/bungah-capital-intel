@@ -12,6 +12,7 @@ import "dotenv/config";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
+import { loadExcludedQuestionIds } from "../src/lib/train-exclusions";
 
 const prisma = new PrismaClient();
 
@@ -94,9 +95,16 @@ async function main() {
 
   let written = 0;
   let skipped = 0;
+  let excluded = 0;
   const lines: string[] = [];
+  // QA / test rows listed in data/train/excluded-question-ids.txt never enter the corpus.
+  const excludedIds = loadExcludedQuestionIds();
 
   for (const row of rows) {
+    if (excludedIds.has(row.id)) {
+      excluded += 1;
+      continue;
+    }
     if (isEmptyOrErrorRow(row)) {
       skipped += 1;
       continue;
@@ -141,6 +149,7 @@ async function main() {
         outFile: path.relative(process.cwd(), outFile),
         written,
         skippedEmptyOrError: skipped,
+        skippedExcludedIds: excluded,
         skippedPrivateOrIneligible: privateSkipped,
         publicEligibleFetched: rows.length,
       },

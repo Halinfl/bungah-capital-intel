@@ -32,6 +32,13 @@ This folder is **not** a live fine-tune job — RAG remains the production path 
 - **No bulk IR transcript training** — do not scrape or train on full earnings-call transcripts or `_raw/` IR HTML; digests cite public headlines only
 - Secrets, API keys, `.env`, Clerk tokens
 
+## Excluded rows (file-based)
+
+`data/train/excluded-question-ids.txt` lists `ChatQuestionLog` ids that never enter any export
+(for example QA questions run against production, which log as public, `trainEligible` rows).
+The shared database is never edited for this; add an id to the file instead. The export script
+skips these ids and reports `skippedExcludedIds`; the private questions export honors the same file.
+
 ## Export
 
 ```bash

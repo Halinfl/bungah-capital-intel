@@ -42,6 +42,26 @@ import {
   type CorpusPack,
 } from "./chat-retrieve";
 import { radarChatAnswer } from "./radars-preview";
+import {
+  DECISION_LINE,
+  briefMarkdown,
+  dedupeMarkdown,
+  dropOffLimitsSentences,
+  stripDecisionBoilerplate,
+  toRead,
+  type ChatBrief,
+} from "./chat-brief";
+import {
+  compareBrief,
+  digestBrief,
+  digestReads,
+  marketBrief,
+  nationalDebtBrief,
+  propertyBrief,
+  uncoveredBrief,
+  type BriefOpts,
+} from "./chat-brief-build";
+import { matchProperty } from "./chat-property";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -146,19 +166,67 @@ function answeredWellHeuristic(
   return (answer.citations?.length ?? 0) > 0;
 }
 
-type FinalAnswer = ChatAnswer & { answeredWell: boolean };
+type FinalAnswer = ChatAnswer & { answeredWell: boolean; brief?: ChatBrief };
+
+const FOOTER_LINES =
+  /^_Decision support:_.*$|^_Decision support:_ digest facts.*$|^Decision support, not a recommendation\. You make the call\.$/gm;
+
+/** Answers without a brief: drop per-row "Decision support" repeats and duplicate paragraphs; one footer. */
+function cleanLegacy(content: string): string {
+  const body = dedupeMarkdown(
+    dropOffLimitsSentences(stripDecisionBoilerplate(content.replace(FOOTER_LINES, "")))
+  );
+  return `${body}\n\n${DECISION_LINE}`;
+}
 
 /**
  * The single place an answer becomes final: display guards (seed wording, internal labels)
  * run once here, so the text returned, stored and rendered is the same text. Callers must not
  * rewrite `content` afterwards (one answer per question, no post-render swap).
+ * With a brief, the stored text is the brief's own markdown (same facts, same order).
  */
-function finalize(answer: ChatAnswer, answeredWell: boolean): FinalAnswer {
+function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
+  const content = answer.brief ? briefMarkdown(answer.brief) : cleanLegacy(answer.content);
   return {
     ...answer,
-    content: scrubInternal(scrubSeedLines(answer.content)),
+    content: scrubInternal(scrubSeedLines(content)),
     answeredWell,
   };
+}
+
+function declineText(kind: AdviceKind): string {
+  return kind === "staff_cut"
+    ? "**We don't recommend staff cuts.** Labor is underwritten at the cited wage floors and contracts, human touch first. Here's what the data shows."
+    : "**We don't give buy or sell recommendations.** Here's what the data shows.";
+}
+
+/** Brief for whatever the question names: a hotel, a market (+ named REIT), or REIT digests. */
+function subjectBrief(
+  question: string,
+  ctx: GraphContext,
+  corpus: CorpusPack,
+  marketSlug: string | null | undefined,
+  opts: BriefOpts
+): ChatBrief | null {
+  const prop = matchProperty(question);
+  if (prop) {
+    const market = ctx.markets.find((m) => m.slug === prop.marketSlug) ?? null;
+    return propertyBrief(prop, market, opts);
+  }
+  const digests = issuerDigests(question, corpus);
+  const { places, alsoCovered } = uncoveredFor(question, ctx, marketSlug);
+  const market = ctx.matched && (!places.length || alsoCovered) ? ctx.matched : null;
+  if (market) {
+    const extra = digests.length ? digestReads(digests[0], question) : null;
+    return marketBrief(market, ctx.intent, {
+      ...opts,
+      extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
+      extraSections: extra ? extra.sections : undefined,
+    });
+  }
+  if (digests.length) return digestBrief(digests, question, opts);
+  if (places.length) return uncoveredBrief(places, ctx.markets, opts);
+  return null;
 }
 
 /** Digests count as issuer-led only when the question names the issuer or asks about REITs / brands / earnings. */
@@ -190,7 +258,7 @@ function adviceAnswer(
   ctx: GraphContext,
   corpus: CorpusPack,
   marketSlug: string | null | undefined
-): ChatAnswer {
+): ChatAnswer & { brief?: ChatBrief } {
   const lines = [...adviceDeclineLines(kind), ""];
   const citations: string[] = [];
   const { places, alsoCovered } = uncoveredFor(question, ctx, marketSlug);
@@ -213,13 +281,16 @@ function adviceAnswer(
     , "");
   }
   if (!digestMemo) lines.push(decisionSupportFooter());
+  const brief = subjectBrief(question, ctx, corpus, marketSlug, { decline: declineText(kind) });
+  const prop = matchProperty(question);
   return {
     content: lines.join("\n").replace(/\n{3,}/g, "\n\n").trim(),
     citations: [...new Set(citations)],
     intent: "advice_declined",
-    marketSlug: market?.slug ?? marketSlug ?? null,
+    marketSlug: prop?.marketSlug ?? market?.slug ?? marketSlug ?? null,
     mode: "deterministic",
-  };
+    ...(brief ? { brief } : {}),
+  } as ChatAnswer & { brief?: ChatBrief };
 }
 
 /**
@@ -265,6 +336,7 @@ export async function answerChat(
     return finalize(
       {
         content: [...uncoveredMarketLines(places, ctx.markets), "", decisionSupportFooter()].join("\n"),
+        brief: uncoveredBrief(places, ctx.markets),
         citations: [],
         sources: [],
         intent: "uncovered_market",
@@ -279,13 +351,33 @@ export async function answerChat(
   const coverageNote = places.length
     ? uncoveredMarketLines(places, ctx.markets).filter((l) => !/Browse every market/.test(l))
     : [];
-  const withNote = (a: FinalAnswer): FinalAnswer =>
-    coverageNote.length ? finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell) : a;
+  const noteText = places.map((p) => (p.kind === "international" ? `${p.label} isn't covered (US markets only).` : `${p.label} isn't covered yet.`));
+  const withNote = (a: FinalAnswer): FinalAnswer => {
+    if (!coverageNote.length) return a;
+    if (a.brief) {
+      const brief = { ...a.brief, coverage: `${a.brief.coverage} ${noteText.join(" ")}` };
+      return finalize({ ...a, brief: { ...brief, collapsedChars: a.brief.collapsedChars + noteText.join(" ").length + 1 } }, a.answeredWell);
+    }
+    return finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell);
+  };
+
+  // A named hotel from the REIT property schedules: owner, what's on file, submarket context.
+  const prop = matchProperty(question);
+  if (prop) {
+    const market = ctx.markets.find((m) => m.slug === prop.marketSlug) ?? null;
+    const brief = propertyBrief(prop, market);
+    return withNote(
+      finalize(
+        { content: "", brief, citations: [prop.source, ...(prop.curated?.facts.map((f) => f.label) ?? [])], intent: "property_asset", marketSlug: prop.marketSlug, mode: "deterministic" },
+        true
+      )
+    );
+  }
 
   // "Compare Boise and Denver": only one side is covered, so answer that market alone.
   if (coverageNote.length && ctx.intent === "compare_markets" && ctx.matched) {
     const memo = formatMarketMemo(ctx.matched, "general_thesis");
-    return withNote(finalize({ ...memo, intent: "compare_markets" }, true));
+    return withNote(finalize({ ...memo, brief: marketBrief(ctx.matched, "general_thesis"), intent: "compare_markets" }, true));
   }
 
   if (!opts?.marketSlug && isSupplyRankingQuestion(question, ctx.matched)) {
@@ -357,8 +449,9 @@ export async function answerChat(
   const nationalDebtFromGraph =
     ctx.intent === "debt_overlay" && !corpus.digests.some((d) => d.score >= 5);
   if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
-    const answer: ChatAnswer = {
+    const answer: ChatAnswer & { brief?: ChatBrief } = {
       content: digestMemo,
+      brief: digestBrief(digests, question),
       citations: digestCites,
       intent: ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
@@ -367,7 +460,9 @@ export async function answerChat(
     return withNote(finalize(answer, answeredWellHeuristic(answer, ctx.intent, false, true)));
   }
 
-  const fallback = await answerFromGraph(question, opts);
+  const fallback: ChatAnswer & { brief?: ChatBrief } = await answerFromGraph(question, opts);
+  const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : []);
+  if (graphBrief) fallback.brief = graphBrief;
   // A named issuer alongside a market: one memo with a REIT section, not a second answer.
   if (digestMemo && ctx.matched) {
     const merged: ChatAnswer = {
@@ -384,7 +479,8 @@ export async function answerChat(
       marketSlug:
         fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
       mode: "deterministic",
-    };
+      brief: fallback.brief,
+    } as ChatAnswer & { brief?: ChatBrief };
     return withNote(
       finalize(merged, answeredWellHeuristic(merged, ctx.intent, Boolean(ctx.matched), true))
     );
@@ -399,4 +495,36 @@ export async function answerChat(
   return withNote(
     finalize(answer, answeredWellHeuristic(fallback, ctx.intent, Boolean(ctx.matched), hadCorpus))
   );
+}
+
+/** Brief for the deterministic graph answer (same branch order as answerFromGraph). */
+function briefForGraph(question: string, ctx: GraphContext, namedDigests: CorpusPack["digests"]): ChatBrief | null {
+  const { matched, intent, nationalSignals, radars } = ctx;
+  if (!question.trim()) return null;
+  if (intent === "compare_markets") {
+    const unique = [matched, ...ctx.secondary].filter((m, i, arr): m is NonNullable<typeof m> => Boolean(m) && arr.findIndex((x) => x?.id === m!.id) === i);
+    if (unique.length >= 2) return compareBrief(unique[0], unique[1], question, intent);
+    return null;
+  }
+  // Hotel-tax series answers keep their newest-first table (no brief).
+  if (intent === "tax_collections") return null;
+  if (matched) {
+    const overlay =
+      intent === "talent_greenlight"
+        ? nationalSignals.find((s) => s.kind === "talent") ?? null
+        : intent === "debt_overlay"
+          ? nationalSignals.find((s) => s.kind === "debt") ?? null
+          : null;
+    const extra = namedDigests.length ? digestReads(namedDigests[0], question) : null;
+    return marketBrief(matched, intent, {
+      nationalOverlay: overlay,
+      extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
+      extraSections: extra?.sections,
+    });
+  }
+  if (intent === "debt_overlay") {
+    const findings = radars.filter((r) => r.slug.includes("debt")).flatMap((r) => r.findings);
+    return nationalDebtBrief(nationalSignals, findings);
+  }
+  return null;
 }

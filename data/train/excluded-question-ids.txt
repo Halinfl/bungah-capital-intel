@@ -1,0 +1,14 @@
+# ChatQuestionLog ids excluded from every train / eval export (file-based; the DB is never edited).
+# One id per line; text after "#" is a comment. Honored by scripts/export-train-corpus.ts
+# (via src/lib/train-exclusions.ts) and by the questions-export route.
+#
+# 2026-10-25: QA test questions run against production (logged as public, trainEligible rows).
+cmvon5h700003l207v2y56qdn  # prod QA run
+cmvon5hrz0007l207yk2kxhhy  # prod QA run
+cmvon5i8y000bl207mhehfz7v  # prod QA run
+cmvon5io1000fl207ipmp9z1o  # prod QA run
+cmvon5j7a000jl20701f9vfdp  # prod QA run
+cmvon8syo000nl207s4lt2t3n  # prod QA run
+cmvon8tle000rl207fp0a6ocq  # prod QA run
+cmvon8u2h000vl2076ymvtycs  # prod QA run
+cmvon8um0000zl207lt0jk0iv  # prod QA run

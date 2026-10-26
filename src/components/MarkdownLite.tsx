@@ -64,7 +64,8 @@ function inline(s: string): string {
       "<a href='$2' class='text-slate-100 underline underline-offset-2 hover:text-white'>$1</a>"
     )
     .replace(/\*\*(.+?)\*\*/g, "<strong class='text-white font-semibold'>$1</strong>")
-    .replace(/_(.+?)_/g, "<em class='text-slate-300'>$1</em>");
+    // Word-bounded so underscores inside URLs / file names never turn into italics.
+    .replace(/(^|[\s(>])_([^_\n]+?)_(?=$|[\s).,;:<])/g, "$1<em class='text-slate-300'>$2</em>");
 }
 
 function Table({ lines }: { lines: string[] }) {

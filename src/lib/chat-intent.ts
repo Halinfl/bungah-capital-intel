@@ -17,6 +17,7 @@ export const CHAT_INTENTS = [
   "advice_declined",
   "uncovered_market",
   "supply_ranking",
+  "property_asset",
   "unknown",
 ] as const;
 
@@ -114,6 +115,9 @@ const RULES: Rule[] = [
     intent: "revpar_metrics",
     weight: 6,
     test: (q) =>
+      // "How is Chicago CBD doing?", "how's the Strip performing", "how are Miami hotels holding up"
+      /\bhow(['’]s| is| are| has| have)\b.{1,60}\b(doing|performing|faring|trending|holding up|shaping up|going)\b/.test(q) ||
+      /\b(cbd|downtown|midtown|uptown|the strip|central business district)\b.{0,40}\b(doing|now|today|lately|this year|right now)\b/.test(q) ||
       /\brevpar\b/.test(q) ||
       /\badr\b/.test(q) ||
       /\boccupanc(?:y|ies)?\b|\bocc\b/.test(q) ||
