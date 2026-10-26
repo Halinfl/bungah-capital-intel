@@ -63,7 +63,7 @@ export function ChatBriefView({ brief }: { brief: ChatBrief }) {
     setOpen((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : mobile ? [id] : [...cur, id]));
 
   return (
-    <div className="space-y-3 text-sm leading-relaxed text-slate-200">
+    <div className="min-w-0 space-y-3 text-sm leading-relaxed text-slate-200 [overflow-wrap:anywhere]">
       {brief.decline ? (
         <div className="rounded-md border border-white/15 bg-white/[0.03] px-3 py-2 text-slate-100">
           <MarkdownLite text={brief.decline} />
@@ -112,7 +112,7 @@ export function ChatBriefView({ brief }: { brief: ChatBrief }) {
                   </span>
                 </button>
                 {isOpen ? (
-                  <div id={panel} className="px-3 pb-3 pt-1">
+                  <div id={panel} className="min-w-0 overflow-x-auto px-3 pb-3 pt-1 [overflow-wrap:anywhere]">
                     <MarkdownLite text={s.markdown} />
                   </div>
                 ) : null}
