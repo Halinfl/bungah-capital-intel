@@ -12,6 +12,7 @@ import { publisherName, scrubInternal } from "./public-text";
 import {
   chipKind,
   coverageLine,
+  dateShown,
   digestDate,
   furtherReadingSection,
   inRange,
@@ -235,7 +236,7 @@ function snapshotCite(m: MarketRow): Citation[] {
 const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "debt", talent: "labor" };
 
 function headLine(scope: string, lens: Lens, f: Fact): string {
-  const date = f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
+  const date = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
   // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
   const esc = scope.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const text = f.text.replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");

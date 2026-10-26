@@ -800,8 +800,22 @@ export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> 
   return out.sort((a, b) => b.key - a.key);
 }
 
+/**
+ * The date shown after a fact: its data period, unless the fact's own words already state that
+ * period with its year ("Orlando August 2026 …"); a year-less "w/e 26 Sep" gets just the year.
+ */
+export function dateShown(text: string, p: Period | null | undefined, ref?: number | null): string | null {
+  if (!p) return null;
+  if (text.includes(p.label)) return null;
+  const own = periodsIn(text, ref ?? p.end).some((q) => q.end === p.end || (q.start === p.start && Math.min(q.end, p.end) === p.end));
+  // A single-day fact always carries its full date (e.g. a strike start), so the read is dated at a glance.
+  if (!own || p.start === p.end) return p.label;
+  const year = String(Math.floor(p.end / 10000));
+  return text.includes(year) ? null : year;
+}
+
 export function toRead(f: Fact): BriefRead {
-  const shown = f.asOf && !f.text.includes(f.asOf) ? f.asOf : null;
+  const shown = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? f.asOf : null;
   return { text: f.text, asOf: f.period === undefined ? fmtAsOf(f.asOf) : shown, source: f.source };
 }
 
