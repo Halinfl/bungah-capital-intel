@@ -321,6 +321,33 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
 
       <GradeSection sale={sale} grades={grades} />
 
+      {entry.factor_context && Object.keys(entry.factor_context).length ? (
+        <section aria-labelledby="context" className="space-y-3">
+          <div>
+            <h2 id="context" className={h2}>
+              Context, not scored
+            </h2>
+            <p className="text-[13px] text-slate-300">Cited figures shown for reference. They don&rsquo;t enter the grade.</p>
+          </div>
+          {Object.entries(entry.factor_context).map(([fid, items]) => (
+            <div key={fid} className="space-y-1">
+              <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? fid}</h3>
+              <ul className="space-y-1.5 text-[13px] text-slate-200">
+                {items.map((c) => (
+                  <li key={c.text} className="max-w-3xl">
+                    {c.text}{" "}
+                    <a href={c.url} className="text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+                      source
+                    </a>
+                    <span className="text-slate-400"> · {fmtDate(c.date)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ) : null}
+
       {entry.watches_for ? (
         <section aria-label="Watches for" className="rounded-xl border border-white/20 p-4">
           <div className="text-xs font-semibold uppercase tracking-wider text-slate-300">Watches for</div>
@@ -339,6 +366,18 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           <li className="rounded-xl border border-white/10 p-3">
             <div className="text-sm font-medium text-white">T0 · at announcement</div>
             <div className="text-[13px] text-slate-300">{fmtDate(sale.announced_on)}</div>
+            {entry.baseline?.length ? (
+              <ul className="mt-1 space-y-1 text-[13px] text-slate-200">
+                {entry.baseline.map((b) => (
+                  <li key={b.text}>
+                    {b.text}{" "}
+                    <a href={b.url} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
+                      source
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </li>
           {horizons(sale.announced_on).map((h) => {
             const vals = landed.filter((a) => a.horizon === h.horizon);

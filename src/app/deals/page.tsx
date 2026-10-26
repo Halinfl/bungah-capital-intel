@@ -72,9 +72,8 @@ function DealCard({ sale }: { sale: Sale }) {
 }
 
 function logStatus(r: LogRow): React.ReactNode {
-  const sale = sales().find((s) => s.sale_id === r.sale_id);
-  const graded = sale ? gradesFor(sale.sale_id).length > 0 : false;
-  if (sale && graded)
+  const sale = sales().find((s) => r.log_id && s.log_id === r.log_id);
+  if (sale && gradesFor(sale.sale_id).length)
     return (
       <Link href={`/deals/${sale.slug}`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
         Graded
@@ -86,10 +85,15 @@ function logStatus(r: LogRow): React.ReactNode {
         Grading
       </Link>
     );
-  return <span>Not graded{r.notes ? `: ${r.notes}` : ""}</span>;
+  return <span>Not graded yet</span>;
 }
 
-const logPrice = (r: LogRow) => (r.price_disclosed === "yes" && r.price_usd ? fmtPrice(Number(r.price_usd)) : "Unpriced");
+/** Disclosed price, or the partial figure exactly as recorded, or Unpriced. Never estimated. */
+function logPrice(r: LogRow): string {
+  if (r.price_usd) return fmtPrice(Number(r.price_usd));
+  if (r.inclusion_basis.startsWith("included") && r.disclosed_metric) return r.disclosed_metric;
+  return "Unpriced";
+}
 
 function LogTable({ rows }: { rows: LogRow[] }) {
   return (
@@ -108,11 +112,15 @@ function LogTable({ rows }: { rows: LogRow[] }) {
         </thead>
         <tbody className="text-slate-200">
           {rows.map((r) => (
-            <tr key={`${r.sale_id}-${r.announced_on}`} className="border-b border-white/[0.06] align-top">
-              <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{fmtDate(r.announced_on)}</td>
-              <td className="py-2 pr-3">{r.property}</td>
+            <tr key={r.log_id} className="border-b border-white/[0.06] align-top">
+              <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{fmtDate(r.announce_date)}</td>
+              <td className="py-2 pr-3">
+                <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+                  {r.hotel}
+                </a>
+              </td>
               <td className="py-2 pr-3">{r.market}</td>
-              <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{logPrice(r)}</td>
+              <td className="py-2 pr-3 tabular-nums">{logPrice(r)}</td>
               <td className="py-2 pr-3">{basisLabel(r.inclusion_basis)}</td>
               <td className="py-2">{logStatus(r)}</td>
             </tr>
@@ -122,12 +130,15 @@ function LogTable({ rows }: { rows: LogRow[] }) {
       {/* Mobile: two-line list items */}
       <ul className="divide-y divide-white/[0.06] md:hidden">
         {rows.map((r) => (
-          <li key={`${r.sale_id}-${r.announced_on}-m`} className="py-2 text-sm">
+          <li key={`${r.log_id}-m`} className="py-2 text-sm">
             <div className="text-slate-100">
-              {r.property} <span className="text-slate-400">· {r.market}</span>
+              <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+                {r.hotel}
+              </a>{" "}
+              <span className="text-slate-400">· {r.market}</span>
             </div>
             <div className="text-[13px] text-slate-300">
-              {fmtDate(r.announced_on)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}
+              {fmtDate(r.announce_date)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}
             </div>
           </li>
         ))}
@@ -170,7 +181,8 @@ export default function DealsIndexPage() {
           Every qualifying deal ({log.length})
         </h2>
         <p className="max-w-3xl text-sm text-slate-300">
-          Every deal that meets the inclusion rule is logged here, graded or not. Ordered by announcement date, newest first.
+          Every deal that meets the inclusion rule is logged here, graded or not, from Aug 10, 2026 on. Ordered by announcement date, newest first.
+          Each property links to its source. Prices are as disclosed or recorded, never estimated.
         </p>
         <LogTable rows={first} />
         {rest.length ? (

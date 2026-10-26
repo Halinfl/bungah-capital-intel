@@ -8,6 +8,7 @@ import type { FactorResult, GradeResult, Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
+  log_id?: string;
   slug: string;
   property: string;
   market: string;
@@ -30,8 +31,11 @@ export type Sale = {
   source_uris: string[];
 };
 export type Source = { kind: "filing" | "record" | "press"; title: string; publisher: string; date: string; url: string };
+export type ContextItem = { text: string; url: string; date: string };
 export type Entry = {
   tape: string | null;
+  factor_context?: Record<string, ContextItem[]>;
+  baseline?: ContextItem[];
   financing_tags: string[];
   watches_for: string | null;
   related: { href: string; label: string }[];
@@ -39,17 +43,19 @@ export type Entry = {
 };
 export type Anniversary = { sale_id: string; horizon: "T+1" | "T+2"; market_metric: string; value: string; source_uri: string; recorded_on: string };
 export type LogRow = {
-  date_found: string;
-  announced_on: string;
-  property: string;
+  log_id: string;
+  announce_date: string;
+  close_date: string;
+  hotel: string;
   market: string;
+  keys: string;
+  buyer: string;
+  seller: string;
   price_usd: string;
-  price_disclosed: string;
+  disclosed_metric: string;
   inclusion_basis: string;
-  sale_id: string;
+  source_url: string;
   graded: string;
-  notes: string;
-  source_uri: string;
 };
 
 export const RUBRIC = rubricJson as unknown as Rubric;
@@ -78,7 +84,7 @@ export function anniversariesFor(saleId: string): Anniversary[] {
 }
 /** Every qualifying deal seen (append-only log), newest announcement first. */
 export function dealLog(): LogRow[] {
-  return [...(logJson as LogRow[])].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+  return [...(logJson as unknown as LogRow[])].sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
 }
 
 export function fmtDate(iso: string): string {
@@ -99,7 +105,8 @@ export function fmtPerKey(n: number | null): string {
   if (n === null) return "n/d";
   return n >= 1e6 ? `$${(n / 1e6).toFixed(2)}M/key` : `$${Math.round(n / 1000).toLocaleString("en-US")}k/key`;
 }
-export const basisLabel = (b: string) => (b === "reit" ? "REIT" : b === "100m+" ? "$100M+" : b === "both" ? "Both" : b);
+export const basisLabel = (b: string) =>
+  b === "reit" ? "REIT" : b === "100m+" || b.startsWith("included") ? "$100M+" : b === "both" ? "Both" : b;
 export const statusLabel = (s: Sale["status"]) => (s === "closed" ? "Closed" : s === "terminated" ? "Terminated" : "Announced");
 
 /** Anniversary horizons, derived from the announcement date (never data). */

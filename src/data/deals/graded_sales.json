@@ -6,9 +6,11 @@
     "market": "Orlando",
     "market_slug": "orlando",
     "buyer": "Ryman Hospitality Properties (RHP)",
-    "buyer_tickers": ["RHP"],
+    "buyer_tickers": [
+      "RHP"
+    ],
     "seller": "GLO Hotel Owner LLC",
-    "seller_note": "RHP's announcement press release names the seller as Trinity Investments.",
+    "seller_note": "RHP's release names the seller as Trinity Investments. The purchase agreement (Ex. 10.1) sends seller notices to both Elliott Management and Trinity Investments.",
     "seller_tickers": [],
     "price": 1380000000,
     "price_qualifier": "approximately, subject to adjustments",
@@ -23,7 +25,10 @@
     "source_uris": [
       "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_8k.htm",
       "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex99-1.htm",
+      "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex10-1.htm",
+      "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm",
       "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_8k.htm"
-    ]
+    ],
+    "log_id": "DL-2026-001"
   }
 ]

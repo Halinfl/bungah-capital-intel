@@ -1,12 +1,86 @@
 {
   "grande-lakes-orlando-2026": {
-    "tape": null,
-    "financing_tags": [],
-    "watches_for": null,
+    "tape": "On Aug 10, 2026, RHP agreed to buy the fee simple interest in the 1,010-room JW Marriott and the 582-room Ritz-Carlton at Grande Lakes, with a Greg Norman 18-hole course on 409 acres, for approximately $1.38 billion, and put $50 million into escrow. RHP disclosed a 6.6% cap rate on trailing-12-month NOI of $91.2 million to June 30, 2026 (Adjusted EBITDAre of $110.0 million less an $18.8 million FF&E reserve, from unaudited seller data) and a 12.5x Adjusted EBITDAre multiple. The resort carried an $800 million floating-rate CMBS loan (ORL 2024-GLKS) that the buyer could elect to assume. RHP said funding would come from cash on hand and debt, which may include that assumption, alongside an equity offering of 5.1 million shares launched the same day. Marriott continues to manage both hotels under their existing brands.",
+    "financing_tags": [
+      "Assumable CMBS loan",
+      "Concurrent equity offering"
+    ],
+    "watches_for": "The $867k per key is an average across a luxury hotel, an upper-upscale hotel, a golf course and 409 acres, and the public documents don't split the price between them, so it shouldn't be read as the value of either hotel on its own.",
+    "factor_context": {
+      "supply": [
+        {
+          "text": "Early-planning pipeline at end Q2 2026: 54 projects, 5,474 rooms (Lodging Econometrics, free release). Equal to 4.13% of Visit Orlando's YE2025 inventory of 132,685 rooms. Early planning only, not the total pipeline.",
+          "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
+          "date": "2026-07-27"
+        },
+        {
+          "text": "New project announcements in Q2 2026: 8 projects, 1,292 rooms (Lodging Econometrics). Equal to 0.97% of the same base. A one-quarter flow.",
+          "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
+          "date": "2026-07-27"
+        },
+        {
+          "text": "Projected 2026 new-build openings: 1,988 rooms (CoStar, free press release). Equal to 1.50% of the same base.",
+          "url": "https://www.costar.com/products/str-benchmark/resources/press-releases/nyc-phoenix-projected-open-most-hotel-rooms-2026",
+          "date": "2026-01-16"
+        },
+        {
+          "text": "Existing rooms: 132,685 at year-end 2025 (Visit Orlando Data & Trends, archived June 11, 2026). Each figure above comes from a different publisher, and geographies may differ.",
+          "url": "https://web.archive.org/web/20260611191634/https://www.visitorlando.org/about/resources/data-trends/",
+          "date": "2026-06-11"
+        }
+      ],
+      "demand": [
+        {
+          "text": "June 2026 alone: $33.6M of tourist development tax collections, down 0.4% from June 2025. Fiscal year to date (Oct 2025 to Jun 2026): up 8.7% on the county's basis. Neither is scored.",
+          "url": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
+          "date": "2026-08-04"
+        },
+        {
+          "text": "Orange County Convention Center: FY2025-26 projection of 185 events and 2.3M attendees.",
+          "url": "https://www.idrivedistrict.com/editorFiles/Minutes/20260304%20DAB%20PP%20OCCC.pdf",
+          "date": "2026-03-23"
+        },
+        {
+          "text": "OCCC FY2027 forecast at the county budget workshop: about 170 events and 2.1M attendees (press report).",
+          "url": "https://floridapolitics.com/archives/808154-orange-county-hotel-tax-revenue-could-hit-400m-in-2027/",
+          "date": "2026-07-17"
+        },
+        {
+          "text": "OCCC Phase 5A Grand Concourse ($560M, funded by the tourist development tax): a 100,000 sq ft ballroom plus 44,000 sq ft of meeting space. Groundbreaking was Dec 17, 2025, and construction is set to conclude in 2029.",
+          "url": "https://occc.net/About-Us-Media-Relations-Press-Releases/ArticleID/1057/Orange%20County%20Convention%20Center%20Celebrates%20Grand%20Concourse%20Expansion%20Groundbreaking",
+          "date": "2025-12-17"
+        },
+        {
+          "text": "Visit Orlando board minutes (June 9, 2026 meeting): group attendance 18.8% to goal through April 2026, with room nights slightly below target.",
+          "url": "https://visitorlando.widen.net/s/clrvj8tnpg/2026-q2-vo-bod-meeting-minutes-06.06.26",
+          "date": "2026-07-15"
+        }
+      ]
+    },
+    "baseline": [
+      {
+        "text": "Orange County tourist development tax, trailing 12 months to June 2026: $404.6M, up 8.1% on the prior 12 months",
+        "url": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
+        "date": "2026-08-04"
+      }
+    ],
     "related": [
-      { "href": "/markets/orlando", "label": "Orlando market" },
-      { "href": "/reits/rhp", "label": "RHP (Ryman Hospitality Properties)" },
-      { "href": "/radars#orlando-msa-scarcity-watch", "label": "Orlando scarcity watch" }
+      {
+        "href": "/markets/orlando",
+        "label": "Orlando market"
+      },
+      {
+        "href": "/reits/rhp",
+        "label": "RHP (Ryman Hospitality Properties)"
+      },
+      {
+        "href": "/reits/rhp#earnings",
+        "label": "RHP earnings calls"
+      },
+      {
+        "href": "/radars#orlando-msa-scarcity-watch",
+        "label": "Orlando scarcity watch"
+      }
     ],
     "sources": [
       {
@@ -18,17 +92,136 @@
       },
       {
         "kind": "filing",
-        "title": "Exhibit 99.1: press release, Ryman Hospitality Properties to acquire Grande Lakes Orlando Resort for $1.38 billion",
+        "title": "Exhibit 99.1: press release announcing the Grande Lakes acquisition",
         "publisher": "Ryman Hospitality Properties, SEC EDGAR",
         "date": "2026-08-10",
         "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex99-1.htm"
       },
       {
         "kind": "filing",
-        "title": "Form 8-K: completion of the Grande Lakes acquisition",
+        "title": "Exhibit 10.1: Agreement of Purchase and Sale (price, deposit, loan assumption option, seller notice parties)",
+        "publisher": "Ryman Hospitality Properties, SEC EDGAR",
+        "date": "2026-08-10",
+        "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex10-1.htm"
+      },
+      {
+        "kind": "filing",
+        "title": "Preliminary prospectus supplement (424B5): 6.6% cap rate, NOI reconciliation, funding",
+        "publisher": "Ryman Hospitality Properties, SEC EDGAR",
+        "date": "2026-08-10",
+        "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm"
+      },
+      {
+        "kind": "filing",
+        "title": "Form 8-K: completion of the acquisition (status update only, not a grading input)",
         "publisher": "Ryman Hospitality Properties, SEC EDGAR",
         "date": "2026-09-01",
         "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_8k.htm"
+      },
+      {
+        "kind": "record",
+        "title": "Daily Treasury Par Yield Curve Rates, 2026 (10-year: 4.72% on Aug 10)",
+        "publisher": "U.S. Department of the Treasury",
+        "date": "2026-08-10",
+        "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, June 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-08-04",
+        "url": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, September 2025 (FY2025 monthly list)",
+        "publisher": "Orange County Comptroller",
+        "date": "2025-11-04",
+        "url": "https://www.occompt.com/DocumentCenter/View/57858/2025-09-September-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, September 2024 (FY2024 monthly list)",
+        "publisher": "Orange County Comptroller",
+        "date": "2024-11-05",
+        "url": "https://www.occompt.com/DocumentCenter/View/53012/2024-09-September-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, October 2025",
+        "publisher": "Orange County Comptroller",
+        "date": "2025-12-04",
+        "url": "https://www.occompt.com/DocumentCenter/View/58897/2025-10-October-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, November 2025",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-01-06",
+        "url": "https://www.occompt.com/DocumentCenter/View/58936/2025-11-November-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, December 2025",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-02-05",
+        "url": "https://www.occompt.com/DocumentCenter/View/58960/2025-12-December-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, January 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-03-04",
+        "url": "https://www.occompt.com/DocumentCenter/View/60320/2026-01-January-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, February 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-04-06",
+        "url": "https://www.occompt.com/DocumentCenter/View/60369/2026-02-February-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, March 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-05-06",
+        "url": "https://www.occompt.com/DocumentCenter/View/60405/2026-03-March-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, April 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-06-04",
+        "url": "https://www.occompt.com/DocumentCenter/View/60434/2026-04-April-TDT-Collection-PDF"
+      },
+      {
+        "kind": "record",
+        "title": "Tourist Development Tax collections, May 2026",
+        "publisher": "Orange County Comptroller",
+        "date": "2026-07-07",
+        "url": "https://www.occompt.com/DocumentCenter/View/60501/2026-05-May-TDT-Collection-PDF"
+      },
+      {
+        "kind": "press",
+        "title": "HVS U.S. Hotel Development Cost Survey 2026 (Exhibit 6: luxury and full-service medians, including land)",
+        "publisher": "HVS",
+        "date": "2026-07-13",
+        "url": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509"
+      },
+      {
+        "kind": "press",
+        "title": "Morningstar DBRS confirms credit ratings on all classes of ORL 2024-GLKS Mortgage Trust",
+        "publisher": "Morningstar DBRS",
+        "date": "2025-12-10",
+        "url": "https://dbrs.morningstar.com/research/469476/morningstar-dbrs-confirms-credit-ratings-on-all-classes-of-orl-2024-glks-mortgage-trust"
+      },
+      {
+        "kind": "press",
+        "title": "Morningstar DBRS assigns provisional ratings to ORL 2024-GLKS ($800M loan terms)",
+        "publisher": "Morningstar DBRS",
+        "date": "2024-12-06",
+        "url": "https://dbrs.morningstar.com/research/444267/morningstar-dbrs-assigns-provisional-credit-ratings-to-orl-2024-glks-mortgage-trust"
       }
     ]
   }
