@@ -66,6 +66,38 @@ export type Property = {
   pending?: boolean;
   /** Site market slug when the hotel sits in a market the site covers. */
   market?: string;
+  /** Captured nightly rate on the headline stay (cheapest refundable, pre-tax); only once captures exist. */
+  rate?: number;
+};
+
+/** One horizon x stay cell of a REIT's weekly capture (medians are null when the cell is thin). */
+export type CapturedCell = {
+  horizon: string;
+  stay: "weekday" | "weekend";
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  /** Median cheapest refundable nightly rate, pre-tax; null when thin. */
+  refundable: number | null;
+  nRefundable: number;
+  lowest: number | null;
+  nUsed: number;
+  nPriced: number;
+  nList: number;
+  thin: boolean;
+};
+
+/** Capture-level facts every captured number cites. */
+export type PanelCapture = {
+  captureDate: string;
+  methodVersion: string;
+  listVersion: string;
+  /** Method page for captured rates. */
+  methodUrl: string;
+  /** The stay the board's per-REIT median uses. */
+  headline: { horizon: string; stay: string; checkIn: string | null; checkOut: string | null; nights: number | null };
+  /** Medians need at least this many hotels (Tuesday Trends thin-data rule). */
+  thinBelow: number;
 };
 
 /** Weekly Google Hotels capture summary for one REIT; absent until the first capture. */
@@ -73,9 +105,16 @@ export type CapturedSummary = {
   date: string;
   /** Captured median rate vs reported ADR, percent. */
   trackingGapPct: number | null;
+  /** Median cheapest refundable nightly rate (pre-tax) on the headline stay; null when thin. */
   medianRate: number | null;
+  /** Fewer hotels priced than the thin-data rule needs: no median shown. */
+  thin?: boolean;
+  /** Hotels behind the median. */
+  nUsed?: number;
+  /** Hotels with at least one captured price, of the REIT's current hotels. */
   priced: number;
   of: number;
+  cells?: CapturedCell[];
 };
 
 /** One row of a REIT's hotel list on the board (slim client payload). */
@@ -119,6 +158,8 @@ export type Transaction = {
   date: string;
   kind: "acquisition" | "disposition";
   pending?: boolean;
+  /** Disposition that was not an outright sale: a ground lease that ended, or the sale of a joint-venture stake. */
+  exit?: "lease_end" | "jv_stake";
   hotel: string;
   city: string | null;
   state: string | null;
@@ -251,8 +292,15 @@ export function summarize(r: Reit): ReitSummary {
     marketLabels: r.markets.filter((m) => m.slug).map((m) => m.label),
     quartersReported: r.quarters.length,
     unnamedHotels: r.unnamedHotels ?? 0,
-    captured: r.captured ?? null,
+    // The board needs only the headline figures; per-cell data stays on the REIT page.
+    captured: r.captured ? { ...r.captured, cells: undefined } : null,
   };
+}
+
+const HZ: Record<string, string> = { "7d": "7 days", "30d": "30 days", "91d": "3 months", "182d": "6 months", "325d": "~11 months" };
+/** "30d" + "weekday" -> "30 days out, Mon–Thu stay" */
+export function stayLabel(horizon: string, stay: string): string {
+  return `${HZ[horizon] ?? horizon} out, ${stay === "weekday" ? "Mon–Thu" : "Fri–Sun"} stay`;
 }
 
 /** Short market name from a full market label, e.g. "Orlando–Kissimmee–Sanford" -> "Orlando". */
@@ -272,5 +320,6 @@ export function boardHotels(r: Reit): BoardHotel[] {
       location: p.market ? null : [p.city, p.state].filter(Boolean).join(", ") || null,
       rooms: p.rooms,
       pending: !!p.pending,
+      ...(r.captured && (p as { rate?: number }).rate != null ? { rate: (p as { rate?: number }).rate } : {}),
     }));
 }

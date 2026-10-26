@@ -5,7 +5,7 @@ import { ReitsBoard } from "@/components/reits/ReitsBoard";
 import { EarningsStrip } from "@/components/reits/EarningsStrip";
 import { Independence } from "@/components/reits/Independence";
 import { reitsTabs } from "@/lib/reits-tabs";
-import { REITS_AS_OF, REITS_FIRST_CAPTURE, REITS_UNIVERSE, boardHotels, fmtDate, fmtInt, nextCalls, reits, summarize } from "@/lib/reits";
+import { REITS_AS_OF, REITS_FIRST_CAPTURE, REITS_PANEL, REITS_UNIVERSE, boardHotels, fmtDate, fmtInt, nextCalls, reits, summarize } from "@/lib/reits";
 
 export const metadata: Metadata = {
   title: "Hotel REITs board · Bungah Capital Intel",
@@ -19,6 +19,9 @@ export default function ReitsBoardPage() {
   const next = calls.find((c) => c.kind === "call") ?? null;
   const missing = all.filter((r) => !r.nextCall).map((r) => r.ticker);
 
+  const capPhrase = REITS_PANEL
+    ? `latest capture ${fmtDate(REITS_PANEL.captureDate)}`
+    : `start ${fmtDate(REITS_FIRST_CAPTURE)}`;
   const stats: { n: string; label: string; sub?: string }[] = [
     { n: String(all.length), label: "REITs tracked", sub: "US-listed hotel REITs" },
   ];
@@ -40,12 +43,13 @@ export default function ReitsBoardPage() {
           <h1 className="t-h1">REITs board</h1>
           {/* Mobile: one-line intro so the first rows fit on the first screen; the full intro sits in "How to read this". */}
           <p className="mt-1 text-[13px] text-slate-300 sm:hidden">
-            SEC filings as of {REITS_AS_OF}; captures start {fmtDate(REITS_FIRST_CAPTURE)}.
+            SEC filings as of {REITS_AS_OF}; captures {capPhrase}.
           </p>
           <p className="mt-1.5 hidden text-sm text-slate-200 sm:block">Reported data as of {REITS_AS_OF}</p>
           <p className="mt-1 hidden max-w-3xl text-sm text-slate-300 sm:block">
-            The 13 US-listed hotel REITs, from their SEC filings. Weekly Google Hotels captures for every REIT-owned hotel
-            start {fmtDate(REITS_FIRST_CAPTURE)}. Decision support, not investment advice.
+            The 13 US-listed hotel REITs, from their SEC filings. Weekly Google Hotels captures
+            {REITS_PANEL ? ` of the REITs’ hotels, ${capPhrase}` : ` for every REIT-owned hotel start ${fmtDate(REITS_FIRST_CAPTURE)}`}. Decision
+            support, not investment advice.
           </p>
         </div>
         <Link
@@ -69,10 +73,11 @@ export default function ReitsBoardPage() {
       <ReitsBoard
         rows={all.map(summarize)}
         firstCapture={REITS_FIRST_CAPTURE}
+        panel={REITS_PANEL}
         mobileIntro={
           <>
             Reported data as of {REITS_AS_OF}. The 13 US-listed hotel REITs, from their SEC filings. Weekly Google Hotels
-            captures for every REIT-owned hotel start {fmtDate(REITS_FIRST_CAPTURE)}. Decision support, not investment advice.
+            captures{REITS_PANEL ? ` of the REITs’ hotels, ${capPhrase}` : ` for every REIT-owned hotel start ${fmtDate(REITS_FIRST_CAPTURE)}`}. Decision support, not investment advice.
           </>
         }
         hotelLists={Object.fromEntries(all.map((r) => [r.ticker, boardHotels(r)]))}

@@ -64,7 +64,7 @@ export function WhoOwnsHere({ data, short, marketName }: { data: MarketOwners; s
                 <span className="min-w-0 flex-1">
                   <span className="text-white">{c.hotel}</span>
                   <span className="mt-0.5 block text-xs text-slate-300 sm:ml-2 sm:mt-0 sm:inline">
-                    {fmtDay(c.date)} · {c.kind === "acquisition" ? "bought by" : c.pending ? "pending sale by" : "sold by"}{" "}
+                    {fmtDay(c.date)} · {c.kind === "acquisition" ? "bought by" : c.exit === "lease_end" ? "ground lease ended for" : c.pending ? "pending sale by" : "sold by"}{" "}
                     <Link href={`/reits/${c.ticker.toLowerCase()}`} className="text-slate-100 underline decoration-white/25 underline-offset-4 hover:decoration-white">
                       {c.ticker}
                     </Link>

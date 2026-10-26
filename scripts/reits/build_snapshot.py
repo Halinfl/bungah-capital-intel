@@ -220,7 +220,9 @@ for p in props:
             reit_markets[p["ticker"]][("s", "Location not stated")].append(v)
 
 # ---------- portfolio changes ----------
-changes = [c for c in rd("reit_portfolio_changes.csv") if c["source_uri"].startswith("http")]
+# rooms_change rows (a room count restated after a renovation) feed the property roll-forward, not the transaction list.
+changes = [c for c in rd("reit_portfolio_changes.csv")
+           if c["source_uri"].startswith("http") and c["event_type"] in ("acquisition", "disposition", "disposition_pending")]
 
 
 def tx_view(c):
@@ -238,6 +240,9 @@ def tx_view(c):
         "city": city, "state": st or None, "counterparty": c["counterparty"].strip() or None,
         "priceUsdM": price, "rooms": int(num(c["rooms"])) if num(c["rooms"]) else None,
         "url": c["source_uri"],
+        # How a disposition happened when it was not an outright sale of the hotel (from the filing's wording).
+        **({"exit": "lease_end"} if re.search(r"ground lease (ended|terminated)", c["anchor"] + " " + c["notes"], re.I)
+           else {"exit": "jv_stake"} if re.search(r"JV (interest|stake) sold", c["anchor"], re.I) else {}),
         "source": (f"SEC filing for {c['fiscal_quarter_of_source'][4:]} {c['fiscal_quarter_of_source'][:4]}"
                    if c.get("fiscal_quarter_of_source") else "SEC filing"),
     }
