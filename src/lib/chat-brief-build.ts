@@ -441,8 +441,12 @@ export function ratesBrief(signals: SignalLike[], question: string, opts: BriefO
     seen.add(name);
     others.push(x.f);
   }
-  const reads = others.slice(0, 3).map(toRead);
   const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind) || RATE_ROW.test(s.title));
+  // "How are rates affecting debt / refinancing?": the newest cited debt read comes first, then the other rates.
+  const debtRead = /\b(debt|refinanc\w*|cmbs|loans?|lend\w*|maturit\w*)\b/i.test(question)
+    ? pickReads(debt.filter((s) => !RATE_ROW.test(s.title)).flatMap((s) => signalFacts(s)), "debt", 1)
+    : [];
+  const reads = [...debtRead, ...others].slice(0, 3).map(toRead);
   const ordered = [...debt].sort((a, b) => Number(RATE_ROW.test(b.title)) - Number(RATE_ROW.test(a.title)));
   return makeBrief({
     decline: opts.decline,
