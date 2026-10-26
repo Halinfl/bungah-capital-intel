@@ -146,7 +146,7 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
           ) : null}
           {date ? (
             <>
-              <dt className="text-slate-400">Date</dt>
+              <dt className="text-slate-400">As of</dt>
               <dd className="text-slate-200">{date}</dd>
             </>
           ) : null}

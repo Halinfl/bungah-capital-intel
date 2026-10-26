@@ -862,6 +862,12 @@ export type DigestFacts = {
   excerpt: string;
 };
 
+/** A link label as a title: drop dangling separators left by markdown ("8-K Item 2.02: — exhibits…"). */
+export function tidyTitle(t: string | undefined): string | undefined {
+  const x = (t ?? "").replace(/\s*:\s*—\s*/g, " — ").replace(/^[\s:—-]+|[\s:—-]+$/g, "").trim();
+  return x || undefined;
+}
+
 /** Release / call date written in a digest ("Call / release date: Release 2026-08-05"); null if none. */
 export function digestDate(d: DigestHit, raw?: string): string | null {
   const md = raw ?? d.raw ?? d.excerpt;
@@ -889,8 +895,8 @@ export function digestFacts(d: DigestHit, raw: string): DigestFacts {
   const releaseLink = links.find((l) => /release/i.test(l.label)) ?? links[0];
   const relDate = fmtAsOf(release) ?? undefined;
   const source: BriefSource = filing
-    ? { kind: "Filing", label: `${d.name} ${periodLabel} earnings release (8-K)`, url: filing.url, title: filing.label || undefined, publisher: d.name, date: relDate }
-    : { kind: "Press", label: `${d.name} ${periodLabel} earnings release`, url: releaseLink?.url, title: releaseLink?.label || undefined, publisher: d.name, date: relDate };
+    ? { kind: "Filing", label: `${d.name} ${periodLabel} earnings release (8-K)`, url: filing.url, title: tidyTitle(filing.label), publisher: d.name, date: relDate }
+    : { kind: "Press", label: `${d.name} ${periodLabel} earnings release`, url: releaseLink?.url, title: tidyTitle(releaseLink?.label), publisher: d.name, date: relDate };
 
   const fact = (text: string | null): Fact | null => {
     if (!text) return null;

@@ -1206,7 +1206,7 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
         kind: "Data" as const,
         label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel,
         url: ucLink?.url,
-        ...(ucLink && ucLink.label !== publisherHost(ucLink.url) ? { title: ucLink.label } : {}),
+        ...(ucLink && ucLink.label.split(/\s+—\s+/)[0] !== publisherHost(ucLink.url) ? { title: ucLink.label.split(/\s+—\s+/)[0] } : {}),
         ...(ucLink ? { publisher: publisherHost(ucLink.url) } : {}),
         ...(fmtAsOf(r.s.asOf) ? { date: fmtAsOf(r.s.asOf)! } : {}),
       },

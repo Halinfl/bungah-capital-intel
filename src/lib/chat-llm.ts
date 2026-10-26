@@ -332,7 +332,7 @@ export async function answerChat(
 }
 
 /** A date window with no cited source in it: a plain statement, no figures, the chip stays. */
-function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAnswer {
+export function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAnswer {
   const label = RANGE_LABEL[range].toLowerCase();
   const others = DATE_RANGES.filter((r) => r !== range).map((r) => (r === "all" ? "All" : RANGE_LABEL[r]));
   const brief = makeBrief({
