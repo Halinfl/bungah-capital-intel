@@ -13,6 +13,8 @@ import {
   chipKind,
   coverageLine,
   SEED_NOTE_BELOW,
+  dropRepeatedDate,
+  flatSource,
   dateShown,
   digestDate,
   furtherReadingSection,
@@ -278,8 +280,8 @@ function headLine(scope: string, lens: Lens, f: Fact): string {
   const date = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
   // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
   const esc = scope.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const text = f.text.replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
-  return `${scope}${LENS_WORD[lens] ? ` ${LENS_WORD[lens]}` : ""}: ${text} (${[date, f.source.label].filter(Boolean).join(", ")}).`;
+  const text = dropRepeatedDate(f.text).replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
+  return `${scope}${LENS_WORD[lens] ? ` ${LENS_WORD[lens]}` : ""}: ${text} (${[date, flatSource(f.source.label)].filter(Boolean).join(", ")}).`;
 }
 
 export type BriefOpts = {
@@ -313,7 +315,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
   } else if (lens === "demand" && metrics) {
-    answer = `${short}: ${metrics} (${snap.label}).`;
+    answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
   } else if (lens === "supply" && scoreSig) {
     const head = signalFacts(scoreSig as SignalLike)[0];
@@ -326,7 +328,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = headLine(short, lens, head);
       reads = pickReads(facts, lens, 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
     } else if (metrics) {
-      answer = `${short}: ${metrics} (${snap.label}).`;
+      answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     } else {
       answer = `${short}: no dated, cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited rows we have are below.`;
@@ -482,7 +484,7 @@ export function ratesBrief(signals: SignalLike[], question: string, opts: BriefO
   const head = facts.filter((x) => x.f.period && series.re.test(x.s.title)).sort(byNewest)[0];
   const range = opts.range ?? "all";
   const answer = head
-    ? `${head.f.text.replace(/\.$/, "")} (${[head.f.asOf, head.f.source.label].filter(Boolean).join(", ")}).`
+    ? `${head.f.text.replace(/\.$/, "")} (${[head.f.asOf, flatSource(head.f.source.label)].filter(Boolean).join(", ")}).`
     : `US ${series.name}: no cited, dated read${range === "all" ? " on file yet" : ` in the ${RANGE_LABEL[range].toLowerCase()}`}.`;
   // Reads: the newest row of each other benchmark (one per series), then the next-newest of the asked one.
   const seen = new Set<string>([head ? rateSeries(head.s.title).name : series.name]);
@@ -527,7 +529,7 @@ export function digestReads(d: DigestHit, question: string): { answer: string; r
   const slots = asked ? [f.nugGuide ?? f.guidance, f.pipeline ?? f.capital, f.color] : [f.guidance, f.capital, f.color];
   const reads = slots.filter((x): x is Fact => Boolean(x)).filter((x, i, arr) => arr.findIndex((y) => y.text === x.text) === i);
   const raised = /\braised\b/i.test(f.guidance?.text ?? "");
-  const answer = `${f.name} (${f.ticker}) ${f.period}: ${f.headline ?? "company-reported results"}${raised ? "; FY 2026 guidance raised" : ""} (${f.source.label.replace(`${f.name} `, "")}).`;
+  const answer = `${f.name} (${f.ticker}) ${f.period}: ${f.headline ?? "company-reported results"}${raised ? "; FY 2026 guidance raised" : ""} (${flatSource(f.source.label.replace(`${f.name} `, ""))}).`;
   const sections: BriefSection[] = [
     { id: `digest-${d.slug}`, title: `${f.name}: capital headline`, count: 1, markdown: f.excerpt },
   ];

@@ -951,9 +951,31 @@ export function dateShown(text: string, p: Period | null | undefined, ref?: numb
   return text.includes(year) ? null : year;
 }
 
+/**
+ * Display only: a trailing date (", w/e 26 Sep") is dropped when the text before it already
+ * states that same period ("week ending 26 Sep"). Any other trailing text is kept as written.
+ */
+export function dropRepeatedDate(text: string): string {
+  const m = text.match(/^(.*\S)\s*[,;·]\s*([^,;·]{3,24})$/);
+  if (!m || /[%$]/.test(m[2])) return text;
+  const tail = periodsIn(m[2]);
+  if (!tail.length) return text;
+  // The tail must be only a date: nothing left once its date words are removed.
+  const rest = m[2].replace(new RegExp(`\\b(w\\/e|wk ending|week ending|week of|${MON}|20\\d{2}|\\d{1,2})\\b|[\\s,–-]`, "gi"), "");
+  if (rest) return text;
+  const head = periodsIn(m[1]);
+  return tail.every((t) => head.some((h) => h.start === t.start && h.end === t.end)) ? m[1] : text;
+}
+
+/** Display only: a source name's own brackets become commas, so it can sit inside "( … )". */
+export function flatSource(label: string): string {
+  return label.replace(/\s*\(([^()]*)\)/g, ", $1").replace(/,\s*,/g, ",").trim();
+}
+
 export function toRead(f: Fact): BriefRead {
-  const shown = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? f.asOf : null;
-  return { text: f.text, asOf: f.period === undefined ? fmtAsOf(f.asOf) : shown, source: f.source };
+  const text = dropRepeatedDate(f.text);
+  const shown = f.period ? dateShown(text, f.period) : f.asOf && !text.includes(f.asOf) ? f.asOf : null;
+  return { text, asOf: f.period === undefined ? fmtAsOf(f.asOf) : shown, source: f.source };
 }
 
 /* ------------------------------------------------------------------ */
