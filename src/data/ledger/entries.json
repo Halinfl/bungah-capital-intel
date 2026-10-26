@@ -1,0 +1,4 @@
+{
+  "note": "Append-only. Hotel-data calls only, committed before the Tuesday data run. Never edit or delete a call.",
+  "entries": []
+}

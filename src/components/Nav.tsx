@@ -10,7 +10,7 @@ const links = [
   { href: "/reits", label: "REITs" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
-  { href: "/sound-money-lodging", label: "Sound Asset" },
+  { href: "/hard-assets", label: "Sound Assets" },
   { href: "/podcast", label: "Podcast" },
 ];
 

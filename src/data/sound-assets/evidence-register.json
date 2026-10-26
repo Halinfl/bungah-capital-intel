@@ -1,0 +1,467 @@
+{
+  "note": "Append-only. Never edit or delete an entry; corrections are logged on /errata and a new entry is appended.",
+  "entries": [
+    {
+      "id": "ER-0001",
+      "claim": "Bitcoin's consensus code caps issuance at 21 million BTC and halves the block subsidy every 210,000 blocks.",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://github.com/bitcoin/bitcoin/blob/master/src/consensus/amount.h",
+      "source_title": "Bitcoin Core source: consensus/amount.h (MAX_MONEY = 21,000,000 \u00d7 COIN)",
+      "source_publisher": "Bitcoin Core (GitHub)",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0002",
+      "claim": "All four scheduled halvings occurred at their fixed block heights: 210,000 (2012-11-28), 420,000 (2016-07-09), 630,000 (2020-05-11) and 840,000 (2024-04-20), UTC.",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://mempool.space/block/0000000000000000000320283a032748cef8227873ff4872689bf23f1cda83a5",
+      "source_title": "Block 840,000 (fourth halving), 2024-04-20 UTC",
+      "source_publisher": "mempool.space",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0003",
+      "claim": "Any user running a full node independently verifies every block, including the supply limit, without trusting miners.",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://bitcoin.org/en/bitcoin-core/features/validation",
+      "source_title": "Bitcoin Core features: Validation",
+      "source_publisher": "Bitcoin.org",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0004",
+      "claim": "The U.S. dollar has lost 87.9% of its purchasing power since August 1971 (CPI 40.7 to 336.298, Sep 2026).",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://data.bls.gov/timeseries/CUSR0000SA0",
+      "source_title": "CPI for All Urban Consumers (CPI-U), U.S. city average, all items, seasonally adjusted [CUSR0000SA0]",
+      "source_publisher": "U.S. Bureau of Labor Statistics",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0005",
+      "claim": "U.S. M2 money stock grew about 81x between January 1959 and August 2026.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h6/",
+      "source_title": "H.6 Money Stock Measures: M2, seasonally adjusted",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0006",
+      "claim": "The Federal Reserve explicitly aims for 2% inflation over the longer run.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.federalreserve.gov/faqs/economy_14400.htm",
+      "source_title": "Why does the Federal Reserve aim for inflation of 2 percent over the longer run?",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0007",
+      "claim": "Sovereign reserve assets can be frozen: Treasury immobilized the Russian central bank's U.S.-held assets in February 2022.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://home.treasury.gov/news/press-releases/jy0612",
+      "source_title": "Treasury Prohibits Transactions with Central Bank of Russia (Feb 28, 2022)",
+      "source_publisher": "U.S. Department of the Treasury",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0008",
+      "claim": "Gold has been subject to confiscation: the 1933 U.S. order required delivery of privately held gold to the Federal Reserve.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.presidency.ucsb.edu/documents/executive-order-6102-forbidding-the-hoarding-gold-coin-gold-bullion-and-gold-certificates",
+      "source_title": "Executive Order 6102: Forbidding the Hoarding of Gold Coin, Gold Bullion and Gold Certificates (April 5, 1933)",
+      "source_publisher": "The American Presidency Project, UC Santa Barbara",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0009",
+      "claim": "Bitcoin's price fell 76.7% from $67,510.06 (2021-11-08) to $15,755.75 (2022-11-21) on Coinbase.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://fred.stlouisfed.org/series/CBBTCUSD",
+      "source_title": "Coinbase Bitcoin [CBBTCUSD], daily close (Coinbase via FRED; Copyrighted: citation required). Figures are cited with a link; the series is not stored.",
+      "source_publisher": "Coinbase, via FRED (link only)",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source attribution changed to the original publisher (Coinbase, via FRED); the series is cited with a link and not stored. Figure unchanged."
+    },
+    {
+      "id": "ER-0010",
+      "claim": "Custodial bitcoin carries platform risk: the SEC charged FTX's founder with defrauding investors and diverting customer funds (Dec 2022).",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.sec.gov/news/press-release/2022-219",
+      "source_title": "SEC Charges Samuel Bankman-Fried with Defrauding Investors in Crypto Asset Trading Platform FTX (Dec 13, 2022)",
+      "source_publisher": "U.S. Securities and Exchange Commission",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0011",
+      "claim": "Supply guarantees depend on software correctness: a 2010 bug created about 184 billion BTC before it was fixed.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://en.bitcoin.it/wiki/Value_overflow_incident",
+      "source_title": "Value overflow incident (block 74638, August 15, 2010)",
+      "source_publisher": "Bitcoin Wiki",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0012",
+      "claim": "Regulatory tail risk: China declared all crypto transactions illegal in September 2021.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.pbc.gov.cn/tiaofasi/144941/3581332/4348658/index.html",
+      "source_title": "Circular on further preventing and disposing of speculative risks in virtual currency trading (Yinfa [2021] No. 237)",
+      "source_publisher": "People's Bank of China",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0013",
+      "claim": "Energy dependence: EIA estimates U.S. crypto mining uses 0.6%\u20132.3% of U.S. electricity.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.eia.gov/todayinenergy/detail.php?id=61364",
+      "source_title": "Tracking electricity consumption from U.S. cryptocurrency mining operations (Feb 2024)",
+      "source_publisher": "U.S. Energy Information Administration",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0014",
+      "claim": "Short history: the genesis block is dated January 3, 2009, so there are under 18 years of data, against gold's millennia.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://mempool.space/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      "source_title": "Block 0 (genesis), timestamp 2009-01-03 18:15:05 UTC",
+      "source_publisher": "mempool.space",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0015",
+      "claim": "Central banks bought more than 1,000 tonnes of gold in 2024, about double the prior decade's annual average; at market prices gold reached 20% of global official reserves, passing the euro (16%) as the second-largest reserve asset after the U.S. dollar.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.ecb.europa.eu/press/other-publications/ire/html/ecb.ire202506.en.html",
+      "source_title": "The international role of the euro, June 2025 (Box 1: central bank gold purchases)",
+      "source_publisher": "European Central Bank",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0016",
+      "claim": "In the World Gold Council's 2025 central bank survey, a record 95% of respondents expected official gold reserves to rise over the next 12 months, and 76% expected gold to be a higher share of reserves in five years.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.gold.org/goldhub/research/central-bank-gold-reserve-survey-2025/perspectives-on-gold-reserves",
+      "source_title": "Central Bank Gold Reserves Survey 2025: Perspectives on gold reserves",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0017",
+      "claim": "Two senior ECB officials argued that Bitcoin transactions are cumbersome, slow and expensive, that it has never been used to any significant extent for legal real-world transactions, and that with no cash flow or productive use its valuation rests purely on speculation (an opinion piece).",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.ecb.europa.eu/press/blog/date/2022/html/ecb.blog221130~5301eecd19.en.html",
+      "source_title": "Bitcoin's last stand (Bindseil & Schaaf, Nov 30, 2022)",
+      "source_publisher": "ECB Blog",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0018",
+      "claim": "After U.S. spot-ETF approval, the same ECB authors wrote that 'the fair value of Bitcoin is still zero' and argued that ETF wrapping does not change its fundamentals (an opinion piece using a cash-flow valuation framework).",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.ecb.europa.eu/press/blog/date/2024/html/ecb.blog20240222~0929f86e23.en.html",
+      "source_title": "ETF approval for bitcoin: the naked emperor's new clothes (Bindseil & Schaaf, Feb 22, 2024)",
+      "source_publisher": "ECB Blog",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0019",
+      "claim": "El Salvador, the first country to make Bitcoin legal tender, amended its Bitcoin Law under a US$1.4 billion IMF program: private-sector acceptance became voluntary, taxes are payable only in U.S. dollars, and government Bitcoin transactions and purchases are confined.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.imf.org/en/news/articles/2025/02/26/pr25043-el-salvador-imf-approves-new-40-month-us1-bn-eff-arr",
+      "source_title": "Press Release No. 25/043: IMF approves 40-month US$1.4 billion EFF for El Salvador (Feb 26, 2025)",
+      "source_publisher": "International Monetary Fund",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0020",
+      "claim": "WGC estimates the above-ground gold stock at about 222,600 tonnes (end-Q2 2026); about two-thirds was mined since 1950 and almost all of it still exists.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.gold.org/goldhub/data/how-much-gold",
+      "source_title": "How much gold has been mined? (about 222,600 tonnes in total)",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0021",
+      "claim": "WGC: average annual growth in gold mine production over the past ten years is less than 1%, and raising output quickly will be challenging.",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply",
+      "source_title": "Gold Demand Trends full year 2025: Supply",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0022",
+      "claim": "Gold has a real production cost: the industry's all-in sustaining cost averaged US$1,605/oz in Q3 2025 (+9% y/y), per WGC.",
+      "direction": "opposes",
+      "strength": "weak",
+      "evidence_uri": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply",
+      "source_title": "Gold Demand Trends full year 2025: Supply",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0023",
+      "claim": "Gold's effective supply responds to price: 2025 supply was a record 5,002.3t, including 1,404.3t of recycling on top of 3,671.6t of mine output (WGC).",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/supply",
+      "source_title": "Gold Demand Trends full year 2025: Supply",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0024",
+      "claim": "Gold supply is not fixed: WGC puts below-ground reserves at about 61,000t and resources at about 114,400t.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.gold.org/goldhub/data/how-much-gold",
+      "source_title": "How much gold has been mined? (about 222,600 tonnes in total)",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0025",
+      "claim": "Official gold flows are only partly verifiable: WGC estimates 57% of 2025 central-bank buying was unreported.",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025/central-banks",
+      "source_title": "Gold Demand Trends full year 2025: Central banks",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0026",
+      "claim": "Bitcoin's current issuance (3.125 BTC per block, about 0.82% a year at the 10-minute target) is below gold's above-ground stock growth of about 1.8% a year (WGC 10-year average).",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://www.gold.org/goldhub/research/market-primer/gold-market-primer-market-size-and-structure",
+      "source_title": "Gold market primer: market size and structure (stock grows ~1.8% a year)",
+      "source_publisher": "World Gold Council",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0027",
+      "claim": "U.S. M2 rose 17.3% in four months, from $15,492.8B (Feb 2020) to $18,180.0B (Jun 2020).",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h6/",
+      "source_title": "H.6 Money Stock Measures: M2, seasonally adjusted",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0028",
+      "claim": "Real 3-month T-bill return from Jan 2000 to Sep 2026 was \u221215.8% (\u22120.64% a year): the H.15 3-month bill rate compounded monthly (+67.3% nominal) against CPI +98.6%. The H.15 rate is a discount-basis monthly average, so this is an approximation.",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h15/",
+      "source_title": "H.15 Selected Interest Rates: 3-month Treasury bill, secondary market (monthly and daily)",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0029",
+      "claim": "Real 3-month T-bill return over the near-zero-rate era, Jan 2009 to Jan 2022, was \u221220.2% (\u22121.72% a year): +6.4% nominal against CPI +33.3%.",
+      "direction": "supports",
+      "strength": "strong",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h15/",
+      "source_title": "H.15 Selected Interest Rates: 3-month Treasury bill, secondary market (monthly and daily)",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0030",
+      "claim": "Counterpoint: real 3-month T-bill return was positive from Jan 2023 to Sep 2026, +5.4% (+1.43% a year): +17.9% nominal against CPI +11.9%.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h15/",
+      "source_title": "H.15 Selected Interest Rates: 3-month Treasury bill, secondary market (monthly and daily)",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0031",
+      "claim": "Counterpoint: the latest T-bill yield is above inflation. The H.15 3-month bill rate was 3.94% (Sep 2026 average) and 4.04% (Oct 22, 2026), against CPI +3.72% year over year (BLS, single-point snapshot).",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h15/",
+      "source_title": "H.15 Selected Interest Rates: 3-month Treasury bill, secondary market (monthly and daily)",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0032",
+      "claim": "Counterpoint: M2 contracted 4.8% in nominal terms, from $21,788.1B (Mar 2022) to $20,737.4B (Oct 2023). Money-stock growth is policy-dependent, not one-directional.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.federalreserve.gov/releases/h6/",
+      "source_title": "H.6 Money Stock Measures: M2, seasonally adjusted",
+      "source_publisher": "Board of Governors of the Federal Reserve System",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source changed from the FRED copy to the publishing agency; figure recomputed from the primary series and unchanged."
+    },
+    {
+      "id": "ER-0033",
+      "claim": "Host Hotels' FY2025 capex was $644M ($362M renewals and replacements plus $282M return-on-investment), 10.5% of $6,114M total revenue and 36.7% of $1,757M Adjusted EBITDAre (arithmetic on 10-K figures).",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm",
+      "source_title": "Host Hotels & Resorts, Form 10-K for fiscal year 2025",
+      "source_publisher": "SEC EDGAR",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0034",
+      "claim": "Park Hotels' FY2025 capital expenditures were $296M, 11.6% of $2,541M total revenue and 48.6% of $609M Adjusted EBITDA (arithmetic on 10-K figures).",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+      "source_title": "Park Hotels & Resorts, Form 10-K for fiscal year 2025",
+      "source_publisher": "SEC EDGAR",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0035",
+      "claim": "Nightly repricing: Host Hotels' comparable RevPAR rose 3.8% in 2025, from $220.84 to $229.24 (nominal, one REIT).",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.sec.gov/Archives/edgar/data/1061937/000107075026000054/hst-20251231.htm",
+      "source_title": "Host Hotels & Resorts, Form 10-K for fiscal year 2025",
+      "source_publisher": "SEC EDGAR",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0036",
+      "claim": "Bitcoin's design states that once a predetermined number of coins is in circulation, the incentive can move entirely to fees and be completely inflation free (design intent).",
+      "direction": "supports",
+      "strength": "moderate",
+      "evidence_uri": "https://bitcoin.org/bitcoin.pdf",
+      "source_title": "Bitcoin: A Peer-to-Peer Electronic Cash System (2008)",
+      "source_publisher": "Satoshi Nakamoto / Bitcoin.org",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0037",
+      "claim": "The SEC approved listing and trading of spot bitcoin ETP shares on Jan 10, 2024; the Chair stated the SEC did not approve or endorse bitcoin.",
+      "direction": "supports",
+      "strength": "weak",
+      "evidence_uri": "https://www.sec.gov/newsroom/speeches-statements/gensler-statement-spot-bitcoin-011023",
+      "source_title": "Statement on the Approval of Spot Bitcoin Exchange-Traded Products (Gensler, Jan 10, 2024)",
+      "source_publisher": "U.S. Securities and Exchange Commission",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0038",
+      "claim": "Bitcoin's realized volatility was 67.8% annualized over Oct 2016 to Oct 2026, against 18.1% for the S&P 500 (5 years: 50.7% vs 17.0%; 1 year: 42.1% vs 12.7%). Computed from FRED daily closes; log-return stdev \u00d7 \u221a365 for BTC and \u00d7 \u221a252 for the S&P 500.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://fred.stlouisfed.org/series/CBBTCUSD",
+      "source_title": "Coinbase Bitcoin [CBBTCUSD], daily close (Coinbase via FRED; Copyrighted: citation required). Figures are cited with a link; the series is not stored.",
+      "source_publisher": "Coinbase, via FRED (link only)",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source attribution changed to the original publisher (Coinbase, via FRED); the series is cited with a link and not stored. Figure unchanged."
+    },
+    {
+      "id": "ER-0039",
+      "claim": "Bitcoin fell 83.8% from $19,650.01 (2017-12-16) to $3,183.00 (2018-12-15) on Coinbase.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://fred.stlouisfed.org/series/CBBTCUSD",
+      "source_title": "Coinbase Bitcoin [CBBTCUSD], daily close (Coinbase via FRED; Copyrighted: citation required). Figures are cited with a link; the series is not stored.",
+      "source_publisher": "Coinbase, via FRED (link only)",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source attribution changed to the original publisher (Coinbase, via FRED); the series is cited with a link and not stored. Figure unchanged."
+    },
+    {
+      "id": "ER-0040",
+      "claim": "After spot-ETF access, bitcoin still fell 53.0% from $124,720.09 (2025-10-05) to $58,585.96 (2026-06-30) on Coinbase.",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://fred.stlouisfed.org/series/CBBTCUSD",
+      "source_title": "Coinbase Bitcoin [CBBTCUSD], daily close (Coinbase via FRED; Copyrighted: citation required). Figures are cited with a link; the series is not stored.",
+      "source_publisher": "Coinbase, via FRED (link only)",
+      "added_on": "2026-10-25",
+      "source_revised_on": "2026-10-25",
+      "revision_note": "Source attribution changed to the original publisher (Coinbase, via FRED); the series is cited with a link and not stored. Figure unchanged."
+    },
+    {
+      "id": "ER-0041",
+      "claim": "China also banned new crypto mining, ordered existing projects phased out, and listed mining as an 'eliminated' industry (NDRC, Sep 2021).",
+      "direction": "opposes",
+      "strength": "moderate",
+      "evidence_uri": "https://www.gov.cn/zhengce/zhengceku/2021-09/25/content_5639225.htm",
+      "source_title": "Notice on rectifying virtual currency mining activities (Fagai Yunxing [2021] No. 1283)",
+      "source_publisher": "National Development and Reform Commission, via gov.cn",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0042",
+      "claim": "Exchange risk: Binance, the world's largest crypto exchange, pleaded guilty to BSA, unlicensed money-transmitting and sanctions violations, with penalties of $4,316,126,163; its CEO pleaded guilty and resigned (Nov 2023).",
+      "direction": "opposes",
+      "strength": "strong",
+      "evidence_uri": "https://www.justice.gov/archives/opa/pr/binance-and-ceo-plead-guilty-federal-charges-4b-resolution",
+      "source_title": "Binance and CEO Plead Guilty to Federal Charges in $4B Resolution (Nov 21, 2023)",
+      "source_publisher": "U.S. Department of Justice",
+      "added_on": "2026-10-25"
+    },
+    {
+      "id": "ER-0043",
+      "claim": "EU access through intermediaries now depends on MiCA authorisation (fully applicable since Dec 30, 2024; grandfathering to Jul 1, 2026), and ESMA lists non-compliant entities. Cuts both ways: it also gives legal clarity.",
+      "direction": "opposes",
+      "strength": "weak",
+      "evidence_uri": "https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica",
+      "source_title": "Markets in Crypto-Assets Regulation (MiCA)",
+      "source_publisher": "European Securities and Markets Authority",
+      "added_on": "2026-10-25"
+    }
+  ],
+  "gaps": [
+    {
+      "item": "Current Cambridge Bitcoin Electricity Consumption Index (CBECI) estimate",
+      "reason": "No public read: the CBECI data endpoint is captcha-gated. The January 2024 CBECI figure quoted by the EIA is already covered.",
+      "url": "https://ccaf.io/cbnsi/cbeci",
+      "logged_on": "2026-10-25"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "note": "Append-only. One object per correction: entry_date, what_was_wrong, how_discovered, correction, page.",
+  "entries": []
+}

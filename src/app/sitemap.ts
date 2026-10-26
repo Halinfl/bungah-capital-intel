@@ -9,7 +9,7 @@ import reitSnapshot from "@/data/reits/snapshot.json";
 export const dynamic = "force-dynamic";
 
 const BASE = "https://bungah.io";
-const CORE = ["/", "/markets", "/tuesday-trends", "/tuesday-trends/methodology", "/chat", "/radars", "/sound-money-lodging", "/podcast", "/pricing", "/trust", "/login", "/signup"];
+const CORE = ["/", "/markets", "/tuesday-trends", "/tuesday-trends/methodology", "/chat", "/radars", "/sound-money-lodging", "/hard-assets", "/hard-assets/scorecard", "/hard-assets/evidence", "/hard-assets/methodology", "/markets/ledger", "/errata", "/sponsorship-policy", "/podcast", "/pricing", "/trust", "/login", "/signup"];
 
 // Core public pages plus only the indexable markets (same rule as the market page robots tag).
 // Hidden markets are left out here and carry noindex on the page itself.

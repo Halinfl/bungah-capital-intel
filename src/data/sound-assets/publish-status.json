@@ -1,0 +1,5 @@
+{
+  "note": "Production gate (see next.config.ts). A production build fails while holdings_disclosure is null or drafts is true. Holdings wording confirmed and publishing approved by Hal on 2026-10-25.",
+  "holdings_disclosure": "We hold bitcoin as an asset.",
+  "drafts": false
+}
