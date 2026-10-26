@@ -1,0 +1,35 @@
+{
+  "grande-lakes-orlando-2026": {
+    "tape": null,
+    "financing_tags": [],
+    "watches_for": null,
+    "related": [
+      { "href": "/markets/orlando", "label": "Orlando market" },
+      { "href": "/reits/rhp", "label": "RHP (Ryman Hospitality Properties)" },
+      { "href": "/radars#orlando-msa-scarcity-watch", "label": "Orlando scarcity watch" }
+    ],
+    "sources": [
+      {
+        "kind": "filing",
+        "title": "Form 8-K: entry into the Grande Lakes purchase agreement",
+        "publisher": "Ryman Hospitality Properties, SEC EDGAR",
+        "date": "2026-08-10",
+        "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_8k.htm"
+      },
+      {
+        "kind": "filing",
+        "title": "Exhibit 99.1: press release, Ryman Hospitality Properties to acquire Grande Lakes Orlando Resort for $1.38 billion",
+        "publisher": "Ryman Hospitality Properties, SEC EDGAR",
+        "date": "2026-08-10",
+        "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex99-1.htm"
+      },
+      {
+        "kind": "filing",
+        "title": "Form 8-K: completion of the Grande Lakes acquisition",
+        "publisher": "Ryman Hospitality Properties, SEC EDGAR",
+        "date": "2026-09-01",
+        "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_8k.htm"
+      }
+    ]
+  }
+}

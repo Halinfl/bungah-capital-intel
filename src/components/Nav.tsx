@@ -8,6 +8,7 @@ import { MobileMenu } from "./MobileMenu";
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/reits", label: "REITs" },
+  { href: "/deals", label: "Deals" },
   { href: "/chat", label: "Chat" },
   { href: "/radars", label: "Radars" },
   { href: "/hard-assets", label: "Sound Assets" },
