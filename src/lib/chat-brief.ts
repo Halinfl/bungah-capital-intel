@@ -255,7 +255,7 @@ export function fmtAsOf(s: string | null | undefined): string | null {
  * for 12 months only when Dec 31 of that year is inside the window, and never sets a date span.
  * `fiscal`: a fiscal year with a known end date.
  */
-export type Period = { start: number; end: number; label: string; yearOnly?: boolean; fiscal?: boolean; marker?: boolean };
+export type Period = { start: number; end: number; label: string; yearOnly?: boolean; fiscal?: boolean; marker?: boolean; open?: boolean };
 
 /**
  * Month (1–12) a fiscal year ends in, from what the text and its source say; null when unknown.
@@ -435,7 +435,7 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
           : kD(p.start) === 1 && kM(p.start) === kM(p.end) && kY(p.start) === kY(p.end)
             ? monLabel(p.start)
             : spanLabel(p.start, p.end));
-      return { start: p.start, end, label, ...(p.yearOnly ? { yearOnly: true } : {}), ...(p.fiscal ? { fiscal: true } : {}), ...(p.marker ? { marker: true } : {}) };
+      return { start: p.start, end, label, ...(p.yearOnly ? { yearOnly: true } : {}), ...(p.fiscal ? { fiscal: true } : {}), ...(p.marker ? { marker: true } : {}), ...(p.marker && p.end > today ? { open: true } : {}) };
     });
 }
 
@@ -459,7 +459,9 @@ export function periodPick(texts: (string | null | undefined)[], ref?: number | 
   const rk = ref ?? todayKey();
   const context = ctx ?? texts.filter(Boolean).join(" ");
   const best = (ps: Period[]) => {
-    const ex = ps.filter((p) => !p.yearOnly);
+    // A quarter or half year still in progress ("H2 2026" opening) is a plan, not data: other dates win.
+    const ex0 = ps.filter((p) => !p.yearOnly);
+    const ex = ex0.some((p) => !p.open) ? ex0.filter((p) => !p.open) : ex0;
     // A fiscal year, quarter or half year written in the fact is its data period (a stray month is usually the publish month).
     const fy = ex.filter((p) => p.fiscal || p.marker);
     const pool = fy.length ? fy : ex;
