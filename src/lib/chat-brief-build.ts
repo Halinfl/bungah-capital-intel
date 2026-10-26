@@ -8,10 +8,17 @@ import type { UncoveredPlace } from "./chat-coverage";
 import { nearestCoveredMarkets } from "./chat-coverage";
 import { coverageInProgressLine, isSeedMarket } from "./format";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
-import { scrubInternal } from "./public-text";
+import { publisherName, scrubInternal } from "./public-text";
 import {
   chipKind,
   coverageLine,
+  digestDate,
+  inRange,
+  periodOf,
+  RANGE_LABEL,
+  withDate,
+  type Citation,
+  type DateRange,
   dateKey,
   dedupeParagraphs,
   digestFacts,
@@ -62,21 +69,77 @@ function snapshotLabel(label: string): string {
   return scrubInternal(t.trim());
 }
 
+/** The snapshot's own date, as written in its first citation ("YE 2025", "2025"); null if none. */
+function snapshotDate(m: MarketRow): string | null {
+  const p = periodOf(snapshotLabel(m.sourceLabel));
+  return p ? (p.startLabel === p.endLabel ? p.startLabel : `${p.startLabel}–${p.endLabel}`) : null;
+}
+
 function snapshotSource(m: MarketRow): BriefSource {
   const label = snapshotLabel(m.sourceLabel);
-  return { kind: chipKind(undefined, label), label };
+  return { kind: chipKind(undefined, label), label, title: label || undefined, date: snapshotDate(m) ?? undefined };
+}
+
+/* ------------------------------------------------------------------ */
+/* Date windows                                                        */
+/* ------------------------------------------------------------------ */
+
+type WindowInfo = { range: DateRange; snapshotOut: boolean };
+const WINDOWED = new WeakMap<object, WindowInfo>();
+
+/** Window a market row has been restricted to (undefined = All). */
+function windowOf(m: MarketRow): WindowInfo | undefined {
+  return WINDOWED.get(m);
+}
+
+/** The market snapshot (OCC / ADR / summary) is a citation of this answer. */
+function snapOK(m: MarketRow): boolean {
+  return !isSeedMarket(m) && !windowOf(m)?.snapshotOut;
+}
+
+/**
+ * A copy of a market restricted to a date window: only signals whose cited date falls in it
+ * (undated rows drop out), the snapshot only if its own date does, no undated assets. Every
+ * later step (answer line, reads, detail, sources, count and span) uses only what is left.
+ */
+export function windowMarket(m: MarketRow, range: DateRange): MarketRow {
+  if (range === "all") return m;
+  const snapshotOut = isSeedMarket(m) || !inRange(snapshotLabel(m.sourceLabel), range);
+  const out: MarketRow = {
+    ...m,
+    signals: m.signals.filter((s) => inRange(s.asOf, range)),
+    assets: [],
+    ...(snapshotOut
+      ? { occupancy: null, adr: null, visitorsM: null, roomsK: null, midweekOcc: null, weekendOcc: null, summary: "", nuanceNote: null }
+      : {}),
+  };
+  WINDOWED.set(out, { range, snapshotOut });
+  return out;
+}
+
+export function windowSignals<T extends { asOf: string | null }>(rows: T[], range: DateRange): T[] {
+  return range === "all" ? rows : rows.filter((s) => inRange(s.asOf, range));
+}
+
+export function windowDigests(digests: DigestHit[], range: DateRange): DigestHit[] {
+  return range === "all" ? digests : digests.filter((d) => inRange(digestDate(d), range));
+}
+
+function inWindowWord(m: MarketRow): string {
+  const w = windowOf(m);
+  return w ? ` in the ${RANGE_LABEL[w.range].toLowerCase()}` : " on file yet";
 }
 
 /** The headline-metrics answer line, values as stored / as published in the snapshot label. */
 function metricsLine(m: MarketRow): string | null {
-  if (isSeedMarket(m) || m.occupancy == null || m.adr == null) return null;
+  if (!snapOK(m) || m.occupancy == null || m.adr == null) return null;
   const cited = /RevPAR \$([\d,]+(?:\.\d+)?)/.exec(m.sourceLabel)?.[1];
   const revpar = cited ? `RevPAR $${cited}` : `RevPAR $${((m.occupancy / 100) * m.adr).toFixed(2)} (OCC×ADR)`;
   return `OCC ${m.occupancy.toFixed(1)}%, ADR $${m.adr.toFixed(2)}, ${revpar}`;
 }
 
 function metricsTable(m: MarketRow): BriefSection | null {
-  if (isSeedMarket(m)) return null;
+  if (!snapOK(m)) return null;
   const rows: [string, string][] = [];
   if (m.visitorsM != null) rows.push(["Visitors", `${m.visitorsM.toFixed(1)}M`]);
   if (m.roomsK != null) rows.push(["Rooms", `${m.roomsK.toFixed(1)}k`]);
@@ -95,7 +158,7 @@ function metricsTable(m: MarketRow): BriefSection | null {
 }
 
 function contextSection(m: MarketRow): BriefSection | null {
-  if (isSeedMarket(m)) return null;
+  if (!snapOK(m)) return null;
   const paras = dedupeParagraphs([m.summary, m.nuanceNote ?? ""].map((x) => scrubInternal(x)));
   if (!paras.length) return null;
   return { id: `context-${m.slug}`, title: "Market context", count: paras.length, markdown: paras.join("\n\n") };
@@ -114,6 +177,8 @@ function assetsSection(m: MarketRow): BriefSection | null {
 }
 
 function registryLine(m: MarketRow): string[] {
+  // Undated registry links stay out of a date-windowed answer.
+  if (windowOf(m)) return [];
   const reg = getMsaRegistryEntry(m.slug);
   if (!reg) return [];
   return [
@@ -125,17 +190,27 @@ function marketFacts(m: MarketRow): Fact[] {
   return m.signals.flatMap((s) => signalFacts(s as SignalLike));
 }
 
-/** Count distinct cited sources across reads, signals and extra labels. */
-function countSources(reads: BriefRead[], signals: SignalLike[], extra: string[] = []): number {
-  const keys = new Set<string>();
-  for (const r of reads) keys.add(r.source.url ?? r.source.label);
+/**
+ * The citations behind an answer, each with its cited row's own date: the reads' sources, every
+ * signal shown in the detail (one per original URL, else its source label) and extra sources
+ * (market snapshots). Count and date span on the "based on" line are computed from this list.
+ */
+function citationsOf(reads: BriefRead[], signals: SignalLike[], extra: Citation[] = []): Citation[] {
+  const out: Citation[] = [];
+  for (const r of reads) out.push({ key: r.source.url ?? r.source.label, label: r.source.label, asOf: r.source.date ?? r.asOf });
   for (const s of signals) {
     const links = signalLinks([s]);
-    if (links.length) links.forEach((l) => keys.add(l.url));
-    else keys.add(s.sourceLabel);
+    if (links.length) links.forEach((l) => out.push({ key: l.url, label: s.sourceLabel, asOf: s.asOf }));
+    else out.push({ key: s.sourceLabel, label: s.sourceLabel, asOf: s.asOf });
   }
-  for (const e of extra) keys.add(e);
-  return keys.size;
+  out.push(...extra);
+  return out;
+}
+
+function snapshotCite(m: MarketRow): Citation[] {
+  if (!snapOK(m)) return [];
+  const label = snapshotLabel(m.sourceLabel);
+  return [{ key: label, label, asOf: label }];
 }
 
 const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "debt", talent: "labor" };
@@ -147,6 +222,8 @@ function headLine(scope: string, lens: Lens, f: Fact): string {
 
 export type BriefOpts = {
   decline?: string;
+  /** Date window (All by default); market rows carry their own via windowMarket. */
+  range?: DateRange;
   notes?: string[];
   extraReads?: BriefRead[];
   extraSections?: BriefSection[];
@@ -181,7 +258,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = `${short}: ${metrics} (${snap.label}).`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     } else {
-      answer = `${short}: no cited ${LENS_WORD[lens] || "performance"} figure on file yet; the cited reads we have are below.`;
+      answer = `${short}: no cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited reads we have are below.`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     }
   }
@@ -199,17 +276,22 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     sections.push(...signalSections([opts.nationalOverlay], null, "national").map((s) => ({ ...s, title: "National overlay" })));
   }
   sections.push(...(opts.extraSections ?? []));
-  const src = sourcesSection(signalLinks(m.signals as SignalLike[]), [...(isSeedMarket(m) ? [] : [scrubInternal(m.sourceLabel)]), ...registryLine(m)]);
+  const src = sourcesSection(
+    [...signalLinks(m.signals as SignalLike[]), ...(opts.nationalOverlay ? signalLinks([opts.nationalOverlay]) : [])],
+    [...(snapOK(m) ? [scrubInternal(m.sourceLabel)] : []), ...registryLine(m)]
+  );
   if (src) sections.push(src);
 
   const notes = [...(opts.notes ?? [])];
   if (isSeedMarket(m)) notes.push(coverageInProgressLine(m.name));
-  const sourceCount = countSources(readList, m.signals as SignalLike[], isSeedMarket(m) ? [] : [snap.label]);
+  const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], snapshotCite(m));
+  const range = windowOf(m)?.range ?? opts.range ?? "all";
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: readList,
-    coverage: coverageLine({ sources: sourceCount, dates: m.signals.map((s) => s.asOf), notes }),
+    coverage: coverageLine({ cites, notes, range }),
+    window: { range, filterable: true },
     sections,
   });
 }
@@ -225,7 +307,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
   const answer =
     ma && mb
       ? `${sa}: ${ma} (${snapshotSource(a).label}) · ${sb}: ${mb} (${snapshotSource(b).label}).`
-      : `${sa} vs ${sb}: no cited OCC/ADR snapshot for ${seedNames.length === 2 ? "either" : seedNames[0]}, cited reads for each below.`;
+      : `${sa} vs ${sb}: no cited OCC/ADR snapshot${windowOf(a) ? ` in the ${RANGE_LABEL[windowOf(a)!.range].toLowerCase()}` : ""} for ${seedNames.length === 2 ? "either" : seedNames[0]}, cited reads for each below.`;
   const fa = marketFacts(a);
   const fb = marketFacts(b);
   const label = (m: string, f: Fact): Fact => ({ ...f, text: `${m}: ${f.text}` });
@@ -247,7 +329,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
     const c = contextSection(m);
     if (c) sections.push({ ...c, title: `${s} · Market context` });
   }
-  const src = sourcesSection(signalLinks([...a.signals, ...b.signals] as SignalLike[]), [a, b].filter((m) => !isSeedMarket(m)).map((m) => scrubInternal(m.sourceLabel)));
+  const src = sourcesSection(signalLinks([...a.signals, ...b.signals] as SignalLike[]), [a, b].filter(snapOK).map((m) => scrubInternal(m.sourceLabel)));
   if (src) sections.push(src);
   const notes = [...(opts.notes ?? [])];
   const seeds = [a, b].filter((m) => isSeedMarket(m)).map(shortName);
@@ -257,16 +339,21 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
     answer,
     reads,
     coverage: coverageLine({
-      sources: countSources(reads, [...a.signals, ...b.signals] as SignalLike[], [a, b].filter((m) => !isSeedMarket(m)).map((m) => snapshotLabel(m.sourceLabel))),
-      dates: [...a.signals, ...b.signals].map((s) => s.asOf),
+      cites: citationsOf(reads, [...a.signals, ...b.signals] as SignalLike[], [...snapshotCite(a), ...snapshotCite(b)]),
       notes,
+      range: windowOf(a)?.range ?? opts.range,
     }),
+    window: { range: windowOf(a)?.range ?? opts.range ?? "all", filterable: true },
     sections,
   });
 }
 
 /** National debt / rate overlay (no market named). */
-export function nationalDebtBrief(signals: SignalLike[], findings: { title: string; summary: string; sourceLabel: string }[], opts: BriefOpts = {}): ChatBrief {
+export function nationalDebtBrief(
+  signals: SignalLike[],
+  findings: { title: string; summary: string; sourceLabel: string }[],
+  opts: BriefOpts & { range?: DateRange } = {}
+): ChatBrief {
   const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind));
   const facts = debt.flatMap((s) => signalFacts(s));
   const head = pickReads(facts, "debt", 1)[0];
@@ -288,7 +375,13 @@ export function nationalDebtBrief(signals: SignalLike[], findings: { title: stri
     decline: opts.decline,
     answer,
     reads: reads.map(toRead),
-    coverage: coverageLine({ sources: countSources(reads.map(toRead), debt), dates: debt.map((s) => s.asOf), notes: ["National reads, not a market read."] }),
+    coverage: coverageLine({
+      // Radar findings carry no data date of their own: they count as undated sources.
+      cites: citationsOf(reads.map(toRead), debt, findings.map((f) => ({ key: f.sourceLabel, label: f.sourceLabel, asOf: null }))),
+      notes: ["National reads, not a market read."],
+      range: opts.range,
+    }),
+    window: { range: opts.range ?? "all", filterable: true },
     sections,
   });
 }
@@ -320,7 +413,7 @@ export function digestReads(d: DigestHit, question: string): { answer: string; r
   return { answer, reads, sections, links: f.links, date: f.guidance?.asOf ?? null };
 }
 
-export function digestBrief(digests: DigestHit[], question: string, opts: BriefOpts = {}): ChatBrief {
+export function digestBrief(digests: DigestHit[], question: string, opts: BriefOpts & { range?: DateRange } = {}): ChatBrief {
   const parts = digests.map((d) => digestReads(d, question));
   const links = parts.flatMap((p) => p.links);
   let answer: string;
@@ -341,10 +434,12 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
     answer,
     reads: readList,
     coverage: coverageLine({
-      sources: new Set(links.map((l) => l.url)).size,
-      dates: parts.map((p) => p.date),
+      // Each digest's source links, dated by that digest's release date.
+      cites: digests.flatMap((d, i) => parts[i].links.map((l) => ({ key: l.url, label: l.label, asOf: digestDate(d) }))),
       notes: ["Editor-authored digests of company-reported results; no licensed STR."],
+      range: opts.range,
     }),
+    window: { range: opts.range ?? "all", filterable: true },
     sections,
   });
 }
@@ -364,6 +459,8 @@ export function uncoveredBrief<T extends { slug: string; name: string }>(places:
     answer: lines.join(" "),
     reads: [],
     coverage: `No cited figures for ${places.map((p) => p.label).join(" or ")}, and none are estimated. [Browse every market we cover](/markets).`,
+    // Nothing is cited, so there is nothing to filter by date.
+    window: { range: "all", filterable: false },
     sections: [],
   });
 }
@@ -399,7 +496,7 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
     text: f.text,
     asOf: f.asOf,
     key: dateKey(f.asOf),
-    source: { kind: (["Filing", "Press", "Record", "Data"].includes(f.chip) ? f.chip : chipKind(f.url, f.label)) as BriefSource["kind"], label: f.label, url: f.url },
+    source: withDate({ kind: (["Filing", "Press", "Record", "Data"].includes(f.chip) ? f.chip : chipKind(f.url, f.label)) as BriefSource["kind"], label: f.label, url: f.url, title: f.label, publisher: publisherName(f.url) || undefined }, f.asOf),
     kind: f.slot,
     title: p.name,
     readable: (fitFact(f.text) ?? "") === f.text,
@@ -453,16 +550,21 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
   const links = [{ url: p.url, label: ownerSrc.label }, ...curated.map((f) => ({ url: f.source.url!, label: f.source.label })), ...p.comps.map((c) => ({ url: c.url, label: c.source })), ...(market ? signalLinks(market.signals as SignalLike[]) : [])];
   const src = sourcesSection(links);
   if (src) sections.push(src);
-  const sourceKeys = new Set([p.url, ...curated.map((f) => f.source.url!), ...reads.map((r) => r.source.url ?? r.source.label)]);
+  const cites: Citation[] = [
+    { key: p.url, label: ownerSrc.label, asOf: scheduleDate },
+    ...curated.map((f) => ({ key: f.source.url!, label: f.source.label, asOf: f.asOf })),
+    ...reads.map((r) => ({ key: r.source.url ?? r.source.label, label: r.source.label, asOf: r.source.date ?? r.asOf })),
+  ];
   return makeBrief({
     decline: opts.decline,
     answer,
     reads,
     coverage: coverageLine({
-      sources: sourceKeys.size,
-      dates: [scheduleDate, ...curated.map((f) => f.asOf), ...(market ? market.signals.map((x) => x.asOf) : [])],
+      cites,
       notes: [...(opts.notes ?? []), "Public sources only; no licensed STR for this hotel."],
     }),
+    // Anchored on the owner's property schedule (a standing fact, not a dated series): no date chip.
+    window: { range: "all", filterable: false },
     sections,
   });
 }

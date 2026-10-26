@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
-import { ChatBriefView, type ChatBrief } from "@/components/ChatBriefView";
+import { ChatBriefView, type ChatBrief, type DateRange } from "@/components/ChatBriefView";
 
 type Msg = {
   role: "user" | "assistant";
@@ -13,7 +13,12 @@ type Msg = {
   citations?: string[];
   sources?: { url: string; label: string; secondary?: boolean; signal: string }[];
   brief?: ChatBrief | null;
+  /** The question this message asks / answers, and its date window (re-ask chip). */
+  question?: string;
+  range?: DateRange;
 };
+
+const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
 
 
 function marketLabel(slug: string): string {
@@ -105,13 +110,14 @@ export function ChatClient() {
   }, [initialQuestionKey, initialQuestion]);
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, range: DateRange = "all") => {
       const q = text.trim();
       if (!q || busy) return;
       setBusy(true);
-      setInput("");
+      // A re-ask from the date chip keeps whatever is being typed.
+      if (range === "all") setInput("");
 
-      setMessages((m) => [...m, { role: "user", content: q }]);
+      setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
 
       const seq = ++requestSeq.current;
       inFlight.current?.abort();
@@ -125,12 +131,13 @@ export function ChatClient() {
           body: JSON.stringify({
             question: q,
             marketSlug: marketSlug || undefined,
+            ...(range !== "all" ? { range } : {}),
           }),
           signal: controller.signal,
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null };
+        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
       } catch (e) {
         reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
       }
@@ -207,9 +214,23 @@ export function ChatClient() {
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
               {m.role === "assistant" ? (
-                m.brief ? <ChatBriefView brief={m.brief} /> : <MarkdownLite text={m.content} />
+                m.brief ? (
+                  <ChatBriefView
+                    brief={m.brief}
+                    onReask={m.question ? (r) => void send(m.question!, r) : undefined}
+                  />
+                ) : (
+                  <MarkdownLite text={m.content} />
+                )
               ) : (
-                <p className="text-sm text-slate-200">{m.content}</p>
+                <p className="text-sm text-slate-200">
+                  {m.content}
+                  {m.range && m.range !== "all" ? (
+                    <span className="ml-2 inline-flex items-center rounded-full border border-white/20 px-2 py-0.5 align-middle text-xs leading-none text-slate-300">
+                      {RANGE_TAG[m.range]}
+                    </span>
+                  ) : null}
+                </p>
               )}
               {/* With a brief, sources live in its own "Sources (N)" section. */}
               {!m.brief && m.sources && m.sources.length > 0 ? (

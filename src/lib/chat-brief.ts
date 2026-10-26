@@ -17,7 +17,11 @@ import { parseSourceUrls, type SourceLink } from "./source-links";
 import { cleanSourceLabel, publisherName, scrubInternal } from "./public-text";
 
 export type ChipKind = "Filing" | "Press" | "Record" | "Data";
-export type BriefSource = { kind: ChipKind; label: string; url?: string };
+/**
+ * A cited source. `title`, `publisher` and `date` are filled only from real fields of the cited
+ * row (link label, URL host, row as-of date); a field with nothing behind it stays undefined.
+ */
+export type BriefSource = { kind: ChipKind; label: string; url?: string; title?: string; publisher?: string; date?: string };
 export type BriefRead = { text: string; asOf: string | null; source: BriefSource };
 export type BriefSection = { id: string; title: string; count: number; markdown: string };
 export type ChatBrief = {
@@ -26,11 +30,31 @@ export type ChatBrief = {
   answer: string;
   reads: BriefRead[];
   coverage: string;
+  /** First sentence of the coverage line ("Based on 4 cited sources, Jan–Sep 2026."). */
+  basedOn?: string;
+  /** Rest of the coverage line (coverage gaps etc.). */
+  coverageNotes?: string[];
+  /** Count and date span of the citations actually in the answer (never estimated). */
+  span?: DataSpan;
+  /** Date window this answer was built for; `filterable` false hides the re-ask chip. */
+  window?: { range: DateRange; filterable: boolean };
+  /** The citations the count and span were computed from (one row per source and cited date). */
+  cited?: Citation[];
   sections: BriefSection[];
   footer: string;
   /** Visible characters of the collapsed view (decline + answer + reads + coverage). */
   collapsedChars: number;
 };
+
+export type DateRange = "90d" | "12m" | "all";
+export const DATE_RANGES: DateRange[] = ["90d", "12m", "all"];
+export const RANGE_LABEL: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All" };
+export function parseRange(v: unknown): DateRange {
+  return v === "90d" || v === "12m" ? v : "all";
+}
+/** One citation behind an answer: a dedupe key (URL, else label) and the cited row's date. */
+export type Citation = { key: string; label: string; asOf: string | null | undefined };
+export type DataSpan = { sources: number; dated: number; from: string | null; to: string | null; label: string | null };
 
 export const DECISION_LINE = "Decision support, not a recommendation. You make the call.";
 export const READ_MAX = 140;
@@ -205,6 +229,110 @@ export function fmtAsOf(s: string | null | undefined): string | null {
   return t || null;
 }
 
+/** A date as a period (yyyymmdd keys) at the granularity it was written; null when undated. */
+export type Period = { start: number; end: number; startLabel: string; endLabel: string; gran: "day" | "month" | "quarter" | "year" };
+const DIM = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const monthPeriod = (y: number, mo: number): Period => ({
+  start: y * 10000 + mo * 100 + 1,
+  end: y * 10000 + mo * 100 + DIM[mo - 1],
+  startLabel: `${MONTH_NAMES[mo - 1]} ${y}`,
+  endLabel: `${MONTH_NAMES[mo - 1]} ${y}`,
+  gran: "month",
+});
+const yearPeriod = (y: number, prefix = ""): Period => ({ start: y * 10000 + 101, end: y * 10000 + 1231, startLabel: `${prefix}${y}`, endLabel: `${prefix}${y}`, gran: "year" });
+
+export function periodOf(raw: string | null | undefined): Period | null {
+  if (!raw) return null;
+  // Ignore access stamps ("accessed 2026-10-11"): they date the lookup, not the data.
+  const s = raw.replace(/\(?\baccessed\b[^);]*\)?/gi, " ");
+  let m = /\b(20\d{2})-(\d{2})-(\d{2})\b/.exec(s);
+  if (m) {
+    const k = +m[1] * 10000 + +m[2] * 100 + +m[3];
+    const l = `${MONTH_NAMES[+m[2] - 1]} ${m[1]}`;
+    return { start: k, end: k, startLabel: l, endLabel: l, gran: "day" };
+  }
+  m = /\b(20\d{2})-(\d{2})\b/.exec(s);
+  if (m && +m[2] >= 1 && +m[2] <= 12) return monthPeriod(+m[1], +m[2]);
+  m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(20\d{2})\b/i.exec(s);
+  if (m) {
+    const mo = MONTHS[m[1].toLowerCase()];
+    const k = +m[3] * 10000 + mo * 100 + +m[2];
+    const l = `${MONTH_NAMES[mo - 1]} ${m[3]}`;
+    return { start: k, end: k, startLabel: l, endLabel: l, gran: "day" };
+  }
+  m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(20\d{2})\b/i.exec(s);
+  if (m) return monthPeriod(+m[2], MONTHS[m[1].toLowerCase()]);
+  m = /\bQ([1-4])[\s-]?(?:FY)?(20\d{2})\b|\b(20\d{2})[\s-]?Q([1-4])\b/i.exec(s);
+  if (m) {
+    const q = +(m[1] ?? m[4]);
+    const y = +(m[2] ?? m[3]);
+    const l = `Q${q} ${y}`;
+    return { start: y * 10000 + (q * 3 - 2) * 100 + 1, end: y * 10000 + q * 300 + DIM[q * 3 - 1], startLabel: l, endLabel: l, gran: "quarter" };
+  }
+  m = /\b(?:YE|CY)\s?(20\d{2})\b/i.exec(s);
+  if (m) return yearPeriod(+m[1]);
+  m = /\bFY\s?(20\d{2})\b/i.exec(s);
+  if (m) return yearPeriod(+m[1], "FY ");
+  m = /\b(20\d{2})\b/.exec(s);
+  if (m) return yearPeriod(+m[1]);
+  return null;
+}
+
+function keyMinusDays(k: number, days: number): number {
+  const d = new Date(Date.UTC(Math.floor(k / 10000), (Math.floor(k / 100) % 100) - 1, k % 100));
+  d.setUTCDate(d.getUTCDate() - days);
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+
+/** First day (yyyymmdd) of a date window; 0 for All. */
+export function rangeCutoff(range: DateRange, today = todayKey()): number {
+  if (range === "90d") return keyMinusDays(today, 90);
+  if (range === "12m") return keyMinusDays(today, 365);
+  return 0;
+}
+
+/**
+ * True when a cited date falls in the window: its period overlaps [cutoff, today]. Undated or
+ * future-dated rows are outside any window (we can't show they're in it); All keeps every row.
+ */
+export function inRange(asOf: string | null | undefined, range: DateRange, today = todayKey()): boolean {
+  if (range === "all") return true;
+  const p = periodOf(asOf);
+  if (!p) return false;
+  return p.end >= rangeCutoff(range, today) && p.start <= today;
+}
+
+/** Count and date span of the citations in an answer, from their own dates. */
+export function dataSpan(cites: Citation[]): DataSpan {
+  const byKey = new Map<string, Period[]>();
+  for (const c of cites) {
+    if (!c.key) continue;
+    const list = byKey.get(c.key) ?? [];
+    const p = periodOf(c.asOf);
+    if (p) list.push(p);
+    byKey.set(c.key, list);
+  }
+  let first: Period | null = null;
+  let last: Period | null = null;
+  let dated = 0;
+  for (const ps of byKey.values()) {
+    if (ps.length) dated += 1;
+    for (const p of ps) {
+      if (!first || p.start < first.start) first = p;
+      if (!last || p.end > last.end) last = p;
+    }
+  }
+  let label: string | null = null;
+  if (first && last) {
+    const a = first.startLabel;
+    const b = last.endLabel;
+    const ma = /^([A-Z][a-z]{2}) (20\d{2})$/.exec(a);
+    const mb = /^([A-Z][a-z]{2}) (20\d{2})$/.exec(b);
+    label = a === b ? a : ma && mb && ma[2] === mb[2] ? `${ma[1]}–${mb[1]} ${mb[2]}` : `${a}–${b}`;
+  }
+  return { sources: byKey.size, dated, from: first?.startLabel ?? null, to: last?.endLabel ?? null, label };
+}
+
 function todayKey(): number {
   const d = new Date();
   return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
@@ -239,10 +367,37 @@ function sourceFrom(link: SourceLink | undefined, fallbackLabel: string): BriefS
     const raw = scrubInternal(parts.length > 1 ? parts[parts.length - 1] : publisherName(link.url)) || publisherName(link.url);
     // The read shows its own date, so drop a trailing "(Oct 13)" from the publisher.
     const label = raw.replace(/\s*\((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}(, ?20\d{2})?\)$/, "") || raw;
-    return { kind: chipKind(link.url, link.label), label, url: link.url };
+    // Popover fields, only from the link itself: title = the label's item part, publisher = its
+    // publisher part (else the URL's publisher). A host-only label is not a title.
+    const host = hostOf(link.url);
+    const titleRaw = parts.length > 1 ? parts.slice(0, -1).join(" — ") : link.label;
+    const title = scrubInternal(titleRaw).trim();
+    const publisher = label || publisherName(link.url);
+    return {
+      kind: chipKind(link.url, link.label),
+      label,
+      url: link.url,
+      title: title && title !== host && title !== publisher ? title : undefined,
+      publisher: publisher || undefined,
+    };
   }
-  const label = cleanSourceLabel(fallbackLabel).replace(/\s*https?:\/\/\S+/g, "").replace(/\s*\(accessed [^)]*\)\s*$/i, "").trim() || "Cited source";
-  return { kind: chipKind(undefined, label), label };
+  const cleaned = cleanSourceLabel(fallbackLabel).replace(/\s*https?:\/\/\S+/g, "").replace(/\s*\(accessed [^)]*\)\s*$/i, "").trim();
+  const label = cleaned || "Cited source";
+  return { kind: chipKind(undefined, label), label, title: cleaned || undefined };
+}
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/** Attach the cited row's own date to a source (for the source preview). */
+export function withDate(src: BriefSource, asOf: string | null | undefined): BriefSource {
+  const d = fmtAsOf(asOf);
+  return d ? { ...src, date: d } : src;
 }
 
 /* ------------------------------------------------------------------ */
@@ -345,7 +500,7 @@ function signalFactsRaw(s: SignalLike): Fact[] {
       text: text ?? plain(head),
       asOf: s.asOf,
       key: dateKey(s.asOf),
-      source: sourceFrom(links[0], s.sourceLabel),
+      source: withDate(sourceFrom(links[0], s.sourceLabel), s.asOf),
       kind: s.kind,
       title,
       readable: Boolean(text) && !sigBad && !NO_READ.test(`${title} ${s.body}`.slice(0, 400)) && METRIC.test(text ?? "") && !OFF_LIMITS.test(head),
@@ -361,7 +516,7 @@ function signalFactsRaw(s: SignalLike): Fact[] {
       text: text ?? plain(it.text),
       asOf,
       key: dateKey(inline ?? asOf),
-      source: sourceFrom(linkFor(it.text, links), s.sourceLabel),
+      source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), s.asOf),
       kind: s.kind,
       title,
       readable: Boolean(text) && !sigBad && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),
@@ -565,22 +720,36 @@ export function signalLinks(signals: SignalLike[]): { url: string; label: string
 /* Coverage + assembly                                                 */
 /* ------------------------------------------------------------------ */
 
-export function coverageLine(opts: { sources: number; dates: (string | null | undefined)[]; notes?: string[] }): string {
-  const today = todayKey();
-  let best = 0;
-  let bestLabel: string | null = null;
-  for (const d of opts.dates) {
-    const k = dateKey(d);
-    if (k && k <= today && k > best) {
-      best = k;
-      bestLabel = fmtAsOf(d);
-    }
-  }
-  const head =
-    opts.sources > 0
-      ? `Based on ${opts.sources} cited source${opts.sources === 1 ? "" : "s"}${bestLabel ? `, latest ${bestLabel}` : ""}.`
-      : "No cited figures for this question.";
-  return [head, ...(opts.notes ?? []).filter(Boolean)].join(" ");
+export type Coverage = { text: string; basedOn: string; notes: string[]; span: DataSpan; cited: Citation[] };
+
+/**
+ * "Based on N cited sources, <date span>." N and the span come from the answer's own citations
+ * (distinct URL / label, each with its cited row's date); nothing is estimated. Undated sources
+ * count toward N but not the span, and the line says how many were dated.
+ */
+export function coverageLine(opts: { cites: Citation[]; notes?: string[]; range?: DateRange }): Coverage {
+  const span = dataSpan(opts.cites);
+  const range = opts.range ?? "all";
+  const n = span.sources;
+  const win = range === "all" ? "" : ` (${RANGE_LABEL[range].toLowerCase()})`;
+  const basedOn =
+    n > 0
+      ? `Based on ${n} cited source${n === 1 ? "" : "s"}${span.dated && span.dated < n ? ` (${span.dated} dated)` : ""}${span.label ? `, ${span.label}` : ""}${win}.`
+      : range === "all"
+        ? "No cited figures for this question."
+        : `No cited sources dated in the ${RANGE_LABEL[range].toLowerCase()} for this question.`;
+  const notes = (opts.notes ?? []).filter(Boolean);
+  const seen = new Set<string>();
+  const cited = opts.cites
+    .filter((c) => c.key)
+    .map((c) => ({ key: c.key, label: scrubInternal(c.label), asOf: c.asOf ?? null }))
+    .filter((c) => {
+      const k = `${c.key}\u0000${c.asOf ?? ""}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  return { text: [basedOn, ...notes].join(" "), basedOn, notes, span, cited };
 }
 
 function readVisible(r: BriefRead): string {
@@ -591,11 +760,26 @@ export function collapsedLength(b: Pick<ChatBrief, "decline" | "answer" | "reads
   return [b.decline ? plain(b.decline) : "", plain(b.answer), ...b.reads.map(readVisible), plain(b.coverage)].filter(Boolean).join("\n").length;
 }
 
-export function makeBrief(b: Omit<ChatBrief, "collapsedChars" | "footer"> & { footer?: string }): ChatBrief {
+export function makeBrief(
+  input: Omit<ChatBrief, "collapsedChars" | "footer" | "coverage"> & { footer?: string; coverage: string | Coverage }
+): ChatBrief {
+  const cov = typeof input.coverage === "string" ? null : input.coverage;
+  const b = { ...input, coverage: cov ? cov.text : (input.coverage as string) };
   const clean: ChatBrief = {
+    ...(cov ? { basedOn: scrubInternal(cov.basedOn), coverageNotes: cov.notes.map(scrubInternal), span: cov.span, cited: cov.cited } : {}),
+    ...(b.window ? { window: b.window } : {}),
     decline: b.decline ? scrubInternal(b.decline) : undefined,
     answer: scrubInternal(b.answer),
-    reads: b.reads.slice(0, 3).map((r) => ({ ...r, text: scrubInternal(r.text), source: { ...r.source, label: scrubInternal(r.source.label) } })),
+    reads: b.reads.slice(0, 3).map((r) => ({
+      ...r,
+      text: scrubInternal(r.text),
+      source: {
+        ...r.source,
+        label: scrubInternal(r.source.label),
+        ...(r.source.title ? { title: scrubInternal(r.source.title) } : {}),
+        ...(r.source.publisher ? { publisher: scrubInternal(r.source.publisher) } : {}),
+      },
+    })),
     coverage: scrubInternal(b.coverage),
     sections: b.sections
       .filter((s) => s.count > 0 && s.markdown.trim())
@@ -669,12 +853,18 @@ export type DigestFacts = {
   excerpt: string;
 };
 
+/** Release / call date written in a digest ("Call / release date: Release 2026-08-05"); null if none. */
+export function digestDate(d: DigestHit, raw?: string): string | null {
+  const md = raw ?? d.raw ?? d.excerpt;
+  return /(?:release|call)[^\n]*?(20\d{2}-\d{2}-\d{2})/i.exec(md)?.[1] ?? null;
+}
+
 /** Structured facts from one authored digest (company-reported figures, copied as written). */
 export function digestFacts(d: DigestHit, raw: string): DigestFacts {
   const md = scrubInternal(raw);
   const period = /(20\d{2})-Q([1-4])/.exec(d.citePath);
   const periodLabel = period ? `Q${period[2]} ${period[1]}` : d.period;
-  const release = /(?:release|call)[^\n]*?(20\d{2}-\d{2}-\d{2})/i.exec(md)?.[1] ?? null;
+  const release = digestDate(d, md);
 
   const srcLines = section(md, /Sources/)
     .split("\n")
@@ -688,9 +878,10 @@ export function digestFacts(d: DigestHit, raw: string): DigestFacts {
     .filter((l) => l.url);
   const filing = links.find((l) => /sec\.gov/.test(l.url));
   const releaseLink = links.find((l) => /release/i.test(l.label)) ?? links[0];
+  const relDate = fmtAsOf(release) ?? undefined;
   const source: BriefSource = filing
-    ? { kind: "Filing", label: `${d.name} ${periodLabel} earnings release (8-K)`, url: filing.url }
-    : { kind: "Press", label: `${d.name} ${periodLabel} earnings release`, url: releaseLink?.url };
+    ? { kind: "Filing", label: `${d.name} ${periodLabel} earnings release (8-K)`, url: filing.url, title: filing.label || undefined, publisher: d.name, date: relDate }
+    : { kind: "Press", label: `${d.name} ${periodLabel} earnings release`, url: releaseLink?.url, title: releaseLink?.label || undefined, publisher: d.name, date: relDate };
 
   const fact = (text: string | null): Fact | null => {
     if (!text) return null;

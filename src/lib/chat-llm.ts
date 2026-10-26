@@ -43,8 +43,13 @@ import {
 } from "./chat-retrieve";
 import { radarChatAnswer } from "./radars-preview";
 import {
+  DATE_RANGES,
   DECISION_LINE,
+  RANGE_LABEL,
   briefMarkdown,
+  coverageLine,
+  makeBrief,
+  type DateRange,
   dedupeMarkdown,
   dropOffLimitsSentences,
   stripDecisionBoilerplate,
@@ -59,6 +64,9 @@ import {
   nationalDebtBrief,
   propertyBrief,
   uncoveredBrief,
+  windowDigests,
+  windowMarket,
+  windowSignals,
   type BriefOpts,
 } from "./chat-brief-build";
 import { matchProperty } from "./chat-property";
@@ -187,8 +195,11 @@ function cleanLegacy(content: string): string {
  */
 function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
   const content = answer.brief ? briefMarkdown(answer.brief) : cleanLegacy(answer.content);
+  // Under a date window the answer's citations are exactly the windowed brief's citations.
+  const windowed = answer.brief?.window && answer.brief.window.range !== "all";
   return {
     ...answer,
+    ...(windowed ? { citations: [...new Set((answer.brief!.cited ?? []).map((c) => c.label))] } : {}),
     content: scrubInternal(scrubSeedLines(content)),
     answeredWell,
   };
@@ -257,7 +268,8 @@ function adviceAnswer(
   question: string,
   ctx: GraphContext,
   corpus: CorpusPack,
-  marketSlug: string | null | undefined
+  marketSlug: string | null | undefined,
+  range: DateRange = "all"
 ): ChatAnswer & { brief?: ChatBrief } {
   const lines = [...adviceDeclineLines(kind), ""];
   const citations: string[] = [];
@@ -281,7 +293,7 @@ function adviceAnswer(
     , "");
   }
   if (!digestMemo) lines.push(decisionSupportFooter());
-  const brief = subjectBrief(question, ctx, corpus, marketSlug, { decline: declineText(kind) });
+  const brief = subjectBrief(question, ctx, corpus, marketSlug, { decline: declineText(kind), range });
   const prop = matchProperty(question);
   return {
     content: lines.join("\n").replace(/\n{3,}/g, "\n\n").trim(),
@@ -304,8 +316,56 @@ function adviceAnswer(
  */
 export async function answerChat(
   question: string,
-  opts?: { marketSlug?: string | null }
+  opts?: { marketSlug?: string | null; range?: DateRange }
 ): Promise<FinalAnswer> {
+  const range = opts?.range ?? "all";
+  const res = await answerChatIn(question, { marketSlug: opts?.marketSlug, range });
+  if (range === "all") return res;
+  if (!res.brief?.window?.filterable) {
+    // Either an intent that can't filter by date (answered in full, no chip), or the window
+    // removed everything the answer was built on (say so plainly, keep the chip).
+    const full = await answerChatIn(question, { marketSlug: opts?.marketSlug, range: "all" });
+    return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
+  }
+  if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
+  return res;
+}
+
+/** A date window with no cited source in it: a plain statement, no figures, the chip stays. */
+function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAnswer {
+  const label = RANGE_LABEL[range].toLowerCase();
+  const others = DATE_RANGES.filter((r) => r !== range).map((r) => (r === "all" ? "All" : RANGE_LABEL[r]));
+  const brief = makeBrief({
+    decline: full.brief?.decline,
+    answer: `No cited sources for this question are dated in the ${label}, so there is nothing to show for that window. Choose ${others.join(" or ")} to include older sources.`,
+    reads: [],
+    coverage: coverageLine({ cites: [], range }),
+    window: { range, filterable: true },
+    sections: [],
+  });
+  return finalize({ ...full, brief, citations: [], sources: [] }, full.answeredWell);
+}
+
+/** Restrict a retrieved graph to a date window (matching and intent are unchanged). */
+function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
+  const markets = ctx.markets.map((m) => windowMarket(m, range));
+  const byId = new Map(markets.map((m) => [m.id, m]));
+  return {
+    ...ctx,
+    markets,
+    matched: ctx.matched ? byId.get(ctx.matched.id) ?? null : null,
+    secondary: ctx.secondary.map((m) => byId.get(m.id)!).filter(Boolean),
+    nationalSignals: windowSignals(ctx.nationalSignals, range),
+    // Radar findings carry no data date of their own, so a window leaves them out.
+    radars: ctx.radars.map((r) => ({ ...r, findings: [] })),
+  };
+}
+
+async function answerChatIn(
+  question: string,
+  opts: { marketSlug?: string | null; range: DateRange }
+): Promise<FinalAnswer> {
+  const range = opts.range;
   const advice = classifyAdviceRequest(question);
 
   // Radar cards' "Ask Chat about this": answer with the full verified radar detail.
@@ -322,13 +382,16 @@ export async function answerChat(
       true
     );
   }
-  const [ctx, corpus] = await Promise.all([
+  const [ctxAll, corpusAll] = await Promise.all([
     retrieveGraphContext(question, opts?.marketSlug),
     retrieveAllowedCorpus(question),
   ]);
+  // Date window: every brief below is built only from rows dated inside it.
+  const ctx = range === "all" ? ctxAll : windowContext(ctxAll, range);
+  const corpus = range === "all" ? corpusAll : { ...corpusAll, digests: windowDigests(corpusAll.digests, range) };
 
   if (advice) {
-    return finalize(adviceAnswer(advice, question, ctx, corpus, opts?.marketSlug), true);
+    return finalize(adviceAnswer(advice, question, ctx, corpus, opts?.marketSlug, range), true);
   }
 
   const { places, alsoCovered } = uncoveredFor(question, ctx, opts?.marketSlug);
@@ -355,7 +418,7 @@ export async function answerChat(
   const withNote = (a: FinalAnswer): FinalAnswer => {
     if (!coverageNote.length) return a;
     if (a.brief) {
-      const brief = { ...a.brief, coverage: `${a.brief.coverage} ${noteText.join(" ")}` };
+      const brief = { ...a.brief, coverage: `${a.brief.coverage} ${noteText.join(" ")}`, coverageNotes: [...(a.brief.coverageNotes ?? []), ...noteText] };
       return finalize({ ...a, brief: { ...brief, collapsedChars: a.brief.collapsedChars + noteText.join(" ").length + 1 } }, a.answeredWell);
     }
     return finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell);
@@ -364,7 +427,7 @@ export async function answerChat(
   // A named hotel from the REIT property schedules: owner, what's on file, submarket context.
   const prop = matchProperty(question);
   if (prop) {
-    const market = ctx.markets.find((m) => m.slug === prop.marketSlug) ?? null;
+    const market = ctxAll.markets.find((m) => m.slug === prop.marketSlug) ?? null;
     const brief = propertyBrief(prop, market);
     return withNote(
       finalize(
@@ -381,7 +444,7 @@ export async function answerChat(
   }
 
   if (!opts?.marketSlug && isSupplyRankingQuestion(question, ctx.matched)) {
-    const ranked = formatSupplyRanking(ctx.markets, question);
+    const ranked = formatSupplyRanking(ctxAll.markets, question);
     return withNote(finalize({ ...ranked, intent: "supply_ranking" }, ranked.citations.length > 0));
   }
 
@@ -391,7 +454,7 @@ export async function answerChat(
   ];
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;
 
-  const model = resolveModel();
+  const model = range === "all" ? resolveModel() : null;
   if (model) {
     try {
       const { text } = await generateText({
@@ -447,11 +510,11 @@ export async function answerChat(
   const digestCites = digests.map((d) => d.citePath);
   // National debt questions answer from cited graph rows, not REIT digest soft-pulls.
   const nationalDebtFromGraph =
-    ctx.intent === "debt_overlay" && !corpus.digests.some((d) => d.score >= 5);
+    ctx.intent === "debt_overlay" && !corpusAll.digests.some((d) => d.score >= 5);
   if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
     const answer: ChatAnswer & { brief?: ChatBrief } = {
       content: digestMemo,
-      brief: digestBrief(digests, question),
+      brief: digestBrief(digests, question, { range }),
       citations: digestCites,
       intent: ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
@@ -461,7 +524,7 @@ export async function answerChat(
   }
 
   const fallback: ChatAnswer & { brief?: ChatBrief } = await answerFromGraph(question, opts);
-  const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : []);
+  const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : [], range);
   if (graphBrief) fallback.brief = graphBrief;
   // A named issuer alongside a market: one memo with a REIT section, not a second answer.
   if (digestMemo && ctx.matched) {
@@ -498,7 +561,7 @@ export async function answerChat(
 }
 
 /** Brief for the deterministic graph answer (same branch order as answerFromGraph). */
-function briefForGraph(question: string, ctx: GraphContext, namedDigests: CorpusPack["digests"]): ChatBrief | null {
+function briefForGraph(question: string, ctx: GraphContext, namedDigests: CorpusPack["digests"], range: DateRange = "all"): ChatBrief | null {
   const { matched, intent, nationalSignals, radars } = ctx;
   if (!question.trim()) return null;
   if (intent === "compare_markets") {
@@ -524,7 +587,7 @@ function briefForGraph(question: string, ctx: GraphContext, namedDigests: Corpus
   }
   if (intent === "debt_overlay") {
     const findings = radars.filter((r) => r.slug.includes("debt")).flatMap((r) => r.findings);
-    return nationalDebtBrief(nationalSignals, findings);
+    return nationalDebtBrief(nationalSignals, findings, { range });
   }
   return null;
 }

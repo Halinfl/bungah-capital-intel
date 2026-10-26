@@ -1202,7 +1202,14 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     return [{
       text,
       asOf: fmtAsOf(r.s.asOf),
-      source: { kind: "Data" as const, label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel, url: ucLink?.url },
+      source: {
+        kind: "Data" as const,
+        label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel,
+        url: ucLink?.url,
+        ...(ucLink && ucLink.label !== publisherHost(ucLink.url) ? { title: ucLink.label } : {}),
+        ...(ucLink ? { publisher: publisherHost(ucLink.url) } : {}),
+        ...(fmtAsOf(r.s.asOf) ? { date: fmtAsOf(r.s.asOf)! } : {}),
+      },
     }];
   });
   const rankTable = rows.map((r, i) => table[i]);
@@ -1210,10 +1217,11 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     answer: answerLine,
     reads,
     coverage: coverageLine({
-      sources: sources.length,
-      dates: rows.map((r) => r.s.asOf),
+      cites: rows.flatMap((r) => parseSourceUrls(r.s.sourceUrls).map((l) => ({ key: l.url, label: r.s.sourceLabel, asOf: r.s.asOf }))),
       notes: unscored.length ? [`Not ranked (no score yet): ${unscored.map(short).join(", ")}.`] : [],
     }),
+    // A ranking needs every scored market on one basis; dropping rows by date would change the ranking itself.
+    window: { range: "all", filterable: false },
     sections: [
       { id: "ranking", title: "Ranking", count: rows.length, markdown: ["| Rank | Market | Score | Under construction (as cited) | Source |", "| --- | --- | --- | --- | --- |", ...rankTable].join("\n") },
       ...(unscored.length
