@@ -1,0 +1,62 @@
+{
+  "sale_id": "grande-lakes-orlando-2026",
+  "announced_on": "2026-08-10",
+  "_built_on": "2026-10-25",
+  "_note": "Assembled from product/recent-deals/inputs/ (tape, parties, supply, demand, calls, HVS, Treasury, RHP price). Every input dated on or before 2026-08-10.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6 (published July 13, 2026)",
+      "price_per_key": 866834,
+      "total_keys": 1592,
+      "replacement_basis": "HVS 2026 median incl. land, blended by keys: Ritz-Carlton 582 keys at the luxury median $1,604,356; JW Marriott 1,010 keys at the full-service median $467,244",
+      "components": [
+        {
+          "label": "The Ritz-Carlton Orlando, Grande Lakes",
+          "hvs_class": "luxury",
+          "keys": 582,
+          "median_per_key": 1604356
+        },
+        {
+          "label": "JW Marriott Orlando Grande Lakes",
+          "hvs_class": "full-service",
+          "keys": 1010,
+          "median_per_key": 467244
+        }
+      ]
+    },
+    "spread": {
+      "as_of": "2026-08-10",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926093026/tm2622522-3_424b5.htm",
+      "source_label": "RHP preliminary prospectus supplement (424B5), filed Aug 10, 2026, p. S-3",
+      "cap_rate_pct": 6.6,
+      "cap_rate_basis": "ttm_through_last_quarter_before_announcement",
+      "cap_rate_period_end": "2026-06-30",
+      "note": "Disclosed cap rate 6.6% = NOI $91.172M (Adjusted EBITDAre $110.005M less FF&E reserve $18.833M, TTM to 6/30/26, seller data, unaudited) / ~$1.38B. FY2025 basis (6.4%) recorded, not graded.",
+      "treasury_10y_pct": 4.72,
+      "treasury_as_of": "2026-08-10",
+      "treasury_source_uri": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv"
+    },
+    "supply": {
+      "missing": "No free source published Orlando's total pipeline (under construction plus planned) as a share of existing rooms as of Aug 10, 2026. Partial-stage figures are shown as context only."
+    },
+    "demand": {
+      "as_of": "2026-08-04",
+      "source_uri": "https://www.occompt.com/DocumentCenter/View/60536/2026-06-June-TDT-Collection-PDF",
+      "source_label": "Orange County Comptroller TDT releases; June 2026 collections released Aug 4, 2026",
+      "tax_receipts_yoy_pct": 8.1,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2026-06-30",
+      "period": "Jun 2026; $404.6M vs $374.4M"
+    },
+    "debt_context": {
+      "as_of": "2026-08-10",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex10-1.htm",
+      "source_label": "Agreement of Purchase and Sale (8-K Ex. 10.1), Aug 10, 2026, \u00a72.3(c)",
+      "category": "arms_length_structured",
+      "note": "Arm's-length, no public distress as of Aug 10 (latest public rating action on the $800M ORL 2024-GLKS loan: confirmed, Stable, Dec 10, 2025). The PSA gave the buyer an option to assume the $800M floating-rate CMBS loan, with a loan modification (Schedule 2.3(c)) whose terms aren't public; RHP said funding 'may include' that assumption. On Aug 10 the cash price could therefore have been paid partly in assumed debt on non-public terms, which blurs the price signal. Lowest applicable category: 4. The Sep 1 close 8-K (which lists no assumed loan) is after the announcement and isn't used.",
+      "summary": "Arm's-length; no public distress (latest rating action on the $800M CMBS loan: confirmed, Stable, Dec 2025). Buyer held an option to assume that loan, with modification terms not public, so the price could be paid partly in assumed debt."
+    }
+  }
+}

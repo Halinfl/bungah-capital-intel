@@ -15,7 +15,7 @@ export type RubricFactor = {
   unit: string;
   bands: RubricBand[];
   cuts?: { direction: string; thresholds: Threshold[] };
-  basis_rule?: { cap_rate_basis: string; treasury_date: string };
+  basis_rule?: { cap_rate_basis?: string; treasury_date?: string; statistic?: string; land?: string };
   measure_rule?: { primary: string; fallback: string };
   source_rule?: { single_source_required: boolean; required_stage: string };
 };
@@ -40,7 +40,7 @@ type Common = { as_of: string; source_uri: string; source_label?: string; note?:
 /** One factor's input. Omit a factor, or pass { missing: reason }, to leave it ungraded. */
 export type FactorInput =
   | { missing: string }
-  | (Common & { price_per_key: number; replacement_cost_per_key: number; replacement_basis: string })
+  | (Common & { price_per_key: number; replacement_cost_per_key?: number; replacement_basis: string; total_keys?: number; components?: { label: string; hvs_class: string; keys: number; median_per_key: number }[] })
   | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
   | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string })
   | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
@@ -110,12 +110,21 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
   const num = (k: string) => (typeof a[k] === "number" && Number.isFinite(a[k]) ? (a[k] as number) : null);
   switch (f.id) {
     case "replacement_cost": {
-      const p = num("price_per_key"), r = num("replacement_cost_per_key");
+      const p = num("price_per_key");
+      // Hal 2026-10-25: HVS median incl. land, blended by keys across the deal's HVS classes.
+      const comps = Array.isArray(a.components) ? (a.components as { label: string; hvs_class: string; keys: number; median_per_key: number }[]) : null;
+      let r = num("replacement_cost_per_key");
+      if (comps && comps.length) {
+        if (comps.some((c) => !(c.keys > 0) || !(c.median_per_key > 0))) return { error: "Replacement-cost components need keys and a median per key." };
+        const k = comps.reduce((t, c) => t + c.keys, 0);
+        r = comps.reduce((t, c) => t + c.keys * c.median_per_key, 0) / k;
+        if (num("total_keys") !== null && num("total_keys") !== k) return { error: "Component keys don't add up to the deal's keys." };
+      }
       if (p === null || r === null || r <= 0) return { error: "Missing price per key or replacement cost per key." };
       const prem = ((p - r) / r) * 100;
       const pct = Math.round(Math.abs(prem));
       const dir = prem < 0 ? "below" : "above";
-      return { value: round1(prem), text: `${usdK(p)}/key vs ${usdK(r)} replacement (${a.replacement_basis}); ${pct}% ${dir}` };
+      return { value: round1(prem), text: `${usdK(p)}/key vs ${usdK(r)} replacement per key (${a.replacement_basis}); ${pct}% ${dir}` };
     }
     case "spread": {
       const c = num("cap_rate_pct"), t = num("treasury_10y_pct");
@@ -129,10 +138,11 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
         return { error: `Cap rate basis "${String(a.cap_rate_basis)}" isn't the rubric basis (trailing 12 months through the last quarter before announcement); recorded, not graded.` };
       if (rule && (!isDate(a.cap_rate_period_end) || (a.cap_rate_period_end as string) !== lastQuarterEnd(anchor)))
         return { error: `Cap rate period must end ${lastQuarterEnd(anchor)} (the last quarter-end before the announcement).` };
-      if (rule && !((a.treasury_as_of as string) < anchor))
-        return { error: "10-year must be from the last trading day before the announcement." };
+      // Hal 2026-10-25: 10-year = close on the announcement date (prior trading day only if the market was closed).
+      if (rule && rule.treasury_date === "announcement_date_close" && (a.treasury_as_of as string) > anchor)
+        return { error: "10-year must be the close on the announcement date." };
       const bp = Math.round((c - t) * 100);
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year at the ${a.treasury_as_of} close; ${bp}bp` };
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${a.cap_rate_period_end}) vs ${t.toFixed(2)}% 10-year (${a.treasury_as_of} close); ${bp}bp` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -165,7 +175,7 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
     case "debt_context": {
       const cat = a.category;
       if (typeof cat !== "string" || !f.bands.some((b) => b.category === cat)) return { error: "Unknown or missing context category." };
-      return { value: cat, text: f.bands.find((b) => b.category === cat)!.text };
+      return { value: cat, text: typeof a.summary === "string" && a.summary ? a.summary : f.bands.find((b) => b.category === cat)!.text };
     }
   }
 }
