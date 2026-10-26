@@ -204,6 +204,8 @@ function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: bool
     ...answer,
     ...(windowed ? { citations: [...new Set((answer.brief!.cited ?? []).map((c) => c.label))] } : {}),
     content: scrubInternal(scrubSeedLines(content)),
+    // Stored field names never reach readers ("roomsK" → "rooms").
+    ...(answer.citations ? { citations: (windowed ? [...new Set((answer.brief!.cited ?? []).map((c) => c.label))] : answer.citations).map((c) => c.replace(/\broomsK\b/g, "rooms")) } : {}),
     answeredWell,
   };
 }

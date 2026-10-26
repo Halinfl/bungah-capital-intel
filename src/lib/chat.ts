@@ -14,7 +14,7 @@ import {
 import { parseSourceUrls } from "./source-links";
 import { scrubInternal } from "./public-text";
 import { splitTaxSeries } from "./tax-series";
-import { coverageLine, dataPeriod, fitFact, fmtAsOf, makeBrief, sourcesSection, stampKey, type BriefRead, type ChatBrief } from "./chat-brief";
+import { coverageLine, dataPeriod, fitFact, makeBrief, sourcesSection, stampKey, type BriefRead, type ChatBrief } from "./chat-brief";
 
 export type ChatAnswer = {
   content: string;

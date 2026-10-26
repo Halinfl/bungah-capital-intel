@@ -345,7 +345,7 @@ export function compareBrief(a: MarketRow, b: MarketRow, question: string, inten
   const third = pickReads([...fa.map((f) => label(sa, f)), ...fb.map((f) => label(sb, f))], secondLens, 3, new Set([...ra, ...rb].map((f) => f.text)))
     .filter((f) => !used.has(f.text.replace(/^[^:]+:\s/, "")))
     .slice(0, 1);
-  const reads = [...ra, ...rb, ...third].filter((f) => f.text.length <= 160).sort((x, y) => y.key - x.key).map(toRead);
+  const reads = [...ra, ...rb, ...third].filter((f) => f.text.length <= 140).sort((x, y) => y.key - x.key).map(toRead);
 
   const sections: BriefSection[] = [];
   for (const m of [a, b]) {
