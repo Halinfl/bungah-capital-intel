@@ -294,11 +294,14 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     .replace(/\(?\b(accessed|reviewed|retrieved|pulled|as of)\b[^);|]*\)?/gi, " ")
     .replace(/https?:\/\/\S+/g, " ");
   const out: Period[] = [];
-  const take = (re: RegExp, f: (m: RegExpExecArray) => Period | null) => {
+  const take = (re: RegExp, f: (m: RegExpExecArray) => Period | null | undefined) => {
     s = s.replace(re, (...args) => {
       const m = args.slice(0, -2) as unknown as RegExpExecArray;
       const p = f(m);
-      if (p) out.push(p);
+      // null: not a period here, leave the text for the next pattern; undefined: a load stamp, drop it.
+      if (p === null) return m[0];
+      if (!p) return " ";
+      out.push(p);
       return " ";
     });
   };
@@ -311,7 +314,7 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     const label = m[2] && m[5] ? `${MONTH_NAMES[m1 - 1]} ${+m[2]}${y1 !== y2 ? `, ${y1}` : ""}–${MONTH_NAMES[m2 - 1]} ${+m[5]}, ${y2}` : "";
     return { start, end, label };
   });
-  take(new RegExp(`\\b${MON}\\s+(\\d{1,2})\\s*[–-]\\s*(\\d{1,2}),?\\s+(20\\d{2})\\b`, "gi"), (m) => {
+  take(new RegExp(`\\b${MON}\\s+(\\d{1,2})\\s*[–-]\\s*(\\d{1,2})[,:]?\\s+(20\\d{2})\\b`, "gi"), (m) => {
     const mo = monNum(m[1]), y = +m[4];
     return { start: k(y, mo, +m[2]), end: k(y, mo, +m[3]), label: `${MONTH_NAMES[mo - 1]} ${+m[2]}–${+m[3]}, ${y}` };
   });
@@ -330,25 +333,26 @@ export function periodsIn(raw: string | null | undefined, ref: number = todayKey
     return /of/i.test(m[1]) ? { start: e, end: ok, label: "" } : { start: ok, end: e, label: `w/e ${dayLabel(e)}` };
   });
   // YTD through a month: "2026 YTD through Aug", "YTD Aug 2026", "through Aug 2026".
-  take(new RegExp(`\\b(?:(20\\d{2})\\s+)?(?:YTD(?:\\s+(?:through|thru|to))?|through|thru)\\s+${MON}(?:\\s+(20\\d{2}))?`, "gi"), (m) => {
+  take(new RegExp(`\\b(?:(20\\d{2})\\s+)?(?:YTD(?:\\s+(?:through|thru|to))?|through|thru)\\s+${MON}(?:\\s+(\\d{1,2})(?!\\d))?,?(?:\\s+(20\\d{2}))?`, "gi"), (m) => {
     const mo = monNum(m[2]);
-    const y = m[3] ? +m[3] : m[1] ? +m[1] : null;
+    const y = m[4] ? +m[4] : m[1] ? +m[1] : null;
     if (!y) return null;
-    return { start: k(y, 1, 1), end: k(y, mo, dim(y, mo)), label: `Jan–${MONTH_NAMES[mo - 1]} ${y}` };
+    const d = m[3] ? +m[3] : null;
+    return { start: k(y, 1, 1), end: k(y, mo, d ?? dim(y, mo)), label: d ? `YTD through ${MONTH_NAMES[mo - 1]} ${d}, ${y}` : `Jan–${MONTH_NAMES[mo - 1]} ${y}` };
   });
   // Single days and months.
   take(/\b(20\d{2})-(\d{2})-(\d{2})\b/g, (m) => {
     const d = k(+m[1], +m[2], +m[3]);
-    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+    return isSweepStamp(d) ? undefined : { start: d, end: d, label: "" };
   });
   take(/\b(20\d{2})-(\d{2})\b(?!-)/g, (m) => (+m[2] >= 1 && +m[2] <= 12 ? { start: k(+m[1], +m[2], 1), end: k(+m[1], +m[2], dim(+m[1], +m[2])), label: "" } : null));
   take(new RegExp(`\\b${MON}\\s+(\\d{1,2}),?\\s+(20\\d{2})\\b`, "gi"), (m) => {
     const d = k(+m[3], monNum(m[1]), +m[2]);
-    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+    return isSweepStamp(d) ? undefined : { start: d, end: d, label: "" };
   });
   take(new RegExp(`\\b(\\d{1,2})\\s+${MON}\\s+(20\\d{2})\\b`, "gi"), (m) => {
     const d = k(+m[3], monNum(m[2]), +m[1]);
-    return isSweepStamp(d) ? null : { start: d, end: d, label: "" };
+    return isSweepStamp(d) ? undefined : { start: d, end: d, label: "" };
   });
   take(new RegExp(`\\b${MON}\\s+(20\\d{2})\\b`, "gi"), (m) => {
     const mo = monNum(m[1]), y = +m[2];
@@ -387,7 +391,8 @@ export function dataPeriod(texts: (string | null | undefined)[], ref?: number | 
   const latest = (ps: Period[]) => (ps.length ? ps.reduce((a, b) => (b.end > a.end ? b : a)) : null);
   for (const t of texts) {
     if (!t) continue;
-    let outside = t;
+    // A forecast's own vintage ("(Jul 2025 vintage)") is when its numbers were set.
+    let outside = t.replace(/\(([^()]*\bvintage\b[^()]*)\)/gi, " $1 ").replace(/(?<![A-Za-z])20\d{2}(?=\s+(lodging\s+)?(forecast|outlook|projection))/gi, " ");
     for (let i = 0; i < 3; i++) outside = outside.replace(/\([^()]*\)/g, " ");
     const p = latest(periodsIn(outside, ref ?? todayKey())) ?? latest(periodsIn(t, ref ?? todayKey()));
     if (p) return p;
@@ -442,13 +447,14 @@ export function dataSpan(cites: Citation[]): DataSpan {
     if (p) list.push(p);
     byKey.set(c.key, list);
   }
+  // The span runs from the oldest to the newest data date (each source dated by the end of its period).
   let start = 0;
   let end = 0;
   let dated = 0;
   for (const ps of byKey.values()) {
     if (ps.length) dated += 1;
     for (const p of ps) {
-      if (!start || p.start < start) start = p.start;
+      if (!start || p.end < start) start = p.end;
       if (p.end > end) end = p.end;
     }
   }
@@ -1001,10 +1007,10 @@ export function makeBrief(
     ...(cov ? { basedOn: scrubInternal(cov.basedOn), coverageNotes: cov.notes.map(scrubInternal), span: cov.span, cited: cov.cited } : {}),
     ...(b.window ? { window: b.window } : {}),
     decline: b.decline ? scrubInternal(b.decline) : undefined,
-    answer: scrubInternal(b.answer),
+    answer: balanceParens(scrubInternal(b.answer)),
     reads: b.reads.slice(0, 3).map((r) => ({
       ...r,
-      text: scrubInternal(r.text),
+      text: balanceParens(scrubInternal(r.text)),
       source: {
         ...r.source,
         label: scrubInternal(r.source.label),
@@ -1015,12 +1021,32 @@ export function makeBrief(
     coverage: scrubInternal(b.coverage),
     sections: withCitedSources(b.sections, cov)
       .filter((s) => s.count > 0 && s.markdown.trim())
-      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)) })),
+      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)).replace(/\s*\(source: TBD\)/gi, "") })),
     footer: b.footer ?? DECISION_LINE,
     collapsedChars: 0,
   };
   clean.collapsedChars = collapsedLength(clean);
+  // A declined question stays short: under 600 characters collapsed (drop trailing reads; their sources stay in the sections).
+  while (clean.decline && clean.reads.length > 1 && clean.collapsedChars >= 590) {
+    clean.reads = clean.reads.slice(0, -1);
+    clean.collapsedChars = collapsedLength(clean);
+  }
   return clean;
+}
+
+/** Drop stray closing parentheses copied from a source ("~$1.5B (+5.9%))"). */
+function balanceParens(t: string): string {
+  let depth = 0;
+  let out = "";
+  for (const ch of t) {
+    if (ch === "(") depth++;
+    if (ch === ")") {
+      if (depth === 0) continue;
+      depth--;
+    }
+    out += ch;
+  }
+  return out;
 }
 
 /** Sources always lists the cited rows (built from the coverage); Further reading stays last. */

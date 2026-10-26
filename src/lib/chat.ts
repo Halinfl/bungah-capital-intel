@@ -14,7 +14,7 @@ import {
 import { parseSourceUrls } from "./source-links";
 import { scrubInternal } from "./public-text";
 import { splitTaxSeries } from "./tax-series";
-import { coverageLine, fitFact, fmtAsOf, makeBrief, sourcesSection, type BriefRead, type ChatBrief } from "./chat-brief";
+import { coverageLine, dataPeriod, fitFact, fmtAsOf, makeBrief, sourcesSection, stampKey, type BriefRead, type ChatBrief } from "./chat-brief";
 
 export type ChatAnswer = {
   content: string;
@@ -1199,16 +1199,18 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     const ucLink = links.find((l) => /^UC intensity/i.test(l.label)) ?? links[0];
     const text = fitFact(`${short(r.m)} ${r.score}/5: ${r.uc ?? "under-construction share: no public read"}`);
     if (!text) return [];
+    // Dated by the data period the score row states (YE 2025, Q2 2026), never its load date.
+    const period = dataPeriod([r.uc, r.s.title, r.s.magnitude, r.s.asOf], stampKey(r.s.asOf));
     return [{
       text,
-      asOf: fmtAsOf(r.s.asOf),
+      asOf: period && !text.includes(period.label) ? period.label : null,
       source: {
         kind: "Data" as const,
         label: ucLink ? publisherHost(ucLink.url) : r.s.sourceLabel,
         url: ucLink?.url,
         ...(ucLink && ucLink.label.split(/\s+—\s+/)[0] !== publisherHost(ucLink.url) ? { title: ucLink.label.split(/\s+—\s+/)[0] } : {}),
         ...(ucLink ? { publisher: publisherHost(ucLink.url) } : {}),
-        ...(fmtAsOf(r.s.asOf) ? { date: fmtAsOf(r.s.asOf)! } : {}),
+        ...(period ? { date: period.label } : {}),
       },
     }];
   });
@@ -1217,7 +1219,9 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
     answer: answerLine,
     reads,
     coverage: coverageLine({
-      cites: rows.flatMap((r) => parseSourceUrls(r.s.sourceUrls).map((l) => ({ key: l.url, label: r.s.sourceLabel, asOf: r.s.asOf }))),
+      cites: rows.flatMap((r) =>
+        parseSourceUrls(r.s.sourceUrls).map((l) => ({ key: l.url, url: l.url, label: r.s.sourceLabel, text: l.label, asOf: r.s.asOf, period: dataPeriod([r.uc, r.s.title, r.s.magnitude, r.s.asOf], stampKey(r.s.asOf)) }))
+      ),
       notes: unscored.length ? [`Not ranked (no score yet): ${unscored.map(short).join(", ")}.`] : [],
     }),
     // A ranking needs every scored market on one basis; dropping rows by date would change the ranking itself.

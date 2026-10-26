@@ -306,8 +306,9 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
 
   const notes = [...(opts.notes ?? [])];
   if (!readList.length) {
-    answer = /no cited/.test(answer) ? answer.replace(/^[^:]+: /, `Limited recent data for ${short}: `) : answer;
-    notes.unshift(`Limited recent data for ${short}: no dated key reads; the cited rows are in the sections below.`);
+    // Same wording in every window: the answer line says it when there is no head figure, else a note.
+    if (answer.startsWith(`${short}: no dated, cited`)) answer = answer.replace(`${short}: `, `Limited recent data for ${short}: `);
+    else notes.unshift(`Limited recent data for ${short}: no other dated key reads; the cited rows are in the sections below.`);
   }
   if (isSeedMarket(m)) notes.push(coverageInProgressLine(m.name));
   const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
@@ -421,7 +422,7 @@ function rateSeries(question: string): { name: string; re: RegExp } {
 
 /** Benchmark rate question: the newest cited row for that rate leads, with its date and source. */
 export function ratesBrief(signals: SignalLike[], question: string, opts: BriefOpts = {}): ChatBrief {
-  const rows = signals.filter((s) => RATE_ROW.test(`${s.title} ${s.body.slice(0, 200)}`));
+  const rows = signals.filter((s) => RATE_ROW.test(s.title));
   const series = rateSeries(question);
   const facts = rows.flatMap((s) => signalFacts(s).slice(0, 1).map((f) => ({ f, s })));
   const byNewest = (a: { f: Fact }, b: { f: Fact }) => b.f.key - a.f.key;
@@ -638,7 +639,7 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
     reads,
     coverage: coverageLine({
       cites,
-      notes: [...(opts.notes ?? []), "Public sources only; no licensed STR for this hotel."],
+      notes: [...(opts.notes ?? []), "Public sources only; no licensed STR."],
     }),
     // Anchored on the owner's property schedule (a standing fact, not a dated series): no date chip.
     window: { range: "all", filterable: false },
