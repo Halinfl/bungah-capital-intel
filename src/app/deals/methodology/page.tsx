@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
-import { DealsDraftNote, UnderwriteNote } from "@/components/deals/DotBar";
+import { UnderwriteNote } from "@/components/deals/DotBar";
 import { RUBRIC, fmtDate } from "@/lib/deals";
 
 export const metadata: Metadata = {
@@ -11,13 +11,14 @@ export const metadata: Metadata = {
 
 const SOURCES: Record<string, { source: string; asOf: string }> = {
   replacement_cost: {
-    source: "HVS U.S. Hotel Development Cost Survey (free); class and edition stated; land excluded",
+    source:
+      "HVS U.S. Hotel Development Cost Survey (free): median total development cost per key, including land, blended by keys across the HVS classes of the hotels in the deal; edition and classes stated",
     asOf: "Latest edition published before the announcement",
   },
   spread: {
     source:
       "Cap rate on NOI for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
-    asOf: "10-year yield at the close of the last trading day before the announcement",
+    asOf: "10-year yield at the close on the announcement date",
   },
   supply: {
     source:
@@ -48,10 +49,6 @@ export default function DealsMethodologyPage() {
         <p className="max-w-3xl t-lead">
           How we choose deals and grade them. This page was published before the first grade. Decision support, not a recommendation.
         </p>
-        <DealsDraftNote>
-          Rubric {r.rubric_version}: top bands set by the editor; lower bands, the cap-rate basis, the 10-year timing, the demand measure and the supply source rule are
-          awaiting sign-off.
-        </DealsDraftNote>
         <UnderwriteNote text={r.disclaimer} />
       </header>
 
@@ -64,6 +61,7 @@ export default function DealsMethodologyPage() {
           <li>(a) one of our 13 tracked hotel REITs is buyer or seller, at any size; OR</li>
           <li>(b) it&rsquo;s a US hotel sale with a disclosed price of $100M or more.</li>
         </ul>
+        <p className={p}>US means the 50 states and DC. Puerto Rico and other US territories are excluded.</p>
         <p className={p}>Tracked REITs: {r.inclusion_rule.tracked_reits.join(", ")}.</p>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
           <li>Every qualifying deal is logged, including ones we haven&rsquo;t finished grading.</li>
@@ -115,7 +113,7 @@ export default function DealsMethodologyPage() {
         </div>
 
         <h3 className="pt-2 text-lg font-semibold text-white">Bands</h3>
-        <p className="max-w-3xl text-sm text-slate-300">Score 5 is the top band set by the editor. Scores 4 to 1 step down evenly and are marked derived.</p>
+        <p className="max-w-3xl text-sm text-slate-300">Score 5 is the top band set by the editor. Scores 4 to 1 step down evenly from it.</p>
         <div className="grid gap-4 md:grid-cols-2">
           {r.factors.map((f) => (
             <div key={f.id} className="rounded-xl border border-white/10 p-4">
@@ -129,7 +127,7 @@ export default function DealsMethodologyPage() {
                     <span className="w-4 shrink-0 tabular-nums text-white">{b.score}</span>
                     <span className="text-slate-200">
                       {b.text}
-                      <span className="text-xs text-slate-400"> · {b.set_by === "Hal" ? "top band" : "derived"}</span>
+                      <span className="text-xs text-slate-400"> · {b.set_by === "Hal" ? "top band" : "stepped down"}</span>
                     </span>
                   </li>
                 ))}
@@ -174,7 +172,10 @@ export default function DealsMethodologyPage() {
         </h2>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
           <li>
-            Rubric {r.rubric_version}, {fmtDate(r.drafted_on)}: first version, published before any deal was graded.
+            Rubric {r.rubric_version}, {fmtDate(r.drafted_on)}: first version, approved and published before any deal was graded. Same day, before
+            any grade: named the cap-rate basis (trailing-12-month NOI), the 10-year timing (close on the announcement date), the demand measure
+            (trailing 12 vs prior 12 months), the replacement-cost basis (HVS median including land, blended by keys), the supply source rule (one
+            source, total pipeline) and the geography (50 states and DC).
           </li>
         </ul>
         <p className={p}>{r.versioning} The original grade is never overwritten.</p>
