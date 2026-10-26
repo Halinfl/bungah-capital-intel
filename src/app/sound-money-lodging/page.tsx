@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
+import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { citedOnly, hasPublicCoverage, isNoReadSignal, isPlaceholderText } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
 import { SleeveCarryCheck } from "./SleeveCarryCheck";
@@ -206,10 +208,12 @@ export default async function SoundMoneyLodgingPage({
   searchParams: Promise<{ market?: string }>;
 }) {
   const sp = await searchParams;
-  const allMarkets = await prisma.market.findMany({
-    orderBy: { name: "asc" },
-    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
-  });
+  const allMarketsQ = await cachedQuery(["sml-markets"], () =>
+    prisma.market.findMany({
+      orderBy: { name: "asc" },
+      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+    }), []);
+  const allMarkets = allMarketsQ.data;
   // The memo picker lists only the markets with cited coverage (same 17-market rule as /markets).
   const markets = allMarkets.filter((m) =>
     hasPublicCoverage(m, citedOnly(m.signals).filter((x) => !isNoReadSignal(x)).length)
@@ -220,14 +224,15 @@ export default async function SoundMoneyLodgingPage({
     : markets.find((m) => m.slug === "orlando")?.slug ?? markets[0]?.slug ?? "";
   // Public list: only memos for covered markets that carry real data. Older memos whose every section
   // reads "no checked read yet" stay in the DB, unrendered.
-  const memos = (
-    await prisma.artifact.findMany({
+  const memosQ = await cachedQuery(["sml-memos"], () =>
+    prisma.artifact.findMany({
       where: { kind: STACK_MEMO_KIND },
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { market: true },
-    })
-  )
+    }), []);
+  const dbDown = !allMarketsQ.ok || !memosQ.ok;
+  const memos = memosQ.data
     .filter((a) => !isPlaceholderText(a.title, a.markdown, a.sourceLabel))
     .filter((a) => a.marketId && coveredIds.has(a.marketId))
     .filter((a) => !/Demand: no checked read yet\./.test(a.markdown))
@@ -235,6 +240,7 @@ export default async function SoundMoneyLodgingPage({
 
   return (
     <div className="space-y-12">
+      {dbDown ? <DataUnavailableNotice /> : null}
       {/* Hero — short summary, then the two calculators; the full doctrine follows below */}
       <section className="space-y-4">
         <p className="text-sm font-medium text-slate-300">Sound Asset Lodging</p>

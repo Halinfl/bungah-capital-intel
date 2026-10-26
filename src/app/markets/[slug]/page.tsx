@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
+import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { StatCard } from "@/components/StatCard";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
@@ -42,11 +44,12 @@ function shortMarketLabel(name: string, slug: string): string {
 /** Markets without public coverage stay reachable by link but are not indexed. */
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const m = await prisma.market.findUnique({
-    where: { slug },
-    include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
-  });
-  if (!m) return {};
+  const { data: m } = await cachedQuery(["market-meta", slug], () =>
+    prisma.market.findUnique({
+      where: { slug },
+      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+    }), null);
+  if (!m) return { title: "Hotel market · Bungah Capital Intel", alternates: { canonical: `/markets/${slug}` } };
   const covered = isIndexableMarket(m);
   const extras = [
     ttMarketBySiteSlug(slug) ? "weekly indicative Google Hotels rates" : null,
@@ -70,19 +73,31 @@ export default async function MarketDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const market = await prisma.market.findUnique({
-    where: { slug },
-    include: {
-      assets: { orderBy: { name: "asc" } },
-      signals: { orderBy: { createdAt: "desc" } },
-      findings: {
-        include: { radar: true },
-        orderBy: { createdAt: "desc" },
-        take: 8,
+  const marketQ = await cachedQuery(["market-detail", slug], () =>
+    prisma.market.findUnique({
+      where: { slug },
+      include: {
+        assets: { orderBy: { name: "asc" } },
+        signals: { orderBy: { createdAt: "desc" } },
+        findings: {
+          include: { radar: true },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+        },
       },
-    },
-  });
+    }), null);
+  const market = marketQ.data;
 
+  // DB outage with no cached copy: friendly page (200), never a 404 or 500.
+  if (!market && !marketQ.ok) {
+    return (
+      <div className="space-y-4">
+        <Link href="/markets" className="text-sm text-slate-300 hover:text-white">← All markets</Link>
+        <h1 className="t-h1">Market data is temporarily unavailable</h1>
+        <DataUnavailableNotice what="This market's data" />
+      </div>
+    );
+  }
   if (!market) notFound();
   // Seed / illustrative rows stay in the DB but are never rendered.
   // "tag: none / national applies" placeholder rows are not shown either.

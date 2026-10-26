@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
+import { cachedQuery } from "./db-safe";
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import {
@@ -601,27 +602,33 @@ export async function retrieveGraphContext(
   const q = question.toLowerCase().trim();
   const slug = preferredMarketSlug?.trim().toLowerCase() || null;
 
-  const markets = await prisma.market.findMany({
-    // Newest signals first so dated sweeps lead over older seed baselines.
-    include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
-    orderBy: { name: "asc" },
-  });
+  // Cached reads (src/lib/db-safe.ts): a DB outage serves the last good graph; cold cache + outage throws a clear error.
+  const marketsQ = await cachedQuery(["chat-markets"], () =>
+    prisma.market.findMany({
+      // Newest signals first so dated sweeps lead over older seed baselines.
+      include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
+      orderBy: { name: "asc" },
+    }), []);
+  if (!marketsQ.ok) throw new Error("CAPITAL_GRAPH_UNAVAILABLE");
+  const markets = marketsQ.data;
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     m.signals = citedOnly(m.signals);
     m.assets = citedOnly(m.assets);
   }
   const nationalSignals = citedOnly(
-    await prisma.signal.findMany({
-      where: { marketId: null },
-      orderBy: { createdAt: "desc" },
-    })
+    (await cachedQuery(["chat-national-signals"], () =>
+      prisma.signal.findMany({
+        where: { marketId: null },
+        orderBy: { createdAt: "desc" },
+      }), [])).data
   );
   const radars = (
-    await prisma.radar.findMany({
-      include: { findings: { orderBy: { createdAt: "desc" }, take: 10 } },
-    })
-  ).map((r) => ({ ...r, description: scrubInternal(publicRadarDescription(r.description)), findings: citedFindings(r.findings).slice(0, 3) }));
+    await cachedQuery(["chat-radars"], () =>
+      prisma.radar.findMany({
+        include: { findings: { orderBy: { createdAt: "desc" }, take: 10 } },
+      }), [])
+  ).data.map((r) => ({ ...r, description: scrubInternal(publicRadarDescription(r.description)), findings: citedFindings(r.findings).slice(0, 3) }));
 
   let matched: MarketRow | null = null;
   if (slug) {
@@ -1012,10 +1019,11 @@ export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
   const rows = citedOnly(
-    await prisma.signal.findMany({
-      where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
-      select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
-    })
+    (await cachedQuery(["chat-source-signals"], () =>
+      prisma.signal.findMany({
+        where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
+        select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
+      }), [])).data
   );
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();

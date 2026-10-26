@@ -1,0 +1,1 @@
+{"name":"bungah-ops","private":true,"type":"module","description":"Box-side ops scripts for bungah.io: DB export, restore test, data/setup/usage checks, research backup. Read-only against the prod DB.","dependencies":{"@electric-sql/pglite":"^0.5.12","@neondatabase/serverless":"^1.2.0","ws":"^8.22.0"}}

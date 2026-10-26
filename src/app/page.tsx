@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
+import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { citedFindings, citedOnly, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { parseSourceUrls } from "@/lib/source-links";
 import { publisherName, scrubInternal } from "@/lib/public-text";
@@ -47,15 +49,17 @@ const primaryBtn =
   "inline-flex items-center justify-center rounded-lg bg-slate-100 px-5 py-3 text-base font-medium text-slate-900 hover:bg-white";
 
 export default async function HomePage() {
-  const markets = await prisma.market.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      signals: {
-        select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true },
-        orderBy: { createdAt: "asc" },
+  const marketsQ = await cachedQuery(["home-markets"], () =>
+    prisma.market.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        signals: {
+          select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true },
+          orderBy: { createdAt: "asc" },
+        },
       },
-    },
-  });
+    }), []);
+  const markets = marketsQ.data;
   const coveredCount = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length)).length;
 
   // Hero card: only markets whose snapshot is cited (no seed numbers). Source links come from the
@@ -85,11 +89,12 @@ export default async function HomePage() {
     .filter((r) => r.links.length > 0);
 
   // Radars: same public rule as /radars for signed-out visitors (cited findings only, superseded rows out).
-  const radars = (
-    await prisma.radar.findMany({
+  const radarsQ = await cachedQuery(["home-radars"], () =>
+    prisma.radar.findMany({
       include: { findings: { orderBy: { createdAt: "desc" }, take: 5 } },
-    })
-  ).filter((r) => !SUPERSEDED_RADAR_SLUGS.includes(r.slug));
+    }), []);
+  const dbDown = !marketsQ.ok || !radarsQ.ok;
+  const radars = radarsQ.data.filter((r) => !SUPERSEDED_RADAR_SLUGS.includes(r.slug));
   const latestRadar = radars
     .flatMap((r) => citedFindings(r.findings).map((f) => ({ ...f, radarName: r.name })))
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
@@ -169,6 +174,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16 sm:space-y-20">
+      {dbDown ? <DataUnavailableNotice /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }} />
       {/* 1 · Hero (one primary action) + 2 · cited snapshot with the trust line under it */}
       <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">

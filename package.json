@@ -9,21 +9,25 @@
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed:sweep-2026-10-11": "tsx prisma/seed-sweep-2026-10-11.ts",
-    "db:seed:world-cup-atlas-2026-10-11": "tsx prisma/seed-world-cup-atlas-2026-10-11.ts",
-    "db:seed:demand-w1-2026-10-11": "tsx prisma/seed-demand-w1-2026-10-11.ts",
-    "db:seed:depth-w1-linked-2026-10-11": "tsx prisma/seed-depth-w1-linked-2026-10-11.ts",
-    "db:seed:tax-series-2026-10-11": "tsx prisma/seed-tax-series-2026-10-11.ts",
-    "db:reset": "prisma db push --force-reset && npm run db:seed",
-    "radars:run": "tsx scripts/run-radars.ts",
+    "db:push": "node scripts/guard-seed.mjs db:push && prisma db push",
+    "db:seed": "node scripts/guard-seed.mjs db:seed && tsx prisma/seed.ts",
+    "db:seed:sweep-2026-10-11": "node scripts/guard-seed.mjs db:seed:sweep-2026-10-11 && tsx prisma/seed-sweep-2026-10-11.ts",
+    "db:seed:world-cup-atlas-2026-10-11": "node scripts/guard-seed.mjs db:seed:world-cup-atlas-2026-10-11 && tsx prisma/seed-world-cup-atlas-2026-10-11.ts",
+    "db:seed:demand-w1-2026-10-11": "node scripts/guard-seed.mjs db:seed:demand-w1-2026-10-11 && tsx prisma/seed-demand-w1-2026-10-11.ts",
+    "db:seed:depth-w1-linked-2026-10-11": "node scripts/guard-seed.mjs db:seed:depth-w1-linked-2026-10-11 && tsx prisma/seed-depth-w1-linked-2026-10-11.ts",
+    "db:seed:tax-series-2026-10-11": "node scripts/guard-seed.mjs db:seed:tax-series-2026-10-11 && tsx prisma/seed-tax-series-2026-10-11.ts",
+    "db:reset": "node scripts/guard-seed.mjs db:reset && prisma db push --force-reset && npm run db:seed",
+    "radars:run": "node scripts/guard-seed.mjs radars:run && tsx scripts/run-radars.ts",
     "train:export": "tsx scripts/export-train-corpus.ts",
     "postinstall": "prisma generate",
-    "corpus:embed": "node scripts/embed-corpus.mjs"
+    "corpus:embed": "node scripts/embed-corpus.mjs",
+    "typecheck": "tsc --noEmit -p .",
+    "test:smoke": "node scripts/ops/smoke.mjs",
+    "predeploy": "bash scripts/ops/predeploy.sh",
+    "postdeploy": "bash scripts/ops/postdeploy.sh"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node scripts/guard-seed.mjs prisma-seed && tsx prisma/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.88",

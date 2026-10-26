@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
+import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { citedOnly, hasPublicCoverage, isSeedMarket } from "@/lib/format";
@@ -14,13 +16,16 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketsPage() {
-  const markets = await prisma.market.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      assets: { select: { sourceLabel: true, name: true, notes: true } },
-      signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
-    },
-  });
+  const marketsQ = await cachedQuery(["markets-index"], () =>
+    prisma.market.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        assets: { select: { sourceLabel: true, name: true, notes: true } },
+        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
+      },
+    }), []);
+  const markets = marketsQ.data;
+  const dbDown = !marketsQ.ok;
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed
   // (a cited snapshot, or enough cited signals); thin markets are counted in a "more coming" line.
@@ -50,6 +55,7 @@ export default async function MarketsPage() {
 
   return (
     <div className="space-y-8">
+      {dbDown ? <DataUnavailableNotice /> : null}
       <MarketsTabs active="markets" />
       <div>
         <h1 className="t-h1">Markets</h1>

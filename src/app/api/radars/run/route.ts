@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
+import { DB_TAG } from "@/lib/db-safe";
+import { canRunRadars } from "@/lib/radar-access";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { citedOnly, isPlaceholderText } from "@/lib/format";
@@ -8,6 +11,12 @@ export async function POST() {
   // Writes findings: signed-in workspaces only (the public page no longer shows the run control).
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Sign in to run radars" }, { status: 401 });
+  // Role check: signed in is not enough. Only Clerk user IDs listed in RADARS_RUN_USER_IDS (comma-separated,
+  // server-only env) may write findings. Deny by default when unset. (Clerk orgRole is user-editable via
+  // /api/auth/org, so it is deliberately not trusted here.)
+  if (!canRunRadars(userId)) {
+    return NextResponse.json({ error: "Your account is not allowed to run radars" }, { status: 403 });
+  }
   try {
     const orlando = await prisma.market.findUnique({ where: { slug: "orlando" } });
     const vegas = await prisma.market.findUnique({ where: { slug: "las-vegas" } });
@@ -62,6 +71,7 @@ export async function POST() {
       count += 1;
     }
 
+    if (count > 0) revalidateTag(DB_TAG); // refresh cached pages (src/lib/db-safe.ts) so new findings show
     return NextResponse.json({ ok: true, count });
   } catch (e) {
     console.error(e);

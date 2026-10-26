@@ -3,11 +3,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
+import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { StatCard } from "@/components/StatCard";
 import { cleanSourceLabel, scrubInternal } from "@/lib/public-text";
 import { citedFindings, publicRadarDescription } from "@/lib/format";
 import { leadStat, sourceUrlFor, unverifiedFiguresIn } from "@/lib/radar-stats";
 import { RunRadarsButton } from "./RunRadarsButton";
+import { canRunRadars } from "@/lib/radar-access";
 import {
   CITY_CENTER_RADAR,
   CITY_ROWS,
@@ -258,12 +261,15 @@ function CityTable({ rows, sources }: { rows: CityRow[]; sources: PreviewSource[
 
 export default async function RadarsPage() {
   const { userId } = await auth();
-  const allRadars = await prisma.radar.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      findings: { orderBy: { createdAt: "desc" }, take: 5 },
-    },
-  });
+  const radarsQ = await cachedQuery(["radars-page"], () =>
+    prisma.radar.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        findings: { orderBy: { createdAt: "desc" }, take: 5 },
+      },
+    }), []);
+  const allRadars = radarsQ.data;
+  const dbDown = !radarsQ.ok;
   // Signed-out visitors only see radars with cited findings; empty radars and the run control are
   // for signed-in workspaces.
   const marketRadars = allRadars.filter((r) => !SUPERSEDED_RADAR_SLUGS.includes(r.slug));
@@ -273,10 +279,11 @@ export default async function RadarsPage() {
 
   return (
     <div className="space-y-5 sm:space-y-8">
+      {dbDown ? <DataUnavailableNotice /> : null}
       <div>
         <div className="flex items-center justify-between gap-3">
           <h1 className="t-h1">Radars</h1>
-          {userId ? (
+          {userId && canRunRadars(userId) ? (
             <RunRadarsButton />
           ) : (
             <Link
