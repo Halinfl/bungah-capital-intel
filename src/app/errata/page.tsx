@@ -5,6 +5,7 @@ import errata from "@/data/errata.json";
 export const metadata: Metadata = {
   title: "Errata · Bungah Capital Intel",
   description: "Every correction to anything we have published: what was wrong, how we found it, and what we changed.",
+  alternates: { canonical: "/errata" },
 };
 
 type Erratum = { entry_date: string; what_was_wrong: string; how_discovered: string; correction: string; page?: string };

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Soundness scorecard · Sound Assets · Bungah Capital Intel",
   description:
     "Bitcoin, gold, hotel real estate, U.S. T-bills and the U.S. dollar scored on eight soundness criteria, every cell linked to evidence.",
+  alternates: { canonical: "/hard-assets/scorecard" },
 };
 
 /*

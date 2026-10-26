@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Sound Assets · Bungah Capital Intel",
   description:
     "An editorial thesis section: how we define soundness, how five assets score on the same eight criteria, and the evidence for and against.",
+  alternates: { canonical: "/hard-assets" },
 };
 
 const card =
