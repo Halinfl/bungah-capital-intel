@@ -1,7 +1,18 @@
+import "dotenv/config"; // load .env before the production guard below (Prisma would load it later anyway)
 import { PrismaClient } from "@prisma/client";
 import { ILLUSTRATIVE, MARKET_DEPTH } from "./seed-depth";
 import { MSA_REGISTRY, getMsaRegistryEntry } from "../src/data/msa-registry";
 
+// Guard: this seed deleteMany()s every table (chat logs included). Refuse production unless ALLOW_PROD_SEED=yes
+// (Hal's OK only). Same rule as scripts/guard-seed.mjs, repeated here so `npx tsx prisma/seed.ts` is covered too.
+{
+  const h = (() => { try { return new URL(process.env.DATABASE_URL || "").hostname; } catch { return ""; } })();
+  const prodEndpoints = (process.env.BUNGAH_PROD_DB_ENDPOINTS || "ep-bold-bread-b52z5l38").split(",");
+  if ((prodEndpoints.some((e) => e && h.startsWith(e.trim())) || process.env.VERCEL_ENV === "production") && process.env.ALLOW_PROD_SEED !== "yes") {
+    console.error("REFUSING prisma/seed.ts: DATABASE_URL is the PRODUCTION database. Set ALLOW_PROD_SEED=yes only with Hal's OK.");
+    process.exit(1);
+  }
+}
 const prisma = new PrismaClient();
 
 type MarketSeed = {
@@ -1089,7 +1100,7 @@ async function main() {
         marketId: null,
         kind: "debt",
         title: "National lodging debt-wall stub",
-        body: "Hotels ~30–35% of commercial real estate maturities in near-term wall narratives. Lodging CMBS 2026 maturities stub ~$18.7B. Watchlist: debt yield ≤8% and refinance greenlight risk.",
+        body: "Hotels ~30–35% of commercial real estate maturities in near-term wall narratives. Lodging CMBS 2026 maturities stub ~$18.7B. Watchlist: refinance risk.",
         magnitude: "~$18.7B lodging CMBS 2026",
         asOf: "2026 stub",
         sourceLabel: "Industry debt-wall stubs (Trepp/CRE public commentary aggregates — demo citation)",
@@ -1133,7 +1144,7 @@ async function main() {
       slug: "national-lodging-debt-wall",
       name: "National lodging debt-wall / DY stress",
       description:
-        "Stub radar for lodging maturity wall, CMBS refinance path, and debt-yield ≤8% watchlist names. Propose-only — no auto capital actions.",
+        "Stub radar for lodging maturity wall, CMBS refinance path, and watchlist names. Propose-only — no auto capital actions.",
       marketSlug: null,
       status: "active",
     },
@@ -1164,7 +1175,7 @@ async function main() {
         marketId: null,
         title: "Lodging CMBS maturity stub ~$18.7B (2026)",
         summary:
-          "Hotels remain a material share (~30–35%) of near-term CRE maturity narratives. DY ≤8% names need refinance greenlight + staffing capacity.",
+          "Hotels remain a material share (~30–35%) of near-term CRE maturity narratives. Watchlist names need a refinance path + staffing capacity.",
         severity: "info",
         sourceLabel: "Industry debt-wall stubs (demo citation)",
       },

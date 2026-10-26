@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { cachedQuery } from "@/lib/db-safe";
 import { citedOnly, isIndexableMarket, isNoReadSignal } from "@/lib/format";
 import { isPrivatePath } from "@/lib/seo";
 import { reits } from "@/lib/reits";
@@ -33,15 +34,17 @@ function marketLastmod(m: { updatedAt: Date; signals: SitemapSignal[] }): Date {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const markets = await prisma.market.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      slug: true,
-      sourceLabel: true,
-      updatedAt: true,
-      signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, createdAt: true } },
-    },
-  });
+  // DB outage: still serve the static pages (markets list from cache, or omitted).
+  const { data: markets } = await cachedQuery(["sitemap-markets"], () =>
+    prisma.market.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        slug: true,
+        sourceLabel: true,
+        updatedAt: true,
+        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, createdAt: true } },
+      },
+    }), []);
   const indexable = markets.filter(isIndexableMarket);
   const pages = [...CORE, ...REIT_PAGES].filter((p) => !isPrivatePath(p));
   return [

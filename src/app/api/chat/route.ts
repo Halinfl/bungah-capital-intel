@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
 
     let threadId: string | null = null;
-    if (shouldPersist()) {
+    if (shouldPersist()) try {
       // Product thread always stores full Q&A (including private workspace).
       const thread = await prisma.chatThread.create({
         data: {
@@ -85,6 +85,9 @@ export async function POST(req: Request) {
         },
       });
       threadId = thread.id;
+    } catch (persistErr) {
+      // A DB write failure must not lose the answer: return it unsaved.
+      console.error("[chat] persist failed; answering without saving", persistErr instanceof Error ? persistErr.message : persistErr);
     }
 
     return NextResponse.json({
@@ -102,9 +105,11 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     console.error(e);
+    // Never echo raw DB/driver errors (they can carry hostnames); give a friendly, retryable answer.
+    const dbDown = e instanceof Error && (e.message === "CAPITAL_GRAPH_UNAVAILABLE" || /prisma|database|P10\d\d/i.test(e.message + e.name));
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Chat error" },
-      { status: 500 }
+      { error: dbDown ? "Chat is temporarily unavailable while market data reconnects. Please try again in a few minutes." : "Chat error" },
+      { status: dbDown ? 503 : 500 }
     );
   }
 }

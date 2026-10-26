@@ -54,10 +54,9 @@ export function isTier1(slug: string): boolean {
   return Object.prototype.hasOwnProperty.call(TIER1, slug);
 }
 
-/** House rate pack (capital conditions pack, as of 2026-10-19; rate pack locked 2026-09-28). */
+/** Cited rate reads shown in the Capital block (as of 2026-10-19). Internal underwriting thresholds never render on public pages. */
 const RATE = {
   asOf: "2026-10-19",
-  locked: "2026-09-28",
   treasury: "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
   tenY: "https://fred.stlouisfed.org/series/DGS10",
   sofr: "https://fred.stlouisfed.org/series/SOFR",
@@ -96,7 +95,7 @@ const CARDONE_HOTEL_SECTION: string[] = [
   `- Under a lender lockbox or cash sweep, only released cash or new equity can buy Bitcoin; swept cash never does (CMBS loan-structure background) · [${publisherName(CARDONE_SRC.lockbox)} ↗](${CARDONE_SRC.lockbox})`,
   `- The refinance test runs on hotel income alone, with no Bitcoin credit. A Bitcoin tranche never fixes a debt-yield shortfall.`,
   `- The apartment claim that Bitcoin covers capex and debt maturities does not carry over: the franchisor sets PIP timing, and a PIP can come due in a Bitcoin drawdown (claim dated 2026-09-11) · [${publisherName(CARDONE_SRC.capexClaim)} ↗](${CARDONE_SRC.capexClaim}) ${SELF}`,
-  `- Illustration: Boca's debt yield is about 7.5% (166-day NOI of $4.80M annualised ≈ $10.5M ÷ the $140M filed loan; our arithmetic), under the 8% hard-watch line before any Bitcoin is counted · [${publisherName(CARDONE_SRC.filing)} ↗](${CARDONE_SRC.filing}) {tag: watch}`,
+  `- Illustration: Boca's debt yield is about 7.5% (166-day NOI of $4.80M annualised ≈ $10.5M ÷ the $140M filed loan; our arithmetic), before any Bitcoin is counted · [${publisherName(CARDONE_SRC.filing)} ↗](${CARDONE_SRC.filing}) {tag: watch}`,
   `- No staff cuts and no automating guest-facing roles to free cash for Bitcoin.`,
   ``,
 ];
@@ -292,10 +291,10 @@ export function buildStackMemo(opts: {
   push(
     `## Capital`,
     ``,
-    `> **Refinance test (house frame, not a quote or appraisal; as of ${RATE.asOf}):** takeout at ≥7.5–8.0%+ off 10Y ~5.18% / SOFR ~3.90% (locked ${RATE.locked}). Debt yield on a normalized T12: target ≥10%, flag ≤9%, hard watch ≤8%. This test outranks every other block in the memo.`,
+    `> **Refinance test (not a quote or appraisal; rates as of ${RATE.asOf}):** debt is sized on a normalized T12 at current rates. This test outranks every other block in the memo.`,
     ``,
-    `- 10-year Treasury 5.09% (2026-10-16 close; 5.18% at the lock) · ${links([RATE.treasury, RATE.tenY])}`,
-    `- SOFR 3.88% (2026-10-16; 3.90% at the lock) · ${links([RATE.sofr])}`,
+    `- 10-year Treasury 5.09% (2026-10-16 close) · ${links([RATE.treasury, RATE.tenY])}`,
+    `- SOFR 3.88% (2026-10-16) · ${links([RATE.sofr])}`,
     `- Fed funds target 3.75–4.00% (since the 2026-09-16 FOMC) · ${links([RATE.fed])}`,
     `- National lodging CMBS delinquency 6.18% (Sep 2026) · ${links([RATE.dq])} {tag: national}`,
     `- National lodging CMBS special servicing 8.95% (Sep 2026; 8.74% in Aug; 9.91% a year earlier; published 2026-10-13) — national, not ${name} · ${links([RATE.ss])} {tag: national}`,
@@ -307,9 +306,7 @@ export function buildStackMemo(opts: {
   }
   push(`### Deal comps (most recent ${Math.min(5, c.comps.length)})`, ``);
   push(
-    ...c.comps.map((r) =>
-      rowLine(r, r.cap != null && r.cap < 7.5 ? "{tag: cap below house takeout: negative leverage at today's debt}" : null)
-    ),
+    ...c.comps.map((r) => rowLine(r)),
     `- No market-average cap rate: each disclosed cap is read on its own, and an undisclosed cap is never inferred.`,
     ``
   );
@@ -397,7 +394,7 @@ function pillarsAndNext(
   push(
     `## Three pillars checklist`,
     ``,
-    `- **Capital:** the refinance test clears (a debt yield of at least 10% on a normalized T12 at a 7.5–8.0% or higher takeout rate) before anything else is sized.`,
+    `- **Capital:** the refinance test clears on a normalized T12 at current rates before anything else is sized.`,
     `- **Operations:** labor at the scheduled floors and contract rates, full staffing, PIP and FF&E funded.`,
     `- **Treasury:** only free cash flow after fees, debt service and PIP escrow is eligible for a reserve.`,
     ``,

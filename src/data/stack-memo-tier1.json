@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-20",
+ "generated": "2026-10-26",
  "markets": {
   "washington-dc": {
    "supply": {
@@ -283,7 +283,7 @@
       "watch": false
      }
     ],
-    "holdability": "The evidence points to capex and federal-demand risk, not cheap debt. The one clean cap (7.5% on NOI, 5.6% after capex) carries negative leverage against the ≥7.5–8.0% takeout once the PIP is counted. The seller-financed Metro Center deal says third-party senior debt would not size at that price. Q3-2025 CBD RevPAR fell ~15% with the shutdown and federal pullback, so a 2025–26 T12 needs a federal-demand haircut before DY is tested. Assume the **≤9% flag** for older CBD full-service until a normalized T12 clears 10%. The Capital Hilton's Dec 2026 maturity is the near-term tell. No greenlight."
+    "holdability": "The evidence points to capex and federal-demand risk, not cheap debt. The one clean cap is 7.5% on NOI and 5.6% after capex. The seller-financed Metro Center deal says third-party senior debt would not size at that price. Q3-2025 CBD RevPAR fell ~15% with the shutdown and federal pullback, so a 2025–26 T12 needs a federal-demand haircut before debt yield is tested. The Capital Hilton's Dec 2026 maturity is the near-term tell. No greenlight."
    },
    "ops": {
     "caution": "The union contract sets the real floor, not the city minimum.",
@@ -689,7 +689,7 @@
       "watch": false
      }
     ],
-    "holdability": "The trades are luxury and lifestyle at $326–464K/key, with no disclosed caps. Without a cap, none can be tested against a ≥7.5–8.0% conduit takeout. Softness shows in Host's −9.7% Q3-25 RevPAR, the city's TOT miss, a new hospitality minimum wage, and the Measure C TOT step-up that raises guest-facing tax on downtown hotels to 15.75%. Labor follows the San Diego hotel minimum for hotels with **150+ rooms**: **$19 now, then $20.50 / $22 / $23.50 / $25 by 2030** (City HMWO FAQ https://www.sandiego.gov/sites/default/files/2026-06/hmwo-faqs.pdf, Jun 2026; KPBS https://www.kpbs.org/news/economy/2026/07/01/san-diego-hospitality-workers-get-a-raise-thanks-to-new-wage-ordinance, 2026-07-01). The dual-brand **Tru + Home2 (271 rooms combined)** is underwritten as **covered**; the risk is that a dual-brand room-count aggregation reading could differ. Underwrite at these floors, never offset by FTE cuts, and treat a sub-10% normalized DY as the **≤9% flag** zone until a T12 shows otherwise. Hotel del's ~Dec 2027 initial maturity is the large-loan tell. No greenlight."
+    "holdability": "The trades are luxury and lifestyle at $326–464K/key, with no disclosed caps. Without a cap, none can be benchmarked on yield. Softness shows in Host's −9.7% Q3-25 RevPAR, the city's TOT miss, a new hospitality minimum wage, and the Measure C TOT step-up that raises guest-facing tax on downtown hotels to 15.75%. Labor follows the San Diego hotel minimum for hotels with **150+ rooms**: **$19 now, then $20.50 / $22 / $23.50 / $25 by 2030** (City HMWO FAQ https://www.sandiego.gov/sites/default/files/2026-06/hmwo-faqs.pdf, Jun 2026; KPBS https://www.kpbs.org/news/economy/2026/07/01/san-diego-hospitality-workers-get-a-raise-thanks-to-new-wage-ordinance, 2026-07-01). The dual-brand **Tru + Home2 (271 rooms combined)** is underwritten as **covered**; the risk is that a dual-brand room-count aggregation reading could differ. Underwrite at these floors, never offset by FTE cuts, and test debt yield on a normalized T12. Hotel del's ~Dec 2027 initial maturity is the large-loan tell. No greenlight."
    },
    "ops": {
     "caution": "A hotel's room count decides its wage floor.",
@@ -1067,7 +1067,7 @@
       "watch": false
      }
     ],
-    "holdability": "The evidence points to basis, not yield. Houston's public comps are distressed or capex-loaded (2.7%/1.7% caps, <$36K/key auction, Hilton Post Oak held as REO), and there is no clean stabilized cap print. With 2025 RevPAR down high single digits and 2026 gains rate-led and Cup-inflated, a refi at ≥7.5–8.0% will size to DY ≥10% only on normalized NOI. Assume most older full-service product sits in the **≤9% flag** band until a normalized T12 shows otherwise. Buying below replacement does not substitute for a funded PIP and a fully staffed operating plan. **Labor:** underwrite downtown convention full-service at the Local 23 standard. The Marriott Marquis Houston contract (ratified Jun 2026) reaches **$22/hr by 2028**, and Hilton Americas is at a $20 base +$2 (https://www.houstonpublicmedia.org/articles/news/business/2026/06/05/553800/marriott-marquis-houston-workers-wage-increase-union-contract/, 2026-06-05). Never offset this with FTE cuts. No greenlight."
+    "holdability": "The evidence points to basis, not yield. Houston's public comps are distressed or capex-loaded (2.7%/1.7% caps, <$36K/key auction, Hilton Post Oak held as REO), and there is no clean stabilized cap print. With 2025 RevPAR down high single digits and 2026 gains rate-led and Cup-inflated, a refinance will size only on normalized NOI. Buying below replacement does not substitute for a funded PIP and a fully staffed operating plan. **Labor:** underwrite downtown convention full-service at the Local 23 standard. The Marriott Marquis Houston contract (ratified Jun 2026) reaches **$22/hr by 2028**, and Hilton Americas is at a $20 base +$2 (https://www.houstonpublicmedia.org/articles/news/business/2026/06/05/553800/marriott-marquis-houston-workers-wage-increase-union-contract/, 2026-06-05). Never offset this with FTE cuts. No greenlight."
    },
    "ops": {
     "caution": "The federal floor is not the Houston comp; the union standard is.",
@@ -1430,7 +1430,7 @@
       "watch": true
      }
     ],
-    "holdability": "Boston trades priced at $390–512K/key with no disclosed caps. The Godfrey's ~81% Athene loan suggests insurance-company debt is sizing on in-place cash flow, while DBRS marks downtown full-service at an 8.25% cap. At or above the ≥7.5–8.0% conduit takeout, a T12 that includes June–July 2026 will overstate debt yield. Underwrite on a Cup-stripped T12 and treat **≤9% as the flag**. Labor stays as staffed. **Supply: score 2/5.** 1,556 rooms are under construction (+1.8% vs ~2.5% US; Wronka, Jan 2026, https://www.wronkaltd.com/wp-content/uploads/2026/01/Boston-MA-USA-Hospitality-Market-January-3-2026.pdf). Low supply pressure supports holdability, so the risk is demand. No greenlight."
+    "holdability": "Boston trades priced at $390–512K/key with no disclosed caps. The Godfrey's ~81% Athene loan suggests insurance-company debt is sizing on in-place cash flow, while DBRS marks downtown full-service at an 8.25% cap. A T12 that includes June–July 2026 will overstate debt yield. Underwrite on a Cup-stripped T12. Labor stays as staffed. **Supply: score 2/5.** 1,556 rooms are under construction (+1.8% vs ~2.5% US; Wronka, Jan 2026, https://www.wronkaltd.com/wp-content/uploads/2026/01/Boston-MA-USA-Hospitality-Market-January-3-2026.pdf). Low supply pressure supports holdability, so the risk is demand. No greenlight."
    },
    "ops": {
     "caution": "One citywide standard covers most union rooms.",
@@ -1807,7 +1807,7 @@
       "watch": false
      }
     ],
-    "holdability": "Atlanta's price discovery is mostly undisclosed, and the Georgian Terrace shows conduit-vintage paper can't refinance at par without equity. Use the house frame: a ≥7.5–8.0% takeout against a DY target ≥10%. Older urban full-service at $77K/key implies the market already prices sub-8% DY risk; treat it as the **≤9% flag** zone. The Super Bowl 2028 capex cycle (Westin, Airport Marriott) needs equity, not proceeds. No greenlight."
+    "holdability": "Atlanta's price discovery is mostly undisclosed, and the Georgian Terrace shows conduit-vintage paper can't refinance at par without equity. Older urban full-service at $77K/key implies the market already prices in debt-yield risk. The Super Bowl 2028 capex cycle (Westin, Airport Marriott) needs equity, not proceeds. No greenlight."
    },
    "ops": {
     "caution": "Thin union presence; the market comp is what the bench pays.",
@@ -2142,7 +2142,7 @@
       "watch": false
      }
     ],
-    "holdability": "The evidence is split by segment. The only disclosed cap (6.2% on the Four Seasons) is trophy pricing and carries negative leverage against the house ≥7.5–8.0% takeout. At 60% LTV it would imply a DY of only ~10.3% (arithmetic, not a deal fact), so it is not a comp for anything below luxury. The real entry point is the Tempe/Chandler/Mesa select-service bin, where trades print at ~$100–170K/key into 5.7% UC supply. Treat those as **flag ≤9% DY until shown otherwise**: no public loan-level DY read exists, and the supply score of 5 argues against underwriting rate growth. No greenlight. Revisit when the Cornovus \"at-risk\" cohort shows up as named SS transfers. Labor stays whole in any DY math."
+    "holdability": "The evidence is split by segment. The only disclosed cap (6.2% on the Four Seasons) is trophy pricing. At 60% LTV it would imply a debt yield of ~10.3% (arithmetic, not a deal fact), so it is not a comp for anything below luxury. The real entry point is the Tempe/Chandler/Mesa select-service bin, where trades print at ~$100–170K/key into 5.7% UC supply. No public loan-level debt-yield read exists for those, and the supply score of 5 argues against underwriting rate growth. No greenlight. Revisit when the Cornovus \"at-risk\" cohort shows up as named SS transfers. Labor stays whole in any DY math."
    },
    "ops": {
     "caution": "Downtown union hotels and resort-corridor hotels are different labor markets.",
@@ -2490,7 +2490,7 @@
       "watch": false
      }
     ],
-    "holdability": "The cleanest comp is BHR's Waterfront Marriott at **8.1% cap incl. capex**, roughly at the ≥7.5–8.0% takeout. That leaves only thin positive leverage, and only for waterfront/cruise-adjacent assets. The $45K/key Park airport print is the capex-trap floor.\n\n**Labor must be underwritten at the new union floors:**\n- **Housekeepers reach $31.03/hr from 2027-01-01** (+23.3% over the 4-year contract), set after the 85-day Embassy Suites Pioneer Square strike.\n- Philadelphia Local 274 reaches $30/hr by 2028.\n- Sources: (Embassy Suites Pioneer Square, ratified 2026-09-10; https://www.hoteldive.com/news/union-workers-at-seattle-hilton-reach-deal-to-end-85-day-strike/830486/); Philadelphia (no public link).\n\nThe DY test has to clear ≥10% with that payroll in place, not by trimming FTE. Treat a normalized DY ≤9% as the flag. **Supply: score 1/5.** Only 249 rooms are under construction (~0.5% of inventory; Kidder Mathews 2Q26, https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf). Low supply pressure supports holdability, so the risk is demand (Canada; T12 occupancy 68.6%). No greenlight."
+    "holdability": "The cleanest comp is BHR's Waterfront Marriott at **8.1% cap incl. capex**, a read that applies only to waterfront/cruise-adjacent assets. The $45K/key Park airport print is the capex-trap floor.\n\n**Labor must be underwritten at the new union floors:**\n- **Housekeepers reach $31.03/hr from 2027-01-01** (+23.3% over the 4-year contract), set after the 85-day Embassy Suites Pioneer Square strike.\n- Philadelphia Local 274 reaches $30/hr by 2028.\n- Sources: (Embassy Suites Pioneer Square, ratified 2026-09-10; https://www.hoteldive.com/news/union-workers-at-seattle-hilton-reach-deal-to-end-85-day-strike/830486/); Philadelphia (no public link).\n\nDebt yield has to be tested with that payroll in place, not by trimming FTE. **Supply: score 1/5.** Only 249 rooms are under construction (~0.5% of inventory; Kidder Mathews 2Q26, https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf). Low supply pressure supports holdability, so the risk is demand (Canada; T12 occupancy 68.6%). No greenlight."
    },
    "ops": {
     "caution": "The highest statutory floor plus a hotel health-care mandate.",
@@ -2842,7 +2842,7 @@
       "watch": false
      }
     ],
-    "holdability": "The only clean institutional cap in the market is **3.5%** on in-place NOI (Hyatt Regency, 21.4x EBITDA). That is a recovery bet on basis, deeply negative leverage against the ≥7.5–8.0% conduit takeout. On in-place NOI, the debt-yield math cannot reach the ≥10% target, so this sits at the **≤8% hard-watch** level. Distress pricing still sets the floor: $139K/key for the Hilton/Parc 55 receiver sale; Stanford Court and the Barnes went through receivership/default. Underwrite on a T12 that strips the Jun–Jul 2026 window and keeps labor as staffed. No greenlight.\n\n**Encumbrance:** Hilton still manages Hilton SF Union Square (1,921) and Parc 55 (1,024) after the receiver sale, under agreements that **run past 2040 with extension options**. Treat the $408M comp as an encumbered, brand-managed trade, not an unencumbered one, and check any SF management-agreement term before quoting it as a comp or sizing debt. Post-close amendments: **no public read** (https://sfstandard.com/2025/09/02/san-francisco-two-largest-distressed-hotels-finally-have-buyer/, 2025-09-02).\n\n**Supply:** supply score **1/5**, with 91 new metro rooms in 2026 (Marcus & Millichap via The Registry, https://news.theregistrysf.com/san-francisco-hotels-poised-to-lead-nation-in-revenue-growth-as-muted-supply-and-major-events-fuel-recovery/). Assets trade below replacement cost, so buy, don't build. Supply is not the risk; demand and window normalization are."
+    "holdability": "The only clean institutional cap in the market is **3.5%** on in-place NOI (Hyatt Regency, 21.4x EBITDA). That is a recovery bet on basis, not on in-place yield. Distress pricing still sets the floor: $139K/key for the Hilton/Parc 55 receiver sale; Stanford Court and the Barnes went through receivership/default. Underwrite on a T12 that strips the Jun–Jul 2026 window and keeps labor as staffed. No greenlight.\n\n**Encumbrance:** Hilton still manages Hilton SF Union Square (1,921) and Parc 55 (1,024) after the receiver sale, under agreements that **run past 2040 with extension options**. Treat the $408M comp as an encumbered, brand-managed trade, not an unencumbered one, and check any SF management-agreement term before quoting it as a comp or sizing debt. Post-close amendments: **no public read** (https://sfstandard.com/2025/09/02/san-francisco-two-largest-distressed-hotels-finally-have-buyer/, 2025-09-02).\n\n**Supply:** supply score **1/5**, with 91 new metro rooms in 2026 (Marcus & Millichap via The Registry, https://news.theregistrysf.com/san-francisco-hotels-poised-to-lead-nation-in-revenue-growth-as-muted-supply-and-major-events-fuel-recovery/). Assets trade below replacement cost, so buy, don't build. Supply is not the risk; demand and window normalization are."
    },
    "ops": {
     "caution": "Which city decides the floor, and Local 2 decides the comp.",
@@ -3205,7 +3205,7 @@
       "watch": false
      }
     ],
-    "holdability": "Two numbers frame Dallas:\n- **10.0% cap** on the Fairmont, but only before $80M of capex. That clears the ≥7.5–8.0% takeout on paper and fails once the PIP is added.\n- **93.4% KLTV** on the Sheraton Dallas SASB, with initial maturity ~mid-2027, right when Cup-inflated T12s roll off and the KBHCC rebuild displaces groups.\n\nUnderwrite to a Cup-stripped T12, test DY at ≥10%, and treat ≤9% as the flag for downtown convention hotels through the convention-center construction. Labor is held as staffed. No greenlight."
+    "holdability": "Two numbers frame Dallas:\n- **10.0% cap** on the Fairmont, but only before $80M of capex. That reads well on paper and weakens once the PIP is added.\n- **93.4% KLTV** on the Sheraton Dallas SASB, with initial maturity ~mid-2027, right when Cup-inflated T12s roll off and the KBHCC rebuild displaces groups.\n\nUnderwrite downtown convention hotels to a Cup-stripped T12 through the convention-center construction. Labor is held as staffed. No greenlight."
    },
    "ops": {
     "caution": "A deep operator bench, not a low labor cost.",
@@ -3580,7 +3580,7 @@
       "watch": true
      }
     ],
-    "holdability": "Nashville is where refis clear, but they need equity in the stack. The Renaissance refi took ~$49M less senior debt and plugged the gap with 11.14% preferred equity, so senior proceeds sized to DY, not to value. The Grand Hyatt SASB cleared at SOFR+215 on a strong group RevPAR. Downtown $/key ($276–378K) sits below HVS full-service replacement cost but well above select-service. With supply at the Top-25 high, assume new product needs DY ≥10% on stabilized (not ramp) NOI. Watch the unnamed $240M four-conduit takeout. No greenlight."
+    "holdability": "Nashville is where refis clear, but they need equity in the stack. The Renaissance refi took ~$49M less senior debt and plugged the gap with 11.14% preferred equity, so senior proceeds sized to DY, not to value. The Grand Hyatt SASB cleared at SOFR+215 on a strong group RevPAR. Downtown $/key ($276–378K) sits below HVS full-service replacement cost but well above select-service. With supply at the Top-25 high, test new product on stabilized (not ramp) NOI. Watch the unnamed $240M four-conduit takeout. No greenlight."
    },
    "ops": {
     "caution": "Openings outrun proven leaders.",
@@ -3930,7 +3930,7 @@
       "watch": false
      }
     ],
-    "holdability": "Westside lifestyle trades clear at **4.6–5.9% NOI caps**, deeply negative leverage against the ≥7.5–8.0% conduit takeout. DTLA clears at lender-exit pricing (~$141K/key at roughly a quarter of the debt). On in-place NOI these sit at the **≤8% hard-watch** debt-yield level unless equity is sized to it. The Santa Monica SASB shows sub-1.0x DSCR even at ~$1.9M/key appraised value.\n\n**Labor :**\n- Hotel minimum wage steps: **$25.00** (Jul 2026), **$25.50** (Jul 2027), **$28.50** (Jul 2028), **$29.00** (Jul 2029), **$30.00** (2030-01-01), then indexed to LA CPI-W.\n- Health payment: **$4.25/hr** now, **$6.00** from Jul 2027, tied to the airport-worker rate from Jul 2028.\n- Sources: https://cityclerk.lacity.org/onlinedocs/2025/25-1466_misc_26A_Amd%20Mot%20MHD-Lee_5-19-26.pdf (2026-05-19 amending motion); https://natlawreview.com/article/los-angeles-amends-hotel-worker-minimum-wage-ordinance-advance-july-2026 (2026).\n- **Union hotels (UNITE HERE Local 11, 46 agreements):** room attendants reach **$35.00/hr by 2027-07-01**, and the contracts **expire 2028-01-15**. Underwrite unionized LA hotels at $35, not at the ordinance floor. Flag the Jan 2028 expiry as a **labor-reset risk for any 2028 refinance or maturity** ; https://apnews.com/article/california-hotel-strike-contract-ratification-cce82d9fe9b0d2c3137929cc60f4b2f1, 2024-03-25).\n\nUnderwrite non-union labor at the ordinance floor and union labor at the Local 11 rate, never offset by FTE cuts. Strip the Cup and Super Bowl windows. No greenlight."
+    "holdability": "Westside lifestyle trades clear at **4.6–5.9% NOI caps**. DTLA clears at lender-exit pricing (~$141K/key at roughly a quarter of the debt). The Santa Monica SASB shows sub-1.0x DSCR even at ~$1.9M/key appraised value.\n\n**Labor :**\n- Hotel minimum wage steps: **$25.00** (Jul 2026), **$25.50** (Jul 2027), **$28.50** (Jul 2028), **$29.00** (Jul 2029), **$30.00** (2030-01-01), then indexed to LA CPI-W.\n- Health payment: **$4.25/hr** now, **$6.00** from Jul 2027, tied to the airport-worker rate from Jul 2028.\n- Sources: https://cityclerk.lacity.org/onlinedocs/2025/25-1466_misc_26A_Amd%20Mot%20MHD-Lee_5-19-26.pdf (2026-05-19 amending motion); https://natlawreview.com/article/los-angeles-amends-hotel-worker-minimum-wage-ordinance-advance-july-2026 (2026).\n- **Union hotels (UNITE HERE Local 11, 46 agreements):** room attendants reach **$35.00/hr by 2027-07-01**, and the contracts **expire 2028-01-15**. Underwrite unionized LA hotels at $35, not at the ordinance floor. Flag the Jan 2028 expiry as a **labor-reset risk for any 2028 refinance or maturity** ; https://apnews.com/article/california-hotel-strike-contract-ratification-cce82d9fe9b0d2c3137929cc60f4b2f1, 2024-03-25).\n\nUnderwrite non-union labor at the ordinance floor and union labor at the Local 11 rate, never offset by FTE cuts. Strip the Cup and Super Bowl windows. No greenlight."
    },
    "ops": {
     "caution": "Hotel wage steps are law, and the union rate sits above them.",
@@ -4375,7 +4375,7 @@
       "watch": true
      }
     ],
-    "holdability": "Without an operating-hotel cap print, holdability can't be benchmarked to the ≥7.5–8.0% takeout. The visible capital is long-dated: fee and land buyers, plus Park choosing to refinance HHV off CMBS rather than roll it. Underwrite from a T12 at the current tax load: TAT rose to 11% on 2026-01-01, so the guest-facing total is now 18.712%. Treat any normalized DY ≤9% as the flag, with labor at contract. No greenlight."
+    "holdability": "Without an operating-hotel cap print, holdability can't be benchmarked. The visible capital is long-dated: fee and land buyers, plus Park choosing to refinance HHV off CMBS rather than roll it. Underwrite from a T12 at the current tax load: TAT rose to 11% on 2026-01-01, so the guest-facing total is now 18.712%. Test debt yield on a normalized T12, with labor at contract. No greenlight."
    },
    "ops": {
     "caution": "The Waikīkī standard is the floor, in Tier 1's highest-wage market.",
@@ -4805,7 +4805,7 @@
       "watch": false
      }
     ],
-    "holdability": "Manhattan trophy trades priced at $379K–$1.27M/key with no disclosed caps. The Ritz-Carlton's $235M Inbursa loan is ~73% of price (arithmetic), so with a conduit takeout of ≥7.5–8.0% (10Y ~5.18–5.24%, SOFR ~3.90%) a Cup-inflated T12 will overstate debt yield. Underwrite a Cup-stripped T12 against DY ≥10%, flag ≤9%, hard watch ≤8%. Supply is a headwind: **4,852 rooms open in 2026, the most in the US** (CoStar, 2026). Labor is underwritten at the ratified HTC/HANYC IWA, **+$21.20/hr non-tipped (+$10.60 tipped) over 2026-07-01 to 2034-06-30** (HTC MOU; Hotel Dive, May 2026), with no FTE offset. Non-union floor: the NYS/NYC minimum **stays at $17.00 on 2027-01-01** because the statutory off-ramp was triggered (https://dol.ny.gov/minimum-wage-0, read 2026-10-11). Jersey City's Hyatt Regency ($100M SS, Oct 2026 maturity) shows the in-place-NCF risk on the NJ side of the host market. No greenlight."
+    "holdability": "Manhattan trophy trades priced at $379K–$1.27M/key with no disclosed caps. The Ritz-Carlton's $235M Inbursa loan is ~73% of price (arithmetic), and a Cup-inflated T12 will overstate debt yield. Underwrite a Cup-stripped T12. Supply is a headwind: **4,852 rooms open in 2026, the most in the US** (CoStar, 2026). Labor is underwritten at the ratified HTC/HANYC IWA, **+$21.20/hr non-tipped (+$10.60 tipped) over 2026-07-01 to 2034-06-30** (HTC MOU; Hotel Dive, May 2026), with no FTE offset. Non-union floor: the NYS/NYC minimum **stays at $17.00 on 2027-01-01** because the statutory off-ramp was triggered (https://dol.ny.gov/minimum-wage-0, read 2026-10-11). Jersey City's Hyatt Regency ($100M SS, Oct 2026 maturity) shows the in-place-NCF risk on the NJ side of the host market. No greenlight."
    },
    "ops": {
     "caution": "An eight-year contract is locked in; underwrite the steps.",
@@ -5379,7 +5379,7 @@
       "watch": false
      }
     ],
-    "holdability": "Acquisition debt is sized aggressively: Sheraton Airport has ~88% loan-to-price from Argentic, and Arlo Wynwood has a $43M BMO loan against a $44.3M deed (The Real Deal 2026-01-28; Commercial Observer 2026-09-29). Against the ≥7.5–8.0% conduit takeout (10Y ~5.18–5.24%, SOFR ~3.90%), a Cup-inflated T12 will overstate debt yield, and after August's 63.6% occupancy anything that only clears on the Cup window sits at or below the ≤9% flag. Underwrite a stripped T12 against DY ≥10%. The Goodtime and Tides foreclosures show the lender-recovery floor on Miami Beach. The 800-key Grand Hyatt adds MBCC-district supply from late 2027 (MBCC; PR Newswire 2025-04-11). Labor is underwritten at the Florida $15.00 minimum (effective 2026-09-30) with CPI indexing, and at union rates in Local 355 pockets , never offset with FTE cuts. No greenlight."
+    "holdability": "Acquisition debt is sized aggressively: Sheraton Airport has ~88% loan-to-price from Argentic, and Arlo Wynwood has a $43M BMO loan against a $44.3M deed (The Real Deal 2026-01-28; Commercial Observer 2026-09-29). A Cup-inflated T12 will overstate debt yield, and after August's 63.6% occupancy anything that only clears on the Cup window stays watch. Underwrite a stripped T12. The Goodtime and Tides foreclosures show the lender-recovery floor on Miami Beach. The 800-key Grand Hyatt adds MBCC-district supply from late 2027 (MBCC; PR Newswire 2025-04-11). Labor is underwritten at the Florida $15.00 minimum (effective 2026-09-30) with CPI indexing, and at union rates in Local 355 pockets , never offset with FTE cuts. No greenlight."
    },
    "ops": {
     "caution": "The new headquarters hotel needs a team that isn't named yet.",
@@ -5796,7 +5796,7 @@
       "watch": false
      }
     ],
-    "holdability": "Downtown trades at $85–129K/key are basis plays well below replacement cost, with no disclosed caps (TRD 2026-10-08; CRE Direct 2026-05-20). Against the ≥7.5–8.0% conduit takeout (10Y ~5.18–5.24%, SOFR ~3.90%), a 2026 T12 carrying the +11.6% displaced-meeting lift (CoStar, Sep 2026) overstates debt yield. Normalize it, and treat anything that only reaches ≥10% DY on the 2026 T12 as a ≤9% flag. Labor is underwritten at the Local 1 successor contract with a strike/lost-hours contingency through RSNA week , never offset by FTE cuts. No greenlight."
+    "holdability": "Downtown trades at $85–129K/key are basis plays well below replacement cost, with no disclosed caps (TRD 2026-10-08; CRE Direct 2026-05-20). A 2026 T12 carrying the +11.6% displaced-meeting lift (CoStar, Sep 2026) overstates debt yield. Normalize it before testing debt yield. Labor is underwritten at the Local 1 successor contract with a strike/lost-hours contingency through RSNA week , never offset by FTE cuts. No greenlight."
    },
    "ops": {
     "caution": "A live strike; underwrite a contingency, never a service cut.",
