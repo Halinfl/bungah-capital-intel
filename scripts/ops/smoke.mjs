@@ -29,9 +29,10 @@ let failed = 0; const out = [];
 for (const [p, ok, must] of CHECKS) {
   const t0 = Date.now(); let line;
   try {
-    const r = await fetch(base + p, { headers: H, redirect: "follow", signal: AbortSignal.timeout(30000) });
+    const r = await fetch(base + p, { headers: H, redirect: "manual", signal: AbortSignal.timeout(30000) });
     const body = await r.text(); const ms = Date.now() - t0;
     const errs = [];
+    if (r.status >= 300 && r.status < 400) errs.push(`redirect to ${(r.headers.get("location") || "").slice(0, 60)} (Vercel Deployment Protection? use scripts/ops/smoke-protected.sh)`);
     if (!ok.includes(r.status)) errs.push(`status ${r.status} (want ${ok.join("/")})`);
     if (must && !body.toLowerCase().includes(must.toLowerCase())) errs.push(`missing "${must}"`);
     if (p !== "/api/health" && BAD.some((re) => re.test(body))) errs.push("error page content");

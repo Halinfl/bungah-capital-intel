@@ -13,6 +13,7 @@ Added on branch `reliability` (2026-10-26) after the Oct 25 outage (unclaimed Ne
 | Seed/push/reset guard (refuses production unless `ALLOW_PROD_SEED=yes`) | `scripts/guard-seed.mjs`, `package.json`, `prisma/seed.ts` |
 | Pre-deploy gate: typecheck, build (+ check-ic-frame), smoke on `next start` | `npm run predeploy` (`scripts/ops/predeploy.sh`) |
 | Smoke test (nonzero on failure) | `node scripts/ops/smoke.mjs <url> [--allow-degraded]` |
+| Smoke a protected Vercel preview (CLI OIDC token, never printed) | `bash scripts/ops/smoke-protected.sh <preview-url> [--allow-degraded]` |
 | Post-deploy smoke + rollback command | `bash scripts/ops/postdeploy.sh <url> [previous-good-dpl]` |
 
 ## On the box (`/workspace/bungah-ops`, copies in `ops/box/`)
