@@ -1176,7 +1176,7 @@ export function makeBrief(
     coverage: scrubInternal(b.coverage),
     sections: withCitedSources(b.sections, cov)
       .filter((s) => s.count > 0 && s.markdown.trim())
-      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)).replace(/\s*\(source: TBD\)/gi, "") })),
+      .map((s) => ({ ...s, title: scrubInternal(s.title), markdown: dedupeMarkdown(scrubInternal(s.markdown)).replace(/\s*\(source: TBD\)/gi, "").replace(/(not explained[^()]{0,40}?)\s*\(TBD\)/gi, "$1").replace(/\(timing TBD\)/gi, "(timing not announced)").replace(/\btiming TBD\b/gi, "timing not announced") })),
     footer: b.footer ?? DECISION_LINE,
     collapsedChars: 0,
   };
