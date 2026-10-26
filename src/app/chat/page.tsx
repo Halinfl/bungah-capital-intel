@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import { ChatClient } from "./ChatClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Chat · Bungah Capital Intel",
+  description:
+    "Put a capital question to the Capital Graph: hotel markets, debt, supply and labor. The answer leads with the number and the so-what, then the sources.",
+  alternates: { canonical: "/chat" },
+};
 
 export default function ChatPage() {
   return (

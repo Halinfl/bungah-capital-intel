@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 import { SignUp } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
@@ -8,6 +9,7 @@ import { clerkAppearance } from "@/lib/clerk-appearance";
 export const metadata: Metadata = {
   title: "Start a private workspace · Bungah Capital Intel",
   description: "Create a free private Capital Graph workspace for hotel investors.",
+  robots: NOINDEX,
 };
 
 export default async function SignupPage() {

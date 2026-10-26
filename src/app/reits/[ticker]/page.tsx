@@ -37,6 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ticker: s
   return {
     title: `${r.name} (${r.ticker}) · Bungah Capital Intel`,
     description: `${r.name} (${r.ticker}): reported RevPAR, ADR, occupancy, portfolio by market and earnings calls, each figure linked to its SEC filing.`,
+    alternates: { canonical: `/reits/${r.ticker.toLowerCase()}` },
   };
 }
 

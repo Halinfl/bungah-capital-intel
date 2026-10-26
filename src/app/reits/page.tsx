@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Hotel REITs · Bungah Capital Intel",
   description:
     "The 13 US-listed hotel REITs, one page each like a market: reported RevPAR, ADR, occupancy, portfolio by market and earnings calls, every figure linked to its SEC filing.",
+  alternates: { canonical: "/reits" },
 };
 
 export default function ReitsIndexPage() {

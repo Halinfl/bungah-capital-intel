@@ -136,3 +136,11 @@ export const PUBLIC_MIN_CITED_SIGNALS = 5;
 export function hasPublicCoverage(m: { sourceLabel: string | null }, citedSignalCount: number): boolean {
   return !isSeedMarket(m) || citedSignalCount >= PUBLIC_MIN_CITED_SIGNALS;
 }
+
+/**
+ * Indexing rule for a market page: the same check the page uses for its robots tag, so the sitemap
+ * never lists a market page that carries noindex.
+ */
+export function isIndexableMarket(m: { sourceLabel: string | null; signals: SeedCheckable[] }): boolean {
+  return hasPublicCoverage(m, citedOnly(m.signals).filter((s) => !isNoReadSignal(s)).length);
+}

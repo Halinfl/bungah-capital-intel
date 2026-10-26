@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { citedOnly, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Markets · Bungah Capital Intel",
+  description:
+    "US hotel markets with cited coverage: occupancy, ADR, visitors and room supply where a source publishes them, plus demand, supply, debt and labor signals, each linked to its source.",
+  alternates: { canonical: "/markets" },
+};
 
 export default async function MarketsPage() {
   const markets = await prisma.market.findMany({

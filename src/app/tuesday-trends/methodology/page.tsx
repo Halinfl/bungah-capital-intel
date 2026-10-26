@@ -19,6 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "Tuesday Trends methodology · Bungah Capital Intel",
   description: "How Tuesday Trends measures indicative Google Hotels rates: hotels, horizons, stays, medians and data states.",
+  alternates: { canonical: "/tuesday-trends/methodology" },
 };
 
 const SECTIONS = [

@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Each indexable page sets its own title, description and alternates.canonical; og:title and
+  // og:description are filled from them by Next.
+  metadataBase: new URL(SITE_URL),
+  openGraph: { siteName: "Bungah Capital Intel", type: "website", locale: "en_US" },
   title: "Bungah Capital Intel",
   description:
     "Cited hotel capital intelligence for owners, investors, asset managers and developers: Capital Graph, Chat, Radars and Sound Asset Lodging.",

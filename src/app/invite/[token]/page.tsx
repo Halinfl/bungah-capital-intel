@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Join Capital Graph · Bungah Capital Intel",
+  robots: NOINDEX,
 };
 
 type Props = { params: Promise<{ token: string }> };

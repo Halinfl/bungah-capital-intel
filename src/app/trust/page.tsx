@@ -1,4 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Trust Contract · Bungah Capital Intel",
+  description:
+    "What we promise about your data, our sources and who makes the decisions: encryption, secrets out of code, read-only links, cited public sources and decision support only.",
+  alternates: { canonical: "/trust" },
+};
 
 const promises = [
   {

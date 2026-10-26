@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Pricing · Bungah Capital Intel",
   description:
     "Free, Pro $10/mo, Company $100/mo for up to 20 seats. Cited hotel capital intelligence.",
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {

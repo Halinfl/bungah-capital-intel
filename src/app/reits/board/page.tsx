@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Hotel REITs board · Bungah Capital Intel",
   description:
     "The 13 listed US hotel REITs: latest reported RevPAR, ADR, occupancy and portfolio from SEC filings, each linked to its filing, plus the earnings calendar. Decision support.",
+  alternates: { canonical: "/reits/board" },
 };
 
 export default function ReitsBoardPage() {

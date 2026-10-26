@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NOINDEX } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SessionStatus } from "@/components/SessionStatus";
@@ -10,6 +11,7 @@ import { PlanClient } from "./PlanClient";
 
 export const metadata: Metadata = {
   title: "Choose your plan · Bungah Capital Intel",
+  robots: NOINDEX,
 };
 
 export default async function PlanPage() {
