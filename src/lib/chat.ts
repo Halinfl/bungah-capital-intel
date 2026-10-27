@@ -1,6 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
 import { cachedQuery } from "./db-safe";
+
+/** Per-instance memo in front of the Data Cache for the chat graph reads (~1.2 MB each, see
+ *  bungah-audit/chat-ask-spike/breakpoint-and-cost.md): a warm instance re-reads at most once a minute. */
+const GRAPH_MEMO = { memoMs: 60_000 };
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import {
@@ -611,7 +615,7 @@ export async function retrieveGraphContext(
       // Newest signals first so dated sweeps lead over older seed baselines.
       include: { assets: true, signals: { orderBy: { createdAt: "desc" } } },
       orderBy: { name: "asc" },
-    }), []);
+    }), [], GRAPH_MEMO);
   if (!marketsQ.ok) throw new Error("CAPITAL_GRAPH_UNAVAILABLE");
   const markets = marketsQ.data;
   // Seed / illustrative rows stay in the DB but never reach an answer.
@@ -624,13 +628,13 @@ export async function retrieveGraphContext(
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
-      }), [])).data
+      }), [], GRAPH_MEMO)).data
   );
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
         include: { findings: { orderBy: { createdAt: "desc" }, take: 10 } },
-      }), [])
+      }), [], GRAPH_MEMO)
   ).data.map((r) => ({ ...r, description: scrubInternal(publicRadarDescription(r.description)), findings: citedFindings(r.findings).slice(0, 3) }));
 
   let matched: MarketRow | null = null;
@@ -1026,7 +1030,7 @@ export async function sourcesForAnswer(
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
         select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
-      }), [])).data
+      }), [], GRAPH_MEMO)).data
   );
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
