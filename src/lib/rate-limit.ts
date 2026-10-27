@@ -17,7 +17,7 @@ export const LIMIT = Number(process.env.BUNGAH_CHAT_RATE_LIMIT || 30);
 const MAX_KEYS = 20_000;
 const HITS = new Map<string, { start: number; n: number }>();
 
-export const RATE_LIMIT_MESSAGE = "Sign in to keep asking.";
+export const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
 
 export function clientIp(req: Request): string {
   const h = req.headers;

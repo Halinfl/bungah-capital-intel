@@ -13,7 +13,26 @@ import Link from "next/link";
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
 export type StarterProp = { q: string; range?: DateRange };
 type AskSource = "typed" | "starter" | "reask" | "link";
-const RATE_LIMIT_MESSAGE = "Sign in to keep asking.";
+const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
+/** One plain line for every failure we can't describe better (5xx, edge error page, network drop, timeout). */
+const FAIL_MESSAGE = "Couldn't get an answer just now. Try again in a moment.";
+const SLOW_MESSAGE = "Still working, this one is taking longer than usual.";
+const SLOW_AFTER_MS = 8_000;
+const TIMEOUT_MS = 30_000;
+
+/**
+ * Read a /api/chat response without trusting its body: a Vercel timeout or edge error page is HTML or plain
+ * text, not JSON. Returns the parsed object, or null when the body is not JSON (never a raw parse error).
+ */
+async function readJson(res: Response): Promise<Record<string, unknown> | null> {
+  const text = await res.text().catch(() => "");
+  try {
+    const v = JSON.parse(text);
+    return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
 
 type Msg = {
   role: "user" | "assistant";
@@ -24,6 +43,9 @@ type Msg = {
   /** The question this message asks / answers, and its date window (re-ask chip). */
   question?: string;
   range?: DateRange;
+  /** A failed answer: shows FAIL_MESSAGE (or the server's own retryable copy) with a "Try again" button. */
+  failed?: boolean;
+  rateLimited?: boolean;
 };
 
 const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
@@ -38,6 +60,9 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [slow, setSlow] = useState(false);
+  /** Screen-reader announcement (aria-live): working, slow, answer ready, or what went wrong. */
+  const [announce, setAnnounce] = useState("");
   const searchParams = useSearchParams();
   const legacyMarket = searchParams.get("market")?.trim() ?? "";
   // A market chip (from "Ask about this") scopes the chat the same way the older ?market= links do.
@@ -75,6 +100,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
+    setSlow(false);
+    setAnnounce("");
     autoSubmittedKey.current = null;
   }, [initialQuestionKey, initialQuestion]);
 
@@ -92,8 +119,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
           detail: true,
         }),
       });
-      if (!res.ok) throw new Error("detail failed");
-      const data = await res.json();
+      const data = res.ok ? await readJson(res) : null;
+      if (!data) throw new Error("detail failed");
       return (data.sections ?? []) as BriefSection[];
     },
     [marketSlug, scope]
@@ -113,6 +140,15 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       inFlight.current?.abort();
       const controller = new AbortController();
       inFlight.current = controller;
+      setSlow(false);
+      setAnnounce("Getting an answer…");
+      // After ~8 s say it is still working; after 30 s give up with the retry line (the server keeps no state).
+      const slowTimer = setTimeout(() => {
+        if (seq !== requestSeq.current) return;
+        setSlow(true);
+        setAnnounce(SLOW_MESSAGE);
+      }, SLOW_AFTER_MS);
+      const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       let reply: Msg;
       try {
         const res = await fetch("/api/chat", {
@@ -127,14 +163,25 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
           }),
           signal: controller.signal,
         });
-        // Rate limit: the reply is only "Sign in to keep asking." (checked before parsing: a firewall 429
-        // from the edge is not this route's JSON).
-        if (res.status === 429) throw new Error(RATE_LIMIT_MESSAGE);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Chat failed");
-        reply = { role: "assistant", content: data.content ?? "", citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
-      } catch (e) {
-        reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
+        // Rate limit (this route's JSON 429 or a firewall 429 page from the edge): only "Sign in to keep asking".
+        if (res.status === 429) {
+          reply = { role: "assistant", content: RATE_LIMIT_MESSAGE, rateLimited: true };
+        } else {
+          const data = await readJson(res);
+          if (res.ok && data) {
+            reply = { role: "assistant", content: (data.content as string) ?? "", citations: (data.citations as string[]) ?? [], sources: (data.sources as Msg["sources"]) ?? [], brief: (data.brief as ChatBrief) ?? null, question: q, range };
+          } else {
+            // 503 carries the route's own retryable copy; anything else (500, edge 504 page, empty body) gets one line.
+            const own = res.status === 503 && typeof data?.error === "string" ? (data.error as string) : null;
+            reply = { role: "assistant", content: own ?? FAIL_MESSAGE, failed: true, question: q, range };
+          }
+        }
+      } catch {
+        // Network drop, a timeout, or an abort. A reset/superseded request is dropped below.
+        reply = { role: "assistant", content: FAIL_MESSAGE, failed: true, question: q, range };
+      } finally {
+        clearTimeout(slowTimer);
+        clearTimeout(timeout);
       }
       // Stale (reset or superseded) → drop it; the thread on screen keeps its single answer.
       if (seq !== requestSeq.current) return;
@@ -142,6 +189,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       // The final answer is appended once and never rewritten.
       setMessages((m) => [...m, reply]);
       setBusy(false);
+      setSlow(false);
+      setAnnounce(reply.rateLimited ? RATE_LIMIT_MESSAGE : reply.failed ? reply.content : "Answer ready.");
     },
     [busy, marketSlug, scope]
   );
@@ -160,6 +209,9 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
 
   return (
     <div className="flex flex-col gap-4">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announce}
+      </p>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-300">
         <span>Private · Cited · Decision support</span>
         {marketSlug && !scope ? (
@@ -224,12 +276,29 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                     onReask={m.question ? (r) => void send(m.question!, r, "reask") : undefined}
                     loadSections={m.question ? () => loadSections(m.question!, m.range ?? "all") : undefined}
                   />
-                ) : m.content === RATE_LIMIT_MESSAGE ? (
+                ) : m.rateLimited ? (
                   <p className="text-sm text-slate-100">
-                    <Link href="/login?redirect_url=/chat" className="underline decoration-white/40 underline-offset-2 hover:text-white">
+                    <Link
+                      href="/login?redirect_url=/chat"
+                      className="inline-flex min-h-11 items-center underline decoration-white/40 underline-offset-2 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200"
+                    >
                       {RATE_LIMIT_MESSAGE}
                     </Link>
                   </p>
+                ) : m.failed ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-sm text-slate-100">{m.content}</p>
+                    {m.question ? (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void send(m.question!, m.range ?? "all", "reask")}
+                        className="min-h-11 rounded-lg border border-white/45 px-4 py-2 text-sm text-slate-100 hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                      >
+                        Try again
+                      </button>
+                    ) : null}
+                  </div>
                 ) : (
                   <MarkdownLite text={m.content} />
                 )
@@ -260,8 +329,9 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
               ) : null}
             </div>
           ))}
-          {busy ? <p className="text-sm text-slate-300">Retrieving from the graph…</p> : null}
-          <div ref={endRef} />
+          {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : "Retrieving from the graph…"}</p> : null}
+          {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
+          <div ref={endRef} className={`${scope ? "scroll-mb-40" : "scroll-mb-24"} sm:scroll-mb-0`} />
         </div>
       )}
 
@@ -294,7 +364,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
             onChange={(e) => setInput(e.target.value)}
             placeholder={scope ? `Ask about ${scope.label}…` : "Capital question…"}
             aria-label={scope ? `Question about ${scope.label}` : "Capital question"}
-            className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/20 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-slate-400/40 focus:outline-none"
+            className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 focus:outline-none"
           />
           <button
             type="submit"

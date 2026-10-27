@@ -142,7 +142,7 @@ export async function POST(req: Request) {
     // scope and window). It is not a new question: not logged, and limited on its own, wider bucket.
     const detail = body.detail === true;
 
-    // Signed-out visitors: per-IP limit (src/lib/rate-limit.ts). The only message is "Sign in to keep asking."
+    // Signed-out visitors: per-IP limit (src/lib/rate-limit.ts). The only message is "Sign in to keep asking"
     if (!userId) {
       const testLimit = TEST_TOGGLES ? Number(req.headers.get("x-bungah-test-ratelimit") || 0) : 0;
       // Preview-only: a named test bucket, so a check starts from a clean count.
@@ -243,7 +243,7 @@ export async function POST(req: Request) {
     // Never echo raw DB/driver errors (they can carry hostnames); give a friendly, retryable answer.
     const dbDown = e instanceof Error && (e.message === "CAPITAL_GRAPH_UNAVAILABLE" || /prisma|database|P10\d\d/i.test(e.message + e.name));
     return NextResponse.json(
-      { error: dbDown ? "Chat is temporarily unavailable while market data reconnects. Please try again in a few minutes." : "Chat error" },
+      { error: dbDown ? "Chat is temporarily unavailable while market data reconnects. Please try again in a few minutes." : "Couldn't get an answer just now. Try again in a moment." },
       { status: dbDown ? 503 : 500 }
     );
   }
