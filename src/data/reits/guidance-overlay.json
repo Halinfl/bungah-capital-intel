@@ -1,0 +1,34 @@
+{
+  "_note": "Corrections on top of snapshot.json (which build_snapshot.py regenerates from the cohort CSVs). Each entry was read from the cited SEC exhibit on 2026-10-27.",
+  "periods": [
+    { "ticker": "CLDT", "date": "2026-02-25", "period": "FY2026", "evidence": "Guidance reconciliation 'For the year ended December 31, 2026' in the cited exhibit" },
+    { "ticker": "CLDT", "date": "2026-05-07", "period": "FY2026", "evidence": "Guidance reconciliation 'For the year ended December 31, 2026' in the cited exhibit" },
+    { "ticker": "CLDT", "date": "2026-08-04", "period": "FY2026", "evidence": "Guidance reconciliation 'For the year ended December 31, 2026' in the cited exhibit" }
+  ],
+  "add": [
+    {
+      "ticker": "INN",
+      "date": "2026-04-30",
+      "period": "FY2026",
+      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000042/exhibit99103312026.htm",
+      "source": "8-K exhibit 99.1, released Apr 30, 2026",
+      "items": [
+        { "metric": "adjusted_ebitdare", "label": "Adj. EBITDAre", "low": 170.0, "high": 181.0, "units": "USD millions", "change": "raised" },
+        { "metric": "adjusted_ffo_per_share", "label": "Adj. FFO per share", "low": 0.75, "high": 0.85, "units": "USD per share", "change": "raised" },
+        { "metric": "revpar_growth", "label": "RevPAR growth", "low": 0.5, "high": 3.0, "units": "percent", "change": "raised" }
+      ]
+    },
+    {
+      "ticker": "INN",
+      "date": "2026-08-05",
+      "period": "FY2026",
+      "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000066/exhibit99106302026.htm",
+      "source": "8-K exhibit 99.1, released Aug 5, 2026",
+      "items": [
+        { "metric": "adjusted_ebitdare", "label": "Adj. EBITDAre", "low": 175.0, "high": 182.0, "units": "USD millions", "change": "raised" },
+        { "metric": "adjusted_ffo_per_share", "label": "Adj. FFO per share", "low": 0.79, "high": 0.85, "units": "USD per share", "change": "raised" },
+        { "metric": "revpar_growth", "label": "RevPAR growth", "low": 1.75, "high": 3.25, "units": "percent", "change": "raised" }
+      ]
+    }
+  ]
+}

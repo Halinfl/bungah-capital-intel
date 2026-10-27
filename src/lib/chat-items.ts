@@ -35,6 +35,8 @@ function read(text: string, asOf: string | null, src: { kind: ChipKind; label: s
 }
 const cite = (url: string, label: string, asOf: string | null): Citation => ({ key: url, url, label, text: label, asOf, period: periodOf(asOf) });
 const money = (v: number, digits = 1) => `$${v.toLocaleString("en-US", { maximumFractionDigits: digits })}`;
+/** USD millions for a list row: amounts under $0.05M show in thousands, so nothing nonzero prints as "$0M". */
+const moneyM = (v: number) => (v > 0 && v < 0.05 ? `$${Math.round(v * 1000).toLocaleString("en-US")}K` : `${money(v)}M`);
 
 /* ------------------------------------------------------------------ */
 /* REITs                                                               */
@@ -75,6 +77,17 @@ function quarterRows(r: Reit): BriefSection | null {
 
 function guidanceLine(g: Guidance): string {
   return g.items.map((i) => `${g.period} ${i.label} ${fmtRange(i)}${i.change ? ` (${i.change})` : ""}`).join("; ");
+}
+
+/**
+ * A filing's label. "SEC filing for Q2 2026" is right for a 10-Q / 10-K (its document is dated the quarter
+ * end, e.g. hst-20260630.htm); an event filing (an 8-K such as aht-20261006.htm) shows its own date instead.
+ */
+function txSource(t: Transaction): string {
+  if (!/^SEC filing for Q[1-4] \d{4}$/.test(t.source)) return t.source;
+  const d = /-(\d{4})(\d{2})(\d{2})\.htm$/.exec(t.url);
+  if (!d || /^(0331|0630|0930|1231)$/.test(d[2] + d[3])) return t.source;
+  return `SEC filing, ${fmtDay(`${d[1]}-${d[2]}-${d[3]}`)}`;
 }
 
 function txLine(t: Transaction): string {
@@ -121,9 +134,11 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     const g = r.guidance.length ? r.guidance[r.guidance.length - 1] : null;
     if (!g || !g.items.length) return null;
     const d = fmtDay(g.date);
-    answer = `${r.name} (${r.ticker}): latest guidance is ${g.period}, in the earnings release of ${d} (${g.source}).`;
+    answer = g.period
+      ? `${r.name} (${r.ticker}): latest guidance is ${g.period}, in the earnings release of ${d} (${g.source}).`
+      : `${r.name} (${r.ticker}): latest guidance is in the earnings release of ${d} (${g.source}).`;
     for (const i of g.items.slice(0, 3)) {
-      const x = read(`${g.period} ${i.label} ${fmtRange(i)}${i.change ? `, ${i.change}` : ""}`, g.date, reitSrc(g, r));
+      const x = read(`${g.period ? `${g.period} ` : ""}${i.label} ${fmtRange(i)}${i.change ? `, ${i.change}` : ""}`, g.date, reitSrc(g, r));
       if (x) reads.push(x);
     }
     cites.push(cite(g.url, `${r.ticker} ${g.source}`, g.date));
@@ -137,25 +152,35 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     for (const x of hist) cites.push(cite(x.url, `${r.ticker} ${x.source}`, x.date));
   } else {
     const tx = [...r.transactions].sort((a, b) => b.date.localeCompare(a.date));
-    const bb = [...r.buybacks].reverse().find((b) => b.value > 0) ?? null;
-    const nextMat = r.debt?.items.find((i) => i.value != null && i.label);
+    // A figure that would print as "$0M" is not a read: buybacks under $0.05M are left out, and the
+    // maturity shown is the nearest year that has scheduled debt.
+    const bb = [...r.buybacks].reverse().find((b) => b.value >= 0.05) ?? null;
+    const nextMat = r.debt?.items.find((i) => i.value != null && i.value >= 0.05 && i.label);
     if (!tx.length && !bb && !nextMat) return null;
     const lead = tx[0];
     const focus = capitalFocus(question);
     answer = `${r.name} (${r.ticker}) capital moves on file: ${tx.length} hotel transaction${tx.length === 1 ? "" : "s"}${bb ? `, ${money(bb.value)}M of buybacks ${bb.label}` : ""} (SEC filings).`;
-    const txRead = lead ? read(`${txLine(lead)}`, lead.date, { kind: "Filing", label: `${r.ticker} ${lead.source}`, url: lead.url, title: `${r.name}: ${lead.source}` }) : null;
+    const txRead = lead ? read(`${txLine(lead)}`, lead.date, { kind: "Filing", label: `${r.ticker} ${txSource(lead)}`, url: lead.url, title: `${r.name}: ${txSource(lead)}` }) : null;
     const bbRead = bb ? read(`Share buybacks ${money(bb.value)}M, ${bb.label}`, filedDate(bb.source), reitSrc(bb, r)) : null;
     if (bb) cites.push(cite(bb.url, `${r.ticker} ${bb.source}`, filedDate(bb.source)));
     const debtRead = nextMat && r.debt ? read(`Debt maturing ${nextMat.label}: ${money(nextMat.value!)}M`, r.debt.asOf, reitSrc(r.debt, r)) : null;
     if (nextMat && r.debt) cites.push(cite(r.debt.url, `${r.ticker} ${r.debt.source}`, r.debt.asOf));
     // Lead with what was asked: a debt question opens on the maturity schedule, a deals question on the latest deal.
     let order = [txRead, bbRead, debtRead];
-    if (focus === "debt" && debtRead && nextMat && r.debt) {
-      answer = `${r.name} (${r.ticker}) debt maturities on file: ${money(nextMat.value!)}M due ${nextMat.label}, the nearest year on the schedule (${r.debt.source}).`;
-      order = [debtRead, txRead, bbRead];
-    } else if (focus === "deals" && txRead && lead) {
-      answer = `${r.name} (${r.ticker}) hotel deals on file: ${tx.length} transaction${tx.length === 1 ? "" : "s"}; latest: ${txLine(lead)} (${lead.source}).`;
-      order = [txRead, debtRead, bbRead];
+    const debtLater = r.debt?.items.filter((i) => i !== nextMat && i.label && i.value != null && i.value >= 0.05) ?? [];
+    // A focused card needs key reads of its own beyond its headline; otherwise the capital card answers.
+    if (focus === "debt" && debtRead && nextMat && r.debt && debtLater.length) {
+      const first = r.debt.items.find((i) => i.label) === nextMat;
+      answer = `${r.name} (${r.ticker}) debt maturities on file: ${money(nextMat.value!)}M due ${nextMat.label}, the nearest year ${first ? "on the schedule" : "with scheduled debt"} (${r.debt.source}).`;
+      // The key reads are the rest of the schedule (the next years with debt), not the capital card's reads.
+      const debt = r.debt;
+      const later = debt.items.filter((i) => i !== nextMat && i.label && i.value != null && i.value >= 0.05).slice(0, 3);
+      order = later.map((i) => read(`Debt maturing ${i.label}: ${moneyM(i.value!)}`, debt.asOf, reitSrc(debt, r)));
+    } else if (focus === "deals" && txRead && lead && tx.length > 1) {
+      answer = `${r.name} (${r.ticker}) hotel deals on file: ${tx.length} transaction${tx.length === 1 ? "" : "s"}; latest: ${txLine(lead)} (${txSource(lead)}).`;
+      // The key reads are the deals before it, each with its own filing.
+      const prior = tx.slice(1, 4);
+      order = prior.map((t) => read(txLine(t), t.date, { kind: "Filing", label: `${r.ticker} ${txSource(t)}`, url: t.url, title: `${r.name}: ${txSource(t)}` }));
     }
     for (const x of order) if (x) reads.push(x);
     if (tx.length) {
@@ -163,16 +188,16 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
         id: "reit-tx",
         title: `${r.ticker} hotel transactions`,
         count: Math.min(tx.length, 12),
-        markdown: tx.slice(0, 12).map((t) => `- ${fmtDay(t.date)}: ${txLine(t)} · Filing: [${t.source}](${t.url})`).join("\n"),
+        markdown: tx.slice(0, 12).map((t) => `- ${fmtDay(t.date)}: ${txLine(t)} · Filing: [${txSource(t)}](${t.url})`).join("\n"),
       });
-      for (const t of tx.slice(0, 12)) cites.push(cite(t.url, `${r.ticker} ${t.source}`, t.date.length === 7 ? `${t.date}-01` : t.date));
+      for (const t of tx.slice(0, 12)) cites.push(cite(t.url, `${r.ticker} ${txSource(t)}`, t.date.length === 7 ? `${t.date}-01` : t.date));
     }
     if (r.buybacks.length) {
-      sections.push({ id: "reit-bb", title: `${r.ticker} share buybacks`, count: r.buybacks.length, markdown: r.buybacks.map((b) => `- ${b.label}: ${money(b.value)}M · Filing: [${b.source}](${b.url})`).join("\n") });
+      sections.push({ id: "reit-bb", title: `${r.ticker} share buybacks`, count: r.buybacks.length, markdown: r.buybacks.map((b) => `- ${b.label}: ${moneyM(b.value)} · Filing: [${b.source}](${b.url})`).join("\n") });
       for (const b of r.buybacks) cites.push(cite(b.url, `${r.ticker} ${b.source}`, filedDate(b.source)));
     }
     if (r.debt?.items.length) {
-      sections.push({ id: "reit-debt", title: `${r.ticker} debt maturities`, count: r.debt.items.length, markdown: r.debt.items.map((i) => `- ${i.label || "Other"}: ${i.value != null ? `${money(i.value)}M` : "—"}`).join("\n") + `\n\nFiling: [${r.debt.source}](${r.debt.url})` });
+      sections.push({ id: "reit-debt", title: `${r.ticker} debt maturities`, count: r.debt.items.length, markdown: r.debt.items.map((i) => `- ${i.label || "Other"}: ${i.value != null ? moneyM(i.value) : "—"}`).join("\n") + `\n\nFiling: [${r.debt.source}](${r.debt.url})` });
     }
   }
   if (!reads.length) return null;
