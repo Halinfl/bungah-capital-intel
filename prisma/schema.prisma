@@ -145,9 +145,12 @@ model ChatQuestionLog {
   /// Clerk userId when signed in; null for anonymous public chat.
   userId         String?
   threadId       String?
+  /// How the question was asked: "typed" | "starter" | "reask" | "link". Null on rows before 2026-10-27.
+  source         String?
   createdAt      DateTime @default(now())
 
   @@index([intent])
+  @@index([source])
   @@index([marketSlug])
   @@index([createdAt])
   @@index([modelUsed])

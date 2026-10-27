@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskAboutButton } from "@/components/AskAboutButton";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
@@ -303,7 +304,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           / <span aria-current="page">{shortName(sale)}</span>
         </nav>
         <div>
-          <h1 className="t-h1">{sale.property}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="t-h1">{sale.property}</h1>
+            <AskAboutButton scope={{ kind: "deal", id: sale.slug }} label={sale.property} />
+          </div>
           <div className="mt-1 text-sm">
             {sale.market_slug ? (
               <Link href={`/markets/${sale.market_slug}`} className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">

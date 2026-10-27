@@ -34,18 +34,50 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 
 export type DbResult<T> = { ok: true; data: T } | { ok: false; data: T; error: string };
 
+/**
+ * Per-instance memo in front of the Data Cache (opt-in per call, `memoMs`). A Fluid compute instance serves
+ * many concurrent requests, so a hot key (the chat graph, ~1.2 MB) is decoded once per instance per window
+ * instead of being re-read from the Data Cache (8 KB read units) on every request. Never shared across
+ * instances; a revalidateTag("db") reaches it within `memoMs`.
+ */
+const MEMO = new Map<string, { at: number; value: unknown }>();
+
+/**
+ * Script mode (build-time starter check, local QA): Next's incremental cache does not exist outside a Next
+ * server, so BUNGAH_NO_NEXT_CACHE=1 runs reads directly (memoized for the process). With
+ * BUNGAH_GRAPH_FIXTURE=<nightly dump dir>, reads come from that read-only dump instead of the database.
+ */
+const SCRIPT_MODE = process.env.BUNGAH_NO_NEXT_CACHE === "1";
+
 export async function cachedQuery<T>(
   key: string[],
   fn: () => Promise<T>,
   fallback: T,
-  opts: { revalidate?: number } = {}
+  opts: { revalidate?: number; memoMs?: number } = {}
 ): Promise<DbResult<T>> {
+  const memoKey = key.join("\u0000");
+  if (SCRIPT_MODE || opts.memoMs) {
+    const hit = MEMO.get(memoKey);
+    if (hit && (SCRIPT_MODE || Date.now() - hit.at < opts.memoMs!)) return { ok: true, data: hit.value as T };
+  }
+  if (SCRIPT_MODE) {
+    try {
+      const data = await withTimeout(fn(), Number(process.env.DB_TIMEOUT_MS || 60000));
+      MEMO.set(memoKey, { at: Date.now(), value: data });
+      return { ok: true, data };
+    } catch (e) {
+      const error = e instanceof Error ? e.message.split("\n").filter(Boolean).slice(-1)[0] ?? e.name : String(e);
+      return { ok: false, data: fallback, error };
+    }
+  }
   const cached = unstable_cache(async () => encode(await withTimeout(fn(), DB_TIMEOUT_MS)), ["db-safe", ...key], {
     revalidate: opts.revalidate ?? 300,
     tags: [DB_TAG],
   });
   try {
-    return { ok: true, data: decode<T>(await cached()) };
+    const data = decode<T>(await cached());
+    if (opts.memoMs) MEMO.set(memoKey, { at: Date.now(), value: data });
+    return { ok: true, data };
   } catch (e) {
     const error = e instanceof Error ? e.message.split("\n").filter(Boolean).slice(-1)[0] ?? e.name : String(e);
     console.error(`[db-safe] ${key.join(":")} unavailable, serving fallback: ${error}`);

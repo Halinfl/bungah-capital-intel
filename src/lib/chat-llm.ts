@@ -72,6 +72,9 @@ import {
   type BriefOpts,
 } from "./chat-brief-build";
 import { matchProperty } from "./chat-property";
+import { dealBrief, dealLens, dealMarketSlug, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
+import type { ChatScope } from "./chat-scope";
+import { digestTickers } from "./chat-retrieve";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -322,15 +325,44 @@ function adviceAnswer(
  */
 export async function answerChat(
   question: string,
-  opts?: { marketSlug?: string | null; range?: DateRange }
+  opts?: { marketSlug?: string | null; range?: DateRange; scope?: ChatScope | null }
 ): Promise<FinalAnswer> {
   const range = opts?.range ?? "all";
-  const res = await answerChatIn(question, { marketSlug: opts?.marketSlug, range });
+  const scope = opts?.scope ?? null;
+  // "Ask about this": an item chip routes the question to that item first.
+  if (scope?.kind === "deal") {
+    const lens = dealLens(question);
+    const item = lens ? dealBrief(scope.id, lens) : null;
+    if (item) return finalizeItem(item);
+    // Not about the sale itself: answer for the sale's market.
+    return answerChat(question, { marketSlug: dealMarketSlug(scope.id) ?? opts?.marketSlug, range });
+  }
+  if (scope?.kind === "reit") {
+    const lens = reitLens(question);
+    const name = reitName(scope.id);
+    const hasDigest = digestTickers().includes(scope.id.toLowerCase());
+    if (name && (lens === "guidance" || lens === "capital" || lens === null) && hasDigest) {
+      // The authored call digest leads for issuers that have one (guidance, capital allocation, market color).
+      const corpus = await retrieveAllowedCorpus(`${question} ${name} ${scope.id}`);
+      const own = corpus.digests.filter((d) => d.ticker.toLowerCase() === scope.id.toLowerCase());
+      if (own.length) {
+        const brief = digestBrief(own, question, { range: "all" });
+        if (brief.reads.length) {
+          return finalize({ content: "", brief, citations: own.map((d) => d.citePath), sources: [], intent: "reit_call", marketSlug: null, mode: "deterministic" }, true);
+        }
+      }
+    }
+    const item = lens ? reitBrief(scope.id, lens) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
+    if (item) return finalizeItem(item);
+    return answerChat(name ? `${question} (${name})` : question, { range });
+  }
+  const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
+  const res = await answerChatIn(question, { marketSlug, range });
   if (range === "all") return res;
   if (!res.brief?.window?.filterable) {
     // Either an intent that can't filter by date (answered in full, no chip), or the window
     // removed everything the answer was built on (say so plainly, keep the chip).
-    const full = await answerChatIn(question, { marketSlug: opts?.marketSlug, range: "all" });
+    const full = await answerChatIn(question, { marketSlug, range: "all" });
     return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
   }
   if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
@@ -352,6 +384,10 @@ export function emptyWindowAnswer(full: FinalAnswer, range: DateRange): FinalAns
     sections: [],
   });
   return finalize({ ...full, brief, citations: [], sources: [] }, full.answeredWell);
+}
+
+function finalizeItem(item: ItemAnswer): FinalAnswer {
+  return finalize({ content: "", brief: item.brief, citations: item.citations, sources: [], intent: item.intent as ChatIntent, marketSlug: item.marketSlug, mode: "deterministic" }, true);
 }
 
 /** Restrict a retrieved graph to a date window (matching and intent are unchanged). */

@@ -50,6 +50,11 @@ type DigestMeta = {
   file: string;
 };
 
+/** Tickers with an authored earnings-call digest on file (lowercase). */
+export function digestTickers(): string[] {
+  return DIGEST_CATALOG.map((d) => d.ticker);
+}
+
 const DIGEST_CATALOG: DigestMeta[] = [
   {
     slug: "hilton",

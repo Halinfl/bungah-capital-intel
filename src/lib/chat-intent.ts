@@ -20,6 +20,10 @@ export const CHAT_INTENTS = [
   "supply_ranking",
   "property_asset",
   "reit_call",
+  // "Ask about this" item scopes (chat-items.ts): a REIT's reported quarter, a graded sale.
+  "reit_reported",
+  "deal_sale",
+  "deal_grade",
   "unknown",
 ] as const;
 

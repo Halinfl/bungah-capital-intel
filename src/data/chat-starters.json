@@ -1,0 +1,1301 @@
+{
+ "verifiedAt": "2026-10-27T13:42:28.972Z",
+ "basis": "graph dump 20261027T060017Z",
+ "marketLabels": {
+  "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
+  "aspen-vail": "Aspen / Vail",
+  "atlanta": "Atlanta",
+  "austin": "Austin",
+  "baltimore": "Baltimore",
+  "boston": "Boston",
+  "branson": "Branson",
+  "charleston-sc": "Charleston",
+  "charlotte": "Charlotte",
+  "chicago": "Chicago",
+  "cincinnati": "Cincinnati",
+  "cleveland": "Cleveland",
+  "columbus-oh": "Columbus OH",
+  "dallas": "Dallas",
+  "denver": "Denver",
+  "detroit": "Detroit",
+  "fort-lauderdale": "Fort Lauderdale / Broward",
+  "gatlinburg-pigeon-forge": "Gatlinburg / Pigeon Forge / Smokies",
+  "houston": "Houston",
+  "indianapolis": "Indianapolis",
+  "jacksonville": "Jacksonville",
+  "kansas-city": "Kansas City",
+  "florida-keys": "Key West / Florida Keys",
+  "las-vegas": "Las Vegas",
+  "los-angeles": "Los Angeles",
+  "miami": "Miami",
+  "minneapolis": "Minneapolis",
+  "myrtle-beach": "Myrtle Beach",
+  "napa-sonoma": "Napa / Sonoma Wine Country",
+  "nashville": "Nashville",
+  "new-orleans": "New Orleans",
+  "new-york-city": "New York",
+  "orlando": "Orlando",
+  "outer-banks": "Outer Banks / Dare County NC",
+  "palm-springs": "Palm Springs / Coachella Valley",
+  "philadelphia": "Philadelphia",
+  "phoenix": "Phoenix",
+  "pittsburgh": "Pittsburgh",
+  "portland-or": "Portland",
+  "raleigh": "Raleigh",
+  "reno-tahoe": "Reno / Lake Tahoe",
+  "salt-lake-city": "Salt Lake City",
+  "san-antonio": "San Antonio",
+  "san-diego": "San Diego",
+  "san-francisco-bay": "San Francisco",
+  "savannah": "Savannah",
+  "seattle": "Seattle",
+  "sedona-grand-canyon": "Sedona / Grand Canyon corridor",
+  "st-louis": "St. Louis",
+  "tampa": "Tampa",
+  "honolulu": "Urban Honolulu MSA / Oahu",
+  "virginia-beach-norfolk": "Virginia Beach",
+  "washington-dc": "Washington",
+  "palm-beach": "West Palm Beach / Palm Beach County",
+  "williamsburg-va": "Williamsburg / Historic Triangle VA"
+ },
+ "general": [
+  {
+   "q": "What's the RevPAR and occupancy read for Orlando?"
+  },
+  {
+   "q": "How much new supply is coming in Nashville?"
+  },
+  {
+   "q": "What's the national hotel debt and refinancing picture?"
+  },
+  {
+   "q": "What did Host Hotels guide on the Q2 2026 call?"
+  }
+ ],
+ "market": {
+  "anaheim-orange-county": [],
+  "aspen-vail": [],
+  "atlanta": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "austin": [],
+  "baltimore": [],
+  "boston": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "branson": [],
+  "charleston-sc": [],
+  "charlotte": [],
+  "chicago": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "cincinnati": [],
+  "cleveland": [],
+  "columbus-oh": [],
+  "dallas": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "denver": [],
+  "detroit": [],
+  "fort-lauderdale": [
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "gatlinburg-pigeon-forge": [],
+  "houston": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "indianapolis": [],
+  "jacksonville": [],
+  "kansas-city": [],
+  "florida-keys": [],
+  "las-vegas": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "los-angeles": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "miami": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   }
+  ],
+  "minneapolis": [],
+  "myrtle-beach": [],
+  "napa-sonoma": [],
+  "nashville": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   }
+  ],
+  "new-orleans": [],
+  "new-york-city": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "orlando": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   }
+  ],
+  "outer-banks": [],
+  "palm-springs": [],
+  "philadelphia": [],
+  "phoenix": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "pittsburgh": [],
+  "portland-or": [],
+  "raleigh": [],
+  "reno-tahoe": [],
+  "salt-lake-city": [],
+  "san-antonio": [],
+  "san-diego": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "san-francisco-bay": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "savannah": [],
+  "seattle": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "sedona-grand-canyon": [],
+  "st-louis": [],
+  "tampa": [],
+  "honolulu": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "virginia-beach-norfolk": [],
+  "washington-dc": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "palm-beach": [],
+  "williamsburg-va": []
+ },
+ "reit": {
+  "HST": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "RHP": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "PK": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "APLE": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "DRH": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "SHO": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "XHR": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "PEB": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "RLJ": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "INN": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "CLDT": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "AHT": [
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ],
+  "BHR": [
+   {
+    "q": "What did they guide on the last call?"
+   },
+   {
+    "q": "Where are they putting capital?"
+   },
+   {
+    "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   }
+  ]
+ },
+ "deal": {
+  "grande-lakes-orlando": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   },
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ]
+ },
+ "dropped": [
+  {
+   "scope": "market:anaheim-orange-county",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:anaheim-orange-county",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:anaheim-orange-county",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:anaheim-orange-county",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:fort-lauderdale",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:las-vegas",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:miami",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:nashville",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:nashville",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-york-city",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:orlando",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-diego",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "How much new supply is coming?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "What's happening with hotel debt here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "reit:AHT",
+   "q": "What did they guide on the last call?",
+   "reason": "intent reit_reported"
+  }
+ ]
+}

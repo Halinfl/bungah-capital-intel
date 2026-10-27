@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskAboutButton } from "@/components/AskAboutButton";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SignalCard } from "@/components/SignalCard";
@@ -179,9 +180,12 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
           <Link href="/reits" className="text-xs text-slate-300 hover:text-emerald-300">
             ← REITs
           </Link>
-          <h1 className="t-h1 mt-2">
-            {r.name} <span className="text-slate-300">({r.ticker})</span>
-          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="t-h1">
+              {r.name} <span className="text-slate-300">({r.ticker})</span>
+            </h1>
+            <AskAboutButton scope={{ kind: "reit", id: r.ticker }} label={`${r.name} (${r.ticker})`} />
+          </div>
           <p className="mt-1 text-sm text-slate-300">{peerLabel(r.ticker)}</p>
           {summaryBits.length ? (
             <p className="mt-4 max-w-3xl text-slate-300">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AskAboutButton } from "@/components/AskAboutButton";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
@@ -161,13 +162,14 @@ export default async function MarketDetailPage({
         <Link href="/markets" className="text-xs text-slate-300 hover:text-emerald-300">
           ← Markets
         </Link>
-        <div className="mt-2 flex flex-wrap items-baseline gap-3">
+        <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="t-h1">{market.name}</h1>
           {thin ? null : (
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-emerald-200">
               Cited snapshot
             </span>
           )}
+          <AskAboutButton scope={{ kind: "market", id: market.slug }} label={market.name} />
         </div>
         <p className="mt-1 text-sm text-slate-300">
           <span className="text-slate-300">{market.region}</span>
