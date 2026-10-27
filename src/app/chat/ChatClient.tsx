@@ -127,9 +127,10 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
           }),
           signal: controller.signal,
         });
-        const data = await res.json();
-        // Rate limit: the reply is only "Sign in to keep asking."
+        // Rate limit: the reply is only "Sign in to keep asking." (checked before parsing: a firewall 429
+        // from the edge is not this route's JSON).
         if (res.status === 429) throw new Error(RATE_LIMIT_MESSAGE);
+        const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Chat failed");
         reply = { role: "assistant", content: data.content ?? "", citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
       } catch (e) {
