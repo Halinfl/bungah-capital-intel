@@ -25,6 +25,8 @@ export type ChatBrief = {
   span?: { sources: number; dated: number; from: string | null; to: string | null; label: string | null };
   window?: { range: DateRange; filterable: boolean };
   sections: BriefSection[];
+  /** Section bodies were left off the response; `loadSections` fetches them on first open. */
+  sectionsLazy?: boolean;
   footer: string;
   collapsedChars: number;
 };
@@ -302,13 +304,37 @@ function RangeChip({ range, onPick }: { range: DateRange; onPick: (r: DateRange)
  * coverage line ("based on" count and date span, with the date-window chip), then collapsed
  * detail sections (one open at a time on mobile), then one decision-support line.
  */
-export function ChatBriefView({ brief, onReask }: { brief: ChatBrief; onReask?: (range: DateRange) => void }) {
+export function ChatBriefView({
+  brief,
+  onReask,
+  loadSections,
+}: {
+  brief: ChatBrief;
+  onReask?: (range: DateRange) => void;
+  /** Lazy section bodies (brief.sectionsLazy): fetched once, the first time a section is opened. */
+  loadSections?: () => Promise<BriefSection[]>;
+}) {
   const [open, setOpen] = useState<string[]>([]);
+  const [full, setFull] = useState<BriefSection[] | null>(null);
+  const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
+  const fetchSections = useCallback(() => {
+    if (!brief.sectionsLazy || !loadSections || full || loadState === "loading") return;
+    setLoadState("loading");
+    loadSections().then(
+      (x) => {
+        setFull(x);
+        setLoadState("idle");
+      },
+      () => setLoadState("error")
+    );
+  }, [brief.sectionsLazy, loadSections, full, loadState]);
   const [preview, setPreview] = useState<number | null>(null);
   const mobile = useIsMobile();
   const uid = useId();
-  const toggle = (id: string) =>
+  const toggle = (id: string) => {
+    if (!open.includes(id)) fetchSections();
     setOpen((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : mobile ? [id] : [...cur, id]));
+  };
   const closePreview = useCallback(() => setPreview(null), []);
   const showChip = Boolean(brief.window?.filterable && onReask);
 
@@ -355,6 +381,7 @@ export function ChatBriefView({ brief, onReask }: { brief: ChatBrief; onReask?: 
         <div className="divide-y divide-white/[0.06] rounded-lg border border-white/[0.08]">
           {brief.sections.map((s) => {
             const isOpen = open.includes(s.id);
+            const md = !brief.sectionsLazy ? s.markdown : full ? (full.find((x) => x.id === s.id)?.markdown ?? "") : null;
             const panel = `${uid}-${s.id}`;
             return (
               <div key={s.id}>
@@ -373,8 +400,26 @@ export function ChatBriefView({ brief, onReask }: { brief: ChatBrief; onReask?: 
                   </span>
                 </button>
                 {isOpen ? (
-                  <div id={panel} className="min-w-0 overflow-x-auto px-3 pb-3 pt-1 [overflow-wrap:anywhere]">
-                    <MarkdownLite text={s.markdown} />
+                  <div id={panel} aria-busy={md === null && loadState === "loading"} className="min-w-0 overflow-x-auto px-3 pb-3 pt-1 [overflow-wrap:anywhere]">
+                    {md !== null ? (
+                      <MarkdownLite text={md} />
+                    ) : loadState === "error" ? (
+                      <p className="text-slate-300">
+                        Couldn&apos;t load this section.{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoadState("idle");
+                            setTimeout(fetchSections, 0);
+                          }}
+                          className="min-h-11 underline decoration-white/40 underline-offset-2 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-200"
+                        >
+                          Try again
+                        </button>
+                      </p>
+                    ) : (
+                      <p className="text-slate-300" role="status">Loading…</p>
+                    )}
                   </div>
                 ) : null}
               </div>

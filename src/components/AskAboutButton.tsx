@@ -10,7 +10,7 @@ export function AskAboutButton({ scope, label, className = "" }: { scope: ChatSc
     <Link
       href={askAboutHref(scope)}
       aria-label={`Ask about ${label} in Chat`}
-      className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:border-white/50 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 ${className}`}
+      className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-white/45 px-4 py-2 text-sm font-medium text-white hover:border-white/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 ${className}`}
     >
       Ask about this
     </Link>

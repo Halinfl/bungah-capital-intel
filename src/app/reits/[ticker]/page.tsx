@@ -534,7 +534,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
       </section>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <Link href={askHref} className="inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+        <Link href={askHref} className="inline-flex min-h-11 items-center rounded-lg border border-white/45 px-4 py-2 text-sm text-white hover:bg-white/5">
           Ask about this REIT
         </Link>
         <Link

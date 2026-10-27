@@ -41,6 +41,8 @@ export type ChatBrief = {
   /** The citations the count and span were computed from (one row per source and cited date). */
   cited?: Citation[];
   sections: BriefSection[];
+  /** Wire only: section bodies were left off the response (markdown ""); fetch them with `detail: true`. */
+  sectionsLazy?: boolean;
   footer: string;
   /** Visible characters of the collapsed view (decline + answer + reads + coverage). */
   collapsedChars: number;

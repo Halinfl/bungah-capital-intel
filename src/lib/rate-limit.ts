@@ -13,7 +13,7 @@
 import { createHash } from "node:crypto";
 
 const WINDOW_MS = Number(process.env.BUNGAH_CHAT_RATE_WINDOW_MS || 10 * 60 * 1000);
-const LIMIT = Number(process.env.BUNGAH_CHAT_RATE_LIMIT || 30);
+export const LIMIT = Number(process.env.BUNGAH_CHAT_RATE_LIMIT || 30);
 const MAX_KEYS = 20_000;
 const HITS = new Map<string, { start: number; n: number }>();
 

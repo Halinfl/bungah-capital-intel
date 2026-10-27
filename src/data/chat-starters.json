@@ -1,5 +1,5 @@
 {
- "verifiedAt": "2026-10-27T13:53:13.774Z",
+ "verifiedAt": "2026-10-27T14:21:54.897Z",
  "basis": "graph dump 20261027T060017Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
@@ -77,10 +77,6 @@
   "aspen-vail": [],
   "atlanta": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
-   },
-   {
     "q": "How much new supply is coming?"
    },
    {
@@ -88,6 +84,9 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
+   },
+   {
+    "q": "What's demand doing here?"
    }
   ],
   "austin": [],
@@ -182,10 +181,7 @@
     "range": "12m"
    },
    {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
+    "q": "What's demand doing here?"
    }
   ],
   "los-angeles": [
@@ -205,14 +201,13 @@
   ],
   "miami": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
-   },
-   {
     "q": "How much new supply is coming?"
    },
    {
     "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "What's demand doing here?"
    }
   ],
   "minneapolis": [],
@@ -220,24 +215,22 @@
   "napa-sonoma": [],
   "nashville": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
+    "q": "How much new supply is coming?"
    },
    {
-    "q": "How much new supply is coming?"
+    "q": "What's demand doing here?"
    }
   ],
   "new-orleans": [],
   "new-york-city": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
-   },
-   {
     "q": "How much new supply is coming?"
    },
    {
     "q": "Is labor a risk to the thesis here?"
+   },
+   {
+    "q": "What's demand doing here?"
    }
   ],
   "orlando": [
@@ -249,7 +242,7 @@
     "q": "How much new supply is coming?"
    },
    {
-    "q": "What's happening with hotel debt here?"
+    "q": "What's demand doing here?"
    }
   ],
   "outer-banks": [],
@@ -286,6 +279,9 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
+   },
+   {
+    "q": "What's demand doing here?"
    }
   ],
   "san-francisco-bay": [
@@ -366,6 +362,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "RHP": [
@@ -377,6 +376,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "PK": [
@@ -388,6 +390,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "APLE": [
@@ -399,6 +404,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "DRH": [
@@ -410,6 +418,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "SHO": [
@@ -421,6 +432,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "XHR": [
@@ -432,6 +446,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "PEB": [
@@ -443,6 +460,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "RLJ": [
@@ -454,6 +474,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "INN": [
@@ -465,6 +488,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "CLDT": [
@@ -476,6 +502,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ],
   "AHT": [
@@ -484,6 +513,12 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
+   },
+   {
+    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "BHR": [
@@ -495,6 +530,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "What debt is coming due?"
    }
   ]
  },
@@ -533,6 +571,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:anaheim-orange-county",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:anaheim-orange-county",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:aspen-vail",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -553,6 +601,26 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:aspen-vail",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:atlanta",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "does not lead with the topic (\"Atlanta: World Cup room nights: ~442,000 booked by Cup visitors; OCC d\")"
+  },
+  {
+   "scope": "market:atlanta",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "does not lead with the topic (\"Atlanta: World Cup room nights: ~442,000 booked by Cup visitors; OCC d\")"
+  },
+  {
    "scope": "market:austin",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -570,6 +638,16 @@
   {
    "scope": "market:austin",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -593,6 +671,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:baltimore",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:branson",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -610,6 +698,16 @@
   {
    "scope": "market:branson",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -633,6 +731,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:charleston-sc",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:charlotte",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -650,6 +758,16 @@
   {
    "scope": "market:charlotte",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -673,6 +791,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:cincinnati",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:cleveland",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -690,6 +818,16 @@
   {
    "scope": "market:cleveland",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -713,6 +851,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:columbus-oh",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:denver",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -733,6 +881,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:denver",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:detroit",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -750,6 +908,16 @@
   {
    "scope": "market:detroit",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -758,6 +926,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:fort-lauderdale",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:fort-lauderdale",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:gatlinburg-pigeon-forge",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -775,6 +953,16 @@
   {
    "scope": "market:gatlinburg-pigeon-forge",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -798,6 +986,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:indianapolis",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:jacksonville",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -818,6 +1016,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:jacksonville",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:kansas-city",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -838,6 +1046,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:kansas-city",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:florida-keys",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -855,6 +1073,16 @@
   {
    "scope": "market:florida-keys",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -863,11 +1091,31 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:las-vegas",
+   "q": "What's happening with hotel debt here?",
+   "reason": "off-topic card (\"Las Vegas: OCC 80.3%, ADR $184.00, RevPAR $147.75 (OCC×ADR) (LVCVA FAQ\")"
+  },
+  {
+   "scope": "market:las-vegas",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "off-topic card (\"Las Vegas: OCC 80.3%, ADR $184.00, RevPAR $147.75 (OCC×ADR) (LVCVA FAQ\")"
+  },
+  {
+   "scope": "market:miami",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "off-topic card (\"Miami: Miami-Dade Aug 2026 occupancy: 63.6% (−7.6% YoY) after an all-r\")"
+  },
+  {
    "scope": "market:miami",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
   },
   {
+   "scope": "market:miami",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "does not lead with the topic (\"Miami: Miami-Dade Aug 2026 occupancy: 63.6% (−7.6% YoY) after an all-r\")"
+  },
+  {
    "scope": "market:minneapolis",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -888,6 +1136,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:minneapolis",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:myrtle-beach",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -908,6 +1166,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:myrtle-beach",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:napa-sonoma",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -926,6 +1194,21 @@
    "scope": "market:napa-sonoma",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:napa-sonoma",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:nashville",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "off-topic card (\"Nashville: County YTD through Sep 12 2026: OCC 69.4% (+3.2%); demand +\")"
   },
   {
    "scope": "market:nashville",
@@ -938,6 +1221,11 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:nashville",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "does not lead with the topic (\"Nashville: County YTD through Sep 12 2026: OCC 69.4% (+3.2%); demand +\")"
+  },
+  {
    "scope": "market:new-orleans",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -956,11 +1244,36 @@
    "scope": "market:new-orleans",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-york-city",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "does not lead with the topic (\"New York: Aug 2026 (CoStar monthly): Largest Top-25 ADR drop, −3.3% (C\")"
   },
   {
    "scope": "market:new-york-city",
    "q": "What's happening with hotel debt here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-york-city",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "does not lead with the topic (\"New York: Aug 2026 (CoStar monthly): Largest Top-25 ADR drop, −3.3% (C\")"
+  },
+  {
+   "scope": "market:orlando",
+   "q": "What's happening with hotel debt here?",
+   "reason": "off-topic card (\"Orlando: OCC 71.4%, ADR $202.71, RevPAR $144.73 (OCC×ADR) (Visit Orlan\")"
   },
   {
    "scope": "market:orlando",
@@ -988,6 +1301,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:outer-banks",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:palm-springs",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1005,6 +1328,16 @@
   {
    "scope": "market:palm-springs",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1028,6 +1361,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:philadelphia",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:pittsburgh",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1045,6 +1388,16 @@
   {
    "scope": "market:pittsburgh",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1068,6 +1421,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:portland-or",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:raleigh",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1085,6 +1448,16 @@
   {
    "scope": "market:raleigh",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1108,6 +1481,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:reno-tahoe",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:salt-lake-city",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1128,6 +1511,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:salt-lake-city",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:san-antonio",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1145,6 +1538,16 @@
   {
    "scope": "market:san-antonio",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1173,6 +1576,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:savannah",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:sedona-grand-canyon",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1190,6 +1603,16 @@
   {
    "scope": "market:sedona-grand-canyon",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1213,6 +1636,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:st-louis",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:tampa",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1230,6 +1663,16 @@
   {
    "scope": "market:tampa",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {
@@ -1253,6 +1696,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:palm-beach",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1273,6 +1726,16 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:palm-beach",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
    "scope": "market:williamsburg-va",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1290,6 +1753,16 @@
   {
    "scope": "market:williamsburg-va",
    "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
+   "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
   {

@@ -8,7 +8,7 @@ import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
 import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
-import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
+import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
@@ -105,22 +105,28 @@ async function persist(x: LogInput): Promise<void> {
   }
 }
 
+/** A cited row's dedupe `key` is its URL whenever it has one; send the key only when it differs. */
+function wireCited(cited: Citation[] | undefined): Citation[] {
+  return (cited ?? []).map((c) => {
+    if (!c.url || c.key !== c.url) return c;
+    const rest: Partial<Citation> = { ...c };
+    delete rest.key;
+    return rest as Citation;
+  });
+}
+
 /**
- * Response-only trim, lossless: a cited row's dedupe `key` is its URL whenever it has one, so the key is
- * sent only when it differs (label-only sources). Every cited read, source, URL, label and date is kept.
+ * The card as sent: answer, key reads (each with its source), coverage line and section headings. The
+ * section bodies, the cited-source list and the legacy citations/sources arrays (all already behind the
+ * "Sources (N)" section) come from the `detail: true` fetch when a section is opened. Nothing is dropped,
+ * only deferred; the cache and the question log keep the full answer.
  */
 function wireBrief(brief: Built["brief"]): Built["brief"] {
   const b = brief as (ChatBrief & { cited?: Citation[] }) | null;
-  if (!b?.cited) return brief;
-  return {
-    ...b,
-    cited: b.cited.map((c) => {
-      if (!c.url || c.key !== c.url) return c;
-      const rest: Partial<Citation> = { ...c };
-      delete rest.key;
-      return rest as Citation;
-    }),
-  };
+  if (!b) return brief;
+  const { cited: _cited, ...rest } = b;
+  void _cited;
+  return { ...rest, sections: b.sections.map((x) => ({ id: x.id, title: x.title, count: x.count, markdown: "" })), sectionsLazy: b.sections.length > 0 };
 }
 
 export async function POST(req: Request) {
@@ -131,12 +137,18 @@ export async function POST(req: Request) {
     const isPrivate = Boolean(userId);
     const trainEligible = !isPrivate;
 
+    const body = await req.json();
+    // `detail: true` = the lazy "show the sections" fetch for an answer already on screen (same question,
+    // scope and window). It is not a new question: not logged, and limited on its own, wider bucket.
+    const detail = body.detail === true;
+
     // Signed-out visitors: per-IP limit (src/lib/rate-limit.ts). The only message is "Sign in to keep asking."
     if (!userId) {
       const testLimit = TEST_TOGGLES ? Number(req.headers.get("x-bungah-test-ratelimit") || 0) : 0;
       // Preview-only: a named test bucket, so a check starts from a clean count.
       const testBucket = TEST_TOGGLES ? req.headers.get("x-bungah-test-ratelimit-bucket")?.slice(0, 40) ?? "" : "";
-      const rl = checkRateLimit(`${clientIp(req)}${testBucket ? `#${testBucket}` : ""}`, testLimit > 0 ? testLimit : undefined);
+      const limit = testLimit > 0 ? testLimit : LIMIT;
+      const rl = checkRateLimit(`${detail ? "detail:" : ""}${clientIp(req)}${testBucket ? `#${testBucket}` : ""}`, detail ? limit * 3 : limit);
       if (!rl.ok) {
         return NextResponse.json(
           { error: RATE_LIMIT_MESSAGE, rateLimited: true },
@@ -145,7 +157,6 @@ export async function POST(req: Request) {
       }
     }
 
-    const body = await req.json();
     const question = String(body.question ?? "").slice(0, MAX_QUESTION);
     const scope = parseScope(body.scope);
     const marketSlug =
@@ -188,6 +199,15 @@ export async function POST(req: Request) {
       answer = await build();
     }
 
+    if (detail) {
+      // Everything the card left off: the full sections plus every cited source behind the answer.
+      const b = answer.brief as (ChatBrief & { cited?: Citation[] }) | null;
+      return NextResponse.json(
+        { sections: b?.sections ?? [], cited: wireCited(b?.cited), citations: answer.citations, sources: answer.sources },
+        { headers: { "Cache-Control": "no-store", "x-chat-cache": cache, "x-chat-log": "none (detail)" } }
+      );
+    }
+
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     after(() => persist({ question, answer, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail }));
@@ -195,13 +215,11 @@ export async function POST(req: Request) {
     const modelUsed = toModelUsed(answer.mode);
     return NextResponse.json(
       {
-        // With a summary card the client renders only `brief`; `content` is the same rows rendered as one
-        // markdown block (every URL in it is also in brief.sections), so it is left off the wire. The log
-        // and the cache keep it. Without a brief, `content` is the answer and is always sent.
-        ...(answer.brief ? {} : { content: answer.content }),
+        // With a summary card the client renders only `brief`: `content` is the same sections again as one
+        // markdown block (every URL in it is also in brief.sections), so it is not sent at all; citations and
+        // sources come with the lazy detail fetch. Without a brief, `content` + sources are the answer.
+        ...(answer.brief ? {} : { content: answer.content, citations: answer.citations, sources: answer.sources }),
         brief: wireBrief(answer.brief),
-        citations: answer.citations,
-        sources: answer.sources,
         // The thread id is no longer known when the response goes out (the write runs after it).
         threadId: null,
         intent: answer.intent,
@@ -215,7 +233,7 @@ export async function POST(req: Request) {
         headers: {
           "Cache-Control": "no-store",
           "x-chat-cache": cache,
-          "x-chat-log": forceFail ? "deferred; forced-fail" : "deferred",
+          "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
           ...(TEST_TOGGLES ? { "x-chat-log-source": source } : {}),
         },
       }

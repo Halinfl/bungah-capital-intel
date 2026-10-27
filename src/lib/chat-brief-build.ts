@@ -142,12 +142,16 @@ function inWindowWord(m: MarketRow): string {
 }
 
 /** The headline-metrics answer line, values as stored / as published in the snapshot label. */
-function metricsLine(m: MarketRow): string | null {
+function metricsLine(m: MarketRow, revparFirst = false): string | null {
   if (!snapOK(m) || m.occupancy == null || m.adr == null) return null;
   const cited = /RevPAR \$([\d,]+(?:\.\d+)?)/.exec(m.sourceLabel)?.[1];
   const revpar = cited ? `RevPAR $${cited}` : `RevPAR $${((m.occupancy / 100) * m.adr).toFixed(2)} (OCC×ADR)`;
-  return `OCC ${m.occupancy.toFixed(1)}%, ADR $${m.adr.toFixed(2)}, ${revpar}`;
+  const occAdr = `OCC ${m.occupancy.toFixed(1)}%, ADR $${m.adr.toFixed(2)}`;
+  return revparFirst ? `${revpar}; ${occAdr}` : `${occAdr}, ${revpar}`;
 }
+
+/** A RevPAR question leads with RevPAR: the snapshot line reordered, else the best-ranked cited RevPAR read. */
+const REVPAR_FIGURE = /\bRevPAR\b[^.;]{0,40}?[+\-−]?\$?\d/;
 
 function metricsTable(m: MarketRow): BriefSection | null {
   if (!snapOK(m)) return null;
@@ -314,6 +318,15 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
+  } else if (intent === "revpar_metrics" && (metrics || pickReads(facts, lens, 50).some((f) => REVPAR_FIGURE.test(f.text)))) {
+    if (metrics) {
+      answer = `${short}: ${metricsLine(m, true)} (${flatSource(snap.label)}).`;
+      reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
+    } else {
+      const head = pickReads(facts, lens, 50).find((f) => REVPAR_FIGURE.test(f.text))!;
+      answer = headLine(short, lens, head);
+      reads = pickReads(facts, lens, 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
+    }
   } else if (lens === "demand" && metrics) {
     answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));

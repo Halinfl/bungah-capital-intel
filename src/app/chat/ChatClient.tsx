@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
-import { ChatBriefView, type ChatBrief, type DateRange } from "@/components/ChatBriefView";
+import { ChatBriefView, type BriefSection, type ChatBrief, type DateRange } from "@/components/ChatBriefView";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -77,6 +77,27 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
     setBusy(false);
     autoSubmittedKey.current = null;
   }, [initialQuestionKey, initialQuestion]);
+
+  // Section bodies for an answer already on screen (same question, item and window); not a new question.
+  const loadSections = useCallback(
+    async (q: string, range: DateRange): Promise<BriefSection[]> => {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: q,
+          marketSlug: marketSlug || undefined,
+          ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
+          ...(range !== "all" ? { range } : {}),
+          detail: true,
+        }),
+      });
+      if (!res.ok) throw new Error("detail failed");
+      const data = await res.json();
+      return (data.sections ?? []) as BriefSection[];
+    },
+    [marketSlug, scope]
+  );
 
   const send = useCallback(
     async (text: string, range: DateRange = "all", source: AskSource = "typed") => {
@@ -171,7 +192,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                     type="button"
                     disabled={busy}
                     onClick={() => void send(st.q, st.range ?? "all", "starter")}
-                    className="min-h-11 rounded-full border border-white/20 bg-white/[0.03] px-4 py-2.5 text-left text-sm leading-snug text-slate-100 transition hover:border-white/40 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                    className="min-h-11 rounded-full border border-white/45 bg-white/[0.03] px-4 py-2.5 text-left text-sm leading-snug text-slate-100 transition hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
                   >
                     {st.q}
                   </button>
@@ -200,6 +221,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                   <ChatBriefView
                     brief={m.brief}
                     onReask={m.question ? (r) => void send(m.question!, r, "reask") : undefined}
+                    loadSections={m.question ? () => loadSections(m.question!, m.range ?? "all") : undefined}
                   />
                 ) : m.content === RATE_LIMIT_MESSAGE ? (
                   <p className="text-sm text-slate-100">
@@ -246,7 +268,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
         {scope ? (
           <div className="flex items-center gap-2 text-sm text-slate-300">
             <span id="chat-scope-label">Asking about</span>
-            <span className="inline-flex min-h-11 items-center rounded-full border border-white/25 bg-white/[0.04] pl-3 text-slate-100" aria-describedby="chat-scope-label">
+            <span className="inline-flex min-h-11 items-center rounded-full border border-white/45 bg-white/[0.04] pl-3 text-slate-100" aria-describedby="chat-scope-label">
               <span className="max-w-[16rem] truncate">{scope.label}</span>
               <button
                 type="button"
