@@ -20,6 +20,8 @@ const TEAM_LANE: Record<string, string> = {
 const RULES: [RegExp, string][] = [
   // House-rule tag appended to labor rows: an internal note, not reader copy (the rule itself is stated in prose).
   [/\s*\(human touch first\)/gi, ""],
+  // The same house rule written as a sentence in labor prose ("Human touch first: underwrite … at the new floor; …").
+  [/\s*Human touch first:[^.]*\./g, ""],
   // Row provenance prefixes / suffixes
   [/^(?:Herald|Atlas|Vectra) depth wave 1 \([\d-]+\), /, ""],
   [/^Ledger capital depth wave 1 \([\d-]+\), /, ""],

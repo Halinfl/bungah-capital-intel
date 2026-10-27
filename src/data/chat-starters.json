@@ -1,5 +1,5 @@
 {
- "verifiedAt": "2026-10-27T15:33:56.313Z",
+ "verifiedAt": "2026-10-27T16:04:48.534Z",
  "basis": "graph dump 20261027T060017Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
@@ -60,7 +60,7 @@
  },
  "general": [
   {
-   "q": "What's the RevPAR and occupancy read for Orlando?"
+   "q": "What's the RevPAR and occupancy read for Nashville?"
   },
   {
    "q": "How much new supply is coming in Nashville?"
@@ -1182,7 +1182,7 @@
   {
    "scope": "market:las-vegas",
    "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"Las Vegas: RevPAR $147.75 (OCC×ADR); OCC 80.3%, ADR $184.00 (LVCVA FAQ\")"
+   "reason": "does not lead with the topic (\"Las Vegas: Vegas July 2026 monthly pulse (LVCVA): Jul OCC 77.2% / inv \")"
   },
   {
    "scope": "market:las-vegas",
@@ -1362,7 +1362,7 @@
   {
    "scope": "market:orlando",
    "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"Orlando: RevPAR $144.73 (OCC×ADR); OCC 71.4%, ADR $202.71 (Visit Orlan\")"
+   "reason": "does not lead with the topic (\"Orlando: August 2026 operating print — soft (Orange County): OCC 62.4%\")"
   },
   {
    "scope": "market:orlando",
@@ -1993,6 +1993,11 @@
    "scope": "reit:AHT",
    "q": "What did they guide on the last call?",
    "reason": "intent reit_reported"
+  },
+  {
+   "scope": "general",
+   "q": "What's the RevPAR and occupancy read for Orlando?",
+   "reason": "off-topic card (\"Orlando: August 2026 operating print — soft (Orange County): OCC 62.4%\"; no key read on topic)"
   }
  ]
 }

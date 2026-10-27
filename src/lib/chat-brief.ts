@@ -14,6 +14,7 @@
  */
 import type { DigestHit } from "./chat-retrieve";
 import { parseSourceUrls, type SourceLink } from "./source-links";
+import CITATION_OVERLAY from "@/data/citation-overlay.json";
 import { cleanSourceLabel, publisherName, scrubInternal } from "./public-text";
 
 export type ChipKind = "Filing" | "Press" | "Record" | "Data";
@@ -626,6 +627,14 @@ export function withDate(src: BriefSource, asOf: string | null | undefined): Bri
 /* Facts from Capital Graph signals                                    */
 /* ------------------------------------------------------------------ */
 
+/** A signal's links plus any verified row-level citations from src/data/citation-overlay.json. */
+function linksOf(s: SignalLike): SourceLink[] {
+  const base = parseSourceUrls(s.sourceUrls);
+  const extra = s.id ? (CITATION_OVERLAY as unknown as Record<string, { label: string; url: string }[]>)[s.id] : undefined;
+  if (!extra) return base;
+  return [...base, ...extra.filter((e) => !base.some((b) => b.url === e.url && b.label === e.label)).map((e) => ({ url: e.url, label: e.label, secondary: false }))];
+}
+
 export type SignalLike = {
   id?: string;
   kind: string;
@@ -656,7 +665,7 @@ export type Fact = {
 
 const NO_READ = /no public read|\bn\/a\b|\bgaps?\b.*no public read|\btag:\s*none\b|\(none: national applies\)/i;
 /** A fact worth a key read carries a figure (%, $, counts, keys, bp…), not just a year. */
-const METRIC = /\d(\.\d+)?\s?%|\$\s?\d|\b\d{1,3}(,\d{3})+\b|\b\d+(\.\d+)?\s?(M|B|k|K|x|bp|bps|pts?|keys|rooms|projects|hotels|visitors|passengers)\b|[+−]\s?\d|\b\d+\s?\/\s?\d+\b/;
+const METRIC = /\d(\.\d+)?\s?%|\$\s?\d|\b\d{1,3}(,\d{3})+\b|\b\d+(\.\d+)?\s?(M|B|k|K|x|bp|bps|pts?|keys|rooms|projects|hotels|visitors|passengers)\b|[+−]\s?\d|\b\d+\s?\/\s?\d+\b|\b\d+\s?·\s?(?:Opened|Opens|UC|Under construction|Delivered)\b/;
 const RULE_ROW = /\bis not the same as\b|\brule\b|\bNOT RevPAR\b/i;
 
 /** Strip a leading "Chicago — debt & deals: Title." restatement of the title. */
@@ -701,7 +710,7 @@ export function signalItems(s: SignalLike): { text: string; asOf: string | null 
 
 /** Data period of a whole row: its title, magnitude and as-of (a load stamp is not a period). */
 export function rowPeriod(s: SignalLike): Period | null {
-  const links = parseSourceUrls(s.sourceUrls);
+  const links = linksOf(s);
   return dataPeriod(rowTexts(s, links), stampKey(s.asOf), rowCtx(s, links));
 }
 
@@ -715,7 +724,7 @@ function rowCtx(s: SignalLike, links: ReturnType<typeof parseSourceUrls>) {
 }
 
 /** Data period of one item: its own text, then its own source link, then the row's. */
-export function itemPeriod(s: SignalLike, text: string, links = parseSourceUrls(s.sourceUrls)): Period | null {
+export function itemPeriod(s: SignalLike, text: string, links = linksOf(s)): Period | null {
   const own = specificLink(text, links);
   const ref = stampKey(s.asOf);
   // Explicit periods first (the item's text, its own link, then the row); a bare year only after.
@@ -731,7 +740,7 @@ export function itemPeriod(s: SignalLike, text: string, links = parseSourceUrls(
  */
 export function windowSignal<T extends SignalLike>(s: T, range: DateRange): T | null {
   if (range === "all") return s;
-  const links = parseSourceUrls(s.sourceUrls);
+  const links = linksOf(s);
   const items = rawItems(s);
   if (!items.length) return periodInRange(rowPeriod(s), range) ? s : null;
   const kept = items.filter((t) => periodInRange(itemPeriod(s, t, links), range));
@@ -751,7 +760,7 @@ export function isSourceLabel(label: string | null | undefined): boolean {
 
 /** One citation per source a signal's shown facts rest on (item-level, with each item's data period). */
 export function signalCites(s: SignalLike): Citation[] {
-  const links = parseSourceUrls(s.sourceUrls);
+  const links = linksOf(s);
   const items = signalItems(s);
   if (!items.length) {
     const l = links[0];
@@ -796,7 +805,7 @@ export function signalFacts(s: SignalLike): Fact[] {
 }
 
 function signalFactsRaw(s: SignalLike): Fact[] {
-  const links = parseSourceUrls(s.sourceUrls);
+  const links = linksOf(s);
   const items = signalItems(s);
   const title = scrubInternal(s.title);
   const sigBad = NO_READ.test(`${title} ${s.magnitude ?? ""}`) || RULE_ROW.test(`${title} ${s.magnitude ?? ""}`) || /gaps?\b/i.test(title);
@@ -819,8 +828,12 @@ function signalFactsRaw(s: SignalLike): Fact[] {
     });
     return out;
   }
+  // A row with no link of its own, in a signal whose first link belongs to another row ("2024 strikes" under
+  // "Massachusetts minimum wage"), has no citable source: it stays in the section but is never a key read.
+  const ownedFirst = links.length > 1 && items.some((o) => specificLink(o.text, links) === links[0]);
   for (const it of items) {
     const text = fitFact(it.text);
+    const unattributed = ownedFirst && !specificLink(it.text, links);
     // Each fact is dated by the period its data covers (week, month, quarter…), never the load date.
     const period = itemPeriod(s, it.text, links);
     out.push({
@@ -831,7 +844,7 @@ function signalFactsRaw(s: SignalLike): Fact[] {
       source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), period?.label),
       kind: s.kind,
       title,
-      readable: Boolean(text) && Boolean(period) && !sigBad && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),
+      readable: Boolean(text) && Boolean(period) && !sigBad && !unattributed && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),
     });
   }
   return out;
@@ -880,7 +893,8 @@ const LENS_OK: Record<Lens, Slot> = {
   demand: () => true,
   // A print that carries RevPAR / ADR / OCC is a supply read only when it opens on supply ("UC: 13 · 1,556",
   // "Supply +2.1%…"), not a performance print with a supply tail ("C&W Q2: OCC …, RevPAR …; supply +1.8%").
-  supply: (f) => !TAXY(f) && SUPPLY_WORD.test(f.text) && supplyBeforePerf(f.text),
+  // Derived inventory ("Implied rooms … ÷ 91, derived") is existing stock, not new supply.
+  supply: (f) => !TAXY(f) && SUPPLY_WORD.test(f.text) && supplyBeforePerf(f.text) && !/\bimplied rooms\b|÷\s*\d|\bderived\b/i.test(f.text),
   debt: (f) => DEBT_WORD.test(f.text) && !(PERF_RE.test(f.text) && !/\b(debt|loans?|CMBS|SASB|mortgages?|refinanc\w*|matur\w*|delinquen\w*|defaults?|foreclos\w*|special[- ]servic\w*)\b/i.test(f.text)) && !TAXY(f) && f.topic !== "Labor & talent" && !WAGE_WORD.test(f.text) && !NOT_THIS_MARKET.test(f.text),
   talent: (f) => f.topic === "Labor & talent" && !CONSTRUCTION_TRADES.test(f.text),
 };
@@ -943,7 +957,29 @@ function factFigures(t: string): string[] {
  * Two facts say the same thing when they come from the same source and either read the same
  * once normalized, or share a headline figure (one source restating "+11.6% YTD Aug").
  */
+/**
+ * Figures that identify a fact across sources: money, percentages and decimals ("$293.67", "79.9%"), counts
+ * with their noun ("6 hotels"), day dates ("Oct 9") and union locals ("Local 1"). Years alone are left out.
+ */
+function idFigures(t: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of t.matchAll(/\$\s?\d[\d,]*(?:\.\d+)?|\b\d[\d,]*\.\d+\s?%?|\b\d[\d,]*\s?%/g)) out.add(m[0].replace(/[\s,$]/g, ""));
+  for (const m of t.matchAll(/\b(\d[\d,]*)\s+(hotels?|rooms|keys|workers|projects)\b/gi)) out.add(`${m[1].replace(/,/g, "")} ${m[2].toLowerCase().replace(/s$/, "")}`);
+  for (const m of t.matchAll(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})\b/g)) out.add(`${m[1].toLowerCase()} ${m[2]}`);
+  for (const m of t.matchAll(/\bLocal\s+(\d+)\b/g)) out.add(`local ${m[1]}`);
+  return out;
+}
+
+/** Two facts that share two or more identifying figures restate each other, whatever the source. */
+export function sameFigures(a: Fact, b: Fact): boolean {
+  const fb = idFigures(b.text);
+  let n = 0;
+  for (const x of idFigures(a.text)) if (fb.has(x) && ++n >= 2) return true;
+  return false;
+}
+
 export function sameFact(a: Fact, b: Fact): boolean {
+  if (sameFigures(a, b)) return true;
   const ua = a.source.url ?? a.source.label;
   const ub = b.source.url ?? b.source.label;
   if (ua !== ub) return false;
@@ -1094,7 +1130,7 @@ export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefi
     const list = groups.get(topic)!;
     let count = 0;
     const blocks = list.map((s) => {
-      const links = parseSourceUrls(s.sourceUrls);
+      const links = linksOf(s);
       const items = signalItems(s);
       const title = scrubInternal(s.title);
       const rp = rowPeriod(s);
@@ -1148,7 +1184,7 @@ export function sourcesSection(links: { url: string; label: string }[], extra: s
 }
 
 export function signalLinks(signals: SignalLike[]): { url: string; label: string }[] {
-  return signals.flatMap((s) => parseSourceUrls(s.sourceUrls).map((l) => ({ url: l.url, label: l.label })));
+  return signals.flatMap((s) => linksOf(s).map((l) => ({ url: l.url, label: l.label })));
 }
 
 /* ------------------------------------------------------------------ */

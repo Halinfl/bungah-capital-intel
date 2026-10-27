@@ -21,6 +21,7 @@ async function main() {
   const { installGraphFixture } = await import("./graph-fixture");
   const fixture = installGraphFixture();
   const { answerChat } = await import("@/lib/chat-llm");
+  const { sameFigures } = await import("@/lib/chat-brief");
   const { ITEM_CANDIDATES, GENERAL_CANDIDATES } = await import("@/lib/chat-starters");
   const { retrieveGraphContext } = await import("@/lib/chat");
   const { reits } = await import("@/lib/reits");
@@ -49,7 +50,7 @@ async function main() {
 
   const dropped: { scope: string; q: string; reason: string }[] = [];
   /** A kept starter's card, for the duplicate check: its headline and the set of its key reads. */
-  type Card = { q: string; head: string; reads: Set<string> };
+  type Card = { q: string; head: string; reads: Set<string>; points: string[] };
   // The headline minus its "<Market> debt: " / "<Market>: " prefix: the topic is checked on what it says.
   const body = (head: string) => head.replace(/^[^:]{1,60}?(\s(supply|debt|labor))?:\s+/, "");
   const NO_FIGURE = /no dated, cited .* on file|^Limited recent data/i;
@@ -67,8 +68,12 @@ async function main() {
       const offRead = c.everyRead ? readTexts.find((t) => !c.everyRead!.test(t)) : undefined;
       const leads = (!c.lead || c.lead.test(head)) && !(c.leadNot && c.leadNot.test(head));
       // Same card: same headline, or the same key reads (2+ shared, or identical sets), whatever the order.
+      // Market cards also by content: 2+ of this card's points (headline + reads) restate points of a kept card (same text or the same figures).
       const shared = (k: Card) => [...readKeys].filter((x) => k.reads.has(x)).length;
-      const dup = kept.find((k) => k.head === head || shared(k) >= 2 || (shared(k) === readKeys.size && readKeys.size === k.reads.size));
+      const points = [body(head), ...readTexts];
+      const restate = (x: string, y: string) => x === y || sameFigures({ text: x } as never, { text: y } as never);
+      const overlap = (k: Card) => points.filter((x) => k.points.some((y) => restate(x, y))).length;
+      const dup = kept.find((k) => k.head === head || shared(k) >= 2 || (shared(k) === readKeys.size && readKeys.size === k.reads.size) || (scope?.kind === "market" && overlap(k) >= 2));
       const reason = !a.brief
         ? "no summary card"
         : !reads.length
@@ -87,7 +92,7 @@ async function main() {
                       ? `same card as "${dup.q}"`
                       : null;
       if (reason) dropped.push({ scope: where, q: c.q, reason });
-      else kept.push({ q: c.q, head, reads: readKeys });
+      else kept.push({ q: c.q, head, reads: readKeys, points });
       return !reason;
     } catch (e) {
       dropped.push({ scope: where, q: c.q, reason: `error ${e instanceof Error ? e.message : e}` });

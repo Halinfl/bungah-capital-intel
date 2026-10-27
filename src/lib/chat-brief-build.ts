@@ -377,11 +377,16 @@ function revparFirstText(text: string): string {
   return [fixed, ...rest].join("; ");
 }
 
+function bigSwing(text: string): boolean {
+  return [...text.matchAll(/[+\-−]\s?(\d+(?:\.\d+)?)\s?%/g)].some((m) => Number(m[1]) >= 40);
+}
+
 /** The performance key reads: RevPAR / OCC / ADR prints, longer periods before single weeks. */
 function perfReads(facts: Fact[], max: number, used: Set<string>): Fact[] {
   const pool = facts.filter((f) => PERF_FACT(f) && !used.has(f.text));
   const said = facts.filter((f) => used.has(f.text));
-  const ranked = [...pool].sort((a, b) => Number(isSpot(a)) - Number(isSpot(b)) || Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
+  // A one-week swing of 40% or more ("RevPAR +57.3% … (America250)") is an outlier, not a supporting read.
+  const ranked = [...pool].filter((f) => !(isSpot(f) && bigSwing(f.text))).sort((a, b) => Number(isSpot(a)) - Number(isSpot(b)) || Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
   const out: Fact[] = [];
   for (const f of ranked) {
     if (out.length >= max) break;
@@ -399,9 +404,12 @@ const RISK = (f: Fact) => SLOT_RULES.demand.find((x) => x.name === "risk")!.test
  * Demand key reads: drivers and demand risks (visitors, airlift, events, group) before any RevPAR / OCC
  * print, so "what's demand doing" is not the performance card again; a print fills in only if needed.
  */
+/** Debt rows are not demand reads ("$100M CMBS to special servicing" on a demand card). */
+const DEMAND_OFF = /\b(CMBS|SASB|loans?|special[- ]servic\w*|foreclos\w*|delinquen\w*|default)\b/i;
+
 function demandReads(facts: Fact[], max: number, head: Fact): Fact[] {
   const pool = facts
-    .filter((f) => f.readable && f.text !== head.text && !sameFact(f, head) && (DRIVER(f) || RISK(f)) && !PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(wage|union|strike)\b/i.test(f.text))
+    .filter((f) => f.readable && f.text !== head.text && !sameFact(f, head) && (DRIVER(f) || RISK(f)) && !PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(wage|union|strike)\b/i.test(f.text) && !DEMAND_OFF.test(f.text))
     .sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
   const out: Fact[] = [];
   for (const f of pool) {
@@ -411,10 +419,19 @@ function demandReads(facts: Fact[], max: number, head: Fact): Fact[] {
   if (out.length < max) {
     for (const f of pickReads(facts, "demand", max, new Set([head.text, ...out.map((x) => x.text)]))) {
       if (out.length >= max) break;
+      if (f.topic === "Labor & talent" || /\b(wage|union|strike)\b/i.test(f.text) || DEMAND_OFF.test(f.text)) continue;
       if (!out.includes(f) && !out.some((y) => sameFact(f, y))) out.push(f);
     }
   }
   return out.slice(0, max);
+}
+
+/** The newest cited month-or-longer OCC / ADR / RevPAR print, when it ends 90+ days after the snapshot's own period. */
+function fresherThanSnapshot(m: MarketRow, perf: Fact[]): Fact | undefined {
+  const p = periodOf(snapshotLabel(m.sourceLabel));
+  if (!p) return undefined;
+  const best = perf.filter((f) => f.period && !isSpot(f) && (OCC_RATE.test(f.text) || REVPAR_FIGURE.test(f.text))).sort((a, b) => b.key - a.key)[0];
+  return best && ymd(best.key) - ymd(p.end) >= 90 * 86_400_000 ? best : undefined;
 }
 
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
@@ -445,6 +462,12 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     if (asksRevpar && move) {
       answer = headLine(short, "demand", { ...move, text: revparFirstText(move.text) });
       reads = perfReads(facts, n, new Set([move.text]));
+    } else if (metrics && fresherThanSnapshot(m, perf)) {
+      // The snapshot is a past full year (YE 2025) and a newer month / quarter print is cited: the new print
+      // leads, and the full-year level follows as context.
+      const head = fresherThanSnapshot(m, perf)!;
+      answer = `${headLine(short, "demand", { ...head, text: revparFirstText(head.text) }).replace(/\.$/, "")}. Full-year level: ${metricsLine(m, asksRevpar)} (${flatSource(snap.label)}).`;
+      reads = perfReads(facts, n, new Set([head.text]));
     } else if (metrics) {
       answer = `${short}: ${metricsLine(m, asksRevpar)} (${flatSource(snap.label)}).`;
       reads = perfReads(facts, n, new Set());

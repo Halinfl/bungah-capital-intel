@@ -1,0 +1,25 @@
+{
+  "_note": "Row-level citations for signal rows that carry no link of their own. Each URL was opened and the quoted text checked on the date shown. Read by src/lib/chat-brief.ts (linksOf); the database is not changed.",
+  "w1t-boston-1-wage-floor": [
+    {
+      "label": "2024 strikes",
+      "url": "https://www.bostonglobe.com/2024/12/12/business/hotel-workers-union-strike-wages/",
+      "checked": "2026-10-27",
+      "quote": "the union voted on Aug. 8 to authorize a strike … including indefinite strikes at two Hilton hotels and two Omni hotels that ended in October"
+    }
+  ],
+  "w1t-new-york-city-1-wage-floor": [
+    {
+      "label": "Ratification",
+      "url": "https://www.hoteldive.com/news/nyc-hotel-workers-ratify-historic-wage-contract/820972/",
+      "checked": "2026-10-27",
+      "quote": "The ratification passed by a landslide, with 6,050 yes votes and 11 nos … some 27,000 workers employed at more than 200 hotels"
+    },
+    {
+      "label": "HANYC position",
+      "url": "https://www.hoteldive.com/news/nyc-hotel-workers-ratify-historic-wage-contract/820972/",
+      "checked": "2026-10-27",
+      "quote": "have lost 20,000 hotel rooms since COVID, and are still below pre-pandemic demand"
+    }
+  ]
+}
