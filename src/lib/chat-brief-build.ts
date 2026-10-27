@@ -34,8 +34,12 @@ import {
   makeBrief,
   pickReads,
   plain,
+  cleanFactText,
+  PERF_RE,
+  sameFact,
   signalFacts,
   signalSections,
+  SLOT_RULES,
   toRead,
   type BriefRead,
   type BriefSection,
@@ -80,9 +84,23 @@ function snapshotDate(m: MarketRow): string | null {
   return p ? p.label : null;
 }
 
+/**
+ * The snapshot's own document, when the market's bureau registry links it: the registry's lodging-report
+ * URL whose file name is the report the label names ("Hotel-Performance-2025.pdf" for "Choose Chicago
+ * Hotel Performance 2025 PDF"). Null when nothing on file matches; never a guessed link.
+ */
+function snapshotUrl(m: MarketRow): string | undefined {
+  const reg = getMsaRegistryEntry(m.slug);
+  const url = reg?.lodging_report_url;
+  if (!url) return undefined;
+  const file = decodeURIComponent(url.split("/").pop() ?? "").replace(/\.(pdf|html?)$/i, "").replace(/[-_]+/g, " ").trim().toLowerCase();
+  return file.length >= 8 && m.sourceLabel.toLowerCase().includes(file) ? url : undefined;
+}
+
 function snapshotSource(m: MarketRow): BriefSource {
   const label = snapshotLabel(m.sourceLabel);
-  return { kind: chipKind(undefined, label), label, title: label || undefined, date: snapshotDate(m) ?? undefined };
+  const url = snapshotUrl(m);
+  return { kind: chipKind(undefined, label), label, title: label || undefined, date: snapshotDate(m) ?? undefined, ...(url ? { url } : {}) };
 }
 
 /* ------------------------------------------------------------------ */
@@ -275,7 +293,8 @@ function allTimeSources(m: MarketRow, opts: BriefOpts = {}): number {
 function snapshotCite(m: MarketRow): Citation[] {
   if (!snapOK(m)) return [];
   const label = snapshotLabel(m.sourceLabel);
-  return [{ key: label, label, text: fieldNames(scrubInternal(m.sourceLabel)), asOf: null, period: periodOf(label) }];
+  const url = snapshotUrl(m);
+  return [{ key: url ?? label, ...(url ? { url } : {}), label, text: fieldNames(scrubInternal(m.sourceLabel)), asOf: null, period: periodOf(label) }];
 }
 
 const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "debt", talent: "labor" };
@@ -284,7 +303,7 @@ function headLine(scope: string, lens: Lens, f: Fact): string {
   const date = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
   // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
   const esc = scope.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const text = dropRepeatedDate(f.text).replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
+  const text = dropRepeatedDate(cleanFactText(f.text)).replace(new RegExp(`^${esc}\\s+(?=\\S)`, "i"), "");
   return `${scope}${LENS_WORD[lens] ? ` ${LENS_WORD[lens]}` : ""}: ${text} (${[date, flatSource(f.source.label)].filter(Boolean).join(", ")}).`;
 }
 
@@ -300,9 +319,104 @@ export type BriefOpts = {
   nationalOverlay?: SignalLike | null;
   /** Refinancing questions: national benchmark-rate rows; the newest 10-year read leads the answer. */
   rateLead?: SignalLike[];
+  /** The question as asked (picks the performance lead: RevPAR vs occupancy / rate). */
+  question?: string;
 };
 
+/* ------------------------------------------------------------------ */
+/* Performance lead (RevPAR / occupancy questions)                      */
+/* ------------------------------------------------------------------ */
+
+function ymd(n: number): number {
+  return Date.UTC(Math.floor(n / 10000), (Math.floor(n / 100) % 100) - 1, n % 100);
+}
+/** Days a fact's data period covers (a week ≈ 7, a quarter ≈ 91, a year ≈ 365). */
+function spanDays(f: Fact): number {
+  const p = f.period;
+  if (!p) return 0;
+  return Math.round((ymd(p.end) - ymd(p.start)) / 86_400_000) + 1;
+}
+/** A single week or event print: never the lead for "how has RevPAR moved" (it is not the trend). */
+const WEEKLY_TEXT = /\b(week ending|wk ending|w\/e|weekly|week of)\b/i;
+const EVENT_TEXT = /\b(World Cup|Cup|WC|semifinal|quarterfinal|final match|Super Bowl|F1|Grand Prix|Formula 1|eclipse|calendar shift|counter-signal|peak[- ]period|inauguration)\b/i;
+function isSpot(f: Fact): boolean {
+  return /^w\/e /.test(f.period?.label ?? "") || WEEKLY_TEXT.test(f.text) || EVENT_TEXT.test(f.text) || (f.period != null && spanDays(f) < 25);
+}
+const PERF_FACT = (f: Fact) => f.readable && PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(tax|TDT|TOT|HOT|collections?)\b/i.test(f.text) && f.kind !== "tax";
+/** A RevPAR figure that carries its change ("RevPAR $95 (+6.3%)", "RevPAR +6%"). */
+const REVPAR_MOVE = /\bRevPAR\b[^.;|]{0,40}?[+\-−]\s?~?\d+(\.\d+)?\s?%/;
+const OCC_RATE = /\b(OCC|occupancy|ADR|average daily rate)\b[^.;|]{0,30}?\d/i;
+
+/**
+ * Longest data period first (T12 / YTD / quarter / month), then newest, among the current prints: those
+ * ending within about one quarter (100 days) of the newest one (a calendar-2025 total does not outrank a Q2 2026 quarter).
+ */
+function longestFirst(list: Fact[]): Fact[] {
+  const newest = Math.max(0, ...list.map((f) => f.key));
+  const recent = list.filter((f) => !newest || ymd(newest) - ymd(f.key || newest) <= 100 * 86_400_000);
+  return [...recent].sort((a, b) => spanDays(b) - spanDays(a) || b.key - a.key);
+}
+
+/**
+ * The RevPAR clause first, same words and source: "OCC +10.7% to 82.3%; RevPAR +23.9% to $194.23" →
+ * "RevPAR +23.9% to $194.23; OCC +10.7% to 82.3%", and "C&W Q2 2026: OCC 77.2%, ADR $212, RevPAR $164
+ * (+9.0%); supply +0.5%" → "C&W Q2 2026: RevPAR $164 (+9.0%), OCC 77.2%, ADR $212; supply +0.5%".
+ */
+function revparFirstText(text: string): string {
+  const parts = text.split(/;\s+/);
+  const i = parts.findIndex((p) => /\bRevPAR\b/.test(p));
+  if (i < 0) return text;
+  // Within the clause: "<label>: a, b, RevPAR c" → "<label>: RevPAR c, a, b".
+  const seg = parts[i];
+  const colon = seg.search(/:\s/);
+  const label = colon >= 0 && !/\bRevPAR\b/.test(seg.slice(0, colon)) ? seg.slice(0, colon + 2) : "";
+  const items = seg.slice(label.length).split(/,\s+/);
+  const j = items.findIndex((x) => /^~?\s?RevPAR\b/.test(x));
+  const fixed = j > 0 ? label + [items[j], ...items.filter((_, k) => k !== j)].join(", ") : seg;
+  const rest = parts.filter((_, k) => k !== i);
+  return [fixed, ...rest].join("; ");
+}
+
+/** The performance key reads: RevPAR / OCC / ADR prints, longer periods before single weeks. */
+function perfReads(facts: Fact[], max: number, used: Set<string>): Fact[] {
+  const pool = facts.filter((f) => PERF_FACT(f) && !used.has(f.text));
+  const said = facts.filter((f) => used.has(f.text));
+  const ranked = [...pool].sort((a, b) => Number(isSpot(a)) - Number(isSpot(b)) || Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
+  const out: Fact[] = [];
+  for (const f of ranked) {
+    if (out.length >= max) break;
+    if (said.some((y) => sameFact(f, y)) || out.some((y) => sameFact(f, y))) continue;
+    out.push(f);
+  }
+  return out.sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
+}
+
 /** One covered market, any intent. */
+const DRIVER = (f: Fact) => SLOT_RULES.demand.find((x) => x.name === "driver")!.test(f);
+const RISK = (f: Fact) => SLOT_RULES.demand.find((x) => x.name === "risk")!.test(f);
+
+/**
+ * Demand key reads: drivers and demand risks (visitors, airlift, events, group) before any RevPAR / OCC
+ * print, so "what's demand doing" is not the performance card again; a print fills in only if needed.
+ */
+function demandReads(facts: Fact[], max: number, head: Fact): Fact[] {
+  const pool = facts
+    .filter((f) => f.readable && f.text !== head.text && !sameFact(f, head) && (DRIVER(f) || RISK(f)) && !PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(wage|union|strike)\b/i.test(f.text))
+    .sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
+  const out: Fact[] = [];
+  for (const f of pool) {
+    if (out.length >= max) break;
+    if (!out.some((y) => sameFact(f, y))) out.push(f);
+  }
+  if (out.length < max) {
+    for (const f of pickReads(facts, "demand", max, new Set([head.text, ...out.map((x) => x.text)]))) {
+      if (out.length >= max) break;
+      if (!out.includes(f) && !out.some((y) => sameFact(f, y))) out.push(f);
+    }
+  }
+  return out.slice(0, max);
+}
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -318,15 +432,36 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
-  } else if (intent === "revpar_metrics" && (metrics || pickReads(facts, lens, 50).some((f) => REVPAR_FIGURE.test(f.text)))) {
-    if (metrics) {
-      answer = `${short}: ${metricsLine(m, true)} (${flatSource(snap.label)}).`;
-      reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
+  } else if (intent === "revpar_metrics" && (metrics || facts.some(PERF_FACT))) {
+    // Performance questions. "How has RevPAR moved": the longest-period cited RevPAR change leads (T12, YTD,
+    // quarter, month), never a single week or event print; else the snapshot level; else any RevPAR print.
+    // "Occupancy and rate" (no RevPAR asked): the snapshot OCC / ADR, else the longest-period OCC / ADR print.
+    const n = 3 - (opts.extraReads?.length ?? 0);
+    const asksRevpar = !opts.question || /\brevpar\b/i.test(opts.question);
+    const perf = facts.filter(PERF_FACT);
+    const move = longestFirst(perf.filter((f) => REVPAR_MOVE.test(f.text) && !isSpot(f)))[0];
+    const occRate = longestFirst(perf.filter((f) => OCC_RATE.test(f.text) && !isSpot(f)))[0];
+    const anyRevpar = longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text) && !isSpot(f)))[0] ?? longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text)))[0];
+    if (asksRevpar && move) {
+      answer = headLine(short, "demand", { ...move, text: revparFirstText(move.text) });
+      reads = perfReads(facts, n, new Set([move.text]));
+    } else if (metrics) {
+      answer = `${short}: ${metricsLine(m, asksRevpar)} (${flatSource(snap.label)}).`;
+      reads = perfReads(facts, n, new Set());
+    } else if (asksRevpar && anyRevpar) {
+      answer = headLine(short, "demand", { ...anyRevpar, text: revparFirstText(anyRevpar.text) });
+      reads = perfReads(facts, n, new Set([anyRevpar.text]));
     } else {
-      const head = pickReads(facts, lens, 50).find((f) => REVPAR_FIGURE.test(f.text))!;
-      answer = headLine(short, lens, head);
-      reads = pickReads(facts, lens, 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
+      const head = occRate ?? longestFirst(perf)[0];
+      answer = headLine(short, "demand", head);
+      reads = perfReads(facts, n, new Set([head.text]));
     }
+  } else if (lens === "demand" && intent !== "revpar_metrics" && pickReads(facts, "demand", 3).some((f) => DRIVER(f))) {
+    // "What's demand doing": a demand driver (visitors, airlift, events, group) leads; the OCC / ADR snapshot
+    // belongs to the performance answer, so the two starters never open the same card.
+    const head = pickReads(facts, "demand", 3).find((f) => DRIVER(f))!;
+    answer = headLine(short, "demand", head);
+    reads = demandReads(facts, 3 - (opts.extraReads?.length ?? 0), head);
   } else if (lens === "demand" && metrics) {
     answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));

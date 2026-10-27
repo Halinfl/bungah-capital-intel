@@ -239,6 +239,7 @@ function subjectBrief(
     const extra = digests.length ? digestReads(digests[0], question) : null;
     return marketBrief(market, ctx.intent, {
       ...opts,
+      question,
       extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,
       extraSections: extra ? extra.sections : undefined,
       extraCites: extra?.cites,
@@ -629,6 +630,7 @@ function briefForGraph(question: string, ctx: GraphContext, namedDigests: Corpus
     // Refinancing questions lead with the 10-year Treasury (same rule as the rates answers).
     const rateLead = intent === "debt_overlay" && /\b(refinanc\w*|refi)\b/i.test(question) ? nationalSignals.filter((s) => s.kind === "rates" || /\b(10-year|10Y)\b/i.test(s.title)) : undefined;
     return marketBrief(matched, intent, {
+      question,
       nationalOverlay: overlay,
       rateLead,
       extraReads: extra?.reads[0] ? [toRead(extra.reads[0])] : undefined,

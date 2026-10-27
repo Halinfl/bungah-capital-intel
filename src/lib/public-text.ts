@@ -18,6 +18,8 @@ const TEAM_LANE: Record<string, string> = {
 
 /** Ordered, specific rewrites first; generic fallbacks last. Applied to non-URL text only. */
 const RULES: [RegExp, string][] = [
+  // House-rule tag appended to labor rows: an internal note, not reader copy (the rule itself is stated in prose).
+  [/\s*\(human touch first\)/gi, ""],
   // Row provenance prefixes / suffixes
   [/^(?:Herald|Atlas|Vectra) depth wave 1 \([\d-]+\), /, ""],
   [/^Ledger capital depth wave 1 \([\d-]+\), /, ""],

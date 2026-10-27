@@ -19,18 +19,38 @@ export type StarterCandidate = Starter & {
   expect: ChatIntent[];
   topic: RegExp;
   lead?: RegExp;
-  /** Backfill that stands in for another candidate: offered only when that one was dropped. */
-  altOf?: string;
+  /** At least one key read must match this (default `topic`). */
+  readTopic?: RegExp;
+  /** Every key read must match this. */
+  everyRead?: RegExp;
+  /** The headline must NOT match this (e.g. a single-week print for a 12-month question). */
+  leadNot?: RegExp;
+  /** Backfill that stands in for other candidates: offered only when none of them was kept. */
+  altOf?: string | string[];
 };
 
 const T = {
   revpar: /\bRevPAR\b/i,
   /** A RevPAR figure (value or change) in the headline. */
   revparLead: /\bRevPAR\b[^.;]{0,40}?[+\-−]?\$?\d/,
+  /** A RevPAR change in the headline ("RevPAR $95 (+6.3%)"): "how has it moved" needs a move, not a level. */
+  revparMove: /\bRevPAR\b[^.;|]{0,40}?[+\-−]\s?~?\d+(\.\d+)?\s?%/,
+  /** A single week or event print. */
+  spot: /\b(week ending|wk ending|w\/e|week of|weekly)\b/i,
+  perf: /\b(RevPAR|ADR|OCC|occupancy)\b/i,
+  occRate: /\b(OCC|occupancy|ADR)\b[^.;]{0,30}?\d/i,
+  /** Every supply read is about supply, not a RevPAR / ADR print. */
+  supplyRead: /\b(supply|pipeline|under construction|UC|construction|keys|rooms|projects?|open\w*|deliver\w*|inventory|conversions?|renovation|entitle\w*|absorption)\b/i,
+  /** Every debt read names a debt fact. */
+  debtRead: /\b(debt|loans?|CMBS|SASB|mortgages?|refinanc\w*|matur\w*|delinquen\w*|special[- ]servic\w*|NPL|distress\w*|foreclos\w*|defaults?|lenders?|recap\w*|mezz\w*|10-year|Treasury|SOFR|spreads?|paydown|receivership)\b/i,
+  /** Every labor read is a hotel-labor row (wages, contracts, workers, strikes), not a construction-trades survey. */
+  laborRead: /\b(labor|wages?|union|Local \d+|strikes?|struck|staff\w*|workforce|workers?|employment|jobs|hiring|minimum|tipped|contract|housekeep\w*|OEWS)\b|\/hr\b/i,
   supply: /\b(supply|pipeline|under construction|new (hotels?|rooms|keys)|openings?|rooms? (added|planned|proposed))\b/i,
   debt: /\b(debt|CMBS|loans?|refinanc\w*|maturit\w*|delinquen\w*|lenders?|special servicing|Treasury|10-year)\b/i,
-  labor: /\b(labor|wages?|union|strikes?|staff\w*|workforce|workers?|employment|jobs|hiring|minimum wage|tipped)\b/i,
-  demand: /\b(demand|visitors?|visitation|OCC|occupancy|RevPAR|passengers?|airport|room nights?|tourism)\b/i,
+  labor: /\b(labor|wages?|union|UNITE HERE|Local \d+|contracts?|ratif\w*|strikes?|struck|staff\w*|workforce|workers?|employment|jobs|hiring|minimum wage|tipped)\b/i,
+  demand: /\b(demand|visitors?|visitation|OCC|occupancy|RevPAR|passengers?|pax|seats?|airlift|airport|arrivals?|room nights?|tourism|tourists?|convention\w*|group|attendance|events?)\b/i,
+  guidanceRead: /\b(FY\s?\d{4}|guid\w*|outlook|raised|lowered|maintained|reaffirm\w*)\b/i,
+  gradeRead: /\b(grade[ds]?|rubric|factor|score[ds]?|replacement|spread|graded)\b|\d(\.\d)?\s?\/\s?5\b/i,
   guidance: /\b(guid\w*|outlook|raised|lowered|reaffirm\w*)\b/i,
   capital: /\b(bought|sold|acqui\w*|dispos\w*|buybacks?|repurchas\w*|maturing|maturit\w*|capital|transactions?)\b/i,
   debtDue: /\b(maturing|maturit\w*|debt)\b/i,
@@ -46,25 +66,27 @@ const T = {
  */
 export const ITEM_CANDIDATES: Record<ScopeKind, StarterCandidate[]> = {
   market: [
-    { q: "How has RevPAR moved here over the last 12 months?", range: "12m", expect: ["revpar_metrics", "demand_visitation"], topic: T.revpar, lead: T.revparLead },
-    { q: "How much new supply is coming?", expect: ["supply_pipeline"], topic: T.supply },
-    { q: "What's happening with hotel debt here?", expect: ["debt_overlay"], topic: T.debt },
-    { q: "Is labor a risk to the thesis here?", expect: ["talent_greenlight"], topic: T.labor },
+    { q: "How has RevPAR moved here over the last 12 months?", range: "12m", expect: ["revpar_metrics"], topic: T.revpar, readTopic: T.perf, lead: T.revparMove, leadNot: T.spot },
+    { q: "How much new supply is coming?", expect: ["supply_pipeline"], topic: T.supply, readTopic: T.supplyRead, everyRead: T.supplyRead },
+    { q: "What's happening with hotel debt here?", expect: ["debt_overlay"], topic: T.debt, readTopic: T.debtRead, everyRead: T.debtRead },
+    { q: "Is labor a risk to the thesis here?", expect: ["talent_greenlight"], topic: T.labor, readTopic: T.laborRead, everyRead: T.laborRead },
     // backfill
-    { q: "What's the RevPAR and occupancy read here?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported, lead: T.revparLead, altOf: "How has RevPAR moved here over the last 12 months?" },
+    { q: "What's the RevPAR and occupancy read here?", expect: ["revpar_metrics"], topic: T.reported, readTopic: T.perf, lead: T.revparLead, leadNot: T.spot, altOf: "How has RevPAR moved here over the last 12 months?" },
+    // Only where no RevPAR starter passes and an occupancy / rate read exists (the honest fallback).
+    { q: "What's the latest occupancy and rate read here?", expect: ["revpar_metrics"], topic: T.occRate, readTopic: T.perf, lead: T.occRate, leadNot: T.spot, altOf: ["How has RevPAR moved here over the last 12 months?", "What's the RevPAR and occupancy read here?"] },
     { q: "What's demand doing here?", expect: ["demand_visitation", "revpar_metrics"], topic: T.demand },
   ],
   reit: [
-    { q: "What did they guide on the last call?", expect: ["reit_call"], topic: T.guidance },
+    { q: "What did they guide on the last call?", expect: ["reit_call"], topic: T.guidance, readTopic: T.guidanceRead },
     { q: "Where are they putting capital?", expect: ["reit_call"], topic: T.capital },
-    { q: "How did RevPAR, ADR and occupancy move last quarter?", expect: ["reit_reported"], topic: T.reported },
+    { q: "How did RevPAR, ADR and occupancy move last quarter?", expect: ["reit_reported"], topic: T.reported, everyRead: T.perf },
     // backfill
-    { q: "What debt is coming due?", expect: ["reit_call"], topic: T.debtDue, lead: T.debtDue },
-    { q: "Which hotels have they bought or sold lately?", expect: ["reit_call"], topic: T.deals, lead: T.deals },
+    { q: "What debt is coming due?", expect: ["reit_call"], topic: T.debtDue, lead: T.debtDue, everyRead: T.debtDue },
+    { q: "Which hotels have they bought or sold lately?", expect: ["reit_call"], topic: T.deals, lead: T.deals, everyRead: T.deals },
   ],
   deal: [
     { q: "What did the buyer pay per key, and how does that compare?", expect: ["deal_sale"], topic: T.price },
-    { q: "Why did this grade the way it did?", expect: ["deal_grade"], topic: T.grade },
+    { q: "Why did this grade the way it did?", expect: ["deal_grade"], topic: T.grade, readTopic: T.gradeRead },
     { q: "What's demand doing in this market?", expect: ["demand_visitation", "revpar_metrics"], topic: T.demand },
   ],
 };

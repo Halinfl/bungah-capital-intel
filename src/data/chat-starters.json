@@ -1,5 +1,5 @@
 {
- "verifiedAt": "2026-10-27T14:51:31.390Z",
+ "verifiedAt": "2026-10-27T15:33:56.313Z",
  "basis": "graph dump 20261027T060017Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
@@ -77,13 +77,11 @@
   "aspen-vail": [],
   "atlanta": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
-   },
-   {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
    },
    {
     "q": "What's demand doing here?"
@@ -144,17 +142,7 @@
   ],
   "denver": [],
   "detroit": [],
-  "fort-lauderdale": [
-   {
-    "q": "How much new supply is coming?"
-   },
-   {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   }
-  ],
+  "fort-lauderdale": [],
   "gatlinburg-pigeon-forge": [],
   "houston": [
    {
@@ -177,8 +165,7 @@
   "florida-keys": [],
   "las-vegas": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
+    "q": "What's the RevPAR and occupancy read here?"
    },
    {
     "q": "What's demand doing here?"
@@ -201,6 +188,10 @@
   ],
   "miami": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -215,6 +206,10 @@
   "napa-sonoma": [],
   "nashville": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -223,6 +218,10 @@
   ],
   "new-orleans": [],
   "new-york-city": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
    {
     "q": "How much new supply is coming?"
    },
@@ -235,14 +234,10 @@
   ],
   "orlando": [
    {
-    "q": "How has RevPAR moved here over the last 12 months?",
-    "range": "12m"
-   },
-   {
     "q": "How much new supply is coming?"
    },
    {
-    "q": "What's demand doing here?"
+    "q": "What's the RevPAR and occupancy read here?"
    }
   ],
   "outer-banks": [],
@@ -257,10 +252,10 @@
     "q": "How much new supply is coming?"
    },
    {
-    "q": "What's happening with hotel debt here?"
+    "q": "Is labor a risk to the thesis here?"
    },
    {
-    "q": "Is labor a risk to the thesis here?"
+    "q": "What's demand doing here?"
    }
   ],
   "pittsburgh": [],
@@ -279,6 +274,9 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
+   },
+   {
+    "q": "What's demand doing here?"
    }
   ],
   "san-francisco-bay": [
@@ -306,10 +304,10 @@
     "q": "How much new supply is coming?"
    },
    {
-    "q": "What's happening with hotel debt here?"
+    "q": "Is labor a risk to the thesis here?"
    },
    {
-    "q": "Is labor a risk to the thesis here?"
+    "q": "What's demand doing here?"
    }
   ],
   "sedona-grand-canyon": [],
@@ -387,9 +385,6 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
-   },
-   {
-    "q": "What debt is coming due?"
    }
   ],
   "APLE": [
@@ -403,7 +398,7 @@
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
    },
    {
-    "q": "What debt is coming due?"
+    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "DRH": [
@@ -445,7 +440,7 @@
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
    },
    {
-    "q": "What debt is coming due?"
+    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "PEB": [
@@ -459,7 +454,7 @@
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
    },
    {
-    "q": "What debt is coming due?"
+    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "RLJ": [
@@ -499,9 +494,6 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
-   },
-   {
-    "q": "What debt is coming due?"
    }
   ],
   "AHT": [
@@ -574,6 +566,11 @@
   },
   {
    "scope": "market:anaheim-orange-county",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:anaheim-orange-county",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -600,6 +597,11 @@
   {
    "scope": "market:aspen-vail",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:aspen-vail",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -609,13 +611,13 @@
   },
   {
    "scope": "market:atlanta",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"Atlanta: World Cup room nights: ~442,000 booked by Cup visitors; OCC d\")"
+   "q": "What's happening with hotel debt here?",
+   "reason": "no-figure card (\"Atlanta: no dated, cited debt figure on file yet; the cited rows we ha\")"
   },
   {
    "scope": "market:atlanta",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"Atlanta: World Cup room nights: ~442,000 booked by Cup visitors; OCC d\")"
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "0 key reads"
   },
   {
    "scope": "market:austin",
@@ -640,6 +642,11 @@
   {
    "scope": "market:austin",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:austin",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -674,6 +681,11 @@
   },
   {
    "scope": "market:baltimore",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:baltimore",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -704,6 +716,11 @@
   },
   {
    "scope": "market:branson",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:branson",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -734,6 +751,11 @@
   },
   {
    "scope": "market:charleston-sc",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charleston-sc",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -764,6 +786,11 @@
   },
   {
    "scope": "market:charlotte",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:charlotte",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -790,6 +817,11 @@
   {
    "scope": "market:cincinnati",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cincinnati",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -820,6 +852,11 @@
   {
    "scope": "market:cleveland",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:cleveland",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -850,6 +887,11 @@
   {
    "scope": "market:columbus-oh",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:columbus-oh",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -880,6 +922,11 @@
   {
    "scope": "market:denver",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:denver",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -910,6 +957,11 @@
   {
    "scope": "market:detroit",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:detroit",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -924,7 +976,27 @@
   },
   {
    "scope": "market:fort-lauderdale",
+   "q": "How much new supply is coming?",
+   "reason": "no-figure card (\"Fort Lauderdale / Broward: no dated, cited supply figure on file yet; \")"
+  },
+  {
+   "scope": "market:fort-lauderdale",
+   "q": "What's happening with hotel debt here?",
+   "reason": "no-figure card (\"Fort Lauderdale / Broward: no dated, cited debt figure on file yet; th\")"
+  },
+  {
+   "scope": "market:fort-lauderdale",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "no-figure card (\"Fort Lauderdale / Broward: no dated, cited labor figure on file yet; t\")"
+  },
+  {
+   "scope": "market:fort-lauderdale",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:fort-lauderdale",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -959,6 +1031,11 @@
   },
   {
    "scope": "market:gatlinburg-pigeon-forge",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:gatlinburg-pigeon-forge",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -989,6 +1066,11 @@
   },
   {
    "scope": "market:indianapolis",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:indianapolis",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1019,6 +1101,11 @@
   },
   {
    "scope": "market:jacksonville",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:jacksonville",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1049,6 +1136,11 @@
   },
   {
    "scope": "market:kansas-city",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:kansas-city",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1079,8 +1171,18 @@
   },
   {
    "scope": "market:florida-keys",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:florida-keys",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:las-vegas",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "does not lead with the topic (\"Las Vegas: RevPAR $147.75 (OCC×ADR); OCC 80.3%, ADR $184.00 (LVCVA FAQ\")"
   },
   {
    "scope": "market:las-vegas",
@@ -1099,18 +1201,8 @@
   },
   {
    "scope": "market:miami",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "off-topic card (\"Miami: Miami-Dade Aug 2026 occupancy: 63.6% (−7.6% YoY) after an all-r\")"
-  },
-  {
-   "scope": "market:miami",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:miami",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"Miami: Miami-Dade Aug 2026 occupancy: 63.6% (−7.6% YoY) after an all-r\")"
   },
   {
    "scope": "market:minneapolis",
@@ -1135,6 +1227,11 @@
   {
    "scope": "market:minneapolis",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:minneapolis",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1169,6 +1266,11 @@
   },
   {
    "scope": "market:myrtle-beach",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:myrtle-beach",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1199,13 +1301,13 @@
   },
   {
    "scope": "market:napa-sonoma",
-   "q": "What's demand doing here?",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
-   "scope": "market:nashville",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "off-topic card (\"Nashville: County YTD through Sep 12 2026: OCC 69.4% (+3.2%); demand +\")"
+   "scope": "market:napa-sonoma",
+   "q": "What's demand doing here?",
+   "reason": "0 key reads"
   },
   {
    "scope": "market:nashville",
@@ -1216,11 +1318,6 @@
    "scope": "market:nashville",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:nashville",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"Nashville: County YTD through Sep 12 2026: OCC 69.4% (+3.2%); demand +\")"
   },
   {
    "scope": "market:new-orleans",
@@ -1245,6 +1342,11 @@
   {
    "scope": "market:new-orleans",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:new-orleans",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1254,18 +1356,13 @@
   },
   {
    "scope": "market:new-york-city",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"New York: Aug 2026 (CoStar monthly): Largest Top-25 ADR drop, −3.3% (C\")"
-  },
-  {
-   "scope": "market:new-york-city",
    "q": "What's happening with hotel debt here?",
    "reason": "0 key reads"
   },
   {
-   "scope": "market:new-york-city",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"New York: Aug 2026 (CoStar monthly): Largest Top-25 ADR drop, −3.3% (C\")"
+   "scope": "market:orlando",
+   "q": "How has RevPAR moved here over the last 12 months?",
+   "reason": "does not lead with the topic (\"Orlando: RevPAR $144.73 (OCC×ADR); OCC 71.4%, ADR $202.71 (Visit Orlan\")"
   },
   {
    "scope": "market:orlando",
@@ -1278,6 +1375,11 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:orlando",
+   "q": "What's demand doing here?",
+   "reason": "same card as \"What's the RevPAR and occupancy read here?\""
+  },
+  {
    "scope": "market:outer-banks",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1300,6 +1402,11 @@
   {
    "scope": "market:outer-banks",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:outer-banks",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1334,6 +1441,11 @@
   },
   {
    "scope": "market:palm-springs",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-springs",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1364,8 +1476,18 @@
   },
   {
    "scope": "market:philadelphia",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:philadelphia",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:phoenix",
+   "q": "What's happening with hotel debt here?",
+   "reason": "no-figure card (\"Phoenix: no dated, cited debt figure on file yet; the cited rows we ha\")"
   },
   {
    "scope": "market:pittsburgh",
@@ -1394,6 +1516,11 @@
   },
   {
    "scope": "market:pittsburgh",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:pittsburgh",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1424,6 +1551,11 @@
   },
   {
    "scope": "market:portland-or",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:portland-or",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1450,6 +1582,11 @@
   {
    "scope": "market:raleigh",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:raleigh",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1480,6 +1617,11 @@
   {
    "scope": "market:reno-tahoe",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:reno-tahoe",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1510,6 +1652,11 @@
   {
    "scope": "market:salt-lake-city",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:salt-lake-city",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1540,6 +1687,11 @@
   {
    "scope": "market:san-antonio",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-antonio",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1553,11 +1705,6 @@
    "reason": "0 key reads"
   },
   {
-   "scope": "market:san-diego",
-   "q": "What's demand doing here?",
-   "reason": "same card as \"How has RevPAR moved here over the last 12 months?\""
-  },
-  {
    "scope": "market:savannah",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1584,7 +1731,17 @@
   },
   {
    "scope": "market:savannah",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:savannah",
    "q": "What's demand doing here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:seattle",
+   "q": "What's happening with hotel debt here?",
    "reason": "0 key reads"
   },
   {
@@ -1610,6 +1767,11 @@
   {
    "scope": "market:sedona-grand-canyon",
    "q": "What's the RevPAR and occupancy read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:sedona-grand-canyon",
+   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1644,6 +1806,11 @@
   },
   {
    "scope": "market:st-louis",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:st-louis",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1674,6 +1841,11 @@
   },
   {
    "scope": "market:tampa",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:tampa",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1704,6 +1876,11 @@
   },
   {
    "scope": "market:virginia-beach-norfolk",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:virginia-beach-norfolk",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1734,6 +1911,11 @@
   },
   {
    "scope": "market:palm-beach",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:palm-beach",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
   },
@@ -1764,8 +1946,48 @@
   },
   {
    "scope": "market:williamsburg-va",
+   "q": "What's the latest occupancy and rate read here?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "market:williamsburg-va",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "reit:PK",
+   "q": "What debt is coming due?",
+   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\")"
+  },
+  {
+   "scope": "reit:PK",
+   "q": "Which hotels have they bought or sold lately?",
+   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\"; no key read on topic)"
+  },
+  {
+   "scope": "reit:APLE",
+   "q": "What debt is coming due?",
+   "reason": "off-topic card (\"Apple Hospitality REIT (APLE) capital moves on file: 30 hotel transact\")"
+  },
+  {
+   "scope": "reit:XHR",
+   "q": "What debt is coming due?",
+   "reason": "off-topic card (\"Xenia Hotels & Resorts (XHR) capital moves on file: 2 hotel transactio\")"
+  },
+  {
+   "scope": "reit:PEB",
+   "q": "What debt is coming due?",
+   "reason": "off-topic card (\"Pebblebrook Hotel Trust (PEB) capital moves on file: 8 hotel transacti\")"
+  },
+  {
+   "scope": "reit:CLDT",
+   "q": "What debt is coming due?",
+   "reason": "off-topic card (\"Chatham Lodging Trust (CLDT) capital moves on file: 1 hotel transactio\")"
+  },
+  {
+   "scope": "reit:CLDT",
+   "q": "Which hotels have they bought or sold lately?",
+   "reason": "off-topic key read (\"Share buybacks $9.5M, 2026 through Jun 30\")"
   },
   {
    "scope": "reit:AHT",

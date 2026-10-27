@@ -854,6 +854,37 @@ const TAXY = any(kindIn("tax"), has(/\b(tax|TDT|TOT|HOT|CDT|collections?)\b/i), 
 const topicIn = (...t: string[]): Slot => (f) => t.includes(f.topic ?? "");
 const SUPPLYISH = any(kindIn("supply", "pipeline"), topicIn("Supply & pipeline"), (f) => /supply|pipeline|construction|new keys|absorption/i.test(f.title));
 
+/** Performance prints (RevPAR / ADR / occupancy). */
+export const PERF_RE = /\b(RevPAR|ADR|OCC|occupancy|average daily rate)\b/i;
+const DEBT_WORD = /\b(debt|loans?|CMBS|SASB|mortgages?|refinanc\w*|matur\w*|delinquen\w*|DQ|special[- ]servic\w*|non-performing|NPL|distress\w*|foreclos\w*|defaults?|defaulted|lenders?|recap\w*|mezz\w*|10-year|10Y|Treasury|SOFR|spreads?|cap rates?|paydown|receivership|note sale)\b/i;
+const WAGE_WORD = /\b(wages?|minimum|union|UNITE HERE|Local \d+|tipped|collective bargaining)\b|\/hr\b/i;
+const SUPPLY_WORD = /\b(supply|pipeline|under construction|UC|construction|new keys|keys|rooms|projects?|open\w*|deliver\w*|inventory|conversions?|renovation|entitle\w*|absorption|planned|proposed|groundbreak\w*|starts?)\b/i;
+/** A row about a portfolio or another place, labelled as not specific to this market. */
+const NOT_THIS_MARKET = /\bportfolio[- ]wide\b|\bnot [A-Z][\w .'-]*-specific\b/i;
+/** Construction-trades surveys (AGC craft difficulty, electricians…) are not hotel labor. */
+const CONSTRUCTION_TRADES = /\b(craft|electricians?|plumbers?|carpenters?|AGC|construction (jobs|trades?|workers?|labor|employment|wages?))\b/i;
+
+/**
+ * Every key read on a lens must be about that lens (with only 3 key points, each one counts): a debt read
+ * names debt and is not a tax, wage or portfolio-wide row; a supply read is not a RevPAR / ADR print; a
+ * labor read is a hotel-labor row, not a construction-trades survey.
+ */
+export function supplyBeforePerf(text: string): boolean {
+  const p = text.search(new RegExp(PERF_RE.source, PERF_RE.flags.replace("g", "")));
+  if (p < 0) return true;
+  const w = text.search(new RegExp(SUPPLY_WORD.source, SUPPLY_WORD.flags.replace("g", "")));
+  return w >= 0 && w < p;
+}
+
+const LENS_OK: Record<Lens, Slot> = {
+  demand: () => true,
+  // A print that carries RevPAR / ADR / OCC is a supply read only when it opens on supply ("UC: 13 · 1,556",
+  // "Supply +2.1%…"), not a performance print with a supply tail ("C&W Q2: OCC …, RevPAR …; supply +1.8%").
+  supply: (f) => !TAXY(f) && SUPPLY_WORD.test(f.text) && supplyBeforePerf(f.text),
+  debt: (f) => DEBT_WORD.test(f.text) && !(PERF_RE.test(f.text) && !/\b(debt|loans?|CMBS|SASB|mortgages?|refinanc\w*|matur\w*|delinquen\w*|defaults?|foreclos\w*|special[- ]servic\w*)\b/i.test(f.text)) && !TAXY(f) && f.topic !== "Labor & talent" && !WAGE_WORD.test(f.text) && !NOT_THIS_MARKET.test(f.text),
+  talent: (f) => f.topic === "Labor & talent" && !CONSTRUCTION_TRADES.test(f.text),
+};
+
 export const SLOT_RULES: Record<Lens, { name: string; test: Slot }[]> = {
   // demand: RevPAR or OCC trend, the driver, and one risk
   demand: [
@@ -889,7 +920,7 @@ export const SLOT_RULES: Record<Lens, { name: string; test: Slot }[]> = {
   // talent: wage floor / contract, labor supply, one risk (labor rows only)
   talent: [
     { name: "wage", test: all(topicIn("Labor & talent"), has(/\b(wage|minimum|union|UNITE HERE|Local \d+|collective|ordinance)\b|\$\d+(\.\d+)?\/hr/i)) },
-    { name: "labor", test: all(topicIn("Labor & talent"), has(/\b(construction jobs|craft|jobs|employment|OEWS|housekeep\w*|staffing|workers)\b/i)) },
+    { name: "labor", test: all(topicIn("Labor & talent"), has(/\b(jobs|employment|OEWS|housekeep\w*|staffing|workers)\b/i)) },
     { name: "risk", test: all(topicIn("Labor & talent"), has(/\b(strike|pre-open|shortage|turnover|re-bid)\b/i)) },
   ],
 };
@@ -922,7 +953,7 @@ export function sameFact(a: Fact, b: Fact): boolean {
 }
 
 export function pickReads(facts: Fact[], lens: Lens, max = 3, used: Set<string> = new Set()): Fact[] {
-  const pool = facts.filter((f) => f.readable).sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
+  const pool = facts.filter((f) => f.readable && LENS_OK[lens](f)).sort((a, b) => Number(Boolean(a.offCore)) - Number(Boolean(b.offCore)) || b.key - a.key);
   const out: Fact[] = [];
   // Facts already said (the answer line's own fact) are excluded, and so is anything restating them.
   const said = facts.filter((f) => used.has(f.text));
@@ -974,8 +1005,22 @@ export function flatSource(label: string): string {
   return label.replace(/\s*\(([^()]*)\)/g, ", $1").replace(/,\s*,/g, ",").trim();
 }
 
+/**
+ * Display only: a bare URL or a trailing "(2026-10; source: same →" provenance note in a fact's text is
+ * dropped; the read's source chip carries the link and date.
+ */
+export function cleanFactText(t: string): string {
+  return t
+    .replace(/\s*\(?\bhttps?:\/\/[^\s)]+\)?/g, "")
+    .replace(/\s*\((?:[^()]*;\s*)?source:[^)]*\)?\s*$/i, "")
+    .replace(/\s*\(above\)/gi, "")
+    .replace(/\s*·\s*same\s*$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export function toRead(f: Fact): BriefRead {
-  const text = dropRepeatedDate(f.text);
+  const text = dropRepeatedDate(cleanFactText(f.text));
   const shown = f.period ? dateShown(text, f.period) : f.asOf && !text.includes(f.asOf) ? f.asOf : null;
   return { text, asOf: f.period === undefined ? fmtAsOf(f.asOf) : shown, source: f.source };
 }
@@ -1028,9 +1073,15 @@ function itemLine(text: string, asOf: string | null, src: BriefSource): string {
 }
 
 /** Signals grouped by topic, one row per item (no "|" run-ons), lens topic first. */
+/** Internal gap notes ("no public read this pass", "Next step: pull…") are working notes, not reader content. */
+const GAP_NOTE = /\bno public read\b|\bnot retrievable\b|\bbot check\b|\bthis pass\b|\bnext step:|\bgap note\b/i;
+
 export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefix = "sig"): BriefSection[] {
   const groups = new Map<string, SignalLike[]>();
   for (const s of signals) {
+    if (GAP_NOTE.test(`${s.title} ${s.magnitude ?? ""} ${s.sourceLabel}`)) continue;
+    if (!signalItems(s).length && GAP_NOTE.test(s.body)) continue;
+    if (signalItems(s).length && signalItems(s).every((it) => GAP_NOTE.test(it.text))) continue;
     const k = topicOf(s);
     groups.set(k, [...(groups.get(k) ?? []), s]);
   }
@@ -1058,12 +1109,16 @@ export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefi
           `- ${plain(body)} · ${src.kind}: ${src.url ? `[${src.label}](${src.url})` : src.label}`,
         ].join("\n");
       }
-      count += items.length;
+      // "(2026-09; source: same → <url>)" / "(source: Same)": provenance shorthand for the block's own source.
+      const shown = items
+        .filter((it) => !GAP_NOTE.test(it.text))
+        .map((it) => ({ ...it, text: it.text.replace(/\s*\(([^()]*?);\s*source:\s*same\b[^)]*\)/gi, " ($1)").replace(/\s*\(source:\s*same\b[^)]*\)/gi, "") }));
+      count += shown.length;
       const primary = sourceFrom(links[0], s.sourceLabel);
       return [
         `**${title}**${date ? ` (${date})` : ""} · ${primary.kind}: ${primary.url ? `[${primary.label}](${primary.url})` : primary.label}`,
         "",
-        ...items.map((it) => {
+        ...shown.map((it) => {
           const own = specificLink(it.text, links);
           return own && own.url !== links[0]?.url ? itemLine(it.text, null, sourceFrom(own, s.sourceLabel)) : `- ${plain(it.text)}`;
         }),
