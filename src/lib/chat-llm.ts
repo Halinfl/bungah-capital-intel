@@ -352,7 +352,7 @@ export async function answerChat(
         }
       }
     }
-    const item = lens ? reitBrief(scope.id, lens) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
+    const item = lens ? reitBrief(scope.id, lens, question) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
     if (item) return finalizeItem(item);
     return answerChat(name ? `${question} (${name})` : question, { range });
   }

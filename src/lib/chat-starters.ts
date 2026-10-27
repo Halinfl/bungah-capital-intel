@@ -59,8 +59,8 @@ export const ITEM_CANDIDATES: Record<ScopeKind, StarterCandidate[]> = {
     { q: "Where are they putting capital?", expect: ["reit_call"], topic: T.capital },
     { q: "How did RevPAR, ADR and occupancy move last quarter?", expect: ["reit_reported"], topic: T.reported },
     // backfill
-    { q: "What debt is coming due?", expect: ["reit_call"], topic: T.debtDue },
-    { q: "Which hotels have they bought or sold lately?", expect: ["reit_call"], topic: T.deals },
+    { q: "What debt is coming due?", expect: ["reit_call"], topic: T.debtDue, lead: T.debtDue },
+    { q: "Which hotels have they bought or sold lately?", expect: ["reit_call"], topic: T.deals, lead: T.deals },
   ],
   deal: [
     { q: "What did the buyer pay per key, and how does that compare?", expect: ["deal_sale"], topic: T.price },

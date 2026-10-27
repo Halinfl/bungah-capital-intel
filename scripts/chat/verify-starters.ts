@@ -2,7 +2,7 @@
  * Build-time starter check ("Ask about this"). For every market, REIT and graded sale page, and for plain
  * /chat, runs each candidate starter through the real deterministic chat (answerChat, no model) and keeps it
  * only if it routes to the expected intent, returns a summary card with at least 1 key read for that item,
- * and the headline or a key read is on the starter's topic (a `lead` topic must be in the headline itself). Failures are DROPPED and listed. Writes src/data/chat-starters.json, which the chat page reads.
+ * and the headline or a key read is on the starter's topic (a `lead` topic must be in the headline itself), and it does not open the same card as a starter already kept for that item. Failures are DROPPED and listed. Writes src/data/chat-starters.json, which the chat page reads.
  *
  * Read-only: graph reads only (no thread / question-log writes). Modes:
  *   BUNGAH_GRAPH_FIXTURE=<nightly dump dir>  read the graph from a dump (box: no Postgres egress)
@@ -48,7 +48,7 @@ async function main() {
   }
 
   const dropped: { scope: string; q: string; reason: string }[] = [];
-  async function check(c: Cand, scope: Scope | null): Promise<boolean> {
+  async function check(c: Cand, scope: Scope | null, seen: Map<string, string> = new Map()): Promise<boolean> {
     try {
       const a = await answerChat(c.q, { scope, range: c.range ?? "all" });
       const reads = a.brief?.reads.length ?? 0;
@@ -58,7 +58,8 @@ async function main() {
       const onTopic = c.topic.test(head) || readTexts.some((t) => c.topic.test(t));
       // Lead: the headline (the one-line summary, not just a read) carries it, e.g. a RevPAR figure.
       const leads = !c.lead || c.lead.test(head);
-      const reason = !a.brief ? "no summary card" : reads < 1 ? "0 key reads" : !c.expect.includes(a.intent as never) ? `intent ${a.intent}` : !onTopic ? `off-topic card ("${head.slice(0, 70)}")` : !leads ? `does not lead with the topic ("${head.slice(0, 70)}")` : null;
+      const reason = !a.brief ? "no summary card" : reads < 1 ? "0 key reads" : !c.expect.includes(a.intent as never) ? `intent ${a.intent}` : !onTopic ? `off-topic card ("${head.slice(0, 70)}")` : !leads ? `does not lead with the topic ("${head.slice(0, 70)}")` : seen.has(head) ? `same card as "${seen.get(head)}"` : null;
+      if (!reason) seen.set(head, c.q);
       if (reason) dropped.push({ scope: scope ? `${scope.kind}:${scope.id}` : "general", q: c.q, reason });
       return !reason;
     } catch (e) {
@@ -66,16 +67,17 @@ async function main() {
       return false;
     }
   }
-  const topicDrops = () => dropped.filter((d) => d.reason.startsWith("off-topic") || d.reason.startsWith("does not lead")).length;
+  const topicDrops = () => dropped.filter((d) => d.reason.startsWith("off-topic") || d.reason.startsWith("does not lead") || d.reason.startsWith("same card")).length;
   const strip = (c: Cand) => (c.range ? { q: c.q, range: c.range } : { q: c.q });
   const table = async (kind: Scope["kind"], ids: string[]) => {
     const out: Record<string, { q: string; range?: string }[]> = {};
     for (const id of ids) {
       const keep: { q: string; range?: string }[] = [];
+      const seen = new Map<string, string>(); // headline -> starter: two starters must not open the same card
       for (const c of ITEM_CANDIDATES[kind]) {
         if (keep.length >= 4) break;
         if (c.altOf && keep.some((k) => k.q === c.altOf)) continue;
-        if (await check(c, { kind, id })) keep.push(strip(c));
+        if (await check(c, { kind, id }, seen)) keep.push(strip(c));
       }
       out[id] = keep.slice(0, 4);
     }
@@ -103,7 +105,7 @@ async function main() {
   const count = (t: Record<string, unknown[]>) => Object.values(t).reduce((n, v) => n + v.length, 0);
   const empty = [...Object.entries(market), ...Object.entries(reit), ...Object.entries(deal)].filter(([, v]) => !v.length).map(([k]) => k);
   console.log(
-    `[verify-starters] ${((Date.now() - t0) / 1000).toFixed(1)}s · general ${general.length}/4 · market ${count(market)} across ${marketSlugs.length} · reit ${count(reit)} across ${Object.keys(reit).length} · deal ${count(deal)} across ${Object.keys(deal).length} · dropped ${dropped.length} (${topicDrops()} by the topic/lead check) · items with no starters: ${empty.length ? empty.join(", ") : "none"}`
+    `[verify-starters] ${((Date.now() - t0) / 1000).toFixed(1)}s · general ${general.length}/4 · market ${count(market)} across ${marketSlugs.length} · reit ${count(reit)} across ${Object.keys(reit).length} · deal ${count(deal)} across ${Object.keys(deal).length} · dropped ${dropped.length} (${topicDrops()} by the topic/lead/duplicate check) · items with no starters: ${empty.length ? empty.join(", ") : "none"}`
   );
   if (process.env.STARTERS_STRICT === "1" && (general.length < 4 || empty.length)) process.exit(1);
   process.exit(0);

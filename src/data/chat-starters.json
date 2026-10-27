@@ -1,5 +1,5 @@
 {
- "verifiedAt": "2026-10-27T14:21:54.897Z",
+ "verifiedAt": "2026-10-27T14:51:31.390Z",
  "basis": "graph dump 20261027T060017Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
@@ -279,9 +279,6 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
    }
   ],
   "san-francisco-bay": [
@@ -1554,6 +1551,11 @@
    "scope": "market:san-diego",
    "q": "What's happening with hotel debt here?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:san-diego",
+   "q": "What's demand doing here?",
+   "reason": "same card as \"How has RevPAR moved here over the last 12 months?\""
   },
   {
    "scope": "market:savannah",

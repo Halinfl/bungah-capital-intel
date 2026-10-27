@@ -82,7 +82,15 @@ function txLine(t: Transaction): string {
   return `${t.kind === "acquisition" ? "Bought" : "Sold"} ${t.hotel}${where ? ` (${where})` : ""}${t.priceUsdM != null ? ` for ${money(t.priceUsdM)}M` : ""}${t.rooms ? `, ${t.rooms.toLocaleString("en-US")} rooms` : ""}${t.pending ? ", pending" : ""}`;
 }
 
-export function reitBrief(ticker: string, lens: ReitLens): ItemAnswer | null {
+/** Within the capital lens: what the question is really about, so the headline leads with it. */
+export function capitalFocus(question: string): "debt" | "deals" | null {
+  const q = question.toLowerCase();
+  if (/\b(debt|maturit\w*|maturing|refinanc\w*|loans?|notes due|coming due)\b/.test(q)) return "debt";
+  if (/\b(acqui\w*|dispos\w*|sold|sell\w*|bought|buy(?!\s?backs?)|transactions?|deals?)\b/.test(q)) return "deals";
+  return null;
+}
+
+export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAnswer | null {
   const r = reitByTicker(ticker);
   if (!r) return null;
   const reads: BriefRead[] = [];
@@ -133,21 +141,23 @@ export function reitBrief(ticker: string, lens: ReitLens): ItemAnswer | null {
     const nextMat = r.debt?.items.find((i) => i.value != null && i.label);
     if (!tx.length && !bb && !nextMat) return null;
     const lead = tx[0];
+    const focus = capitalFocus(question);
     answer = `${r.name} (${r.ticker}) capital moves on file: ${tx.length} hotel transaction${tx.length === 1 ? "" : "s"}${bb ? `, ${money(bb.value)}M of buybacks ${bb.label}` : ""} (SEC filings).`;
-    if (lead) {
-      const x = read(`${txLine(lead)}`, lead.date, { kind: "Filing", label: `${r.ticker} ${lead.source}`, url: lead.url, title: `${r.name}: ${lead.source}` });
-      if (x) reads.push(x);
+    const txRead = lead ? read(`${txLine(lead)}`, lead.date, { kind: "Filing", label: `${r.ticker} ${lead.source}`, url: lead.url, title: `${r.name}: ${lead.source}` }) : null;
+    const bbRead = bb ? read(`Share buybacks ${money(bb.value)}M, ${bb.label}`, filedDate(bb.source), reitSrc(bb, r)) : null;
+    if (bb) cites.push(cite(bb.url, `${r.ticker} ${bb.source}`, filedDate(bb.source)));
+    const debtRead = nextMat && r.debt ? read(`Debt maturing ${nextMat.label}: ${money(nextMat.value!)}M`, r.debt.asOf, reitSrc(r.debt, r)) : null;
+    if (nextMat && r.debt) cites.push(cite(r.debt.url, `${r.ticker} ${r.debt.source}`, r.debt.asOf));
+    // Lead with what was asked: a debt question opens on the maturity schedule, a deals question on the latest deal.
+    let order = [txRead, bbRead, debtRead];
+    if (focus === "debt" && debtRead && nextMat && r.debt) {
+      answer = `${r.name} (${r.ticker}) debt maturities on file: ${money(nextMat.value!)}M due ${nextMat.label}, the nearest year on the schedule (${r.debt.source}).`;
+      order = [debtRead, txRead, bbRead];
+    } else if (focus === "deals" && txRead && lead) {
+      answer = `${r.name} (${r.ticker}) hotel deals on file: ${tx.length} transaction${tx.length === 1 ? "" : "s"}; latest: ${txLine(lead)} (${lead.source}).`;
+      order = [txRead, debtRead, bbRead];
     }
-    if (bb) {
-      const x = read(`Share buybacks ${money(bb.value)}M, ${bb.label}`, filedDate(bb.source), reitSrc(bb, r));
-      if (x) reads.push(x);
-      cites.push(cite(bb.url, `${r.ticker} ${bb.source}`, filedDate(bb.source)));
-    }
-    if (nextMat && r.debt) {
-      const x = read(`Debt maturing ${nextMat.label}: ${money(nextMat.value!)}M`, r.debt.asOf, reitSrc(r.debt, r));
-      if (x) reads.push(x);
-      cites.push(cite(r.debt.url, `${r.ticker} ${r.debt.source}`, r.debt.asOf));
-    }
+    for (const x of order) if (x) reads.push(x);
     if (tx.length) {
       sections.push({
         id: "reit-tx",
