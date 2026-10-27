@@ -341,7 +341,7 @@ export async function answerChat(
     const lens = reitLens(question);
     const name = reitName(scope.id);
     const hasDigest = digestTickers().includes(scope.id.toLowerCase());
-    if (name && (lens === "guidance" || lens === "capital" || lens === null) && hasDigest) {
+    if (name && (lens === "guidance" || lens === null || (lens === "capital" && !reitBrief(scope.id, "capital"))) && hasDigest) {
       // The authored call digest leads for issuers that have one (guidance, capital allocation, market color).
       const corpus = await retrieveAllowedCorpus(`${question} ${name} ${scope.id}`);
       const own = corpus.digests.filter((d) => d.ticker.toLowerCase() === scope.id.toLowerCase());
