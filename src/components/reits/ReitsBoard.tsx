@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
 import {
   PEER_GROUPS,
   chipLabel,
@@ -11,8 +11,10 @@ import {
   fmtMoney,
   fmtPct,
   fmtQuarter,
+  stayLabel,
   type BoardHotel,
   type Cited,
+  type PanelCapture,
   type PeerGroup,
   type ReitSummary,
 } from "@/lib/reits-shared";
@@ -76,11 +78,14 @@ function HotelList({
   r,
   hotels,
   showRates,
+  rateNote,
   mobile = false,
 }: {
   r: ReitSummary;
   hotels: BoardHotel[];
   showRates: boolean;
+  /** Cites the capture behind the rate column (date, stay, method link). */
+  rateNote?: ReactNode;
   mobile?: boolean;
 }) {
   const [all, setAll] = useState(false);
@@ -111,6 +116,7 @@ function HotelList({
         {hotels.some((h) => h.rooms == null)
           ? ` The filings give no per-hotel room count for ${hotels.filter((h) => h.rooms == null).length} of these.`
           : ""}
+        {showRates && rateNote ? <> {rateNote}</> : null}
       </p>
       {mobile ? (
         <ol className="divide-y divide-white/[0.06]">
@@ -184,11 +190,14 @@ function HotelList({
 export function ReitsBoard({
   rows: all,
   firstCapture,
+  panel = null,
   hotelLists,
   mobileIntro,
 }: {
   rows: ReitSummary[];
   firstCapture: string;
+  /** Latest REIT panel capture; null until the first capture (the board then keeps its pre-capture layout). */
+  panel?: PanelCapture | null;
   hotelLists: Record<string, BoardHotel[]>;
   /** Full page intro, shown on mobile inside "How to read this". */
   mobileIntro?: React.ReactNode;
@@ -239,7 +248,24 @@ export function ReitsBoard({
     ...PEER_GROUPS.map((g) => ({ value: g.key as Filter, label: g.label, n: all.filter((r) => r.peer === g.key).length })),
   ];
   const capShort = `first capture ${fmtDate(firstCapture)}`;
-  const capLabel = `First capture ${fmtDate(firstCapture, { year: true })}`;
+  const capLabel = panel ? `Captured ${fmtDate(panel.captureDate, { year: true })}` : `First capture ${fmtDate(firstCapture, { year: true })}`;
+  const capStay = panel ? stayLabel(panel.headline.horizon, panel.headline.stay) : "";
+  const capStayDates =
+    panel?.headline.checkIn && panel.headline.checkOut
+      ? ` (${fmtDate(panel.headline.checkIn, { dow: false })}–${fmtDate(panel.headline.checkOut, { dow: false })})`
+      : "";
+  const rateNote = panel ? (
+    <>
+      Rates: each hotel&apos;s cheapest refundable nightly rate before taxes and fees, 2 adults, {capStay}, Google Hotels,
+      captured {fmtDate(panel.captureDate, { year: true })} (&ldquo;—&rdquo;: not priced or low confidence).{" "}
+      <Link href={panel.methodUrl} className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+        Method
+      </Link>
+    </>
+  ) : null;
+  const medianTitle = panel
+    ? `Median cheapest refundable nightly rate before taxes and fees, 2 adults, ${capStay}${capStayDates}. Captured ${fmtDate(panel.captureDate, { year: true })}.`
+    : "";
   const quarters = [...new Set(rows.map((r) => r.latestQuarter).filter(Boolean))] as string[];
   const toggle = (t: string) => setOpen((o) => (o === t ? null : t));
   const nCols = 1 + 1 + COLS.length + (hasCaptures ? 3 : 1) + 1;
@@ -338,6 +364,11 @@ export function ReitsBoard({
                 <th scope="colgroup" colSpan={3} className="border-b border-l border-white/10 px-3 pb-1.5 pt-3 text-center font-medium text-slate-200">
                   Captured (Google, Tuesdays)
                   <CapturedTag />
+                  {panel ? (
+                    <span className="mt-0.5 block text-[12px] font-normal normal-case tracking-normal text-slate-300">
+                      {fmtDate(panel.captureDate, { year: true })} · {capStay}
+                    </span>
+                  ) : null}
                 </th>
               ) : (
                 <th
@@ -370,7 +401,7 @@ export function ReitsBoard({
                   <th scope="col" className="border-l border-white/10 px-3 py-2 text-right font-medium" title="Captured median rate versus reported ADR">
                     Tracking gap
                   </th>
-                  <th scope="col" className="px-3 py-2 text-right font-medium" title="Median captured nightly rate across the REIT's hotels">
+                  <th scope="col" className="px-3 py-2 text-right font-medium" title={medianTitle || "Median captured nightly rate across the REIT's hotels"}>
                     Median rate
                   </th>
                   <th scope="col" className="px-3 py-2 text-right font-medium" title="Hotels with a captured price, of the REIT's hotels">
@@ -421,8 +452,19 @@ export function ReitsBoard({
                         <td className="border-l border-white/[0.06] px-3 py-2.5 text-right text-[15px] tabular-nums text-slate-200">
                           {cap?.trackingGapPct != null ? `${cap.trackingGapPct > 0 ? "+" : ""}${cap.trackingGapPct.toFixed(1)}%` : <span className="text-slate-300">—</span>}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-[15px] tabular-nums text-white">
-                          {cap?.medianRate != null ? fmtMoney(cap.medianRate) : <span className="text-slate-300">—</span>}
+                        <td className="px-3 py-2.5 text-right text-[15px] tabular-nums text-white" title={cap?.medianRate != null ? `${medianTitle} ${cap.nUsed ?? ""} hotels.` : undefined}>
+                          {cap?.medianRate != null ? (
+                            fmtMoney(cap.medianRate)
+                          ) : cap?.thin ? (
+                            <span
+                              className="text-[13px] text-slate-300"
+                              title={`Thin: fewer than ${panel?.thinBelow ?? 8} hotels with a refundable rate on this stay, so no median is shown.`}
+                            >
+                              thin
+                            </span>
+                          ) : (
+                            <span className="text-slate-300">—</span>
+                          )}
                         </td>
                         <td className="px-3 py-2.5 text-right text-[13px] tabular-nums text-slate-300">
                           {cap ? `${fmtInt(cap.priced)} of ${fmtInt(cap.of)}` : "—"}
@@ -440,7 +482,7 @@ export function ReitsBoard({
                   {isOpen ? (
                     <tr id={`hotels-${r.ticker}`} className="border-b border-white/[0.06] bg-white/[0.02]">
                       <td colSpan={nCols}>
-                        <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} />
+                        <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} rateNote={rateNote} />
                       </td>
                     </tr>
                   ) : null}
@@ -482,12 +524,18 @@ export function ReitsBoard({
                       <span>{r.latest.hotels ? `${fmtInt(r.latest.hotels.value)} hotels` : "hotels n/r"}</span>
                     )}
                   </span>
+                  {panel && r.captured ? (
+                    <span className="mt-0.5 block text-[12px] tabular-nums text-slate-300">
+                      Captured {r.captured.medianRate != null ? fmtMoney(r.captured.medianRate) : r.captured.thin ? "thin" : "—"} median ·{" "}
+                      {fmtInt(r.captured.priced)} of {fmtInt(r.captured.of)} priced
+                    </span>
+                  ) : null}
                 </span>
                 <Chevron />
               </div>
               {isOpen ? (
                 <div id={`hotels-${r.ticker}`} className="border-t border-white/10">
-                  <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} mobile />
+                  <HotelList r={r} hotels={hotelLists[r.ticker] ?? []} showRates={showRates} rateNote={rateNote} mobile />
                 </div>
               ) : null}
             </li>
@@ -496,6 +544,18 @@ export function ReitsBoard({
       </ul>
 
       <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-slate-300">
+        {panel ? (
+          <p>
+            Captured values: Google Hotels, captured {fmtDate(panel.captureDate, { year: true })}. Median rate is the median of each
+            hotel&apos;s cheapest refundable nightly rate before taxes and fees, 2 adults, {capStay}
+            {capStayDates}; low-confidence, reseller-only prices are left out, and a REIT with fewer than {panel.thinBelow} hotels
+            behind the median shows &ldquo;thin&rdquo;. Priced counts hotels with any captured price, of the REIT&apos;s current
+            hotels. Tracking gap appears once a quarter&apos;s captures and reported ADR both exist.{" "}
+            <Link href={panel.methodUrl} className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+              Method
+            </Link>
+          </p>
+        ) : null}
         <p>
           Reported values are each REIT&apos;s own figures for {quarters.length === 1 ? fmtQuarter(quarters[0]) : "its latest filed quarter"}, as
           published; REITs define comparable portfolios differently, so cross-REIT comparisons are indicative.{" "}

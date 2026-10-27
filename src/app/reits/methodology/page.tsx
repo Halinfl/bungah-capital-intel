@@ -172,8 +172,8 @@ export default function ReitsMethodologyPage() {
           <section className="space-y-3">
             <H2 id="captures">Captured rates</H2>
             <p className={p}>
-              From {fmtDate(REITS_FIRST_CAPTURE, { year: true })}, every REIT-owned hotel is priced on Google Hotels each
-              Tuesday, in a separate run from Tuesday Trends but with the same rules:
+              From {fmtDate(REITS_FIRST_CAPTURE, { year: true })}, the REITs&apos; current hotels are priced on Google
+              Hotels each Tuesday, with the same rules as Tuesday Trends:
             </p>
             <ul className={`${p} list-disc space-y-2 pl-5`}>
               <li>2 adults, nightly, in US dollars, before taxes and fees.</li>
@@ -184,13 +184,24 @@ export default function ReitsMethodologyPage() {
                 out.
               </li>
               <li>
+                Each hotel is matched to a single Google Hotels listing from the name and location in the REIT&apos;s
+                filings. A hotel that can&apos;t be matched with confidence is left out rather than guessed, so &ldquo;X of
+                N&rdquo; can be below a REIT&apos;s full count.
+              </li>
+              <li>
+                A hotel that is also on a Tuesday Trends market list is priced once, and both pages read that same result.
+              </li>
+              <li>
                 Each REIT is captured on its own, so a failure for one REIT never holds up the others, and a re-run never
                 double-counts.
               </li>
             </ul>
             <p className={p}>
-              On the board each REIT will show its median captured rate and how many of its hotels were priced
-              (&ldquo;X of N&rdquo;). Until the first capture, those columns stay empty rather than show an estimate.
+              On the board each REIT shows its median captured rate for a stay 30 days out (Mon–Thu) and how many of its
+              current hotels were priced (&ldquo;X of N&rdquo;); each REIT&apos;s page shows all ten stays. A REIT median is
+              shown when at least 8 of its hotels have a refundable rate for that stay; below 8 it shows &ldquo;thin&rdquo;
+              instead of a number. (Tuesday Trends market pages keep their own rule of 15 of 50 hotels.) Every captured figure carries its capture date. Until the first capture, those columns
+              stay empty rather than show an estimate.
             </p>
           </section>
 

@@ -11,6 +11,8 @@ import { reitsTabs } from "@/lib/reits-tabs";
 import { askAboutHref } from "@/lib/chat-scope";
 import {
   REITS_FIRST_CAPTURE,
+  REITS_PANEL,
+  stayLabel,
   chipLabel,
   fmtDate,
   fmtInt,
@@ -47,7 +49,15 @@ function TxCard({ t }: { t: Transaction }) {
   return (
     <SignalCard
       primaryUrl={t.url}
-      title={`${t.kind === "acquisition" ? "Acquired" : t.pending ? "Agreed to sell" : "Sold"} ${t.hotel}`}
+      title={
+        t.kind === "acquisition"
+          ? `Acquired ${t.hotel}`
+          : t.exit === "lease_end"
+            ? `Ground lease ended: ${t.hotel}`
+            : t.exit === "jv_stake"
+              ? `${t.pending ? "Agreed to sell" : "Sold"} joint-venture stake in ${t.hotel}`
+              : `${t.pending ? "Agreed to sell" : "Sold"} ${t.hotel}`
+      }
       meta={
         <>
           <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-slate-300">{t.kind}</span>
@@ -209,11 +219,71 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
             hotels named in its filings.
           </p>
         ) : null}
-        <p className="text-[13px] text-slate-300">
-          Tracking gap (captured rate vs reported ADR) appears after the first weekly capture,{" "}
-          {fmtDate(REITS_FIRST_CAPTURE, { year: true })}.
-        </p>
+        {r.captured ? (
+          <p className="text-[13px] text-slate-300">
+            Tracking gap (captured rate vs reported ADR) appears once a quarter&apos;s weekly captures and its reported ADR both
+            exist.
+          </p>
+        ) : (
+          <p className="text-[13px] text-slate-300">
+            Tracking gap (captured rate vs reported ADR) appears after the first weekly capture,{" "}
+            {fmtDate(REITS_FIRST_CAPTURE, { year: true })}.
+          </p>
+        )}
       </section>
+
+      {/* ---------- Captured rates (weekly Google Hotels panel; absent until the first capture) ---------- */}
+      {r.captured && REITS_PANEL ? (
+        <section id="captured" className="scroll-mt-24 space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold text-white">Captured rates</h2>
+            <span className="text-xs text-slate-300">
+              Google Hotels · captured {fmtDate(r.captured.date, { year: true })}
+            </span>
+          </div>
+          <p className="text-[13px] text-slate-300">
+            {fmtInt(r.captured.priced)} of {fmtInt(r.captured.of)} current hotels priced. Each figure is the median of the
+            hotels&apos; cheapest refundable nightly rate before taxes and fees, 2 adults, for the stay shown; low-confidence,
+            reseller-only prices are left out, and a stay with fewer than {REITS_PANEL.thinBelow} hotels behind it shows
+            &ldquo;thin&rdquo; instead of a median.{" "}
+            <Link href={REITS_PANEL.methodUrl} className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+              Method
+            </Link>
+          </p>
+          {r.captured.cells?.length ? (
+            <div className="overflow-x-auto rounded-xl border border-white/10">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase tracking-wider text-slate-300">
+                  <tr className="border-b border-white/10">
+                    <th scope="col" className="px-3 py-2 font-medium">Stay</th>
+                    <th scope="col" className="px-3 py-2 font-medium">Dates</th>
+                    <th scope="col" className="px-3 py-2 text-right font-medium">Median refundable</th>
+                    <th scope="col" className="px-3 py-2 text-right font-medium">Hotels</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {r.captured.cells.map((c) => (
+                    <tr key={`${c.horizon}-${c.stay}`} className="border-b border-white/[0.06] last:border-0">
+                      <td className="px-3 py-2 text-slate-200">{stayLabel(c.horizon, c.stay)}</td>
+                      <td className="px-3 py-2 tabular-nums text-slate-300">
+                        {fmtDate(c.checkIn, { dow: false })}–{fmtDate(c.checkOut, { dow: false })} · {c.nights} nights
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-white">
+                        {c.refundable != null ? fmtMoney(c.refundable) : <span className="text-[13px] text-slate-300">thin</span>}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-slate-300">{fmtInt(c.nRefundable)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+          <p className="text-[13px] text-slate-300">
+            Captured {fmtDate(r.captured.date, { year: true })}; the board&apos;s median uses the{" "}
+            {stayLabel(REITS_PANEL.headline.horizon, REITS_PANEL.headline.stay)}.
+          </p>
+        </section>
+      ) : null}
 
       {/* ---------- Portfolio ---------- */}
       {r.markets.length ? (

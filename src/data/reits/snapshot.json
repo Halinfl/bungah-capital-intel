@@ -1,5 +1,5 @@
 {
- "built": "2026-10-25T15:47:18",
+ "built": "2026-10-25T20:17:49",
  "as_of_label": "Oct 9, 2026",
  "target_quarters": [
   "2023Q2",
@@ -19,8 +19,8 @@
  "first_capture": "2026-10-27",
  "captured": null,
  "universe": {
-  "hotels": 743,
-  "rooms": 198450,
+  "hotels": 738,
+  "rooms": 197041,
   "hotels_source": "FY2025 10-K property schedules, rolled forward for later purchases and sales"
  },
  "reits": [
@@ -3795,16 +3795,15 @@
    "properties": [
     {
      "name": "Boston Marriott Newton",
-     "city": null,
+     "city": "Newton",
      "state": "MA",
      "rooms": 430,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025",
-     "market": "boston"
+     "source": "Property schedule, 10-K as of Dec 31, 2025"
     },
     {
      "name": "Caribe Hilton",
-     "city": null,
+     "city": "San Juan",
      "state": "PR",
      "rooms": 652,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3812,7 +3811,7 @@
     },
     {
      "name": "Casa Marina Key West, Curio Collection",
-     "city": null,
+     "city": "Key West",
      "state": "FL",
      "rooms": 311,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3821,7 +3820,7 @@
     },
     {
      "name": "DoubleTree Hotel Durango",
-     "city": null,
+     "city": "Durango",
      "state": "CO",
      "rooms": 159,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3829,7 +3828,7 @@
     },
     {
      "name": "DoubleTree Hotel Ontario Airport",
-     "city": null,
+     "city": "Ontario",
      "state": "CA",
      "rooms": 482,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3837,7 +3836,7 @@
     },
     {
      "name": "DoubleTree Hotel San Diego – Mission Valley",
-     "city": null,
+     "city": "San Diego",
      "state": "CA",
      "rooms": 300,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3846,7 +3845,7 @@
     },
     {
      "name": "DoubleTree Hotel San Jose",
-     "city": null,
+     "city": "San Jose",
      "state": "CA",
      "rooms": 505,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3854,7 +3853,7 @@
     },
     {
      "name": "DoubleTree Hotel Washington DC – Crystal City",
-     "city": null,
+     "city": "Arlington",
      "state": "VA",
      "rooms": 627,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3862,26 +3861,8 @@
      "market": "washington-dc"
     },
     {
-     "name": "Embassy Suites Alexandria Old Town",
-     "city": null,
-     "state": "VA",
-     "rooms": 288,
-     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025",
-     "market": "washington-dc"
-    },
-    {
-     "name": "Embassy Suites Austin Downtown South Congress",
-     "city": null,
-     "state": "TX",
-     "rooms": 262,
-     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025",
-     "market": "austin"
-    },
-    {
      "name": "Hilton Boston Logan Airport",
-     "city": null,
+     "city": "Boston",
      "state": "MA",
      "rooms": 604,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3890,7 +3871,7 @@
     },
     {
      "name": "Hilton Chicago",
-     "city": null,
+     "city": "Chicago",
      "state": "IL",
      "rooms": 1544,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3899,7 +3880,7 @@
     },
     {
      "name": "Hilton Denver City Center",
-     "city": null,
+     "city": "Denver",
      "state": "CO",
      "rooms": 613,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3908,7 +3889,7 @@
     },
     {
      "name": "Hilton Hawaiian Village Waikiki Beach Resort",
-     "city": null,
+     "city": "Honolulu",
      "state": "HI",
      "rooms": 2872,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3917,7 +3898,7 @@
     },
     {
      "name": "Hilton McLean Tysons Corner",
-     "city": null,
+     "city": "McLean",
      "state": "VA",
      "rooms": 458,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3926,7 +3907,7 @@
     },
     {
      "name": "Hilton New Orleans Riverside",
-     "city": null,
+     "city": "New Orleans",
      "state": "LA",
      "rooms": 1622,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3935,7 +3916,7 @@
     },
     {
      "name": "Hilton Orlando",
-     "city": null,
+     "city": "Orlando",
      "state": "FL",
      "rooms": 1424,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3944,7 +3925,7 @@
     },
     {
      "name": "Hilton Orlando Lake Buena Vista",
-     "city": null,
+     "city": "Lake Buena Vista",
      "state": "FL",
      "rooms": 814,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3953,7 +3934,7 @@
     },
     {
      "name": "Hilton Salt Lake City Center",
-     "city": null,
+     "city": "Salt Lake City",
      "state": "UT",
      "rooms": 500,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3962,32 +3943,15 @@
     },
     {
      "name": "Hilton Santa Barbara Beachfront Resort",
-     "city": null,
+     "city": "Santa Barbara",
      "state": "CA",
      "rooms": 360,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
      "source": "Property schedule, 10-K as of Dec 31, 2025"
     },
     {
-     "name": "Hilton Seattle Airport & Conference Center",
-     "city": null,
-     "state": "WA",
-     "rooms": 396,
-     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025",
-     "market": "seattle"
-    },
-    {
-     "name": "Hilton Short Hills",
-     "city": null,
-     "state": "NJ",
-     "rooms": 314,
-     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025"
-    },
-    {
      "name": "Hilton Waikoloa Village",
-     "city": null,
+     "city": "Waikoloa",
      "state": "HI",
      "rooms": 661,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -3995,7 +3959,7 @@
     },
     {
      "name": "Hyatt Regency Boston",
-     "city": null,
+     "city": "Boston",
      "state": "MA",
      "rooms": 502,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4004,15 +3968,16 @@
     },
     {
      "name": "Hyatt Regency Mission Bay Spa and Marina",
-     "city": null,
+     "city": "San Diego",
      "state": "CA",
      "rooms": 438,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025"
+     "source": "Property schedule, 10-K as of Dec 31, 2025",
+     "market": "san-diego"
     },
     {
      "name": "JW Marriott San Francisco Union Square",
-     "city": null,
+     "city": "San Francisco",
      "state": "CA",
      "rooms": 344,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4021,7 +3986,7 @@
     },
     {
      "name": "Juniper Hotel Cupertino, Curio Collection",
-     "city": null,
+     "city": "Cupertino",
      "state": "CA",
      "rooms": 224,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4029,7 +3994,7 @@
     },
     {
      "name": "New York Hilton Midtown",
-     "city": null,
+     "city": "New York",
      "state": "NY",
      "rooms": 1878,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4038,16 +4003,16 @@
     },
     {
      "name": "Royal Palm South Beach Miami, a Tribute Portfolio Resort",
-     "city": null,
+     "city": "Miami Beach",
      "state": "FL",
-     "rooms": 393,
+     "rooms": 404,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
      "source": "Property schedule, 10-K as of Dec 31, 2025",
      "market": "miami"
     },
     {
      "name": "Signia by Hilton Orlando Bonnet Creek",
-     "city": null,
+     "city": "Orlando",
      "state": "FL",
      "rooms": 1009,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4056,15 +4021,16 @@
     },
     {
      "name": "The Midland Hotel, a Tribute Portfolio Hotel",
-     "city": null,
+     "city": "Chicago",
      "state": "IL",
      "rooms": 403,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025"
+     "source": "Property schedule, 10-K as of Dec 31, 2025",
+     "market": "chicago"
     },
     {
      "name": "The Reach Key West, Curio Collection",
-     "city": null,
+     "city": "Key West",
      "state": "FL",
      "rooms": 150,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4073,15 +4039,16 @@
     },
     {
      "name": "The Wade",
-     "city": null,
+     "city": "Chicago",
      "state": "IL",
      "rooms": 520,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025"
+     "source": "Property schedule, 10-K as of Dec 31, 2025",
+     "market": "chicago"
     },
     {
      "name": "Waldorf Astoria Orlando",
-     "city": null,
+     "city": "Orlando",
      "state": "FL",
      "rooms": 502,
      "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4096,7 +4063,7 @@
      "properties": [
       {
        "name": "Hilton Orlando",
-       "city": null,
+       "city": "Orlando",
        "state": "FL",
        "rooms": 1424,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4104,7 +4071,7 @@
       },
       {
        "name": "Signia by Hilton Orlando Bonnet Creek",
-       "city": null,
+       "city": "Orlando",
        "state": "FL",
        "rooms": 1009,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4112,7 +4079,7 @@
       },
       {
        "name": "Hilton Orlando Lake Buena Vista",
-       "city": null,
+       "city": "Lake Buena Vista",
        "state": "FL",
        "rooms": 814,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4120,105 +4087,9 @@
       },
       {
        "name": "Waldorf Astoria Orlando",
-       "city": null,
+       "city": "Orlando",
        "state": "FL",
        "rooms": 502,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "boston",
-     "label": "Boston–Cambridge–Newton",
-     "properties": [
-      {
-       "name": "Hilton Boston Logan Airport",
-       "city": null,
-       "state": "MA",
-       "rooms": 604,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Hyatt Regency Boston",
-       "city": null,
-       "state": "MA",
-       "rooms": 502,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Boston Marriott Newton",
-       "city": null,
-       "state": "MA",
-       "rooms": 430,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "washington-dc",
-     "label": "Washington–Arlington–Alexandria",
-     "properties": [
-      {
-       "name": "DoubleTree Hotel Washington DC – Crystal City",
-       "city": null,
-       "state": "VA",
-       "rooms": 627,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Hilton McLean Tysons Corner",
-       "city": null,
-       "state": "VA",
-       "rooms": 458,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Embassy Suites Alexandria Old Town",
-       "city": null,
-       "state": "VA",
-       "rooms": 288,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "florida-keys",
-     "label": "Key West / Florida Keys",
-     "properties": [
-      {
-       "name": "Casa Marina Key West, Curio Collection",
-       "city": null,
-       "state": "FL",
-       "rooms": 311,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "The Reach Key West, Curio Collection",
-       "city": null,
-       "state": "FL",
-       "rooms": 150,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "austin",
-     "label": "Austin–Round Rock–Georgetown",
-     "properties": [
-      {
-       "name": "Embassy Suites Austin Downtown South Congress",
-       "city": null,
-       "state": "TX",
-       "rooms": 262,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4230,9 +4101,113 @@
      "properties": [
       {
        "name": "Hilton Chicago",
-       "city": null,
+       "city": "Chicago",
        "state": "IL",
        "rooms": 1544,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "The Wade",
+       "city": "Chicago",
+       "state": "IL",
+       "rooms": 520,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "The Midland Hotel, a Tribute Portfolio Hotel",
+       "city": "Chicago",
+       "state": "IL",
+       "rooms": 403,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": "boston",
+     "label": "Boston–Cambridge–Newton",
+     "properties": [
+      {
+       "name": "Hilton Boston Logan Airport",
+       "city": "Boston",
+       "state": "MA",
+       "rooms": 604,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "Hyatt Regency Boston",
+       "city": "Boston",
+       "state": "MA",
+       "rooms": 502,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": "florida-keys",
+     "label": "Key West / Florida Keys",
+     "properties": [
+      {
+       "name": "Casa Marina Key West, Curio Collection",
+       "city": "Key West",
+       "state": "FL",
+       "rooms": 311,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "The Reach Key West, Curio Collection",
+       "city": "Key West",
+       "state": "FL",
+       "rooms": 150,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": "san-diego",
+     "label": "San Diego–Chula Vista–Carlsbad",
+     "properties": [
+      {
+       "name": "Hyatt Regency Mission Bay Spa and Marina",
+       "city": "San Diego",
+       "state": "CA",
+       "rooms": 438,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "DoubleTree Hotel San Diego – Mission Valley",
+       "city": "San Diego",
+       "state": "CA",
+       "rooms": 300,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": "washington-dc",
+     "label": "Washington–Arlington–Alexandria",
+     "properties": [
+      {
+       "name": "DoubleTree Hotel Washington DC – Crystal City",
+       "city": "Arlington",
+       "state": "VA",
+       "rooms": 627,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      },
+      {
+       "name": "Hilton McLean Tysons Corner",
+       "city": "McLean",
+       "state": "VA",
+       "rooms": 458,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4244,7 +4219,7 @@
      "properties": [
       {
        "name": "Hilton Denver City Center",
-       "city": null,
+       "city": "Denver",
        "state": "CO",
        "rooms": 613,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4258,7 +4233,7 @@
      "properties": [
       {
        "name": "Hilton Hawaiian Village Waikiki Beach Resort",
-       "city": null,
+       "city": "Honolulu",
        "state": "HI",
        "rooms": 2872,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4272,9 +4247,9 @@
      "properties": [
       {
        "name": "Royal Palm South Beach Miami, a Tribute Portfolio Resort",
-       "city": null,
+       "city": "Miami Beach",
        "state": "FL",
-       "rooms": 393,
+       "rooms": 404,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4286,7 +4261,7 @@
      "properties": [
       {
        "name": "Hilton New Orleans Riverside",
-       "city": null,
+       "city": "New Orleans",
        "state": "LA",
        "rooms": 1622,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4300,7 +4275,7 @@
      "properties": [
       {
        "name": "New York Hilton Midtown",
-       "city": null,
+       "city": "New York",
        "state": "NY",
        "rooms": 1878,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4314,23 +4289,9 @@
      "properties": [
       {
        "name": "Hilton Salt Lake City Center",
-       "city": null,
+       "city": "Salt Lake City",
        "state": "UT",
        "rooms": 500,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "san-diego",
-     "label": "San Diego–Chula Vista–Carlsbad",
-     "properties": [
-      {
-       "name": "DoubleTree Hotel San Diego – Mission Valley",
-       "city": null,
-       "state": "CA",
-       "rooms": 300,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4342,7 +4303,7 @@
      "properties": [
       {
        "name": "JW Marriott San Francisco Union Square",
-       "city": null,
+       "city": "San Francisco",
        "state": "CA",
        "rooms": 344,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4351,58 +4312,12 @@
      ]
     },
     {
-     "slug": "seattle",
-     "label": "Seattle–Tacoma–Bellevue",
-     "properties": [
-      {
-       "name": "Hilton Seattle Airport & Conference Center",
-       "city": null,
-       "state": "WA",
-       "rooms": 396,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
      "slug": null,
-     "label": "California",
+     "label": "Cupertino, CA",
      "properties": [
-      {
-       "name": "DoubleTree Hotel San Jose",
-       "city": null,
-       "state": "CA",
-       "rooms": 505,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "DoubleTree Hotel Ontario Airport",
-       "city": null,
-       "state": "CA",
-       "rooms": 482,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Hyatt Regency Mission Bay Spa and Marina",
-       "city": null,
-       "state": "CA",
-       "rooms": 438,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "Hilton Santa Barbara Beachfront Resort",
-       "city": null,
-       "state": "CA",
-       "rooms": 360,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
       {
        "name": "Juniper Hotel Cupertino, Curio Collection",
-       "city": null,
+       "city": "Cupertino",
        "state": "CA",
        "rooms": 224,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4412,33 +4327,11 @@
     },
     {
      "slug": null,
-     "label": "Illinois",
-     "properties": [
-      {
-       "name": "The Wade",
-       "city": null,
-       "state": "IL",
-       "rooms": 520,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      },
-      {
-       "name": "The Midland Hotel, a Tribute Portfolio Hotel",
-       "city": null,
-       "state": "IL",
-       "rooms": 403,
-       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": null,
-     "label": "Colorado",
+     "label": "Durango, CO",
      "properties": [
       {
        "name": "DoubleTree Hotel Durango",
-       "city": null,
+       "city": "Durango",
        "state": "CO",
        "rooms": 159,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
@@ -4448,13 +4341,13 @@
     },
     {
      "slug": null,
-     "label": "Hawaii",
+     "label": "Newton, MA",
      "properties": [
       {
-       "name": "Hilton Waikoloa Village",
-       "city": null,
-       "state": "HI",
-       "rooms": 661,
+       "name": "Boston Marriott Newton",
+       "city": "Newton",
+       "state": "MA",
+       "rooms": 430,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4462,13 +4355,13 @@
     },
     {
      "slug": null,
-     "label": "New Jersey",
+     "label": "Ontario, CA",
      "properties": [
       {
-       "name": "Hilton Short Hills",
-       "city": null,
-       "state": "NJ",
-       "rooms": 314,
+       "name": "DoubleTree Hotel Ontario Airport",
+       "city": "Ontario",
+       "state": "CA",
+       "rooms": 482,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4476,13 +4369,55 @@
     },
     {
      "slug": null,
-     "label": "Puerto Rico",
+     "label": "San Jose, CA",
+     "properties": [
+      {
+       "name": "DoubleTree Hotel San Jose",
+       "city": "San Jose",
+       "state": "CA",
+       "rooms": 505,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": null,
+     "label": "San Juan, PR",
      "properties": [
       {
        "name": "Caribe Hilton",
-       "city": null,
+       "city": "San Juan",
        "state": "PR",
        "rooms": 652,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": null,
+     "label": "Santa Barbara, CA",
+     "properties": [
+      {
+       "name": "Hilton Santa Barbara Beachfront Resort",
+       "city": "Santa Barbara",
+       "state": "CA",
+       "rooms": 360,
+       "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
+       "source": "Property schedule, 10-K as of Dec 31, 2025"
+      }
+     ]
+    },
+    {
+     "slug": null,
+     "label": "Waikoloa, HI",
+     "properties": [
+      {
+       "name": "Hilton Waikoloa Village",
+       "city": "Waikoloa",
+       "state": "HI",
+       "rooms": 661,
        "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000006/pk-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
@@ -4585,7 +4520,62 @@
    "unnamedHotels": 0,
    "txIncomplete": true,
    "dividendNote": null,
-   "transactions": [],
+   "transactions": [
+    {
+     "date": "2026-07",
+     "kind": "disposition",
+     "pending": false,
+     "hotel": "Hilton Short Hills",
+     "city": "Short Hills",
+     "state": "NJ",
+     "counterparty": null,
+     "priceUsdM": 12.0,
+     "rooms": 314,
+     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
+     "source": "SEC filing for Q2 2026"
+    },
+    {
+     "date": "2026-06",
+     "kind": "disposition",
+     "pending": false,
+     "hotel": "Embassy Suites Austin Downtown South Congress",
+     "city": "Austin",
+     "state": "TX",
+     "counterparty": null,
+     "priceUsdM": null,
+     "rooms": 262,
+     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
+     "exit": "lease_end",
+     "source": "SEC filing for Q2 2026"
+    },
+    {
+     "date": "2026-05",
+     "kind": "disposition",
+     "pending": false,
+     "hotel": "Embassy Suites Alexandria Old Town",
+     "city": "Alexandria",
+     "state": "VA",
+     "counterparty": null,
+     "priceUsdM": null,
+     "rooms": 288,
+     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
+     "exit": "jv_stake",
+     "source": "SEC filing for Q2 2026"
+    },
+    {
+     "date": "2026-04",
+     "kind": "disposition",
+     "pending": false,
+     "hotel": "Hilton Seattle Airport & Conference Center",
+     "city": "Seattle",
+     "state": "WA",
+     "counterparty": null,
+     "priceUsdM": 18.0,
+     "rooms": 396,
+     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm",
+     "source": "SEC filing for Q2 2026"
+    }
+   ],
    "guidance": [
     {
      "date": "2023-08-02",
@@ -23635,15 +23625,6 @@
      "source": "Property schedule, 10-K as of Dec 31, 2025"
     },
     {
-     "name": "Embassy Suites West Palm Beach",
-     "city": "West Palm Beach",
-     "state": "FL",
-     "rooms": 160,
-     "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000067/aht-20251231.htm",
-     "source": "Property schedule, 10-K as of Dec 31, 2025",
-     "market": "palm-beach"
-    },
-    {
      "name": "Hampton Inn Buford",
      "city": "Buford",
      "state": "GA",
@@ -24332,20 +24313,6 @@
        "city": "Nashville",
        "state": "TN",
        "rooms": 674,
-       "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000067/aht-20251231.htm",
-       "source": "Property schedule, 10-K as of Dec 31, 2025"
-      }
-     ]
-    },
-    {
-     "slug": "palm-beach",
-     "label": "West Palm Beach / Palm Beach County",
-     "properties": [
-      {
-       "name": "Embassy Suites West Palm Beach",
-       "city": "West Palm Beach",
-       "state": "FL",
-       "rooms": 160,
        "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000067/aht-20251231.htm",
        "source": "Property schedule, 10-K as of Dec 31, 2025"
       }
