@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
  * DB-outage resilience for public pages.
  *
  * cachedQuery() runs a Prisma read through Next's Data Cache (unstable_cache, tag "db"):
- *  - DB up: results are cached for `revalidate` seconds (default 300) and refreshed in the background.
+ *  - DB up: results are cached for `revalidate` seconds (default GRAPH_REFRESH_S = 3600) and refreshed in the background.
  *  - DB down, cache warm: the last good result keeps being served (a failed background refresh keeps the stale entry).
  *  - DB down, cache cold: returns { ok: false, data: fallback } so the page renders a friendly notice instead of a 500.
  * Dates survive the JSON round-trip (tagged on write, revived on read). Each read is capped at DB_TIMEOUT_MS so a
@@ -50,9 +50,11 @@ const MEMO = new Map<string, { at: number; value: unknown }>();
 const SCRIPT_MODE = process.env.BUNGAH_NO_NEXT_CACHE === "1";
 
 /**
- * Chat graph refresh: hourly. Graph rows change only through guarded manual seeds and radar runs, and those
- * call revalidateTag("db"), which purges these entries at once; the hourly expiry is a backstop. At 300 s a
- * busy site re-read the 1.2 MB graph from Neon 288 times a day (see bungah-audit/chat-ask-spike).
+ * Graph refresh: hourly, for every cachedQuery (chat graph and the DB-backed pages). Radar runs call
+ * revalidateTag("db") (src/app/api/radars/run), which purges these entries at once. Manual seed scripts run
+ * off-Vercel and do NOT purge, so a seeded edit shows within 1 h (was 5 min); a redeploy does not flush the
+ * Data Cache. At 300 s a busy site re-read about 6 MB of graph from Neon per 5-minute window (chat 2.2 MB +
+ * pages 3.8 MB, bungah-audit/chat-ask-spike/neon-read-sizes.json).
  */
 export const GRAPH_REFRESH_S = 3600;
 
@@ -78,7 +80,7 @@ export async function cachedQuery<T>(
     }
   }
   const cached = unstable_cache(async () => encode(await withTimeout(fn(), DB_TIMEOUT_MS)), ["db-safe", ...key], {
-    revalidate: opts.revalidate ?? 300,
+    revalidate: opts.revalidate ?? GRAPH_REFRESH_S,
     tags: [DB_TAG],
   });
   try {

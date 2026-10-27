@@ -9,7 +9,8 @@
  *   L2 Next Data Cache (unstable_cache → Vercel Data Cache, regional, shared by instances; preview and
  *      production never share it), TTL = the graph refresh (1 h), cut short at 2:00 AM ET (answerTtlSeconds).
  * Invalidation: the data version (a tiny aggregate over the graph tables, re-read hourly) changes as
- * soon as rows are added/edited, which changes every key; revalidateTag("db") (radar runs) purges L2 too;
+ * soon as that hourly re-read sees added/edited rows, which changes every key; revalidateTag("db") (radar runs)
+ * purges L2 and the version at once;
  * a new deployment changes the key.
  * LLM answers are never cached here (BUNGAH_USE_LLM stays unset; if it were set the route bypasses this).
  */
