@@ -7,8 +7,8 @@
  * Layers:
  *   L1 per-instance memory (Fluid compute serves many requests per instance), up to 10 min, 500 entries.
  *   L2 Next Data Cache (unstable_cache → Vercel Data Cache, regional, shared by instances; preview and
- *      production never share it), TTL = until the next 2:00 AM ET (the nightly data boundary), max 24 h.
- * Invalidation: the data version (a tiny aggregate over the graph tables, re-read every 5 min) changes as
+ *      production never share it), TTL = the graph refresh (1 h), cut short at 2:00 AM ET (answerTtlSeconds).
+ * Invalidation: the data version (a tiny aggregate over the graph tables, re-read hourly) changes as
  * soon as rows are added/edited, which changes every key; revalidateTag("db") (radar runs) purges L2 too;
  * a new deployment changes the key.
  * LLM answers are never cached here (BUNGAH_USE_LLM stays unset; if it were set the route bypasses this).
@@ -16,7 +16,7 @@
 import { createHash } from "node:crypto";
 import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
-import { cachedQuery, DB_TAG } from "./db-safe";
+import { cachedQuery, DB_TAG, GRAPH_REFRESH_S } from "./db-safe";
 import { classifyIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import { scopeKey, type ChatScope } from "./chat-scope";
@@ -40,6 +40,14 @@ export function secondsUntilNightly(now = new Date()): number {
   return Math.max(60, Math.min(86400, secs));
 }
 
+/**
+ * Answer TTL follows the graph: an answer never outlives the graph refresh it was built from (hourly), and
+ * never crosses the 2:00 AM ET day boundary the 90-day / 12-month windows depend on.
+ */
+export function answerTtlSeconds(now = new Date()): number {
+  return Math.max(60, Math.min(GRAPH_REFRESH_S, secondsUntilNightly(now)));
+}
+
 /** ET calendar day: the 90-day / 12-month windows are computed from "today". */
 export function etDay(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(now);
@@ -61,7 +69,7 @@ export async function dataVersion(): Promise<string> {
       return createHash("sha256").update(JSON.stringify(rows[0] ?? {})).digest("hex").slice(0, 12);
     },
     "unknown",
-    { revalidate: 300, memoMs: 60_000 }
+    { revalidate: GRAPH_REFRESH_S, memoMs: 60_000 }
   );
   return r.data;
 }
@@ -91,7 +99,7 @@ export async function cachedAnswer<T>(key: string, build: () => Promise<T>): Pro
   if (hit) L1.delete(key);
 
   let built = false;
-  const ttl = secondsUntilNightly();
+  const ttl = answerTtlSeconds();
   const run = async () => {
     const shared = unstable_cache(
       async () => {

@@ -110,7 +110,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
         // Rate limit: the reply is only "Sign in to keep asking."
         if (res.status === 429) throw new Error(RATE_LIMIT_MESSAGE);
         if (!res.ok) throw new Error(data.error || "Chat failed");
-        reply = { role: "assistant", content: data.content, citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
+        reply = { role: "assistant", content: data.content ?? "", citations: data.citations ?? [], sources: data.sources ?? [], brief: data.brief ?? null, question: q, range };
       } catch (e) {
         reply = { role: "assistant", content: e instanceof Error ? e.message : "Error", citations: [] };
       }

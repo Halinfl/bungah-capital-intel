@@ -1,10 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
-import { cachedQuery } from "./db-safe";
+import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
 
 /** Per-instance memo in front of the Data Cache for the chat graph reads (~1.2 MB each, see
- *  bungah-audit/chat-ask-spike/breakpoint-and-cost.md): a warm instance re-reads at most once a minute. */
-const GRAPH_MEMO = { memoMs: 60_000 };
+ *  bungah-audit/chat-ask-spike/breakpoint-and-cost.md): a warm instance re-reads the Data Cache at most once a
+ *  minute (saves Vercel read units); the Data Cache re-reads Neon at most hourly (GRAPH_REFRESH_S). */
+const GRAPH_MEMO = { revalidate: GRAPH_REFRESH_S, memoMs: 60_000 };
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import {

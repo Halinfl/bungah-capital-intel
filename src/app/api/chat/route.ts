@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
 import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
-import { parseRange } from "@/lib/chat-brief";
+import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
@@ -105,6 +105,24 @@ async function persist(x: LogInput): Promise<void> {
   }
 }
 
+/**
+ * Response-only trim, lossless: a cited row's dedupe `key` is its URL whenever it has one, so the key is
+ * sent only when it differs (label-only sources). Every cited read, source, URL, label and date is kept.
+ */
+function wireBrief(brief: Built["brief"]): Built["brief"] {
+  const b = brief as (ChatBrief & { cited?: Citation[] }) | null;
+  if (!b?.cited) return brief;
+  return {
+    ...b,
+    cited: b.cited.map((c) => {
+      if (!c.url || c.key !== c.url) return c;
+      const rest: Partial<Citation> = { ...c };
+      delete rest.key;
+      return rest as Citation;
+    }),
+  };
+}
+
 export async function POST(req: Request) {
   try {
     // Clerk: signed-in = encrypted private workspace → never train-export bodies.
@@ -177,8 +195,11 @@ export async function POST(req: Request) {
     const modelUsed = toModelUsed(answer.mode);
     return NextResponse.json(
       {
-        content: answer.content,
-        brief: answer.brief,
+        // With a summary card the client renders only `brief`; `content` is the same rows rendered as one
+        // markdown block (every URL in it is also in brief.sections), so it is left off the wire. The log
+        // and the cache keep it. Without a brief, `content` is the answer and is always sent.
+        ...(answer.brief ? {} : { content: answer.content }),
+        brief: wireBrief(answer.brief),
         citations: answer.citations,
         sources: answer.sources,
         // The thread id is no longer known when the response goes out (the write runs after it).

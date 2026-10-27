@@ -49,6 +49,13 @@ const MEMO = new Map<string, { at: number; value: unknown }>();
  */
 const SCRIPT_MODE = process.env.BUNGAH_NO_NEXT_CACHE === "1";
 
+/**
+ * Chat graph refresh: hourly. Graph rows change only through guarded manual seeds and radar runs, and those
+ * call revalidateTag("db"), which purges these entries at once; the hourly expiry is a backstop. At 300 s a
+ * busy site re-read the 1.2 MB graph from Neon 288 times a day (see bungah-audit/chat-ask-spike).
+ */
+export const GRAPH_REFRESH_S = 3600;
+
 export async function cachedQuery<T>(
   key: string[],
   fn: () => Promise<T>,
