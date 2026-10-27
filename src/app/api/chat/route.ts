@@ -54,6 +54,7 @@ type LogInput = {
   isPrivate: boolean;
   userId: string | null;
   source: string;
+  scope: string | null;
   forceFail: boolean;
 };
 
@@ -63,7 +64,7 @@ async function persist(x: LogInput): Promise<void> {
   try {
     if (x.forceFail) throw new Error("forced log-write failure (preview test toggle)");
     if (!shouldPersist()) {
-      console.log(`[chat-log] dry-run (writes off on this deployment) source=${x.source} intent=${x.answer.intent ?? "unknown"} item=${x.marketSlug ?? "-"}`);
+      console.log(`[chat-log] dry-run (writes off on this deployment) source=${x.source} intent=${x.answer.intent ?? "unknown"} item=${x.scope ?? x.marketSlug ?? "-"}`);
       return;
     }
     const modelUsed = toModelUsed(x.answer.mode);
@@ -115,7 +116,9 @@ export async function POST(req: Request) {
     // Signed-out visitors: per-IP limit (src/lib/rate-limit.ts). The only message is "Sign in to keep asking."
     if (!userId) {
       const testLimit = TEST_TOGGLES ? Number(req.headers.get("x-bungah-test-ratelimit") || 0) : 0;
-      const rl = checkRateLimit(clientIp(req), testLimit > 0 ? testLimit : undefined);
+      // Preview-only: a named test bucket, so a check starts from a clean count.
+      const testBucket = TEST_TOGGLES ? req.headers.get("x-bungah-test-ratelimit-bucket")?.slice(0, 40) ?? "" : "";
+      const rl = checkRateLimit(`${clientIp(req)}${testBucket ? `#${testBucket}` : ""}`, testLimit > 0 ? testLimit : undefined);
       if (!rl.ok) {
         return NextResponse.json(
           { error: RATE_LIMIT_MESSAGE, rateLimited: true },
@@ -169,7 +172,7 @@ export async function POST(req: Request) {
 
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
-    after(() => persist({ question, answer, marketSlug, isPrivate, userId: userId ?? null, source, forceFail }));
+    after(() => persist({ question, answer, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail }));
 
     const modelUsed = toModelUsed(answer.mode);
     return NextResponse.json(
