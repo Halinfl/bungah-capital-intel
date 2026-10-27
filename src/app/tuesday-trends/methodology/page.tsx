@@ -8,6 +8,8 @@ import {
   TT_CAPTURED_LABEL,
   TT_CAPTURE_TIME_LABEL,
   TT_LIST_LABEL,
+  TT_PREV_CAPTURED_LABEL,
+  TT_TAX_INCLUSIVE,
   fmtStayRange,
   stayYear,
   ttHotelLists,
@@ -87,12 +89,11 @@ export default function MethodologyPage() {
               Tuesday Trends is a weekly read of what hotel rooms are listed for in 17 US markets. Every Tuesday
               evening we take Google Hotels prices for the same {LIST_SIZE} hotels per market, at five distances
               into the future, for a weekday stay and a weekend stay. The board shows the median for each market,
-              so you can see where rates sit now and, from the second week, how they move.
+              so you can see where rates sit now and how they moved since the week before.
             </p>
             <p className={p}>
-              The current board was captured {TT_CAPTURED_LABEL}, {TT_CAPTURE_TIME_LABEL}. A handful of rows (30
-              of 8,500, for three hotels added when the lists were revised) were priced the next morning, Wed, Oct
-              21, for the same stay dates.
+              The current board was captured {TT_CAPTURED_LABEL}, {TT_CAPTURE_TIME_LABEL}. Week-over-week changes
+              compare it with the {TT_PREV_CAPTURED_LABEL} capture.
             </p>
           </section>
 
@@ -104,8 +105,7 @@ export default function MethodologyPage() {
                 hotel, the lowest nightly rate with free cancellation, whether a booking site offers it or it is a
                 refundable room rate for 2 guests. The board shows the median across the hotels that have one. Not
                 every hotel does, so this median covers about 9 in 10 hotels at 1 week out and about 2 in 3 at ~11
-                months. From the Oct 27 capture, hotels missing a refundable rate are checked again (up to twice)
-                before the board is built.
+                months. Hotels missing a refundable rate are checked again (up to twice) before the board is built.
               </li>
               <li>
                 <span className="font-medium text-white">Any rate.</span> Google&apos;s headline nightly price
@@ -113,13 +113,16 @@ export default function MethodologyPage() {
               </li>
               <li>
                 <span className="font-medium text-white">Low-confidence prices.</span> A price that comes from 2 or
-                fewer sellers, with no official hotel site among them, is left out of every median. This week, for example, some resort hotels were listed only by resellers
+                fewer sellers, with no official hotel site among them, is left out of every median. Some resort hotels, for example, are listed only by resellers
                 at far higher prices. They are counted, and the board&apos;s
                 tooltips show how many were left out.
               </li>
               <li>
                 <span className="font-medium text-white">Basis.</span> Nightly, in US dollars, for 2 adults, before
-                taxes and fees. A tax-inclusive view is coming soon. It is not available for the Oct 20 capture.
+                taxes and fees.{" "}
+                {TT_TAX_INCLUSIVE
+                  ? "For the Any-rate price, the board's tooltips also show the median including taxes and fees: Google's stay total with taxes and fees, divided by the nights, used only where it matches that hotel's nightly price. It is shown for a cell only when at least 9 in 10 of its hotels have one. Whether Google's taxes and fees include resort fees is not verified."
+                  : "A tax-inclusive figure is unavailable for this week's capture."}
               </li>
               <li>
                 <span className="font-medium text-white">Coverage.</span> Each cell reports how many of the{" "}
@@ -127,10 +130,13 @@ export default function MethodologyPage() {
                 board it sits in the cell&apos;s tooltip.
               </li>
               <li>
-                <span className="font-medium text-white">Week-over-week (from next Tuesday).</span> Changes will
-                compare the same hotels in both weeks: the median of each hotel&apos;s own change, so hotels
-                dropping in or out of coverage can&apos;t move the figure. A change is shown only when at least{" "}
-                {THIN_BELOW} hotels can be compared.
+                <span className="font-medium text-white">Week-over-week.</span> Changes compare the same hotels
+                in both weeks: the median of each hotel&apos;s own change, so hotels dropping in or out of coverage
+                can&apos;t move the figure. A hotel counts only when it is priced both weeks with the rate shown, and
+                low-confidence prices are left out on either side. A change is shown only when at least{" "}
+                {THIN_BELOW} hotels can be compared. The stay dates move forward a week with each capture, so a change
+                compares the same distance out, not the same night: a horizon that moves onto or off a holiday
+                can move for that reason alone. Changes are shown in plain text with a + or − sign.
               </li>
             </ul>
           </section>
@@ -309,6 +315,11 @@ export default function MethodologyPage() {
               overwriting it. Past weeks will be listed here as they build up.
             </p>
             <ul className={`${p} space-y-2`}>
+              <li>
+                <span className="font-medium tabular-nums text-white">Oct 27, 2026</span>: second capture.
+                Week-over-week changes start, compared with the Oct 20 board (same hotel list and method; the Oct 20
+                board had no repeat checks, so its refundable side comes from first checks only).
+              </li>
               <li>
                 <span className="font-medium tabular-nums text-white">Oct 21, 2026</span>: method update. The
                 refundable rate now also counts refundable room rates, not just booking-site offers, and from the

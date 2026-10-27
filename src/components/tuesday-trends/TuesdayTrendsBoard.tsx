@@ -9,7 +9,10 @@ import {
   NO_RATES_DOT_AT,
   THIN_BELOW,
   cellValue,
+  cellWow,
+  fmtPct,
   fmtRate,
+  wowAria,
   isThin,
   type Horizon,
   type Metric,
@@ -39,6 +42,24 @@ function coverageText(c: TTCell, metric: Metric): string {
   return `${c.nUsed}/${LIST_SIZE} priced${low}`;
 }
 
+function wowText(c: TTCell, metric: Metric): string {
+  const { pct, n } = cellWow(c, metric);
+  if (pct == null) return n ? ` · vs last Tuesday: under ${THIN_BELOW} same hotels` : "";
+  return ` · vs last Tuesday ${fmtPct(pct)} (${n} same hotels)`;
+}
+
+/** Week-over-week under the rate: neutral gray, sign carries direction (no red/green). */
+function Wow({ c, metric }: { c: TTCell; metric: Metric }) {
+  const { pct } = cellWow(c, metric);
+  if (pct == null) return null;
+  return (
+    <span className="block text-[12px] leading-tight tabular-nums text-slate-300">
+      <span aria-hidden="true">{fmtPct(pct)}</span>
+      <span className="sr-only">, {wowAria(pct)}</span>
+    </span>
+  );
+}
+
 function Chevron() {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-slate-300">
@@ -56,7 +77,7 @@ function Dot() {
 }
 
 /** One-line legend shown directly above the table/list. */
-function Legend({ className = "" }: { className?: string }) {
+function Legend({ className = "", hasWow = false }: { className?: string; hasWow?: boolean }) {
   return (
     <p className={`text-[13px] text-slate-300 ${className}`}>
       <span className="whitespace-nowrap">— thin: under {THIN_BELOW}/{LIST_SIZE}</span>
@@ -64,6 +85,12 @@ function Legend({ className = "" }: { className?: string }) {
       <span className="inline-flex items-center gap-1 whitespace-nowrap">
         <Dot /> {NO_RATES_DOT_AT}+ no rates on Google, 1 wk
       </span>
+      {hasWow ? (
+        <>
+          <span className="mx-1.5">·</span>
+          <span className="whitespace-nowrap">±% vs last Tuesday, same hotels</span>
+        </>
+      ) : null}
     </p>
   );
 }
@@ -71,7 +98,18 @@ function Legend({ className = "" }: { className?: string }) {
 type Tip = { text: string; x: number; y: number; right?: boolean } | null;
 type Row = { m: TTMarket; cells: TTCell[]; nr: TTCell };
 
-export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
+export function TuesdayTrendsBoard({
+  markets,
+  hasWow = false,
+  taxShown = false,
+  note,
+}: {
+  markets: TTMarket[];
+  hasWow?: boolean;
+  taxShown?: boolean;
+  /** One plain sentence about this week's stay dates (e.g. a holiday), shown under the table. */
+  note?: string;
+}) {
   const router = useRouter();
   const [stay, setStay] = useState<Stay>("weekday");
   const [metric, setMetric] = useState<Metric>("refundable");
@@ -202,7 +240,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
             )}
           </button>
         </div>
-        <Legend className="pt-0.5" />
+        <Legend className="pt-0.5" hasWow={hasWow} />
       </div>
 
       {/* ---------- Desktop controls + legend ---------- */}
@@ -217,7 +255,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
           ]}
         />
         <Segmented label="Rate" value={metric} onChange={setMetric} options={METRIC_OPTIONS} />
-        <Legend className="ml-auto" />
+        <Legend className="ml-auto" hasWow={hasWow} />
       </div>
 
       {/* ---------- Desktop table ---------- */}
@@ -282,7 +320,8 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                   {cells.map((c, i) => {
                     const { value, n } = cellValue(c, metric);
                     const thin = isThin(n);
-                    const text = `${HORIZONS[i].long}: ${coverageText(c, metric)}${thin ? " (thin, median not shown)" : ""}`;
+                    const tax = !thin && metric === "lowest" && c.inclTax != null ? ` · incl. taxes + fees ${fmtRate(c.inclTax)}` : "";
+                    const text = `${HORIZONS[i].long}: ${coverageText(c, metric)}${thin ? " (thin, median not shown)" : wowText(c, metric)}${tax}`;
                     return (
                       <td
                         key={c.horizon}
@@ -291,6 +330,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                         onMouseLeave={() => setTip(null)}
                       >
                         {thin ? <Thin /> : <span className="text-[15px] tabular-nums text-white">{fmtRate(value)}</span>}
+                        {thin ? null : <Wow c={c} metric={metric} />}
                         <span className="sr-only">, {coverageText(c, metric)}</span>
                       </td>
                     );
@@ -332,6 +372,7 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
                 </span>
                 <span className="text-right">
                   {thin ? <Thin /> : <span className="text-[15px] tabular-nums text-white">{fmtRate(value)}</span>}
+                  {thin ? null : <Wow c={c} metric={metric} />}
                 </span>
                 <Chevron />
               </Link>
@@ -345,10 +386,13 @@ export function TuesdayTrendsBoard({ markets }: { markets: TTMarket[] }) {
         <p>
           {metric === "refundable"
             ? "Refundable: the median covers hotels with a free-cancellation rate, about 9 in 10 hotels at 1 week and about 2 in 3 at ~11 months."
-            : "Any rate: Google's headline nightly price for each hotel, refundable or not."}{" "}
+            : `Any rate: Google's headline nightly price for each hotel, refundable or not.${
+                taxShown ? " Hover a cell for the median including taxes and fees." : " A tax-inclusive figure is unavailable this week."
+              }`}{" "}
           Low-confidence prices (2 or fewer sellers and no official hotel site) are left out of medians.{" "}
           <span className="hidden md:inline">Hover a cell for its coverage, or the no-rates count for all five horizons.</span>
         </p>
+        {note ? <p>{note}</p> : null}
         <p>
           No rates on Google means Google showed no bookable rates for the dates, which is not proof of a sell-out.
           Counts are 1 week out; at ~11 months most no-rates results reflect Google&apos;s ~330-day pricing limit.

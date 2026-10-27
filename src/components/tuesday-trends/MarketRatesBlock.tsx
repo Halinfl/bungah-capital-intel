@@ -4,8 +4,10 @@ import {
   LIST_SIZE,
   STAYS,
   TT_CAPTURED_LABEL,
+  fmtPct,
   fmtRate,
   isThin,
+  wowAria,
   type TTCell,
   type TTMarket,
 } from "@/lib/tuesday-trends-shared";
@@ -23,6 +25,12 @@ function Value({ c }: { c: TTCell }) {
           <span className="text-[18px] font-semibold leading-tight tabular-nums text-white">{fmtRate(c.refundable)}</span>
         )}
       </div>
+      {!thin && c.wow != null ? (
+        <div className="mt-0.5 text-xs tabular-nums text-slate-300">
+          <span aria-hidden="true">{fmtPct(c.wow)} vs last Tue</span>
+          <span className="sr-only">{wowAria(c.wow)}, {c.wowPairs} same hotels</span>
+        </div>
+      ) : null}
       <div className="mt-1 text-xs tabular-nums text-slate-300">
         {c.nRefundable}/{LIST_SIZE} priced
       </div>
@@ -124,7 +132,8 @@ export function MarketRatesBlock({ market }: { market: TTMarket }) {
         </div>
         <p className="mt-3 text-xs text-slate-300">
           Coverage counts hotels with a refundable rate; low-confidence prices (2 or fewer sellers and no
-          official hotel site) are left out. Thin: under 15 of 50. ● 10+ no rates on Google at 1 wk. At ~11
+          official hotel site) are left out. Thin: under 15 of 50. Week-over-week compares the same hotels both
+          Tuesdays (median of each hotel&apos;s change, shown when 15+ hotels compare). ● 10+ no rates on Google at 1 wk. At ~11
           months, no rates largely reflect Google&apos;s ~330-day pricing limit.
         </p>
       </Link>

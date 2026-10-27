@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { TuesdayTrendsBoard } from "@/components/tuesday-trends/TuesdayTrendsBoard";
-import { TT_CAPTURED_LABEL, TT_HAS_WOW, ttMarkets } from "@/lib/tuesday-trends";
+import { MovesStrip } from "@/components/tuesday-trends/MovesStrip";
+import { TT_CAPTURED_LABEL, TT_HAS_WOW, TT_PREV_CAPTURED_LABEL, TT_TAX_INCLUSIVE, ttHolidayNote, ttMarkets, ttMoves } from "@/lib/tuesday-trends";
 
 export const metadata: Metadata = {
   title: "Tuesday Trends · Bungah Capital Intel",
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 
 export default function TuesdayTrendsPage() {
   const markets = ttMarkets();
+  const moves = ttMoves();
   return (
     <div className="space-y-6">
       <MarketsTabs active="tuesday-trends" />
@@ -34,14 +36,16 @@ export default function TuesdayTrendsPage() {
         </Link>
       </div>
 
-      {/* Moves strip: first capture, so no week-over-week figures exist yet. */}
-      {TT_HAS_WOW ? null : (
+      {/* Moves strip: matched-pair week-over-week moves; neutral gray, no red/green. */}
+      {TT_HAS_WOW && moves.length ? (
+        <MovesStrip moves={moves} />
+      ) : (
         <div className="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-slate-200">
-          Week-over-week changes start next Tuesday.
+          {TT_HAS_WOW ? `No week-over-week moves with enough matched hotels vs ${TT_PREV_CAPTURED_LABEL}.` : "Week-over-week changes start next Tuesday."}
         </div>
       )}
 
-      <TuesdayTrendsBoard markets={markets} />
+      <TuesdayTrendsBoard markets={markets} hasWow={TT_HAS_WOW} taxShown={TT_TAX_INCLUSIVE} note={ttHolidayNote()} />
     </div>
   );
 }

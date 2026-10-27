@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { StatCard } from "@/components/StatCard";
+import { RateMovesCards } from "@/components/tuesday-trends/MovesStrip";
+import { ttMoves } from "@/lib/tuesday-trends";
 import { cleanSourceLabel, scrubInternal } from "@/lib/public-text";
 import { citedFindings, publicRadarDescription } from "@/lib/format";
 import { leadStat, sourceUrlFor, unverifiedFiguresIn } from "@/lib/radar-stats";
@@ -363,6 +365,9 @@ export default async function RadarsPage() {
           );
         })}
       </div>
+
+      {/* Tuesday Trends: up to 3 real week-over-week rate moves; hidden until matched-pair moves exist. */}
+      <RateMovesCards moves={ttMoves()} />
     </div>
   );
 }

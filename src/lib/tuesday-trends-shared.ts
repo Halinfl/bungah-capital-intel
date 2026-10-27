@@ -23,11 +23,12 @@ export const NO_RATES_DOT_AT = 10;
 export const LIST_SIZE = 50;
 
 /**
- * Labels for the current capture and list version. 8,470 of 8,500 rows were priced Tue Oct 20, 2026,
- * 9:33–10:48 PM ET; 30 rows (three hotels added in v2) were priced Wed Oct 21, 6:36 AM ET for the same stays.
+ * Labels for the current capture and list version (set from the capture's API result timestamps, ET).
  */
-export const TT_CAPTURED_LABEL = "Tue, Oct 20, 2026";
-export const TT_CAPTURE_TIME_LABEL = "9:33–10:48 PM ET";
+export const TT_CAPTURED_LABEL = "Tue, Oct 27, 2026";
+export const TT_CAPTURE_TIME_LABEL = "7:08–7:20 PM ET";
+/** The capture the week-over-week changes compare against. */
+export const TT_PREV_CAPTURED_LABEL = "Tue, Oct 20, 2026";
 export const TT_LIST_LABEL = "v2, effective Oct 20, 2026";
 
 export type TTCell = {
@@ -47,6 +48,29 @@ export type TTCell = {
   nNotOnGoogle: number;
   /** Data flag: 10+ no-rates hotels, never at the structural ~11-month horizon. Shown on 1-week cells only. */
   noRatesDot: boolean;
+  /** Week-over-week, matched pairs (same hotels both Tuesdays): % change on the refundable rate, null when under 15 pairs. */
+  wow: number | null;
+  wowPairs: number;
+  /** The same on the headline ("Any rate") price. */
+  wowLowest: number | null;
+  wowLowestPairs: number;
+  /** Median "Any rate" price incl. taxes + fees (Google's stay total / nights); null unless 9 in 10 used hotels have it. */
+  inclTax: number | null;
+};
+
+/** One of this week's biggest matched-pair moves (cheapest refundable rate). */
+export type TTMove = {
+  market: string;
+  marketName: string;
+  slug: string;
+  horizon: Horizon;
+  stay: Stay;
+  pct: number;
+  nPairs: number;
+  prev: number;
+  now: number;
+  checkIn: string;
+  checkOut: string;
 };
 
 export type TTMarket = {
@@ -82,4 +106,26 @@ export function fmtStayRange(checkIn: string, checkOut: string): string {
 
 export function stayYear(checkIn: string): string {
   return checkIn.slice(0, 4);
+}
+
+/** Week-over-week for the metric shown; null when thin (under 15 matched hotels). */
+export function cellWow(c: TTCell, metric: Metric): { pct: number | null; n: number } {
+  return metric === "refundable" ? { pct: c.wow, n: c.wowPairs } : { pct: c.wowLowest, n: c.wowLowestPairs };
+}
+
+/** "+4%", "−3%", "0%" (true minus sign; one decimal under 1%). Neutral text only: no color for direction. */
+export function fmtPct(v: number | null): string {
+  if (v == null) return "";
+  const a = Math.abs(v);
+  const r = a < 1 && a > 0 ? a.toFixed(1) : Math.round(a).toString();
+  if (r === "0" || r === "0.0") return "0%";
+  return `${v > 0 ? "+" : "−"}${r}%`;
+}
+
+export function wowAria(v: number | null): string {
+  if (v == null) return "";
+  const a = Math.abs(v);
+  const r = a < 1 && a > 0 ? a.toFixed(1) : Math.round(a).toString();
+  if (r === "0" || r === "0.0") return "unchanged vs last Tuesday";
+  return `${v > 0 ? "up" : "down"} ${r}% vs last Tuesday`;
 }
