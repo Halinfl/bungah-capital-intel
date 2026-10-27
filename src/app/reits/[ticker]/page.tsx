@@ -8,6 +8,7 @@ import { ReitsTabs } from "@/components/reits/ReitsTabs";
 import { CitedValue } from "@/components/reits/CitedValue";
 import { Independence } from "@/components/reits/Independence";
 import { reitsTabs } from "@/lib/reits-tabs";
+import { askAboutHref } from "@/lib/chat-scope";
 import {
   REITS_FIRST_CAPTURE,
   chipLabel,
@@ -163,9 +164,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
   if (L.hotels)
     snapItems.push({ key: "hotels", label: "Hotels", c: L.hotels, fmt: fmtInt, mobileHint: L.rooms ? `${fmtInt(L.rooms.value)} rooms` : undefined });
   if (L.rooms) snapItems.push({ key: "rooms", label: "Rooms", c: L.rooms, fmt: fmtInt, mobileHidden: !!L.hotels });
-  const askHref = `/chat?q=${encodeURIComponent(
-    `${r.name} (${r.ticker}): latest reported RevPAR, ADR and occupancy, portfolio and capital?`
-  )}`;
+  const askHref = askAboutHref({ kind: "reit", id: r.ticker });
   const summaryBits = [
     r.latest.hotels ? `${fmtInt(r.latest.hotels.value)} hotels` : null,
     r.latest.rooms ? `${fmtInt(r.latest.rooms.value)} rooms` : null,
@@ -535,7 +534,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
       </section>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <Link href={askHref} className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+        <Link href={askHref} className="inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
           Ask about this REIT
         </Link>
         <Link

@@ -30,6 +30,7 @@ import {
 import type { Metadata } from "next";
 import { MarketRatesBlock } from "@/components/tuesday-trends/MarketRatesBlock";
 import { ttMarketBySiteSlug } from "@/lib/tuesday-trends";
+import { askAboutHref } from "@/lib/chat-scope";
 import { WhoOwnsHere } from "@/components/reits/WhoOwnsHere";
 import { marketOwners } from "@/lib/reits-market";
 
@@ -355,9 +356,7 @@ export default async function MarketDetailPage({
       )}
 
       {(() => {
-        const askHref = `/chat?market=${market.slug}&q=${encodeURIComponent(
-          `Capital thesis for ${market.name}: RevPAR, occupancy, supply, labor?`
-        )}`;
+        const askHref = askAboutHref({ kind: "market", id: market.slug });
         const covered = hasPublicCoverage(market, market.signals.length);
         // With no checked data a Stack memo would be empty, so the memo link is a quiet text link.
         return covered ? (
@@ -368,13 +367,13 @@ export default async function MarketDetailPage({
             >
               Generate Stack memo
             </Link>
-            <Link href={askHref} className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+            <Link href={askHref} className="inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
               Ask about this market
             </Link>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Link href={askHref} className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
+            <Link href={askHref} className="inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/5">
               Ask about this market
             </Link>
             <Link
