@@ -18,7 +18,11 @@ const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
 const FAIL_MESSAGE = "Couldn't get an answer just now. Try again in a moment.";
 const SLOW_MESSAGE = "Still working, this one is taking longer than usual.";
 const SLOW_AFTER_MS = 8_000;
-const TIMEOUT_MS = 30_000;
+/** The slow line stays up to here; only then the failure line and "Try again" (load test p99 at 200 askers was ~46 s). */
+const TIMEOUT_MS = 60_000;
+/** "Try again" ignores repeat taps inside this window, so one tap sends one request. */
+const RETRY_DEBOUNCE_MS = 2_000;
+const WORKING_MESSAGE = "Getting an answer…";
 
 /**
  * Read a /api/chat response without trusting its body: a Vercel timeout or edge error page is HTML or plain
@@ -81,6 +85,9 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   // flight, so a late reply can never replace or append to an answer already on screen.
   const requestSeq = useRef(0);
   const inFlight = useRef<AbortController | null>(null);
+  /** Set synchronously on send, so a double tap cannot start two requests before `busy` re-renders. */
+  const sending = useRef(false);
+  const lastRetry = useRef(0);
   const autoSubmittedKey = useRef<string | null>(null);
 
   const isEmpty = messages.length === 0;
@@ -97,6 +104,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
     requestSeq.current += 1;
     inFlight.current?.abort();
     inFlight.current = null;
+    sending.current = false;
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
@@ -129,7 +137,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   const send = useCallback(
     async (text: string, range: DateRange = "all", source: AskSource = "typed") => {
       const q = text.trim();
-      if (!q || busy) return;
+      if (!q || busy || sending.current) return;
+      sending.current = true;
       setBusy(true);
       // A re-ask from the date chip keeps whatever is being typed.
       if (range === "all") setInput("");
@@ -141,8 +150,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       const controller = new AbortController();
       inFlight.current = controller;
       setSlow(false);
-      setAnnounce("Getting an answer…");
-      // After ~8 s say it is still working; after 30 s give up with the retry line (the server keeps no state).
+      setAnnounce(WORKING_MESSAGE);
+      // After ~8 s say it is still working; after 60 s give up with the retry line (the server keeps no state).
       const slowTimer = setTimeout(() => {
         if (seq !== requestSeq.current) return;
         setSlow(true);
@@ -186,6 +195,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       // Stale (reset or superseded) → drop it; the thread on screen keeps its single answer.
       if (seq !== requestSeq.current) return;
       inFlight.current = null;
+      sending.current = false;
       // The final answer is appended once and never rewritten.
       setMessages((m) => [...m, reply]);
       setBusy(false);
@@ -292,7 +302,12 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                       <button
                         type="button"
                         disabled={busy}
-                        onClick={() => void send(m.question!, m.range ?? "all", "reask")}
+                        onClick={() => {
+                          const now = Date.now();
+                          if (now - lastRetry.current < RETRY_DEBOUNCE_MS) return;
+                          lastRetry.current = now;
+                          void send(m.question!, m.range ?? "all", "reask");
+                        }}
                         className="min-h-11 rounded-lg border border-white/45 px-4 py-2 text-sm text-slate-100 hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
                       >
                         Try again
@@ -329,7 +344,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
               ) : null}
             </div>
           ))}
-          {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : "Retrieving from the graph…"}</p> : null}
+          {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
           <div ref={endRef} className={`${scope ? "scroll-mb-40" : "scroll-mb-24"} sm:scroll-mb-0`} />
         </div>
