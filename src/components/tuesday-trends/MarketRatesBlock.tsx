@@ -3,7 +3,6 @@ import {
   HORIZONS,
   LIST_SIZE,
   STAYS,
-  TT_CAPTURED_LABEL,
   fmtPct,
   fmtRate,
   isThin,
@@ -11,6 +10,7 @@ import {
   type TTCell,
   type TTMarket,
 } from "@/lib/tuesday-trends-shared";
+import { TT_CAPTURED_LABEL } from "@/lib/tuesday-trends";
 import { NoRatesText } from "./NoRatesBadge";
 import { Thin } from "./Thin";
 
@@ -45,16 +45,16 @@ function Value({ c }: { c: TTCell }) {
 
 /**
  * "Rates" block on a market page: this market's Tuesday Trends row (cheapest refundable,
- * both stay types, all five horizons). The whole card links to the board.
+ * both stay types, all five horizons). Only the header row links to the board.
  */
 export function MarketRatesBlock({ market }: { market: TTMarket }) {
   return (
-    <section aria-labelledby="rates-heading">
-      <Link
-        href="/tuesday-trends"
-        className="group block rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-white/25 hover:bg-white/[0.05] sm:p-5"
-      >
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <section aria-labelledby="rates-heading" className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+        {/* Only the header row links to the board, so scrolling or tapping the table never jumps away. */}
+        <Link
+          href="/tuesday-trends"
+          className="group -mx-2 -mt-2 flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-lg px-2 hover:bg-white/[0.05]"
+        >
           <h2 id="rates-heading" className="text-lg font-semibold text-white">
             Rates
           </h2>
@@ -68,7 +68,7 @@ export function MarketRatesBlock({ market }: { market: TTMarket }) {
               />
             </svg>
           </span>
-        </div>
+        </Link>
         <p className="mt-1 text-sm text-slate-300">
           Captured {TT_CAPTURED_LABEL}. Median cheapest refundable nightly rate, 2 adults, pre-tax, across{" "}
           {LIST_SIZE} hotels. Indicative Google Hotels prices; decision support, not a quote.
@@ -136,7 +136,6 @@ export function MarketRatesBlock({ market }: { market: TTMarket }) {
           Tuesdays (median of each hotel&apos;s change, shown when 15+ hotels compare). ● 10+ no rates on Google at 1 wk. At ~11
           months, no rates largely reflect Google&apos;s ~330-day pricing limit.
         </p>
-      </Link>
     </section>
   );
 }

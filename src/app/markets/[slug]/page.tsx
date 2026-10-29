@@ -160,7 +160,7 @@ export default async function MarketDetailPage({
   return (
     <div className="space-y-10">
       <div>
-        <Link href="/markets" className="text-xs text-slate-300 hover:text-emerald-300">
+        <Link href="/markets" className="-my-3 inline-flex min-h-11 items-center text-xs text-slate-300 hover:text-emerald-300">
           ← Markets
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">

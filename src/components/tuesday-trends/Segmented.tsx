@@ -15,7 +15,7 @@ export function Segmented<T extends string>({
   size?: "md" | "sm";
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex shrink-0 rounded-lg border border-white/15 bg-white/[0.03] p-0.5">
+    <div role="radiogroup" aria-label={label} className={`inline-flex shrink-0 rounded-lg border border-white/15 bg-white/[0.03] p-0.5 min-h-12`}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -27,7 +27,7 @@ export function Segmented<T extends string>({
             aria-label={o.aria}
             onClick={() => onChange(o.value)}
             className={`whitespace-nowrap rounded-md font-medium transition-colors ${
-              size === "sm" ? "px-2 py-1 text-[13px]" : "px-3 py-1.5 text-sm"
+              size === "sm" ? "inline-flex min-h-11 items-center px-2.5 text-[13px]" : "inline-flex min-h-11 items-center px-3 text-sm"
             } ${on ? "bg-white/[0.14] text-white" : "text-slate-300 hover:text-white"}`}
           >
             {o.label}

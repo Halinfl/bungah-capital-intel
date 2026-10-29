@@ -10,6 +10,8 @@ import { REITS_UNIVERSE, reits } from "@/lib/reits";
 import { SUPERSEDED_RADAR_SLUGS } from "@/lib/radars-preview";
 import { TT_CAPTURE_DATE, ttMarkets } from "@/lib/tuesday-trends";
 import { SCORECARD } from "@/lib/sound-assets";
+import { sales } from "@/lib/deals";
+import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +104,7 @@ export default async function HomePage() {
 
   const reitCount = reits().length;
   const ttMarketCount = ttMarkets().length;
+  const dealCount = sales().length;
 
   // "What's inside": the nav, in nav order. Kicker is a live stat or a plain label; no placeholders.
   const inside = [
@@ -121,6 +124,12 @@ export default async function HomePage() {
             : `${reitCount} REITs`
           : "Hotel REITs",
       body: "US-listed hotel REITs, one page each: reported RevPAR, portfolio by market and earnings calls, linked to SEC filings.",
+    },
+    {
+      href: "/deals",
+      title: "Deals",
+      kicker: dealCount > 0 ? `${dealCount} hotel ${dealCount === 1 ? "sale" : "sales"}` : "Recent Deals",
+      body: "Graded autopsies of notable US hotel sales, on public data, each linked to its sources.",
     },
     {
       href: "/chat",
@@ -180,7 +189,7 @@ export default async function HomePage() {
       <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
         <div className="space-y-5 pt-2">
           <h1 className="t-display max-w-xl">
-            See where hotel capital is moving, and what to do about it.
+            See where hotel capital is moving, and what it means.
           </h1>
           <p className="t-lead max-w-lg">
             For hotel owners, investors, asset managers and developers. Market numbers, debt and
@@ -197,6 +206,8 @@ export default async function HomePage() {
               Browse markets
             </Link>
           </div>
+          {/* Latest Tuesday Trends issue: one tap from home, above the fold on phones. Hidden without real data. */}
+          <ThisTuesdayCard />
         </div>
 
         <div className="space-y-3">

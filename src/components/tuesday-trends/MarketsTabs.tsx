@@ -17,7 +17,7 @@ export function MarketsTabs({ active }: { active: "markets" | "tuesday-trends" |
               <Link
                 href={t.href}
                 aria-current={on ? "page" : undefined}
-                className={`inline-block border-b-2 pb-2.5 pt-1 font-medium transition-colors ${
+                className={`inline-flex min-h-11 items-center border-b-2 font-medium transition-colors ${
                   on ? "border-white text-white" : "border-transparent text-slate-300 hover:border-white/30 hover:text-white"
                 }`}
               >

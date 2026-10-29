@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "node scripts/embed-corpus.mjs && prisma generate && tsx scripts/chat/verify-starters.ts && next build",
+    "dev": "node scripts/tuesday-trends/build-index.mjs && next dev",
+    "build": "node scripts/tuesday-trends/build-index.mjs && node scripts/embed-corpus.mjs && prisma generate && tsx scripts/chat/verify-starters.ts && next build",
     "test:starters": "tsx scripts/chat/verify-starters.ts",
     "postbuild": "node scripts/check-ic-frame.mjs",
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
@@ -23,6 +23,7 @@
     "postinstall": "prisma generate",
     "corpus:embed": "node scripts/embed-corpus.mjs",
     "typecheck": "tsc --noEmit -p .",
+    "tt:index": "node scripts/tuesday-trends/build-index.mjs",
     "test:smoke": "node scripts/ops/smoke.mjs",
     "predeploy": "bash scripts/ops/predeploy.sh",
     "postdeploy": "bash scripts/ops/postdeploy.sh",

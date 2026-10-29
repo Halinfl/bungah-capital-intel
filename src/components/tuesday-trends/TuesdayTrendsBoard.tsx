@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   HORIZONS,
   LIST_SIZE,
+  STAYS,
   NO_RATES_DOT_AT,
   THIN_BELOW,
   cellValue,
@@ -95,27 +96,82 @@ function Legend({ className = "", hasWow = false }: { className?: string; hasWow
   );
 }
 
+/* ---------- board view <-> URL (?h=1w&stay=weekend&rate=any&sort=1w&dir=asc); defaults stay out of the URL ---------- */
+export type View = { horizon: Horizon; stay: Stay; metric: Metric; sortKey: SortKey; dir: Dir };
+export const DEFAULT_VIEW: View = { horizon: "30d", stay: "weekday", metric: "refundable", sortKey: "name", dir: "asc" };
+const H_CODE: Record<Horizon, string> = { "7d": "1w", "30d": "1m", "91d": "3m", "182d": "6m", "325d": "11m" };
+const CODE_H = Object.fromEntries(Object.entries(H_CODE).map(([k, v]) => [v, k])) as Record<string, Horizon>;
+const naturalDir = (k: SortKey): Dir => (k === "name" ? "asc" : "desc");
+
+export function parseView(sp: { get(name: string): string | null }): View {
+  const horizon = CODE_H[sp.get("h") ?? ""] ?? DEFAULT_VIEW.horizon;
+  const stay: Stay = sp.get("stay") === "weekend" ? "weekend" : "weekday";
+  const metric: Metric = sp.get("rate") === "any" ? "lowest" : "refundable";
+  const so = sp.get("sort") ?? "";
+  const sortKey: SortKey = so === "norates" ? "norates" : CODE_H[so] ?? "name";
+  const d = sp.get("dir");
+  const dir: Dir = d === "asc" || d === "desc" ? d : naturalDir(sortKey);
+  return { horizon, stay, metric, sortKey, dir };
+}
+
+export function viewQuery(v: View): string {
+  const q = new URLSearchParams();
+  if (v.horizon !== DEFAULT_VIEW.horizon) q.set("h", H_CODE[v.horizon]);
+  if (v.stay !== DEFAULT_VIEW.stay) q.set("stay", v.stay);
+  if (v.metric !== DEFAULT_VIEW.metric) q.set("rate", "any");
+  if (v.sortKey !== "name") q.set("sort", v.sortKey === "norates" ? "norates" : H_CODE[v.sortKey]);
+  if (v.dir !== naturalDir(v.sortKey)) q.set("dir", v.dir);
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
 type Tip = { text: string; x: number; y: number; right?: boolean } | null;
 type Row = { m: TTMarket; cells: TTCell[]; nr: TTCell };
 
-export function TuesdayTrendsBoard({
-  markets,
-  hasWow = false,
-  taxShown = false,
-  note,
-}: {
+type BoardProps = {
   markets: TTMarket[];
   hasWow?: boolean;
   taxShown?: boolean;
   /** One plain sentence about this week's stay dates (e.g. a holiday), shown under the table. */
   note?: string;
-}) {
+};
+
+/**
+ * The board with its view (horizon, stay, rate, sort) kept in the URL, so Back restores it and a filtered view can be
+ * shared. Must sit inside <Suspense>; use <TuesdayTrendsBoard> (default view) as the fallback so the static HTML and the
+ * hydrated board have identical layout (no shift).
+ */
+export function TuesdayTrendsBoardUrl(props: BoardProps) {
+  const sp = useSearchParams();
+  const pathname = usePathname() ?? "/tuesday-trends";
+  const view = useMemo(() => parseView(sp), [sp]);
+  // replaceState (not push): changing a filter never adds Back steps. Next keeps useSearchParams in sync with it.
+  const setView = useCallback(
+    (v: View) => window.history.replaceState(window.history.state, "", `${pathname}${viewQuery(v)}`),
+    [pathname],
+  );
+  return <BoardView {...props} view={view} setView={setView} />;
+}
+
+/** Default view, no URL sync (static fallback before hydration). */
+export function TuesdayTrendsBoard(props: BoardProps) {
+  const [view, setView] = useState<View>(DEFAULT_VIEW);
+  return <BoardView {...props} view={view} setView={setView} />;
+}
+
+function BoardView({
+  markets,
+  hasWow = false,
+  taxShown = false,
+  note,
+  view,
+  setView,
+}: BoardProps & { view: View; setView: (v: View) => void }) {
   const router = useRouter();
-  const [stay, setStay] = useState<Stay>("weekday");
-  const [metric, setMetric] = useState<Metric>("refundable");
-  const [horizon, setHorizon] = useState<Horizon>("30d");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [dir, setDir] = useState<Dir>("asc");
+  const { stay, metric, horizon, sortKey, dir } = view;
+  const set = (p: Partial<View>) => setView({ ...view, ...p });
+  const setStay = (v: Stay) => set({ stay: v });
+  const setMetric = (v: Metric) => set({ metric: v });
   const [tip, setTip] = useState<Tip>(null);
   useEffect(() => {
     if (!tip) return;
@@ -151,32 +207,19 @@ export function TuesdayTrendsBoard({
 
   /** Desktop header click: new column starts high→low (A→Z for names); same column flips. */
   const clickSort = (k: SortKey) => {
-    if (k === sortKey) setDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(k);
-      setDir(k === "name" ? "asc" : "desc");
-    }
-    if (k !== "name" && k !== "norates") setHorizon(k);
+    const next: Partial<View> = k === sortKey ? { dir: dir === "asc" ? "desc" : "asc" } : { sortKey: k, dir: naturalDir(k) };
+    if (k !== "name" && k !== "norates") next.horizon = k;
+    set(next);
   };
 
   /** Mobile sort button cycles A–Z → highest → lowest, on the selected horizon. */
   const mobileMode: "az" | "high" | "low" = sortKey === "name" ? "az" : dir === "desc" ? "high" : "low";
   const cycleMobile = () => {
-    if (mobileMode === "az") {
-      setSortKey(horizon);
-      setDir("desc");
-    } else if (mobileMode === "high") {
-      setSortKey(horizon);
-      setDir("asc");
-    } else {
-      setSortKey("name");
-      setDir("asc");
-    }
+    if (mobileMode === "az") set({ sortKey: horizon, dir: "desc" });
+    else if (mobileMode === "high") set({ sortKey: horizon, dir: "asc" });
+    else set({ sortKey: "name", dir: "asc" });
   };
-  const pickHorizon = (h: Horizon) => {
-    setHorizon(h);
-    if (sortKey !== "name" && sortKey !== "norates") setSortKey(h);
-  };
+  const pickHorizon = (h: Horizon) => set(sortKey !== "name" && sortKey !== "norates" ? { horizon: h, sortKey: h } : { horizon: h });
 
   const hIdx = HORIZONS.findIndex((h) => h.key === horizon);
   const hLabel = HORIZONS[hIdx].label;
@@ -197,18 +240,45 @@ export function TuesdayTrendsBoard({
   const headBtn = (k: SortKey) =>
     `inline-flex items-center gap-1 whitespace-nowrap uppercase tracking-wider ${sortKey === k ? "text-white" : "hover:text-white"}`;
 
+  const sortButton = (
+    <button
+      type="button"
+      onClick={cycleMobile}
+      aria-label={`${mobileSortLabel}. Change sort`}
+      title={mobileSortLabel}
+      className={`ml-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/[0.03] ${
+        mobileMode === "az" ? "text-slate-300" : "text-white"
+      }`}
+    >
+      {mobileMode === "az" ? (
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path d="M3 5.25A.75.75 0 013.75 4.5h9.5a.75.75 0 010 1.5h-9.5A.75.75 0 013 5.25zm0 4.75a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5A.75.75 0 013 10zm.75 4a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z" />
+        </svg>
+      ) : (
+        <span aria-hidden="true" className="text-[13px] leading-none">
+          {mobileMode === "high" ? "▼" : "▲"}
+        </span>
+      )}
+    </button>
+  );
+  const st = STAYS.find((x) => x.key === stay)!;
+  const basis = `${metric === "refundable" ? "Cheapest refundable" : "Any rate"} · ${st.label} (${st.days})`;
+
   return (
     <div>
       {/* ---------- Mobile controls ---------- */}
       <div className="space-y-2 md:hidden">
-        <Segmented
-          label="Horizon"
-          size="sm"
-          value={horizon}
-          onChange={pickHorizon}
-          options={HORIZONS.map((h) => ({ value: h.key, label: h.chip, aria: h.long }))}
-        />
         <div className="flex items-center gap-1.5">
+          <Segmented
+            label="Horizon"
+            size="sm"
+            value={horizon}
+            onChange={pickHorizon}
+            options={HORIZONS.map((h) => ({ value: h.key, label: h.chip, aria: h.long }))}
+          />
+          {sortButton}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
           <Segmented
             label="Stay"
             size="sm"
@@ -220,25 +290,6 @@ export function TuesdayTrendsBoard({
             ]}
           />
           <Segmented label="Rate" size="sm" value={metric} onChange={setMetric} options={METRIC_OPTIONS} />
-          <button
-            type="button"
-            onClick={cycleMobile}
-            aria-label={`${mobileSortLabel}. Change sort`}
-            title={mobileSortLabel}
-            className={`ml-auto inline-flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/[0.03] ${
-              mobileMode === "az" ? "text-slate-300" : "text-white"
-            }`}
-          >
-            {mobileMode === "az" ? (
-              <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                <path d="M3 5.25A.75.75 0 013.75 4.5h9.5a.75.75 0 010 1.5h-9.5A.75.75 0 013 5.25zm0 4.75a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5A.75.75 0 013 10zm.75 4a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z" />
-              </svg>
-            ) : (
-              <span aria-hidden="true" className="text-[13px] leading-none">
-                {mobileMode === "high" ? "▼" : "▲"}
-              </span>
-            )}
-          </button>
         </div>
         <Legend className="pt-0.5" hasWow={hasWow} />
       </div>
@@ -257,9 +308,12 @@ export function TuesdayTrendsBoard({
         <Segmented label="Rate" value={metric} onChange={setMetric} options={METRIC_OPTIONS} />
         <Legend className="ml-auto" hasWow={hasWow} />
       </div>
+      <p className="mt-3 hidden text-[13px] text-slate-200 md:block" aria-live="polite">
+        Showing {basis}, all horizons
+      </p>
 
       {/* ---------- Desktop table ---------- */}
-      <div className="mt-6 hidden overflow-x-auto rounded-xl border border-white/10 bg-[#353942] md:block">
+      <div className="mt-3 hidden overflow-x-auto rounded-xl border border-white/10 bg-[#353942] md:block">
         <table className="w-full min-w-[760px] border-collapse text-left">
           <caption className="sr-only">
             Median {metric === "refundable" ? "cheapest refundable" : "lowest (any)"} nightly rate, pre-tax, 2 adults,{" "}
@@ -353,7 +407,10 @@ export function TuesdayTrendsBoard({
       </div>
 
       {/* ---------- Mobile list: one row per market for the chosen horizon ---------- */}
-      <ul className="mt-3 grid gap-2 md:hidden">
+      <p className="mt-3 text-[13px] text-slate-200 md:hidden" aria-live="polite">
+        Showing {HORIZONS[hIdx].long.toLowerCase()} · {basis}
+      </p>
+      <ul className="mt-2 grid gap-2 md:hidden">
         {rows.map(({ m, cells, nr }) => {
           const c = cells[hIdx];
           const { value, n } = cellValue(c, metric);

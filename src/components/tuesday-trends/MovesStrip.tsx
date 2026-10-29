@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { HORIZONS, STAYS, TT_PREV_CAPTURED_LABEL, fmtPct, fmtRate, fmtStayRange, wowAria, type TTMove } from "@/lib/tuesday-trends-shared";
+import { HORIZONS, STAYS, fmtPct, fmtRate, fmtStayRange, wowAria, type TTMove } from "@/lib/tuesday-trends-shared";
+import { TT_PREV_CAPTURED_LABEL } from "@/lib/tuesday-trends";
 
 function label(m: TTMove) {
   const h = HORIZONS.find((x) => x.key === m.horizon)!;
@@ -11,15 +12,15 @@ function label(m: TTMove) {
  * This week's biggest week-over-week moves (matched pairs, cheapest refundable). Neutral gray only: direction is
  * carried by the sign and the words, never by red/green.
  */
-export function MovesStrip({ moves }: { moves: TTMove[] }) {
+export function MovesStrip({ moves, prevLabel = TT_PREV_CAPTURED_LABEL }: { moves: TTMove[]; prevLabel?: string }) {
   if (!moves.length) return null;
   return (
     <section aria-labelledby="moves-heading" className="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="moves-heading" className="text-sm font-semibold text-white">
-          Biggest moves vs {TT_PREV_CAPTURED_LABEL.replace(/^Tue, /, "")}
+          Biggest moves vs {prevLabel.replace(/^Tue, /, "")}
         </h2>
-        <span className="text-[13px] text-slate-300">Same hotels both weeks, cheapest refundable</span>
+        <span className="text-[13px] text-slate-300">Same hotels both weeks, cheapest refundable · horizon and stay on each card</span>
       </div>
       <ul className="mt-2 grid gap-2 md:grid-cols-3">
         {moves.map((m) => {

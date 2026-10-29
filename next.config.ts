@@ -30,6 +30,10 @@ const nextConfig: NextConfig = {
       // No paid tiers (Hal, 2026-10-25): the old pricing and plan pages go home.
       { source: "/pricing", destination: "/", permanent: false },
       { source: "/account/plan", destination: "/", permanent: false },
+      // Typed or shared aliases for the latest Tuesday Trends issue (/tuesday-trends always shows the latest).
+      { source: "/trends", destination: "/tuesday-trends", permanent: false },
+      { source: "/trends/latest", destination: "/tuesday-trends", permanent: false },
+      { source: "/tuesday-trends/latest", destination: "/tuesday-trends", permanent: false },
     ];
   },
   // content/ also copied into src/generated/allowed-corpus.json at build (corpus:embed).

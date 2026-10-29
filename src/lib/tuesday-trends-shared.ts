@@ -22,14 +22,7 @@ export const THIN_BELOW = 15;
 export const NO_RATES_DOT_AT = 10;
 export const LIST_SIZE = 50;
 
-/**
- * Labels for the current capture and list version (set from the capture's API result timestamps, ET).
- */
-export const TT_CAPTURED_LABEL = "Tue, Oct 27, 2026";
-export const TT_CAPTURE_TIME_LABEL = "7:08–7:20 PM ET";
-/** The capture the week-over-week changes compare against. */
-export const TT_PREV_CAPTURED_LABEL = "Tue, Oct 20, 2026";
-export const TT_LIST_LABEL = "v2, effective Oct 20, 2026";
+/** Capture and list labels are derived per issue from the data: see TTIssue in "@/lib/tuesday-trends" (server only). */
 
 export type TTCell = {
   horizon: Horizon;

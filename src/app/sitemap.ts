@@ -4,7 +4,7 @@ import { cachedQuery } from "@/lib/db-safe";
 import { citedOnly, isIndexableMarket, isNoReadSignal } from "@/lib/format";
 import { isPrivatePath } from "@/lib/seo";
 import { reits } from "@/lib/reits";
-import { TT_CAPTURE_DATE } from "@/lib/tuesday-trends";
+import { TT_CAPTURE_DATE, ttIssues } from "@/lib/tuesday-trends";
 import reitSnapshot from "@/data/reits/snapshot.json";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +54,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
     })),
     ...indexable.map((m) => ({ url: `${BASE}/markets/${m.slug}`, lastModified: marketLastmod(m), changeFrequency: "weekly" as const })),
+    { url: `${BASE}/tuesday-trends/archive`, lastModified: TT_CAPTURE_DATE, changeFrequency: "weekly" as const },
+    ...ttIssues().map((i) => ({ url: `${BASE}/tuesday-trends/${i.date}`, lastModified: i.date, changeFrequency: "yearly" as const })),
     ...reits().map((r) => ({
       url: `${BASE}/reits/${r.ticker.toLowerCase()}`,
       lastModified: REITS_BUILT,

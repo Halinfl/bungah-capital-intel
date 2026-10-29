@@ -4,8 +4,12 @@ import { auth } from "@clerk/nextjs/server";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
+import { TT_LATEST_DATE } from "@/data/tuesday-trends/latest.generated";
 
-/** Primary nav. The footer mirrors these links and adds Tuesday Trends and the Trust Contract. */
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const shortDate = (d: string) => `${MON[Number(d.slice(5, 7)) - 1]} ${Number(d.slice(8, 10))}`;
+
+/** Primary nav. The footer mirrors these links and adds Tuesday Trends and the Trust Contract; the mobile sheet nests Tuesday Trends under Markets. */
 const links = [
   { href: "/markets", label: "Markets" },
   { href: "/reits", label: "REITs" },
@@ -18,9 +22,13 @@ const links = [
 
 export async function Nav() {
   const { userId } = await auth();
+  // Mobile sheet only: Tuesday Trends as an indented child of Markets, with the latest capture date. The 7
+  // top-level items and their order are unchanged (desktop shows it as a Markets sub-tab).
+  const ttChild = { href: "/tuesday-trends", label: "Tuesday Trends", meta: TT_LATEST_DATE ? shortDate(TT_LATEST_DATE) : undefined };
+  const sheetLinks = links.map((l) => (l.href === "/markets" ? { ...l, children: [ttChild] } : l));
   const mobileItems = userId
-    ? [...links, { href: "/workspace", label: "Workspace" }, { href: "/account/org", label: "Account" }]
-    : [...links, { href: "/login", label: "Sign in" }];
+    ? [...sheetLinks, { href: "/workspace", label: "Workspace" }, { href: "/account/org", label: "Account" }]
+    : [...sheetLinks, { href: "/login", label: "Sign in" }];
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#2f333c]/95 backdrop-blur-md">
@@ -55,7 +63,7 @@ export async function Nav() {
               </Link>
               <Link
                 href="/chat"
-                className="whitespace-nowrap rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
+                className="inline-flex min-h-11 items-center whitespace-nowrap rounded-md bg-slate-100 px-3 text-sm font-medium text-slate-900 hover:bg-white"
               >
                 Ask a capital question
               </Link>
