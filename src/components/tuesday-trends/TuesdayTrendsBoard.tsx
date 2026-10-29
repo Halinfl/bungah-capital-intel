@@ -319,13 +319,12 @@ function BoardView({
           />
           <Segmented label="Rate" size="sm" value={metric} onChange={setMetric} options={METRIC_OPTIONS} />
         </div>
-        {/* One 12px line: what the list shows (incl. any holiday in the selected stay) + the key. */}
+        {/* One 12px line: what the list shows, incl. any holiday in the selected stay. The key sits in the footnotes on mobile. */}
         <p className="text-[12px] leading-snug text-slate-300" aria-live="polite">
           <span className="text-slate-200">
             Showing {HORIZONS[hIdx].label} out · {metric === "refundable" ? "Refundable" : "Any rate"} · {st.label} ({st.days})
             {holidayText(markets[0]?.cells.find((c) => c.horizon === horizon && c.stay === stay))}.
-          </span>{" "}
-          <LegendItems hasWow={hasWow} />
+          </span>
         </p>
       </div>
 
@@ -473,6 +472,10 @@ function BoardView({
 
       {/* ---------- Footnotes ---------- */}
       <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-slate-300">
+        {/* Mobile key (desktop shows it beside the controls). */}
+        <p className="text-[12px] md:hidden">
+          <span className="text-slate-200">Key:</span> <LegendItems hasWow={hasWow} />
+        </p>
         <p className="text-[12px]">
           Indicative Google Hotels prices. Median of the cheapest refundable rate, 2 adults, pre-tax. Decision support, not a
           quote.

@@ -13,6 +13,13 @@ import { SCORECARD } from "@/lib/sound-assets";
 import { sales } from "@/lib/deals";
 import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
 
+/**
+ * Phones only: grow a small inline link's tap area to 44px tall without moving anything
+ * (18px text box + 13px above and below). Single-source rows only; two stacked sources are
+ * 23px apart and would overlap, so they keep their text-sized targets. Desktop (mouse) unchanged.
+ */
+const HIT_AREA = "relative after:absolute after:-inset-x-1 after:-inset-y-[13px] after:content-[''] md:after:content-none";
+
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -201,7 +208,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/markets"
-              className="text-base text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white"
+              className="inline-flex min-h-11 items-center text-base text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white"
             >
               Browse markets
             </Link>
@@ -230,7 +237,7 @@ export default async function HomePage() {
                   {snapshot.map((r) => (
                     <tr key={r.slug} className="border-b border-white/[0.07] align-top last:border-0">
                       <td className="py-3 pr-2">
-                        <Link href={`/markets/${r.slug}`} className="font-medium text-white hover:underline">
+                        <Link href={`/markets/${r.slug}`} className={`${HIT_AREA} font-medium text-white hover:underline`}>
                           {r.name}
                         </Link>
                         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300">
@@ -241,7 +248,7 @@ export default async function HomePage() {
                               href={l.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-emerald-300 underline-offset-2 hover:underline"
+                              className={`${r.links.length === 1 ? HIT_AREA : ""} text-emerald-300 underline-offset-2 hover:underline`}
                             >
                               {l.label} ↗
                             </a>

@@ -21,7 +21,7 @@ export function MovesStrip({ moves, prevLabel = TT_PREV_CAPTURED_LABEL }: { move
           Biggest moves outside holiday weeks
         </h2>
         <span className="text-[13px] text-slate-300">
-          vs {prevLabel.replace(/^Tue, /, "")} · same hotels both weeks, cheapest refundable · horizon and stay on each card
+          vs {prevLabel.replace(/^Tue, /, "")} · same hotels both weeks, cheapest refundable<span className="hidden sm:inline"> · horizon and stay on each card</span>
         </span>
       </div>
       <ul className="mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 md:grid-cols-3">
