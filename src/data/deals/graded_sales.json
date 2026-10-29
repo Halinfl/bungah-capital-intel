@@ -3,14 +3,14 @@
     "sale_id": "grande-lakes-orlando-2026",
     "slug": "grande-lakes-orlando",
     "property": "JW Marriott and Ritz-Carlton Grande Lakes Orlando",
-    "market": "Orlando",
+    "market": "Orlando, FL",
     "market_slug": "orlando",
     "buyer": "Ryman Hospitality Properties (RHP)",
     "buyer_tickers": [
       "RHP"
     ],
     "seller": "GLO Hotel Owner LLC",
-    "seller_note": "RHP's release names the seller as Trinity Investments. The purchase agreement (Ex. 10.1) sends seller notices to both Elliott Management and Trinity Investments.",
+    "seller_note": "RHP's release names the seller as Trinity Investments. The purchase agreement (Exhibit 10.1) sends seller notices to both Elliott Management and Trinity Investments.",
     "seller_tickers": [],
     "price": 1380000000,
     "price_qualifier": "approximately, subject to adjustments",
@@ -30,5 +30,274 @@
       "https://www.sec.gov/Archives/edgar/data/1040829/000110465926104349/tm2624390d1_8k.htm"
     ],
     "log_id": "DL-2026-001"
+  },
+  {
+    "sale_id": "embassy-suites-dulles-airport-2026",
+    "log_id": "DL-2026-003",
+    "slug": "embassy-suites-dulles-airport",
+    "property": "Embassy Suites Dulles Airport",
+    "market": "Herndon, VA",
+    "market_slug": "washington-dc",
+    "buyer": "Woodland Park Road LLC",
+    "buyer_tickers": [],
+    "seller": "Ashford Hospitality Trust (AHT)",
+    "seller_tickers": [
+      "AHT"
+    ],
+    "price": 22800000,
+    "price_per_key": 152000,
+    "keys": 150,
+    "announced_on": "2026-08-12",
+    "closed_on": "2026-08-24",
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000188/aht-20260824.htm",
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000188/ahtesdullesproformas.htm"
+    ]
+  },
+  {
+    "sale_id": "the-wade-chicago-2026",
+    "log_id": "DL-2026-005",
+    "slug": "the-wade-chicago",
+    "property": "The Wade (former W Chicago Lakeshore)",
+    "market": "Chicago, IL",
+    "market_slug": "chicago",
+    "buyer": "Vinayaka Hospitality (Ketu Amin)",
+    "buyer_tickers": [],
+    "seller": "Park Hotels & Resorts (PK)",
+    "seller_tickers": [
+      "PK"
+    ],
+    "price": null,
+    "price_display": "$20M–$25M range",
+    "price_qualifier": "range reported at announcement; no single price, so not graded",
+    "price_per_key": null,
+    "keys": 520,
+    "announced_on": "2026-09-17",
+    "closed_on": null,
+    "close_report": {
+      "by": "press",
+      "date": "2026-10-25",
+      "url": "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html",
+      "source": "The Real Deal via Yahoo Finance, Oct 25, 2026: $25M close reported (\"earlier this month\"; no exact close date)"
+    },
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "press",
+    "source_uris": [
+      "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
+      "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html"
+    ],
+    "seller_note": "Status only: The Real Deal reported a $25M close on Oct 25, 2026, after the announcement."
+  },
+  {
+    "sale_id": "tideline-palm-beach-2026",
+    "log_id": "DL-2026-006",
+    "slug": "tideline-palm-beach",
+    "property": "Tideline Palm Beach Resort",
+    "market": "Palm Beach, FL",
+    "market_slug": "palm-beach",
+    "buyer": "Fort Partners affiliate",
+    "buyer_tickers": [],
+    "seller": "Jeff Greene",
+    "seller_tickers": [],
+    "price": 150000000,
+    "price_qualifier": "seller-confirmed, as reported in the press; includes personal property and intangibles",
+    "price_per_key": 1119403,
+    "keys": 134,
+    "announced_on": "2026-09-17",
+    "closed_on": "2026-09-09",
+    "status": "closed",
+    "inclusion_basis": "100m+",
+    "price_source_kind": "press",
+    "source_uris": [
+      "https://therealdeal.com/miami/2026/09/17/jeff-greene-sells-tideline-palm-beach-ocean-resort/"
+    ],
+    "seller_note": "Status only: a $112,612,500 warranty deed (real estate only) was recorded Sep 22, 2026, after the announcement, so it isn't the grading price."
+  },
+  {
+    "sale_id": "four-seasons-scottsdale-troon-north-2026",
+    "log_id": "DL-2026-007",
+    "slug": "four-seasons-scottsdale-troon-north",
+    "property": "Four Seasons Resort Scottsdale at Troon North",
+    "market": "Scottsdale, AZ",
+    "market_slug": "phoenix",
+    "buyer": "Evergreen Acquisitions, LLC",
+    "buyer_tickers": [],
+    "seller": "Braemar Hotels & Resorts (BHR)",
+    "seller_tickers": [
+      "BHR"
+    ],
+    "price": 372000000,
+    "price_per_key": 1771429,
+    "keys": 210,
+    "announced_on": "2026-09-29",
+    "closed_on": null,
+    "status": "announced",
+    "inclusion_basis": "both",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+      "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000151/ex991portfolioupdatepressr.htm"
+    ]
+  },
+  {
+    "sale_id": "embassy-suites-las-vegas-2026",
+    "log_id": "DL-2026-008",
+    "slug": "embassy-suites-las-vegas",
+    "property": "Embassy Suites Las Vegas",
+    "market": "Las Vegas, NV",
+    "market_slug": "las-vegas",
+    "buyer": "4315 Hospitality LLC",
+    "buyer_tickers": [],
+    "seller": "Ashford Hospitality Trust (AHT)",
+    "seller_tickers": [
+      "AHT"
+    ],
+    "price": 43500000,
+    "price_qualifier": "approximately",
+    "price_per_key": 197727,
+    "keys": 220,
+    "announced_on": "2026-10-01",
+    "closed_on": "2026-09-25",
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm"
+    ]
+  },
+  {
+    "sale_id": "fairmont-scottsdale-princess-2026",
+    "log_id": "DL-2026-009",
+    "slug": "fairmont-scottsdale-princess",
+    "property": "Fairmont Scottsdale Princess",
+    "market": "Scottsdale, AZ",
+    "market_slug": "phoenix",
+    "buyer": "San Manuel Investment Authority",
+    "buyer_tickers": [],
+    "seller": "Strategic Hotels & Resorts (as reported in the press, Oct 8)",
+    "seller_tickers": [],
+    "price": null,
+    "price_display": "Not disclosed at announcement",
+    "price_per_key": null,
+    "keys": 750,
+    "announced_on": "2026-10-01",
+    "closed_on": null,
+    "status": "closed",
+    "inclusion_basis": "100m+",
+    "price_source_kind": "record",
+    "source_uris": [
+      "https://sanmanuel-nsn.gov/news/san-manuel-investment-authority-acquires-fairmont-scottsdale-princess",
+      "https://therealdeal.com/national/phoenix/2026/10/08/fairmont-scottsdale-princess-hotel-sells-to-native-tribe/"
+    ],
+    "seller_note": "Status only: $241.4M was recorded for the hotel portion in a deed recorded Oct 2, 2026, the day after the announcement; the total price wasn't disclosed."
+  },
+  {
+    "sale_id": "bellmoor-rehoboth-beach-2026",
+    "log_id": "DL-2026-010",
+    "slug": "bellmoor-rehoboth-beach",
+    "property": "The Bellmoor Inn & Spa",
+    "market": "Rehoboth Beach, DE",
+    "market_slug": null,
+    "buyer": "DiamondRock Hospitality (DRH)",
+    "buyer_tickers": [
+      "DRH"
+    ],
+    "seller": "Not disclosed",
+    "seller_tickers": [],
+    "price": 31000000,
+    "price_per_key": 392405,
+    "keys": 79,
+    "announced_on": "2026-10-08",
+    "closed_on": "2026-10-01",
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm"
+    ]
+  },
+  {
+    "sale_id": "embassy-suites-philadelphia-airport-2026",
+    "log_id": "DL-2026-011",
+    "slug": "embassy-suites-philadelphia-airport",
+    "property": "Embassy Suites Philadelphia Airport",
+    "market": "Philadelphia, PA",
+    "market_slug": "philadelphia",
+    "buyer": "SSN 9000 Bartram Road LLC",
+    "buyer_tickers": [],
+    "seller": "Ashford Hospitality Trust (AHT)",
+    "seller_tickers": [
+      "AHT"
+    ],
+    "price": 26000000,
+    "price_per_key": 98859,
+    "keys": 263,
+    "announced_on": "2026-08-12",
+    "closed_on": "2026-10-06",
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000207/aht-20261006.htm"
+    ]
+  },
+  {
+    "sale_id": "hotel-zags-portland-2026",
+    "log_id": "DL-2026-012",
+    "slug": "hotel-zags-portland-or",
+    "property": "The Hotel Zags",
+    "market": "Portland, OR",
+    "market_slug": "portland-or",
+    "buyer": "Third party (not named)",
+    "buyer_tickers": [],
+    "seller": "Pebblebrook Hotel Trust (PEB)",
+    "seller_tickers": [
+      "PEB"
+    ],
+    "price": 10000000,
+    "price_per_key": 57471,
+    "keys": 174,
+    "announced_on": "2026-10-09",
+    "closed_on": "2026-10-08",
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "filing",
+    "source_uris": [
+      "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000066/peb-20261008.htm"
+    ]
+  },
+  {
+    "sale_id": "midway-portfolio-chicago-2026",
+    "log_id": "DL-2026-013",
+    "slug": "midway-portfolio-chicago",
+    "property": "RLJ Midway-area portfolio (7 hotels)",
+    "market": "Chicago, IL (Midway)",
+    "market_slug": "chicago",
+    "buyer": "Endeavor Hotels (Vishal Thakkar)",
+    "buyer_tickers": [],
+    "seller": "RLJ Lodging Trust (RLJ)",
+    "seller_tickers": [
+      "RLJ"
+    ],
+    "price": 68000000,
+    "price_qualifier": "recorded price, as reported in the press; includes a restaurant parcel",
+    "price_per_key": 64333,
+    "keys": 1057,
+    "keys_detail": "7 hotels, as reported in the press; not confirmed by the company",
+    "announced_on": "2026-10-25",
+    "closed_on": null,
+    "status": "closed",
+    "inclusion_basis": "reit",
+    "price_source_kind": "press",
+    "source_uris": [
+      "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
+      "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html"
+    ]
   }
 ]

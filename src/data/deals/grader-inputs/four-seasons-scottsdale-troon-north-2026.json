@@ -1,0 +1,69 @@
+{
+  "sale_id": "four-seasons-scottsdale-troon-north-2026",
+  "log_id": "DL-2026-007",
+  "announced_on": "2026-09-29",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 1771429,
+      "total_keys": 210,
+      "replacement_basis": "HVS 2026 luxury median including land, $1,604,356; single class",
+      "components": [
+        {
+          "label": "Four Seasons Resort Scottsdale at Troon North",
+          "hvs_class": "luxury",
+          "keys": 210,
+          "median_per_key": 1604356
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $372.0M, BHR 8-K filed Sep 29, 2026",
+          "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+          "date": "2026-09-29"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "Not graded under v1; the period question is under review. Nothing was disclosed at announcement (Sep 29, 2026). The 6.2% cap rate published Oct 8 came after the announcement and covers the trailing 12 months to August 2026 and includes $23M of capex."
+    },
+    "supply": {
+      "missing": "Only an under-construction share is public (Phoenix metro 5.7%), a subset of the total pipeline; no single source gave the total pipeline share by Sep 29, 2026."
+    },
+    "demand": {
+      "as_of": "2026-05-19",
+      "source_uri": "https://web.archive.org/web/20260519032616/https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/taxes/monthly-tax-collection-report.pdf?sfvrsn=d045412b_23",
+      "source_label": "City of Scottsdale monthly tax collection report, March 2026 (archived May 19, 2026)",
+      "tax_receipts_yoy_pct": 3.86,
+      "measure": "fytd_vs_prior_fytd",
+      "latest_month_end": "2026-03-31",
+      "fallback_reason": "The city overwrites a single-month PDF each month, so a trailing-12-month series can't be built from figures provably public by the announcement.",
+      "period": "City of Scottsdale bed tax, fiscal year to date Jul 2025 to Mar 2026 vs prior; $25,401,992 vs $24,458,616"
+    },
+    "debt_context": {
+      "as_of": "2026-06-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000100/bhr6-12x26pr.htm",
+      "category": "pressured_or_related",
+      "summary": "Arm's-length buyer, but a pressured seller: BHR said (Jun 12, 2026) it would sell two or three more assets to satisfy its obligations on the termination of the Ashford advisory relationship, with net proceeds going to Ashford; its Q2 10-Q records a $480.0M fee liability. No formal distress.",
+      "also_sources": [
+        {
+          "label": "BHR 10-Q Q2 2026 ($480.0M fee liability)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000130/bhr-20260630.htm",
+          "date": "2026-08-06"
+        }
+      ]
+    }
+  },
+  "proposed_v1_1": {
+    "debt_context": {
+      "category": "clean_arms_length",
+      "as_of": "2026-09-29",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+      "summary": "No documented trigger: no foreclosure, receivership, lender-directed sale, named-hotel impairment or company statement of distress by Sep 29, 2026."
+    }
+  }
+}

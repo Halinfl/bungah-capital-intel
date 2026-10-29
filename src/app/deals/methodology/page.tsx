@@ -17,7 +17,7 @@ const SOURCES: Record<string, { source: string; asOf: string }> = {
   },
   spread: {
     source:
-      "Cap rate on NOI for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
+      "Cap rate on net operating income (NOI) for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
     asOf: "10-year yield at the close on the announcement date",
   },
   supply: {
@@ -56,9 +56,9 @@ export default function DealsMethodologyPage() {
         <h2 id="inclusion-rule" className={h2}>
           Inclusion rule
         </h2>
-        <p className={p}>A deal is added if EITHER:</p>
+        <p className={p}>A deal is added if either:</p>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
-          <li>(a) one of our 13 tracked hotel REITs is buyer or seller, at any size; OR</li>
+          <li>(a) one of our 13 tracked hotel REITs is buyer or seller, at any size; or</li>
           <li>(b) it&rsquo;s a US hotel sale with a disclosed price of $100M or more.</li>
         </ul>
         <p className={p}>US means the 50 states and DC. Puerto Rico and other US territories are excluded.</p>
@@ -66,7 +66,7 @@ export default function DealsMethodologyPage() {
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
           <li>Every qualifying deal is logged, including ones we haven&rsquo;t finished grading.</li>
           <li>Unpriced deals in non-disclosure states are listed as unpriced and never estimated. They&rsquo;re graded only if they qualify under (a).</li>
-          <li>Event date = announcement date. A later close is a status update on the same entry.</li>
+          <li>The event date is the announcement date. A later close is a status update on the same entry.</li>
         </ul>
       </section>
 
@@ -113,7 +113,7 @@ export default function DealsMethodologyPage() {
         </div>
 
         <h3 className="pt-2 text-lg font-semibold text-white">Bands</h3>
-        <p className="max-w-3xl text-sm text-slate-300">Score 5 is the top band set by the editor. Scores 4 to 1 step down evenly from it.</p>
+        <p className="max-w-3xl text-sm text-slate-300">Score 5 is the top band we set for each factor. Scores 4 to 1 step down evenly from it.</p>
         <div className="grid gap-4 md:grid-cols-2">
           {r.factors.map((f) => (
             <div key={f.id} className="rounded-xl border border-white/10 p-4">
@@ -144,7 +144,7 @@ export default function DealsMethodologyPage() {
         <p className={p}>{r.missing_factor_rule.text}</p>
         <p className={p}>
           The overall score is the weighted mean of the graded factors, using their renormalized weights, rounded to one decimal and shown as
-          &ldquo;X.X / {r.scale.max}&rdquo;. Each entry states its coverage, e.g. &ldquo;4 of 5 factors graded&rdquo;.
+          &ldquo;X.X of {r.scale.max}&rdquo;. Each entry states its coverage, e.g. &ldquo;4 of 5 factors graded&rdquo;.
         </p>
       </section>
 
@@ -163,7 +163,7 @@ export default function DealsMethodologyPage() {
         <p className="max-w-3xl rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200">
           &ldquo;Underwritten at a [X]% discount (or premium) to replacement with a [N]bp spread; [k] of 5 factors graded.&rdquo;
         </p>
-        <p className={p}>We grade deals, never buyers. Nothing here adds up or ranks grades by company.</p>
+        <p className={p}>We grade deals, never buyers. We don&rsquo;t total or rank grades by company.</p>
       </section>
 
       <section className="space-y-3">

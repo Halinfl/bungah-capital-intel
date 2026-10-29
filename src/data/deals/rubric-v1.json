@@ -18,7 +18,7 @@
       "label": "Price per key vs replacement cost per key",
       "weight": 0.3,
       "metric": "premium_pct",
-      "metric_definition": "(price_per_key - replacement_cost_per_key) / replacement_cost_per_key * 100. Negative = below replacement cost. Replacement cost per key = the HVS U.S. Hotel Development Cost Survey MEDIAN total development cost per key, INCLUDING land, from the latest edition published before the announcement date, blended by keys across the HVS classes of the hotels in the deal (each hotel's class stated on the entry).",
+      "metric_definition": "Price per key minus replacement cost per key, divided by replacement cost per key, times 100. Negative means below replacement cost. Replacement cost per key is the HVS U.S. Hotel Development Cost Survey median total development cost per key, including land, from the latest edition published before the announcement date, blended by keys across the HVS classes of the hotels in the deal (each hotel's class is stated on the entry).",
       "unit": "percent",
       "bands": [
         {
@@ -101,7 +101,7 @@
       "label": "Implied cap rate vs 10-year Treasury spread",
       "weight": 0.25,
       "metric": "spread_bp",
-      "metric_definition": "(cap rate - 10-year Treasury par yield) in basis points. Cap rate basis: NOI for the trailing 12 months through the last completed quarter before the announcement, divided by the price, or a disclosed cap rate on that same basis. NOI as the company defines and discloses it (e.g. Adjusted EBITDAre less FF&E reserve) counts; EBITDA alone is not NOI. Cap rates on other bases (a prior fiscal year, forward or pro forma NOI) are recorded but not graded. 10-year: the Treasury daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). If no NOI or cap rate on the trailing-12-month basis was disclosed, the factor is not gradeable. Stated as a plain number of basis points.",
+      "metric_definition": "Cap rate minus the 10-year Treasury par yield, in basis points. Cap rate basis: net operating income (NOI) for the trailing 12 months through the last completed quarter before the announcement, divided by the price, or a disclosed cap rate on that same basis. NOI as the company defines and discloses it (for example, Adjusted EBITDAre less FF&E reserve) counts; EBITDA alone is not NOI. Cap rates on other bases (a prior fiscal year, forward or pro forma NOI) are recorded but not graded. 10-year: the Treasury daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). If no NOI or cap rate on the trailing-12-month basis was disclosed, the factor is not gradeable. Stated as a plain number of basis points.",
       "unit": "bp",
       "bands": [
         {
@@ -190,7 +190,7 @@
       "label": "Supply backdrop",
       "weight": 0.15,
       "metric": "pipeline_pct_of_rooms",
-      "metric_definition": "Total market (MSA) hotel pipeline, under construction plus planned, as a percent of the market's existing rooms, taken from a SINGLE public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is Not graded with a reason. Partial-stage figures (e.g. early planning only, announcements only, projected openings only) may appear only as cited, ungraded context.",
+      "metric_definition": "Total market (MSA) hotel pipeline, under construction plus planned, as a percent of the market's existing rooms, taken from a single public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is not graded, with a reason. Partial-stage figures (for example, early planning only, announcements only, projected openings only) may appear only as cited, ungraded context.",
       "unit": "percent",
       "bands": [
         {
@@ -279,7 +279,7 @@
       "label": "Demand trajectory",
       "weight": 0.15,
       "metric": "tax_receipts_yoy_pct",
-      "metric_definition": "Year-over-year change in published lodging (tourist development) tax receipts for the market: the latest 12 months published by the announcement date vs the 12 months before that (sums of the monthly collections). Fallback, only if a trailing-12-month series can't be built from public monthly numbers: fiscal year to date vs the same period of the prior fiscal year, through the same latest published month. Single-month changes are shown as context only and never scored. The measure used is stated on the entry. Tuesday Trends forward curve is context only for deals from Oct 2026 on.",
+      "metric_definition": "Year-over-year change in published lodging (tourist development) tax receipts for the market: the latest 12 months published by the announcement date vs the 12 months before that (sums of the monthly collections). Fallback, only if a trailing-12-month series can't be built from public monthly numbers: fiscal year to date vs the same period of the prior fiscal year, through the same latest published month. Single-month changes are shown as context only and never scored. The measure used is stated on the entry. The Tuesday Trends forward curve is context only, for deals from Oct 2026 on.",
       "unit": "percent",
       "bands": [
         {

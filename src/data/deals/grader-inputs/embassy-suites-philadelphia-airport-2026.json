@@ -1,0 +1,61 @@
+{
+  "sale_id": "embassy-suites-philadelphia-airport-2026",
+  "log_id": "DL-2026-011",
+  "announced_on": "2026-08-12",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 98859,
+      "total_keys": 263,
+      "replacement_basis": "HVS 2026 full-service median including land, $467,244; single class",
+      "components": [
+        {
+          "label": "Embassy Suites Philadelphia Airport",
+          "hvs_class": "full-service",
+          "keys": 263,
+          "median_per_key": 467244
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $26.0M, AHT 10-Q (Aug 12, 2026)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+          "date": "2026-08-12"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed at announcement (AHT 10-Q, Aug 12, 2026)."
+    },
+    "supply": {
+      "missing": "No single public source gave the Philadelphia airport submarket's or the metro's total pipeline as a share of existing rooms by Aug 12, 2026."
+    },
+    "demand": {
+      "as_of": "2026-07-02",
+      "source_uri": "https://www.phila.gov/media/20260702130259/City-revenue-collections-May-2026-report.pdf",
+      "source_label": "City of Philadelphia revenue collections report, May 2026 (released Jul 2, 2026)",
+      "tax_receipts_yoy_pct": 0.63,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2026-05-31",
+      "period": "City of Philadelphia hotel taxes (Hotel Fund, cash), Jun 2025 to May 2026 vs prior 12; $85,195,224 vs $84,662,031"
+    },
+    "debt_context": {
+      "as_of": "2026-08-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "category": "pressured_or_related",
+      "summary": "Pressured seller without formal distress at announcement: AHT's 10-Q (Aug 12, 2026) states substantial doubt about its ability to continue as a going concern and names hotel sales as a source of cash. No loan event was tied to this hotel by then."
+    }
+  },
+  "proposed_v1_1": {
+    "debt_context": {
+      "category": "clean_arms_length",
+      "as_of": "2026-08-12",
+      "source_uri": "https://www.sec.gov/Archives/edgar/data/1232582/000123258226000183/aht-20260630.htm",
+      "summary": "No documented trigger dated by Aug 12, 2026. The roughly $24.6M lender paydown appears only in the closing 8-K filed Oct 9, 2026 (sale closed Oct 6), after the announcement. Going-concern doubt is not a v1.1 trigger."
+    }
+  }
+}

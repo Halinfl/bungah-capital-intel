@@ -1,0 +1,53 @@
+{
+  "sale_id": "tideline-palm-beach-2026",
+  "log_id": "DL-2026-006",
+  "announced_on": "2026-09-17",
+  "_built_on": "2026-10-26",
+  "_note": "Assembled from product/recent-deals/inputs/ (team files finalized 2026-10-26). Every graded input is dated on or before announced_on.",
+  "factors": {
+    "replacement_cost": {
+      "as_of": "2026-07-13",
+      "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+      "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+      "price_per_key": 1119403,
+      "total_keys": 134,
+      "replacement_basis": "HVS 2026 full-service median including land, $467,244; single class; press price includes personal property and intangibles",
+      "components": [
+        {
+          "label": "Tideline Palm Beach Resort",
+          "hvs_class": "full-service",
+          "keys": 134,
+          "median_per_key": 467244
+        }
+      ],
+      "also_sources": [
+        {
+          "label": "Price $150M, seller-confirmed (The Real Deal, Sep 17, 2026)",
+          "url": "https://therealdeal.com/miami/2026/09/17/jeff-greene-sells-tideline-palm-beach-ocean-resort/",
+          "date": "2026-09-17"
+        }
+      ]
+    },
+    "spread": {
+      "missing": "No trailing-12-month cap rate or NOI disclosed (private seller; price from press reports)."
+    },
+    "supply": {
+      "missing": "No dated single public source gave Palm Beach County's total pipeline as a share of existing rooms by Sep 17, 2026."
+    },
+    "demand": {
+      "as_of": "2026-06-11",
+      "source_uri": "https://web.archive.org/web/20260611013017/https://discover.pbc.gov/touristdevelopment/PDF/Tourist_Development_Tax2025-2026.pdf",
+      "source_label": "Palm Beach County TDT collections (archived Jun 11, 2026)",
+      "tax_receipts_yoy_pct": 7.72,
+      "measure": "ttm_vs_prior_ttm",
+      "latest_month_end": "2026-03-31",
+      "period": "Palm Beach County tourist development tax, Apr 2025 to Mar 2026 vs prior 12; $98,337,638 vs $91,288,713"
+    },
+    "debt_context": {
+      "as_of": "2026-09-17",
+      "source_uri": "https://therealdeal.com/miami/2026/09/17/jeff-greene-sells-tideline-palm-beach-ocean-resort/",
+      "category": "clean_arms_length",
+      "summary": "Seller-confirmed sale by a private owner to an affiliate of Fort Partners; no lender, receiver or distress named and no relationship between the parties stated (The Real Deal, Sep 17, 2026)."
+    }
+  }
+}
