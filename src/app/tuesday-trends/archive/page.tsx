@@ -17,15 +17,13 @@ export default function TuesdayTrendsArchivePage() {
       <MarketsTabs active="tuesday-trends" />
       <div>
         <h1 className="t-h1">Tuesday Trends: past issues</h1>
-        <p className="mt-1.5 text-sm text-slate-300">
-          One page per weekly capture of indicative Google Hotels prices.{" "}
-          <Link
-            href="/tuesday-trends"
-            className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white"
-          >
-            Latest issue
-          </Link>
-        </p>
+        <p className="mt-1.5 text-sm text-slate-300">One page per weekly capture of indicative Google Hotels prices.</p>
+        <Link
+          href="/tuesday-trends"
+          className="inline-flex min-h-11 items-center text-sm text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white"
+        >
+          Latest issue →
+        </Link>
       </div>
       <ul className="grid gap-2">
         {issues.map((i, k) => {

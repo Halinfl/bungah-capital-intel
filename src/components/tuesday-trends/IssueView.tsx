@@ -37,8 +37,8 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
 
       <div>
         <h1 className="t-h1">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
-        <p className="mt-1 flex flex-wrap items-center gap-x-4 text-sm text-slate-200">
-          <span className="py-1">Rates captured {issue.capturedLabel}</span>
+        <p className="mt-1.5 text-sm text-slate-200">Rates captured {issue.capturedLabel}</p>
+        <p className="flex flex-wrap items-center gap-x-5 text-sm">
           <Link href="/tuesday-trends/methodology" className={linkCls}>
             Methodology
           </Link>
