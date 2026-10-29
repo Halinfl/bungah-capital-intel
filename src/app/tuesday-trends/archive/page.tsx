@@ -43,7 +43,7 @@ export default function TuesdayTrendsArchivePage() {
                 <span className="mt-0.5 block text-[13px] tabular-nums text-slate-300">
                   {i.markets().length} markets
                   {top && h && s
-                    ? ` · Biggest move vs ${i.prevCapturedLabel.replace(/^Tue, /, "")}: ${top.marketName} ${fmtPct(top.pct)} (${h.label}, ${s.label.toLowerCase()}, same ${top.nPairs} hotels)`
+                    ? ` · Biggest move outside holiday weeks: ${top.marketName} ${fmtPct(top.pct)} (${h.label}, ${s.label.toLowerCase()}, same ${top.nPairs} hotels vs ${i.prevCapturedLabel.replace(/^Tue, /, "")})`
                     : i.hasWow
                       ? ""
                       : " · No week-over-week comparison"}

@@ -55,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...indexable.map((m) => ({ url: `${BASE}/markets/${m.slug}`, lastModified: marketLastmod(m), changeFrequency: "weekly" as const })),
     { url: `${BASE}/tuesday-trends/archive`, lastModified: TT_CAPTURE_DATE, changeFrequency: "weekly" as const },
-    ...ttIssues().map((i) => ({ url: `${BASE}/tuesday-trends/${i.date}`, lastModified: i.date, changeFrequency: "yearly" as const })),
+    ...ttIssues().slice(1).map((i) => ({ url: `${BASE}/tuesday-trends/${i.date}`, lastModified: i.date, changeFrequency: "yearly" as const })),
     ...reits().map((r) => ({
       url: `${BASE}/reits/${r.ticker.toLowerCase()}`,
       lastModified: REITS_BUILT,

@@ -49,6 +49,11 @@ export type TTCell = {
   wowLowestPairs: number;
   /** Median "Any rate" price incl. taxes + fees (Google's stay total / nights); null unless 9 in 10 used hotels have it. */
   inclTax: number | null;
+  /**
+   * Holidays behind the capture's holiday flag (wow_holiday) for this cell: in this week's stay ("this") or only in
+   * last week's ("last"). The moves strip leaves these cells out; the board names them in its basis line.
+   */
+  holidays: { name: string; side: "this" | "last" }[];
 };
 
 /** One of this week's biggest matched-pair moves (cheapest refundable rate). */

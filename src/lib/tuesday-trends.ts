@@ -47,6 +47,7 @@ type RawCell = {
   wow_headline_n_pairs?: number;
   n_incl_taxes_fees: number;
   median_incl_taxes_fees: number | null;
+  wow_holiday?: string[];
 };
 type RawMove = {
   market: string;
@@ -158,6 +159,19 @@ function addDay(d: string): string {
   return t.toISOString().slice(0, 10);
 }
 
+/** Names for the cell's holiday flag; "this" when the date falls in this week's stay (same window as holidayNote). */
+function cellHolidays(c: RawCell): { name: string; side: "this" | "last" }[] {
+  const out: { name: string; side: "this" | "last" }[] = [];
+  for (const d of c.wow_holiday ?? []) {
+    const name = HOLIDAY_NAMES[d.slice(5)] ?? "a holiday";
+    const side = c.check_in <= d && d <= addDay(c.check_out) ? "this" : "last";
+    const hit = out.find((h) => h.name === name);
+    if (!hit) out.push({ name, side });
+    else if (side === "this") hit.side = "this";
+  }
+  return out;
+}
+
 function buildIssue(summary: RawSummary): TTIssue {
   const LISTS = (TT_LIST_FILES[summary.list_version] ?? []) as RawList[];
   const nameByKey = new Map(LISTS.map((l) => [l.market, l.market_name]));
@@ -189,6 +203,7 @@ function buildIssue(summary: RawSummary): TTIssue {
     wowLowest: hasWow ? c.wow_headline_pct ?? null : null,
     wowLowestPairs: hasWow ? c.wow_headline_n_pairs ?? 0 : 0,
     inclTax: taxInclusive && taxOk(c) ? c.median_incl_taxes_fees ?? null : null,
+    holidays: hasWow ? cellHolidays(c) : [],
   });
 
   const prevDate = hasWow ? summary.wow.baseline_capture_date ?? "" : "";

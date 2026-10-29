@@ -45,11 +45,12 @@ export function SourceLinks({
         ))}
       </ul>
       {rest.length ? (
-        <details className="mt-1">
-          <summary className="cursor-pointer select-none text-slate-300 hover:text-slate-300">
+        <details>
+          {/* py-3.5 on 12px text: a 44px-tall tap target. */}
+          <summary className="cursor-pointer select-none py-3.5 text-slate-300 hover:text-slate-300">
             +{rest.length} more source{rest.length === 1 ? "" : "s"}
           </summary>
-          <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+          <ul className="flex flex-wrap gap-x-3 gap-y-1">
             {rest.map((l) => (
               <Item key={`${l.url}|${l.label}`} l={l} />
             ))}

@@ -44,7 +44,7 @@ export default function RootLayout({
           <footer className="mx-auto max-w-6xl border-t border-white/[0.08] px-4 py-8 text-sm text-slate-300 sm:px-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="font-medium text-slate-100">Bungah Capital Intel</div>
-              <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+              <nav className="flex flex-wrap gap-x-5 gap-y-0" aria-label="Footer">
                 {[
                   ["/markets", "Markets"],
                   ["/reits", "REITs"],
@@ -58,7 +58,7 @@ export default function RootLayout({
                   ["/errata", "Errata"],
                   ["/sponsorship-policy", "Sponsorship policy"],
                 ].map(([href, label]) => (
-                  <Link key={href} href={href} className="text-slate-200 hover:text-white">
+                  <Link key={href} href={href} className="inline-flex min-h-11 items-center text-slate-200 hover:text-white">
                     {label}
                   </Link>
                 ))}

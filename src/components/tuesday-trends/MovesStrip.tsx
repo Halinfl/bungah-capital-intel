@@ -18,7 +18,7 @@ export function MovesStrip({ moves, prevLabel = TT_PREV_CAPTURED_LABEL }: { move
     <section aria-labelledby="moves-heading" className="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="moves-heading" className="text-sm font-semibold text-white">
-          Biggest moves vs {prevLabel.replace(/^Tue, /, "")}
+          Biggest moves outside holiday weeks · vs {prevLabel.replace(/^Tue, /, "")}
         </h2>
         <span className="text-[13px] text-slate-300">Same hotels both weeks, cheapest refundable · horizon and stay on each card</span>
       </div>
@@ -57,7 +57,7 @@ export function RateMovesCards({ moves }: { moves: TTMove[] }) {
         <h2 id="rate-moves" className="text-base font-semibold text-white">
           This Tuesday&apos;s rate moves
         </h2>
-        <span className="text-[13px] text-slate-300">vs {TT_PREV_CAPTURED_LABEL.replace(/^Tue, /, "")}, same hotels</span>
+        <span className="text-[13px] text-slate-300">vs {TT_PREV_CAPTURED_LABEL.replace(/^Tue, /, "")}, same hotels, outside holiday weeks</span>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
         {moves.slice(0, 3).map((m) => {

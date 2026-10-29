@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { IssueView } from "@/components/tuesday-trends/IssueView";
-import { ttIssue, ttIssues } from "@/lib/tuesday-trends";
+import { ttIssue, ttIssues, ttLatest } from "@/lib/tuesday-trends";
 
 /** One static page per committed issue; any other date is a 404. */
 export const dynamicParams = false;
@@ -16,7 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ date: str
   return {
     title: `Tuesday Trends, ${issue.capturedLabel} · Bungah Capital Intel`,
     description: `Indicative Google Hotels rates captured ${issue.capturedLabel} for ${issue.markets().length} US markets: median cheapest refundable nightly rate, 2 adults, pre-tax, five horizons.`,
-    alternates: { canonical: `/tuesday-trends/${issue.date}` },
+    // The latest issue's permalink duplicates /tuesday-trends, so it points there; once a newer capture lands it
+    // becomes a past issue and self-canonicals automatically (both follow the newest summary JSON).
+    alternates: { canonical: ttLatest()?.date === issue.date ? "/tuesday-trends" : `/tuesday-trends/${issue.date}` },
   };
 }
 

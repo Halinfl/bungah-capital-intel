@@ -78,6 +78,33 @@ function Dot() {
 }
 
 /** One-line legend shown directly above the table/list. */
+function LegendItems({ hasWow }: { hasWow: boolean }) {
+  return (
+    <>
+      <span className="whitespace-nowrap">— thin: under {THIN_BELOW}/{LIST_SIZE}</span>
+      <span className="mx-1.5">·</span>
+      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+        <Dot /> {NO_RATES_DOT_AT}+ no rates on Google, 1 wk
+      </span>
+      {hasWow ? (
+        <>
+          <span className="mx-1.5">·</span>
+          <span className="whitespace-nowrap">±% vs last Tuesday, same hotels</span>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+/** Holiday behind a cell's capture flag, as a basis suffix ("· includes Thanksgiving"). Empty when none. */
+function holidayText(c: TTCell | undefined, withHorizon = false): string {
+  if (!c?.holidays.length) return "";
+  const hz = withHorizon ? ` (${HORIZONS.find((h) => h.key === c.horizon)!.label})` : "";
+  return c.holidays
+    .map((h) => (h.side === "this" ? ` · includes ${h.name}${hz}` : ` · last week's stay included ${h.name}${hz}`))
+    .join("");
+}
+
 function Legend({ className = "", hasWow = false }: { className?: string; hasWow?: boolean }) {
   return (
     <p className={`text-[13px] text-slate-300 ${className}`}>
@@ -292,7 +319,15 @@ function BoardView({
           />
           <Segmented label="Rate" size="sm" value={metric} onChange={setMetric} options={METRIC_OPTIONS} />
         </div>
-        <Legend className="pt-0.5" hasWow={hasWow} />
+        {/* One 12px line: what the list shows (incl. any holiday in the selected stay) + the key. */}
+        <p className="pt-0.5 text-[12px] leading-relaxed text-slate-300" aria-live="polite">
+          <span className="text-slate-200">
+            Showing {HORIZONS[hIdx].long.toLowerCase()} · {basis}
+            {holidayText(markets[0]?.cells.find((c) => c.horizon === horizon && c.stay === stay))}
+          </span>
+          <span className="mx-1.5">·</span>
+          <LegendItems hasWow={hasWow} />
+        </p>
       </div>
 
       {/* ---------- Desktop controls + legend ---------- */}
@@ -311,6 +346,7 @@ function BoardView({
       </div>
       <p className="mt-3 hidden text-[13px] text-slate-200 md:block" aria-live="polite">
         Showing {basis}, all horizons
+        {HORIZONS.map((h) => holidayText(markets[0]?.cells.find((c) => c.horizon === h.key && c.stay === stay), true)).join("")}
       </p>
 
       {/* ---------- Desktop table ---------- */}
@@ -408,10 +444,7 @@ function BoardView({
       </div>
 
       {/* ---------- Mobile list: one row per market for the chosen horizon ---------- */}
-      <p className="mt-3 text-[13px] text-slate-200 md:hidden" aria-live="polite">
-        Showing {HORIZONS[hIdx].long.toLowerCase()} · {basis}
-      </p>
-      <ul className="mt-2 grid gap-2 md:hidden">
+      <ul className="mt-3 grid gap-2 md:hidden">
         {rows.map(({ m, cells, nr }) => {
           const c = cells[hIdx];
           const { value, n } = cellValue(c, metric);
@@ -441,6 +474,10 @@ function BoardView({
 
       {/* ---------- Footnotes ---------- */}
       <div className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-slate-300">
+        <p className="text-[12px]">
+          Indicative Google Hotels prices. Median of the cheapest refundable rate, 2 adults, pre-tax. Decision support, not a
+          quote.
+        </p>
         <p>
           {metric === "refundable"
             ? "Refundable: the median covers hotels with a free-cancellation rate, about 9 in 10 hotels at 1 week and about 2 in 3 at ~11 months."

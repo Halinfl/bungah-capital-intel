@@ -27,7 +27,7 @@ export function ThisTuesdayCard() {
     <Link
       href="/tuesday-trends"
       className="block min-h-11 rounded-xl border border-white/[0.14] bg-white/[0.04] px-3.5 py-3 text-slate-100 transition hover:border-white/25 hover:bg-white/[0.06]"
-      aria-label={`Tuesday Trends, rates captured ${issue.capturedLabel}: biggest move vs ${prev}, ${top.marketName} ${fmtPct(top.pct)}, ${h.long}, ${s.label.toLowerCase()}, same ${top.nPairs} hotels. Open the board`}
+      aria-label={`Tuesday Trends, rates captured ${issue.capturedLabel}: biggest move outside holiday weeks vs ${prev}, ${top.marketName} ${fmtPct(top.pct)}, ${h.long}, ${s.label.toLowerCase()}, same ${top.nPairs} hotels. Open the board`}
     >
       <span className="flex flex-wrap items-baseline justify-between gap-x-3 text-[12px] uppercase tracking-[0.02em] text-slate-300">
         <span>{kicker}</span>
@@ -37,7 +37,7 @@ export function ThisTuesdayCard() {
         Tuesday Trends: hotel rates, {n} US markets
       </span>
       <span className="mt-0.5 block text-[13px] tabular-nums text-slate-300">
-        Biggest move vs {prev}: {top.marketName} {fmtPct(top.pct)} ({h.label}, {s.label.toLowerCase()}, same {top.nPairs} hotels)
+        Biggest move outside holiday weeks: {top.marketName} {fmtPct(top.pct)} ({h.label}, {s.label.toLowerCase()}, same {top.nPairs} hotels vs {prev})
       </span>
       <span className="mt-2 block text-sm text-slate-200">{fresh ? "Open this week\u2019s board" : "Open the latest board"} →</span>
     </Link>
