@@ -23,7 +23,7 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
     note: issue.holidayNote(),
   };
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       <MarketsTabs active="tuesday-trends" />
 
       {permalink && !isLatest && latest ? (

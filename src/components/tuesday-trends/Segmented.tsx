@@ -15,7 +15,7 @@ export function Segmented<T extends string>({
   size?: "md" | "sm";
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className={`inline-flex shrink-0 rounded-lg border border-white/15 bg-white/[0.03] p-0.5 min-h-12`}>
+    <div role="radiogroup" aria-label={label} className={`inline-flex shrink-0 rounded-lg border border-white/15 bg-white/[0.03] ${size === "sm" ? "" : "p-0.5"}`}>
       {options.map((o) => {
         const on = o.value === value;
         return (

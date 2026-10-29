@@ -15,8 +15,8 @@ function label(m: TTMove) {
 export function MovesStrip({ moves, prevLabel = TT_PREV_CAPTURED_LABEL }: { moves: TTMove[]; prevLabel?: string }) {
   if (!moves.length) return null;
   return (
-    <section aria-labelledby="moves-heading" className="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <section aria-labelledby="moves-heading" className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 sm:gap-y-1">
         <h2 id="moves-heading" className="text-sm font-semibold text-white">
           Biggest moves outside holiday weeks
         </h2>
@@ -24,14 +24,14 @@ export function MovesStrip({ moves, prevLabel = TT_PREV_CAPTURED_LABEL }: { move
           vs {prevLabel.replace(/^Tue, /, "")} · same hotels both weeks, cheapest refundable · horizon and stay on each card
         </span>
       </div>
-      <ul className="mt-2 grid gap-2 md:grid-cols-3">
+      <ul className="mt-1.5 grid gap-1.5 sm:mt-2 sm:gap-2 md:grid-cols-3">
         {moves.map((m) => {
           const { h, s, range } = label(m);
           return (
             <li key={`${m.market}-${m.horizon}-${m.stay}`}>
               <Link
                 href={`/markets/${m.slug}`}
-                className="block rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 hover:border-white/25 hover:bg-white/[0.05]"
+                className="block min-h-11 rounded-md border border-white/10 bg-white/[0.02] px-3 py-1.5 sm:py-2 hover:border-white/25 hover:bg-white/[0.05]"
                 aria-label={`${m.marketName}, ${h.long}, ${s.label} ${s.days} (${range}): ${wowAria(m.pct)}, ${fmtRate(m.prev)} to ${fmtRate(m.now)}, median of ${m.nPairs} same hotels`}
               >
                 <span className="flex items-baseline justify-between gap-2">

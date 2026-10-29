@@ -295,7 +295,7 @@ function BoardView({
   return (
     <div>
       {/* ---------- Mobile controls ---------- */}
-      <div className="space-y-2 md:hidden">
+      <div className="space-y-1.5 md:hidden">
         <div className="flex items-center gap-1.5">
           <Segmented
             label="Horizon"
@@ -322,7 +322,7 @@ function BoardView({
         {/* One 12px line: what the list shows (incl. any holiday in the selected stay) + the key. */}
         <p className="text-[12px] leading-snug text-slate-300" aria-live="polite">
           <span className="text-slate-200">
-            Showing {HORIZONS[hIdx].label} out · {basis}
+            Showing {HORIZONS[hIdx].label} out · {metric === "refundable" ? "Refundable" : "Any rate"} · {st.label} ({st.days})
             {holidayText(markets[0]?.cells.find((c) => c.horizon === horizon && c.stay === stay))}.
           </span>{" "}
           <LegendItems hasWow={hasWow} />
@@ -443,7 +443,7 @@ function BoardView({
       </div>
 
       {/* ---------- Mobile list: one row per market for the chosen horizon ---------- */}
-      <ul className="mt-2 grid gap-2 md:hidden">
+      <ul className="mt-1.5 grid gap-2 md:hidden">
         {rows.map(({ m, cells, nr }) => {
           const c = cells[hIdx];
           const { value, n } = cellValue(c, metric);
