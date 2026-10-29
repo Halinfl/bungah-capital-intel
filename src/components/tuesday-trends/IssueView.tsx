@@ -37,18 +37,18 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
 
       <div>
         <h1 className="t-h1">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
-        <p className="mt-1.5 text-sm text-slate-200">Rates captured {issue.capturedLabel}</p>
-        <p className="mt-1 text-sm text-slate-300">
-          Indicative Google Hotels prices. Median of the cheapest refundable rate, 2 adults, pre-tax. Decision support, not a
-          quote.
-        </p>
-        <p className="mt-1 flex flex-wrap gap-x-5">
+        <p className="mt-1 flex flex-wrap items-center gap-x-4 text-sm text-slate-200">
+          <span className="py-1">Rates captured {issue.capturedLabel}</span>
           <Link href="/tuesday-trends/methodology" className={linkCls}>
             Methodology
           </Link>
           <Link href="/tuesday-trends/archive" className={linkCls}>
             Past issues
           </Link>
+        </p>
+        <p className="text-sm text-slate-300">
+          Indicative Google Hotels prices. Median of the cheapest refundable rate, 2 adults, pre-tax. Decision support, not a
+          quote.
         </p>
       </div>
 

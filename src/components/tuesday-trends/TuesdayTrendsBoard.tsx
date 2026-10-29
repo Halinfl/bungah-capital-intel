@@ -147,7 +147,8 @@ export function TuesdayTrendsBoardUrl(props: BoardProps) {
   const view = useMemo(() => parseView(sp), [sp]);
   // replaceState (not push): changing a filter never adds Back steps. Next keeps useSearchParams in sync with it.
   const setView = useCallback(
-    (v: View) => window.history.replaceState(window.history.state, "", `${pathname}${viewQuery(v)}`),
+    // State must be null: Next skips syncing useSearchParams for calls that carry its own internal history state.
+    (v: View) => window.history.replaceState(null, "", `${pathname}${viewQuery(v)}`),
     [pathname],
   );
   return <BoardView {...props} view={view} setView={setView} />;
@@ -278,7 +279,7 @@ function BoardView({
           />
           {sortButton}
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1">
           <Segmented
             label="Stay"
             size="sm"
