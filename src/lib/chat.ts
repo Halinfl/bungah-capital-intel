@@ -58,63 +58,104 @@ function cites(...labels: (string | null | undefined)[]): string[] {
   return scrubSeedCitations([...new Set(labels.filter(Boolean) as string[])]);
 }
 
-/** Extra search aliases beyond slug/name tokens. */
+/**
+ * Extra search aliases beyond slug/name tokens. Matched as whole words only, so keep them
+ * specific: a word that also names other places or a hotel type ("disney", "ski", "strip",
+ * "hawaii") does not belong here.
+ */
 const MARKET_ALIASES: Record<string, string[]> = {
   nashville: ["nashville", "music city", "davidson", "murfreesboro"],
   orlando: ["orlando", "kissimmee", "sanford", "grande lakes", "gaylord", "i-drive", "mco"],
-  "las-vegas": ["vegas", "las vegas", "lvcva", "hard rock", "strip", "harry reid"],
+  "las-vegas": ["vegas", "las vegas", "lvcva", "hard rock", "the strip", "vegas strip", "harry reid"],
   miami: ["miami", "south beach", "wynwood"],
   "new-york-city": ["nyc", "new york", "manhattan", "midtown", "jersey city"],
   austin: ["austin", "sxsw"],
   "new-orleans": ["nola", "new orleans", "french quarter"],
-  honolulu: ["honolulu", "waikiki", "oahu", "hawaii"],
-  "san-francisco-bay": ["san francisco", "sf bay", "bay area"],
-  "los-angeles": ["los angeles", "la ", " lax", "santa monica"],
+  honolulu: ["honolulu", "waikiki", "oahu"],
+  "san-francisco-bay": ["san francisco", "sf", "sf bay", "bay area"],
+  "los-angeles": ["los angeles", "la", "lax", "santa monica", "long beach"],
   chicago: ["chicago", "ohare", "palmer house"],
   atlanta: ["atlanta", "hartsfield"],
   denver: ["denver"],
   phoenix: ["phoenix", "scottsdale"],
   seattle: ["seattle"],
   boston: ["boston"],
-  "washington-dc": ["washington dc", "dc ", "d.c."],
+  "washington-dc": ["washington dc", "washington d.c.", "dc", "d.c."],
   dallas: ["dallas", "dfw", "fort worth", "roanoke"],
   houston: ["houston"],
   "san-diego": ["san diego"],
-  tampa: ["tampa"],
+  "san-antonio": ["san antonio"],
+  tampa: ["tampa", "st. petersburg", "st petersburg"],
   charlotte: ["charlotte"],
   "charleston-sc": ["charleston", "charleston sc"],
   savannah: ["savannah"],
   "myrtle-beach": ["myrtle beach", "myrtle"],
   "florida-keys": ["key west", "florida keys"],
-  "palm-beach": ["palm beach", "west palm"],
+  "palm-beach": ["palm beach", "west palm", "west palm beach"],
   "fort-lauderdale": ["fort lauderdale"],
-  "anaheim-orange-county": ["anaheim", "disney", "orange county", "disneyland"],
+  "anaheim-orange-county": ["anaheim", "orange county", "disneyland"],
   "palm-springs": ["palm springs", "coachella"],
-  "reno-tahoe": ["reno", "tahoe"],
-  "aspen-vail": ["aspen", "vail", "ski"],
+  "reno-tahoe": ["reno", "tahoe", "lake tahoe"],
+  "aspen-vail": ["aspen", "vail"],
   "napa-sonoma": ["napa", "sonoma", "wine country"],
   "sedona-grand-canyon": ["sedona", "grand canyon"],
+  "salt-lake-city": ["salt lake city", "salt lake"],
+  "kansas-city": ["kansas city"],
+  "st-louis": ["st. louis", "st louis", "saint louis"],
+  "virginia-beach-norfolk": ["virginia beach", "norfolk"],
+  "gatlinburg-pigeon-forge": ["gatlinburg", "pigeon forge", "smokies"],
+  "outer-banks": ["outer banks"],
+  "portland-or": ["portland"],
+  "columbus-oh": ["columbus"],
 };
 
+/** Short aliases that need a stricter pattern than a whole-word match. */
+const ALIAS_PATTERNS: Record<string, RegExp> = {
+  // "LA" as a place, not the La Quinta brand.
+  la: /(^|[^\p{L}])la(?![\p{L}])(?!\s+quinta)/iu,
+  // "the Strip" in Las Vegas, not a strip mall.
+  "the strip": /(^|[^\p{L}])the strip(?![\p{L}])(?!\s+(mall|center|centre|plaza|club))/iu,
+};
+
+/**
+ * Single words from market slugs/names that name no market on their own: generic place words
+ * ("new", "city", "west", "beach", "lake", "palm"…), state names, and words shared by several places
+ * ("arlington", "georgetown", "wilmington", "vancouver"). A market is still matched by its full
+ * phrase ("new orleans", "kansas city", "key west") or an alias.
+ */
+const MATCH_GENERIC_WORDS = new Set([
+  "las", "los", "san", "new", "city", "west", "east", "north", "south", "beach", "palm", "lake", "key", "keys",
+  "fort", "long", "bay", "area", "sandy", "springs", "sugar", "land", "aurora", "mesa", "vista", "round", "rock",
+  "concord", "cary", "research", "triangle", "paul", "columbia", "anderson", "carmel", "warren", "conway",
+  "orange", "county", "disney", "corridor", "valley", "mountain", "colorado", "florida", "virginia", "kansas",
+  "salt", "louis", "news", "newport", "cambridge", "newton", "arlington", "paradise", "woodlands", "georgetown",
+  "vancouver", "bloomington", "wilmington", "petersburg", "lakewood", "jersey", "pigeon", "forge", "historic",
+  "outer", "banks", "dare", "wine", "country", "grand", "canyon", "class", "urban", "metro", "oh", "or", "sc", "va",
+]);
+
+/** Search tokens: curated aliases, the slug and name as phrases, and specific single words. */
 function marketSearchTokens(m: { slug: string; name: string }): string[] {
-  const fromSlug = m.slug.split("-").filter((t) => t.length > 2);
+  const specific = (t: string) => t.length > 2 && !MATCH_GENERIC_WORDS.has(t);
+  const fromSlug = m.slug.split("-").filter(specific);
   const fromName = m.name
     .toLowerCase()
     .split(/[\s–—,/()]+/)
-    .filter((t) => t.length > 3 && !["msa", "class", "county", "urban"].includes(t));
+    .filter((t) => t.length > 3 && specific(t) && !["msa", "class", "county", "urban"].includes(t));
   const aliases = MARKET_ALIASES[m.slug] ?? [];
-  return [...new Set([...aliases, ...fromSlug, ...fromName, m.slug.replace(/-/g, " ")])];
+  const slugPhrase = m.slug.replace(/-/g, " ");
+  const phrases = [slugPhrase].filter((p) => p.includes(" ") || specific(p));
+  return [...new Set([...aliases, ...fromSlug, ...fromName, ...phrases])];
 }
 
 function scoreMarketMatch(q: string, m: { slug: string; name: string }): number {
   let score = 0;
   for (const token of marketSearchTokens(m)) {
-    if (token.length < 3) continue;
-    if (q.includes(token)) {
+    // Whole words only (2-letter tokens come from curated aliases: "la", "sf", "dc").
+    if ((ALIAS_PATTERNS[token] ?? wordRe(token)).test(q)) {
       score += token.length >= 8 ? 4 : token.includes(" ") ? 5 : 2;
     }
   }
-  if (q.includes(m.slug)) score += 6;
+  if (wordRe(m.slug).test(q)) score += 6;
   return score;
 }
 
