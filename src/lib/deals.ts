@@ -1,7 +1,6 @@
 import rubricJson from "@/data/deals/rubric-v1.json";
 import salesJson from "@/data/deals/graded_sales.json";
 import gradesJson from "@/data/deals/sale_grades.json";
-import proposedJson from "@/data/deals/sale_grades_v1_1_proposed.json";
 import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
@@ -67,21 +66,6 @@ export const RUBRIC = rubricJson as unknown as Rubric;
 export const DISCLAIMER = RUBRIC.disclaimer;
 const SALES = salesJson as Sale[];
 const GRADES = gradesJson as unknown as GradeResult[];
-export type ProposedGrade = GradeResult & { changed_factors: string[] };
-const PROPOSED = proposedJson as unknown as ProposedGrade[];
-
-/**
- * Preview-only material (rubric v1.1 PROPOSED side-by-side, open questions for Hal). Shown on local builds and Vercel
- * preview deployments; never on production.
- */
-export const SHOW_PREVIEW_NOTES = process.env.VERCEL_ENV !== "production";
-/** Rubric v1.1 PROPOSED grade for a sale (debt/transaction factor only). Not live. */
-export function proposedFor(saleId: string): ProposedGrade | undefined {
-  return PROPOSED.find((g) => g.sale_id === saleId);
-}
-export function proposedAll(): ProposedGrade[] {
-  return PROPOSED;
-}
 /** Labels for context sections that aren't rubric factors. */
 export const CONTEXT_LABELS: Record<string, string> = {
   access: "Access: airlift and drive (not a rubric v1 factor; no weight)",

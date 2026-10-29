@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { Chip, DotBar } from "@/components/deals/DotBar";
-import { PreviewNotes } from "@/components/deals/PreviewNotes";
 import {
   RUBRIC,
   basisLabel,
@@ -13,7 +12,6 @@ import {
   gradesFor,
   salePrice,
   sales,
-  SHOW_PREVIEW_NOTES,
   closeLabel,
   displayMarket,
   fmtKeys,
@@ -182,8 +180,6 @@ export default function DealsIndexPage() {
           <DealCard key={s.sale_id} sale={s} />
         ))}
       </section>
-
-      {SHOW_PREVIEW_NOTES ? <PreviewNotes /> : null}
 
       <section aria-labelledby="deal-log" className="space-y-3">
         <h2 id="deal-log" className="text-xl font-semibold tracking-tight text-white">

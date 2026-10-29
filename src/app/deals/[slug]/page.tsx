@@ -15,8 +15,6 @@ import {
   fmtPerKey,
   gradesFor,
   salePrice,
-  proposedFor,
-  SHOW_PREVIEW_NOTES,
   CONTEXT_LABELS,
   horizons,
   saleBySlug,
@@ -239,27 +237,6 @@ function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf })
   );
 }
 
-/** Preview only: how the PROPOSED rubric v1.1 (distress on documented triggers only) would grade this deal. Not live. */
-function ProposedNote({ saleId, current }: { saleId: string; current: GradeResult | undefined }) {
-  const p = proposedFor(saleId);
-  if (!p || !current) return null;
-  const changed = p.changed_factors.length > 0;
-  const d = p.factor_scores.find((r) => r.factor === "debt_context");
-  return (
-    <div className="rounded-md border border-dashed border-white/25 px-3 py-2 text-[13px] text-slate-300">
-      <span className="font-semibold uppercase tracking-wider text-slate-200">Preview · proposed v1.1, not live</span>{" "}
-      {changed ? (
-        <>
-          Debt/transaction context would score {d?.score ?? "not graded"} instead of {current.factor_scores.find((r) => r.factor === "debt_context")?.score ?? "not graded"}
-          , making the overall {p.overall === null ? p.overall_label : `${p.overall.toFixed(1)} of ${RUBRIC.scale.max}`}. {d?.input_text}
-        </>
-      ) : (
-        <>No change under v1.1.</>
-      )}
-    </div>
-  );
-}
-
 function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResult[]; kindOf: KindOf }) {
   const [current, ...older] = grades;
   const rows = current ? current.factor_scores : blankRows();
@@ -291,7 +268,6 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
           <span className="text-slate-300">Not graded yet · 0 of {RUBRIC.factors.length} factors graded</span>
         )}
       </div>
-      {SHOW_PREVIEW_NOTES ? <ProposedNote saleId={sale.sale_id} current={current} /> : null}
       {older.map((g) => (
         <details key={g.rubric_version} className="text-sm text-slate-200">
           <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}</summary>

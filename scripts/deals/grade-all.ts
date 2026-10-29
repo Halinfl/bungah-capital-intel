@@ -5,7 +5,7 @@
  *
  * Without --write it prints a summary. With --write it rebuilds
  *   src/data/deals/sale_grades.json                (rubric v1, live)
- *   src/data/deals/sale_grades_v1_1_proposed.json  (v1.1 PROPOSED: only the debt/transaction factor changes; never live)
+ *   (v1.1 PROPOSED side-by-side is printed to the console only; it is never written to the site data)
  * Inputs carry `proposed_v1_1.debt_context` only where v1.1 would score that factor differently; otherwise the v1
  * input is reused. Test fixtures are refused. No DB access, no network.
  */
@@ -48,6 +48,5 @@ for (const g of v1) {
 }
 if (process.argv.includes("--write")) {
   fs.writeFileSync(path.join(root, "src/data/deals/sale_grades.json"), JSON.stringify(v1, null, 2) + "\n");
-  fs.writeFileSync(path.join(root, "src/data/deals/sale_grades_v1_1_proposed.json"), JSON.stringify(v11, null, 2) + "\n");
-  console.error(`wrote ${v1.length} v1 grades and ${v11.length} v1.1-proposed grades`);
+  console.error(`wrote ${v1.length} v1 grades (v1.1-proposed is printed only, never written)`);
 }

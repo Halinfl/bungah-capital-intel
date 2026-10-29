@@ -408,7 +408,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "Not graded under v1; the period question is under review. Nothing was disclosed at announcement (Sep 29, 2026). The 6.2% cap rate published Oct 8 came after the announcement and covers the trailing 12 months to August 2026 and includes $23M of capex."
+        "reason": "Not graded under v1. Nothing was disclosed at announcement (Sep 29, 2026). The 6.2% cap rate published Oct 8 came after the announcement and covers the trailing 12 months to August 2026 and includes $23M of capex."
       },
       {
         "factor": "supply",
@@ -685,7 +685,7 @@
         "as_of": null,
         "source_uri": null,
         "graded": false,
-        "reason": "Not graded under v1; the period question is under review. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, which is not a quarter-end. No trailing-12-month NOI to June 30, 2026 was disclosed."
+        "reason": "Not graded under v1. The 8.6% cap rate on hotel NOI is for the trailing 12 months ended August 2026, which is not a quarter-end. No trailing-12-month NOI to June 30, 2026 was disclosed."
       },
       {
         "factor": "supply",
