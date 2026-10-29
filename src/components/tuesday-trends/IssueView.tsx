@@ -23,7 +23,7 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
     note: issue.holidayNote(),
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <MarketsTabs active="tuesday-trends" />
 
       {permalink && !isLatest && latest ? (
@@ -38,8 +38,11 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
       <div>
         <h1 className="t-h1">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
         {/* Date line with its two links (44px targets); the "Indicative…" disclaimer sits under the list. */}
-        <p className="mt-1 flex flex-wrap items-center gap-x-3 text-sm text-slate-200">
-          <span>Rates captured {issue.capturedLabel}</span>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2.5 text-[13px] text-slate-200 sm:gap-x-4 sm:text-sm">
+          <span>
+            <span className="hidden sm:inline">Rates captured {issue.capturedLabel}</span>
+            <span className="sm:hidden">Captured {issue.capturedLabel.replace(/^[A-Z][a-z]{2}, /, "")}</span>
+          </span>
           <Link href="/tuesday-trends/methodology" className={linkCls}>
             Methodology
           </Link>
