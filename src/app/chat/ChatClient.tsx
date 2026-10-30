@@ -8,6 +8,7 @@ import { SourceLinks } from "@/components/SourceLinks";
 import { ChatBriefView, type BriefSection, type ChatBrief, type DateRange } from "@/components/ChatBriefView";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
@@ -72,8 +73,9 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   // A market chip (from "Ask about this") scopes the chat the same way the older ?market= links do.
   const marketSlug = scope?.kind === "market" ? scope.id : legacyMarket;
   const queryQuestion = searchParams.get("q")?.trim() ?? "";
-  /** Opened from a Tuesday Trends swipe card: new questions log source "tt-swipe" (re-asks stay "reask"). */
+  /** Opened from a Tuesday Trends swipe card: only the first new question logs "tt-swipe" (re-asks stay "reask"). */
   const fromSwipe = searchParams.get("via") === "tt-swipe";
+  const swipeTagPending = useRef(fromSwipe);
   const initialQuestion =
     queryQuestion ||
     (legacyMarket && !scope
@@ -142,6 +144,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       if (!q || busy || sending.current) return;
       sending.current = true;
       setBusy(true);
+      const { source: tagged, pending } = chatSourceFor<AskSource>(source, swipeTagPending.current);
+      swipeTagPending.current = pending;
       // A re-ask from the date chip keeps whatever is being typed.
       if (range === "all") setInput("");
 
@@ -170,7 +174,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
             marketSlug: marketSlug || undefined,
             ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
             ...(range !== "all" ? { range } : {}),
-            source: fromSwipe && source !== "reask" ? "tt-swipe" : source,
+            source: tagged,
           }),
           signal: controller.signal,
         });
@@ -204,7 +208,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       setSlow(false);
       setAnnounce(reply.rateLimited ? RATE_LIMIT_MESSAGE : reply.failed ? reply.content : "Answer ready.");
     },
-    [busy, marketSlug, scope, fromSwipe]
+    [busy, marketSlug, scope]
   );
 
   useEffect(() => {

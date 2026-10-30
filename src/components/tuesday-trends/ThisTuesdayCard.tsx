@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { HORIZONS, STAYS, fmtPct, ttLatest, ttShortDate } from "@/lib/tuesday-trends";
-
-/** Days from a capture date (YYYY-MM-DD) to today in ET. */
-function ageDays(date: string, now = new Date()): number {
-  const today = now.toLocaleDateString("en-CA", { timeZone: "America/New_York" }); // YYYY-MM-DD
-  return Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${date}T12:00:00Z`)) / 86_400_000);
-}
+// One source for the 8-day "This Tuesday" vs "Latest" rule (shared with the swipe deck's kicker and labels).
+import { FRESH_DAYS, ageDays } from "@/lib/tuesday-trends-swipe";
 
 /**
  * Home: the latest Tuesday Trends issue, directly under the hero CTA (above the fold at 360 and 390).
@@ -20,7 +16,7 @@ export function ThisTuesdayCard() {
   const n = issue.markets().length;
   const h = HORIZONS.find((x) => x.key === top.horizon)!;
   const s = STAYS.find((x) => x.key === top.stay)!;
-  const fresh = ageDays(issue.date) <= 8;
+  const fresh = ageDays(issue.date) <= FRESH_DAYS;
   const kicker = fresh ? `This Tuesday · ${ttShortDate(issue.date)}` : `Latest · ${issue.capturedLabel.replace(/, \d{4}$/, "")}`;
   const prev = issue.prevCapturedLabel.replace(/^Tue, /, "").replace(/, \d{4}$/, "");
   return (

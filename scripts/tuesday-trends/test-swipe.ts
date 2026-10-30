@@ -3,7 +3,20 @@
  * Run: npx tsx scripts/tuesday-trends/test-swipe.ts   (pure, no DB, no network)
  */
 import assert from "node:assert/strict";
-import { WHAT_IT_MEANS, buildSwipeCards, clampCard, whatItMeans, swipeAskHref, type SwipeMoveCard } from "../../src/lib/tuesday-trends-swipe";
+import {
+  FRESH_DAYS,
+  WHAT_IT_MEANS,
+  ageDays,
+  buildSwipeCards,
+  chatSourceFor,
+  clampCard,
+  isFresh,
+  swipeAskHref,
+  swipeDialogLabel,
+  swipePillName,
+  whatItMeans,
+  type SwipeMoveCard,
+} from "../../src/lib/tuesday-trends-swipe";
 import type { TTMove } from "../../src/lib/tuesday-trends-shared";
 import { ttIssue } from "../../src/lib/tuesday-trends";
 
@@ -108,6 +121,39 @@ t("committed issues: Oct 27 has a 4-card deck, Oct 20 none", () => {
     ["Boston", "+65%", WHAT_IT_MEANS.nearUp],
   ]);
   assert.equal(buildSwipeCards(oct20.moves(), { hasWow: oct20.hasWow }), null);
+});
+
+t("S1: 8-day rule (ET) and 'this week's' vs 'this issue's' labels", () => {
+  assert.equal(FRESH_DAYS, 8);
+  const at = (iso: string) => new Date(iso);
+  assert.equal(ageDays("2026-10-27", at("2026-11-04T16:00:00Z")), 8);
+  assert.equal(isFresh("2026-10-27", true, at("2026-11-04T16:00:00Z")), true); // day 8: still fresh
+  assert.equal(isFresh("2026-10-27", true, at("2026-11-05T16:00:00Z")), false); // day 9: stale
+  assert.equal(isFresh("2026-11-05", true, at("2026-11-06T03:30:00Z")), true); // 23:30 ET Nov 5 = day 0
+  assert.equal(isFresh("2026-10-20", false, at("2026-10-21T16:00:00Z")), false); // past issue: never fresh
+  assert.equal(swipePillName(3, true), "Swipe through this week's 3 moves");
+  assert.equal(swipePillName(3, false), "Swipe through this issue's 3 moves");
+  assert.equal(swipeDialogLabel(true, "Tuesday Trends · Oct 27"), "This week's moves, Tuesday Trends · Oct 27");
+  assert.equal(swipeDialogLabel(false, "Latest · Tue, Oct 27"), "This issue's moves, Latest · Tue, Oct 27");
+  const stale = buildSwipeCards([mv({}), mv({ market: "b" }), mv({ market: "c" })], { hasWow: true, fresh: false })!;
+  assert.equal(stale[3].kind === "end" && stale[3].text, "That's this issue's 3 biggest moves outside holiday weeks.");
+});
+
+t("S5: only the first card-opened Chat question is tagged tt-swipe; re-asks stay reask", () => {
+  // Chat opened with ?via=tt-swipe: pending starts true.
+  let pending = true;
+  const ask = (src: "typed" | "starter" | "reask" | "link") => {
+    const r = chatSourceFor(src, pending);
+    pending = r.pending;
+    return r.source;
+  };
+  assert.deepEqual([ask("typed"), ask("reask"), ask("typed"), ask("starter")], ["tt-swipe", "reask", "typed", "starter"]);
+  pending = true;
+  assert.deepEqual([ask("starter"), ask("typed")], ["tt-swipe", "typed"]);
+  pending = true;
+  assert.deepEqual([ask("reask"), ask("link"), ask("typed")], ["reask", "tt-swipe", "typed"]); // a re-ask never uses up the tag
+  pending = false; // Chat opened without via
+  assert.deepEqual([ask("typed"), ask("starter"), ask("reask")], ["typed", "starter", "reask"]);
 });
 
 console.log(`\n${n} passed`);

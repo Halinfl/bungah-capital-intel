@@ -5,7 +5,7 @@ import { TuesdayTrendsBoard, TuesdayTrendsBoardUrl } from "@/components/tuesday-
 import { MovesStrip } from "@/components/tuesday-trends/MovesStrip";
 import { SwipeDeckUrl, SwipePill, SwipePillStatic } from "@/components/tuesday-trends/SwipeDeck";
 import { ttLatest, type TTIssue } from "@/lib/tuesday-trends";
-import { SWIPE_MAX_MOVES, buildSwipeCards } from "@/lib/tuesday-trends-swipe";
+import { SWIPE_MAX_MOVES, buildSwipeCards, isFresh } from "@/lib/tuesday-trends-swipe";
 
 const linkCls =
   "inline-flex min-h-11 items-center text-sm text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white";
@@ -25,6 +25,8 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
     note: issue.holidayNote(),
   };
   // Optional "Swipe through this week" deck (mobile): only with week-over-week figures and 3+ moves.
+  // "this week's" vs "this issue's" in the pill's name at render time; the pill re-checks with the browser's clock.
+  const pillFresh = isFresh(issue.date, isLatest);
   const swipe = buildSwipeCards(moves, { hasWow: issue.hasWow }) ? Math.min(moves.length, SWIPE_MAX_MOVES) : 0;
   const deckProps = {
     moves,
@@ -52,8 +54,8 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
         <div className="flex items-center justify-between gap-3">
           <h1 className="t-h1 min-w-0">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
           {swipe ? (
-            <Suspense fallback={<SwipePillStatic count={swipe} />}>
-              <SwipePill count={swipe} />
+            <Suspense fallback={<SwipePillStatic count={swipe} fresh={pillFresh} />}>
+              <SwipePill count={swipe} date={issue.date} isLatest={isLatest} serverFresh={pillFresh} />
             </Suspense>
           ) : null}
         </div>

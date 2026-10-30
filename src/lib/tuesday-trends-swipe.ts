@@ -96,9 +96,39 @@ export function buildSwipeCards(moves: TTMove[] | null | undefined, opts: { hasW
   if (!opts.hasWow || !moves || moves.length < SWIPE_MIN_MOVES) return null;
   const cards: SwipeCard[] = moves.slice(0, SWIPE_MAX_MOVES).map(moveCard);
   const n = cards.length;
-  const whose = opts.fresh === false ? "this issue's" : "this week's";
-  cards.push({ kind: "end", key: "end", text: `That's ${whose} ${n} biggest moves outside holiday weeks.` });
+  cards.push({ kind: "end", key: "end", text: `That's ${whose(opts.fresh !== false)} ${n} biggest moves outside holiday weeks.` });
   return cards;
+}
+
+/** "this week's" only for the latest issue while it is at most 8 days old (same rule as the kicker); otherwise "this issue's". */
+export function whose(fresh: boolean): string {
+  return fresh ? "this week's" : "this issue's";
+}
+
+/** The latest issue, captured at most FRESH_DAYS ago (ET). Past issues are never fresh. */
+export function isFresh(date: string, isLatest: boolean, now = new Date()): boolean {
+  return isLatest && ageDays(date, now) <= FRESH_DAYS;
+}
+
+/** Entry pill's accessible name: "Swipe through this week's 3 moves" (or "this issue's" when stale or past). */
+export function swipePillName(n: number, fresh: boolean): string {
+  return `Swipe through ${whose(fresh)} ${n} moves`;
+}
+
+/** Dialog label: "This week's moves, Tuesday Trends · Oct 27" (or "This issue's moves, Latest · Tue, Oct 27"). */
+export function swipeDialogLabel(fresh: boolean, kicker: string): string {
+  const w = whose(fresh);
+  return `${w[0].toUpperCase()}${w.slice(1)} moves, ${kicker}`;
+}
+
+/**
+ * Chat source for a question in a Chat opened from a swipe card (`?via=tt-swipe`): only the FIRST new question is
+ * tagged "tt-swipe"; later questions keep their normal source, and date-window re-asks always stay "reask".
+ * Returns the source to send and whether the tag is still pending.
+ */
+export function chatSourceFor<S extends string>(requested: S, swipePending: boolean): { source: S | typeof SWIPE_SOURCE; pending: boolean } {
+  if (!swipePending || requested === "reask") return { source: requested, pending: swipePending };
+  return { source: SWIPE_SOURCE, pending: false };
 }
 
 /** `card` URL value → 1-based index; anything invalid or out of range is 1. */

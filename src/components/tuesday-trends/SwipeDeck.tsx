@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { TTMove } from "@/lib/tuesday-trends-shared";
-import { FRESH_DAYS, ageDays, buildSwipeCards, clampCard, type SwipeCard } from "@/lib/tuesday-trends-swipe";
+import { buildSwipeCards, clampCard, isFresh, swipeDialogLabel, swipePillName, type SwipeCard } from "@/lib/tuesday-trends-swipe";
 
 export type SwipeDeckProps = {
   moves: TTMove[];
@@ -44,16 +44,13 @@ function boardQuery(search: string, card: number | null): string {
 
 const noDate = (l: string) => l.replace(/^[A-Z][a-z]{2}, /, "").replace(/, \d{4}$/, "");
 
-function pillName(n: number) {
-  return `Swipe through this week's ${n} moves`;
-}
-
 /**
- * 32px visible pill inside the H1's 34.5px line box (row grows 0px). Hit area 44px tall: 8px above, 4px below, so it
- * clears the date line's 44px links (Methodology, Past issues) 4px under the H1 and the section tabs above.
+ * 32px visible pill inside the H1's 34.5px line box (row grows 0px). The ::after hit area is placed against the padding
+ * box (inside the 1px border): 30px + 9px above + 5px below = 44px tall, 76px + 2x4px = 84px wide. It clears the section
+ * tabs above and the date line's 44px links (Methodology, Past issues) below by about 1.25px each.
  */
 const pillCls =
-  "relative inline-flex h-8 flex-none items-center gap-1 rounded-full border border-white/45 px-3 text-sm font-medium text-white hover:border-white/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 after:absolute after:-inset-x-1 after:-top-2 after:-bottom-1 after:content-[''] md:hidden";
+  "relative inline-flex h-8 flex-none items-center gap-1 rounded-full border border-white/45 px-3 text-sm font-medium text-white hover:border-white/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 after:absolute after:-inset-x-1 after:-top-[9px] after:-bottom-[5px] after:content-[''] md:hidden";
 
 function PillInner() {
   return (
@@ -63,24 +60,31 @@ function PillInner() {
   );
 }
 
-/** Static pill (before hydration / no JS): a plain link to the deck at the default board view. */
-export function SwipePillStatic({ count }: { count: number }) {
+/**
+ * Static pill (prerendered permalinks before hydration / no JS): a plain link to the deck at the default board view.
+ * `fresh` is computed where the page renders; the hydrated pill recomputes it in the browser.
+ */
+export function SwipePillStatic({ count, fresh }: { count: number; fresh: boolean }) {
   return (
-    <a id={PILL_ID} href="?view=swipe&card=1" aria-label={pillName(count)} className={pillCls}>
+    <a id={PILL_ID} href="?view=swipe&card=1" aria-label={swipePillName(count, fresh)} className={pillCls}>
       <PillInner />
     </a>
   );
 }
 
 /** The entry pill on the H1 row (mobile only). A real link; with JS the click opens the deck in place (pushState). */
-export function SwipePill({ count }: { count: number }) {
+export function SwipePill({ count, date, isLatest, serverFresh }: { count: number; date: string; isLatest: boolean; serverFresh: boolean }) {
   const sp = useSearchParams();
   const href = boardQuery(sp.toString(), 1);
+  // Start from the server's value (prerendered permalinks: build time) so hydration matches, then let the browser's clock
+  // decide after mount, the same rule as the deck's kicker. Hydration never patches attributes, hence state + effect.
+  const [fresh, setFresh] = useState(serverFresh);
+  useEffect(() => setFresh(isFresh(date, isLatest)), [date, isLatest]);
   return (
     <a
       id={PILL_ID}
       href={href}
-      aria-label={pillName(count)}
+      aria-label={swipePillName(count, fresh)}
       className={pillCls}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -104,8 +108,8 @@ function reducedMotion(): boolean {
 /** Reads `view`/`card` from the URL and shows the deck; drops `view=swipe` silently when this issue has no deck. */
 export function SwipeDeckUrl(props: SwipeDeckProps) {
   const sp = useSearchParams();
-  const fresh = props.isLatest && ageDays(props.date) <= FRESH_DAYS;
-  const cards = useMemo(() => buildSwipeCards(props.moves, { hasWow: props.hasWow, fresh: props.isLatest ? fresh : false }), [props.moves, props.hasWow, props.isLatest, fresh]);
+  const fresh = isFresh(props.date, props.isLatest);
+  const cards = useMemo(() => buildSwipeCards(props.moves, { hasWow: props.hasWow, fresh }), [props.moves, props.hasWow, fresh]);
   const wantOpen = sp.get("view") === "swipe";
   const open = wantOpen && !!cards;
   const cardParam = sp.get("card");
@@ -150,10 +154,10 @@ export function SwipeDeckUrl(props: SwipeDeckProps) {
       ? `Tuesday Trends · ${noDate(props.capturedLabel)}`
       : `Latest · ${props.capturedLabel.replace(/, \d{4}$/, "")}`;
   const basis = `Google Hotels, ${props.capturedLabel.replace(/, \d{4}$/, "")} vs ${noDate(props.prevCapturedLabel)}`;
-  return <Deck cards={cards} start={clampCard(cardParam, cards.length)} kicker={kicker} basis={basis} />;
+  return <Deck cards={cards} start={clampCard(cardParam, cards.length)} kicker={kicker} basis={basis} label={swipeDialogLabel(fresh, kicker)} />;
 }
 
-function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: number; kicker: string; basis: string }) {
+function Deck({ cards, start, kicker, basis, label }: { cards: SwipeCard[]; start: number; kicker: string; basis: string; label: string }) {
   const total = cards.length;
   const [idx, setIdx] = useState(start - 1);
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -315,7 +319,7 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`This week's moves, ${kicker}`}
+        aria-label={label}
         onKeyDown={onKeyDown}
         className="flex h-full w-full flex-col bg-[#2f333c] pt-[env(safe-area-inset-top)] text-slate-100 md:h-[min(760px,calc(100dvh-48px))] md:w-[420px] md:rounded-xl md:border md:border-white/15 md:pt-0 md:shadow-2xl"
       >
@@ -355,10 +359,11 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
               role="group"
               aria-roledescription="card"
               aria-label={`${i + 1} of ${total}`}
-              className="h-full w-full flex-none snap-center snap-always overflow-y-auto px-5 pb-4 pt-3"
+              className="h-full w-full flex-none snap-center snap-always overflow-y-auto px-4 pb-4 pt-2"
             >
+              {/* Compact card sized to its content (top of the stop); the action stays in the bottom bar. */}
               {c.kind === "move" ? (
-                <div className="flex min-h-full flex-col">
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 pb-1 pt-4">
                   <h2
                     ref={(el) => {
                       headRefs.current[i] = el;
@@ -369,7 +374,7 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
                     {c.market}
                   </h2>
                   <p className="mt-0.5 text-[12px] tabular-nums text-slate-300">{c.basis}</p>
-                  <p className="mt-5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <p className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <span className="sr-only">{c.aria}</span>
                     <span aria-hidden="true" className="text-[32px] font-semibold leading-none tabular-nums text-slate-100">
                       {c.change}
@@ -378,8 +383,8 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
                       · {c.rates}
                     </span>
                   </p>
-                  {c.meaning ? <p className="mt-4 text-[15px] leading-snug text-slate-200">{c.meaning}</p> : null}
-                  <div className="mt-auto pt-6">
+                  {c.meaning ? <p className="mt-3 text-[15px] leading-snug text-slate-200">{c.meaning}</p> : null}
+                  <div className="mt-3">
                     <p className="text-[12px] leading-relaxed text-slate-300">
                       {c.basedOn} · {basis}
                     </p>
@@ -389,7 +394,7 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
                   </div>
                 </div>
               ) : (
-                <div className="flex min-h-full flex-col">
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 pb-4 pt-4">
                   <h2
                     ref={(el) => {
                       headRefs.current[i] = el;
@@ -402,7 +407,7 @@ function Deck({ cards, start, kicker, basis }: { cards: SwipeCard[]; start: numb
                   <Link href="/tuesday-trends/archive" className={`${textLink} mt-3 text-[15px]`}>
                     Past issues
                   </Link>
-                  <p className="mt-auto pt-6 text-[12px] text-slate-300">Decision support, not a quote.</p>
+                  <p className="mt-1 text-[12px] text-slate-300">Decision support, not a quote.</p>
                 </div>
               )}
             </section>
