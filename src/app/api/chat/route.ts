@@ -12,7 +12,8 @@ import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
-const SOURCES = new Set(["starter", "typed", "reask", "link"]);
+/** ChatQuestionLog.source values; "tt-swipe": asked from a Tuesday Trends swipe card (Chat opened with ?via=tt-swipe). */
+const SOURCES = new Set(["starter", "typed", "reask", "link", "tt-swipe"]);
 
 /**
  * Preview deployments share the production database: they answer but never write threads

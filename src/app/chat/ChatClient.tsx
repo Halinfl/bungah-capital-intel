@@ -12,7 +12,7 @@ import Link from "next/link";
 /** The item this chat is about ("Ask about this"), resolved on the server. */
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
 export type StarterProp = { q: string; range?: DateRange };
-type AskSource = "typed" | "starter" | "reask" | "link";
+type AskSource = "typed" | "starter" | "reask" | "link" | "tt-swipe";
 const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
 /** One plain line for every failure we can't describe better (5xx, edge error page, network drop, timeout). */
 const FAIL_MESSAGE = "Couldn't get an answer just now. Try again in a moment.";
@@ -72,6 +72,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   // A market chip (from "Ask about this") scopes the chat the same way the older ?market= links do.
   const marketSlug = scope?.kind === "market" ? scope.id : legacyMarket;
   const queryQuestion = searchParams.get("q")?.trim() ?? "";
+  /** Opened from a Tuesday Trends swipe card: new questions log source "tt-swipe" (re-asks stay "reask"). */
+  const fromSwipe = searchParams.get("via") === "tt-swipe";
   const initialQuestion =
     queryQuestion ||
     (legacyMarket && !scope
@@ -168,7 +170,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
             marketSlug: marketSlug || undefined,
             ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
             ...(range !== "all" ? { range } : {}),
-            source,
+            source: fromSwipe && source !== "reask" ? "tt-swipe" : source,
           }),
           signal: controller.signal,
         });
@@ -202,7 +204,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       setSlow(false);
       setAnnounce(reply.rateLimited ? RATE_LIMIT_MESSAGE : reply.failed ? reply.content : "Answer ready.");
     },
-    [busy, marketSlug, scope]
+    [busy, marketSlug, scope, fromSwipe]
   );
 
   useEffect(() => {

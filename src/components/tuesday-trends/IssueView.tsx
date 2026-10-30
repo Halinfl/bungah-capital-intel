@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { TuesdayTrendsBoard, TuesdayTrendsBoardUrl } from "@/components/tuesday-trends/TuesdayTrendsBoard";
 import { MovesStrip } from "@/components/tuesday-trends/MovesStrip";
+import { SwipeDeckUrl, SwipePill, SwipePillStatic } from "@/components/tuesday-trends/SwipeDeck";
 import { ttLatest, type TTIssue } from "@/lib/tuesday-trends";
+import { SWIPE_MAX_MOVES, buildSwipeCards } from "@/lib/tuesday-trends-swipe";
 
 const linkCls =
   "inline-flex min-h-11 items-center text-sm text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white";
@@ -22,8 +24,18 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
     taxShown: issue.taxInclusive,
     note: issue.holidayNote(),
   };
+  // Optional "Swipe through this week" deck (mobile): only with week-over-week figures and 3+ moves.
+  const swipe = buildSwipeCards(moves, { hasWow: issue.hasWow }) ? Math.min(moves.length, SWIPE_MAX_MOVES) : 0;
+  const deckProps = {
+    moves,
+    hasWow: issue.hasWow,
+    date: issue.date,
+    capturedLabel: issue.capturedLabel,
+    prevCapturedLabel: issue.prevCapturedLabel,
+    isLatest,
+  };
   return (
-    <div className="space-y-3 sm:space-y-6">
+    <div className="space-y-2 sm:space-y-6">
       <MarketsTabs active="tuesday-trends" />
 
       {permalink && !isLatest && latest ? (
@@ -36,7 +48,15 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
       ) : null}
 
       <div>
-        <h1 className="t-h1">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
+        {/* H1 row; the mobile "Swipe" pill sits inside the H1's line box (32px pill, 44px hit area), so the row grows 0px. */}
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="t-h1 min-w-0">Tuesday Trends{permalink ? <span className="text-slate-300"> · {issue.capturedLabel.replace(/^Tue, /, "")}</span> : null}</h1>
+          {swipe ? (
+            <Suspense fallback={<SwipePillStatic count={swipe} />}>
+              <SwipePill count={swipe} />
+            </Suspense>
+          ) : null}
+        </div>
         {/* Date line with its two links (44px targets); the "Indicative…" disclaimer sits under the list. */}
         <p className="mt-1 flex flex-wrap items-center gap-x-2.5 text-[13px] text-slate-200 sm:gap-x-4 sm:text-sm">
           <span>
@@ -66,8 +86,16 @@ export function IssueView({ issue, permalink = false }: { issue: TTIssue; permal
       )}
 
       {/* View (horizon, stay, rate, sort) lives in the URL; the fallback is the same board at the default view. */}
-      <Suspense fallback={<TuesdayTrendsBoard {...boardProps} />}>
-        <TuesdayTrendsBoardUrl {...boardProps} />
+      {/* id: "Open the full board" on the deck's last card lands here (the controls). */}
+      <div id="tt-board" tabIndex={-1} className="scroll-mt-4 outline-none">
+        <Suspense fallback={<TuesdayTrendsBoard {...boardProps} />}>
+          <TuesdayTrendsBoardUrl {...boardProps} />
+        </Suspense>
+      </div>
+
+      {/* Renders only with ?view=swipe; with fewer than 3 moves it drops view/card from the URL silently. */}
+      <Suspense fallback={null}>
+        <SwipeDeckUrl {...deckProps} />
       </Suspense>
 
       {permalink && !isLatest ? (
