@@ -48,8 +48,12 @@ function pillName(n: number) {
   return `Swipe through this week's ${n} moves`;
 }
 
+/**
+ * 32px visible pill inside the H1's 34.5px line box (row grows 0px). Hit area 44px tall: 8px above, 4px below, so it
+ * clears the date line's 44px links (Methodology, Past issues) 4px under the H1 and the section tabs above.
+ */
 const pillCls =
-  "relative inline-flex h-8 flex-none items-center gap-1 rounded-full border border-white/45 px-3 text-sm font-medium text-white hover:border-white/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 after:absolute after:-inset-x-1 after:-inset-y-1.5 after:content-[''] md:hidden";
+  "relative inline-flex h-8 flex-none items-center gap-1 rounded-full border border-white/45 px-3 text-sm font-medium text-white hover:border-white/60 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 after:absolute after:-inset-x-1 after:-top-2 after:-bottom-1 after:content-[''] md:hidden";
 
 function PillInner() {
   return (
