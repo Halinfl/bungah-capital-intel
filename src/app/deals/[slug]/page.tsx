@@ -3,6 +3,7 @@ import { AskAboutButton } from "@/components/AskAboutButton";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
+import { fieldNotesForSale } from "@/lib/field-notes";
 import { Chip, DotBar, UnderwriteNote } from "@/components/deals/DotBar";
 import {
   DISCLAIMER,
@@ -288,6 +289,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
   const grades = gradesFor(sale.sale_id);
   const entry = entryFor(sale.sale_id);
   const landed = anniversariesFor(sale.sale_id);
+  const furtherReading = fieldNotesForSale(sale.sale_id);
   const sources = [...entry.sources].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.date.localeCompare(b.date));
 
   const sourceList = (
@@ -480,6 +482,33 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             <summary className="cursor-pointer text-lg font-semibold text-white">Sources ({sources.length})</summary>
             <div className="mt-3">{sourceList}</div>
           </details>
+        </section>
+      ) : null}
+
+      {furtherReading.length ? (
+        <section aria-labelledby="further-reading" className="space-y-3">
+          <h2 id="further-reading" className={h2}>
+            Further reading
+          </h2>
+          <ul className="space-y-2">
+            {furtherReading.map((n) => (
+              <li key={n.id}>
+                <a
+                  href={n.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block min-h-11 rounded-xl border border-white/10 p-3 text-sm hover:border-white/25"
+                >
+                  <span className="block text-slate-100">
+                    {n.title} <span className="text-slate-300">↗</span>
+                  </span>
+                  <span className="mt-1 block text-[13px] text-slate-300">
+                    {n.publisher} · {fmtDate(n.date)} · A thought experiment on this deal, not the buyer&apos;s plan
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

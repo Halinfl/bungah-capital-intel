@@ -10,6 +10,8 @@ import { GroundRentCoverage } from "./GroundRentCoverage";
 import { SourceChip } from "@/components/SourceChip";
 import { StackMemoView } from "@/components/StackMemoView";
 import { STACK_MEMO_KIND } from "@/lib/stack-memo";
+import { FIELD_NOTES } from "@/lib/field-notes";
+import { fmtDate, sales } from "@/lib/deals";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +168,11 @@ const beforeYouSign = [
   "How many months of debt service and PIP will you hold in USD, outside the BTC?",
 ] as const;
 
+/** Field note sale_id -> Recent Deals slug, only for sales that exist in the deals data. */
+const DEAL_SLUG_FOR_SALE: Record<string, string> = Object.fromEntries(
+  sales().filter((s) => FIELD_NOTES.some((n) => n.sale_id === s.sale_id)).map((s) => [s.sale_id, s.slug]),
+);
+
 function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: SourceCard[]; cols?: string }) {
   return (
     <div className={`grid gap-2 ${cols}`}>
@@ -290,6 +297,78 @@ export default async function SoundMoneyLodgingPage({
           <a href="#btc-sleeve" className="underline underline-offset-2 hover:text-white">financing a BTC sleeve</a> and{" "}
           <a href="#land-split" className="underline underline-offset-2 hover:text-white">land / hotel split</a>.
         </p>
+      </section>
+
+      {/* Field notes — worked examples published elsewhere, newest first */}
+      <section id="field-notes" aria-labelledby="field-notes-h" className="scroll-mt-24 space-y-4 border-t border-white/[0.1] pt-10">
+        <div className="space-y-2">
+          <h2 id="field-notes-h" className="t-h2">Field notes</h2>
+          <p className="max-w-2xl text-sm leading-relaxed text-slate-300">
+            Worked examples: the framework applied to a real, recent hotel trade. Thought experiments
+            for decision support, not anyone&apos;s plan and not predictions.
+          </p>
+        </div>
+        {FIELD_NOTES.map((n, i) => {
+          const deal = n.sale_id ? DEAL_SLUG_FOR_SALE[n.sale_id] : undefined;
+          return (
+            <article
+              key={n.id}
+              className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]"
+            >
+              <figure>
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`${n.image.srcWebp800} 800w, ${n.image.srcWebp1600} 1600w`}
+                    sizes="(min-width: 1024px) 960px, 100vw"
+                  />
+                  <img
+                    src={n.image.srcJpg1600}
+                    width={n.image.width}
+                    height={n.image.height}
+                    alt={n.image.alt}
+                    loading="lazy"
+                    decoding="async"
+                    className="block h-auto w-full"
+                  />
+                </picture>
+                <figcaption className="border-b border-white/[0.06] px-5 py-2 text-xs leading-relaxed text-slate-300">
+                  {n.caption}
+                </figcaption>
+              </figure>
+              <div className="space-y-3 p-5">
+                <p className="text-xs text-slate-300">
+                  {i === 0 ? "Worked example 1" : `Worked example ${i + 1}`} · {n.publisher} · {fmtDate(n.date)}
+                </p>
+                <h3 className="max-w-3xl text-base font-medium leading-snug text-white">{n.title}</h3>
+                <div className="max-w-3xl space-y-1 text-sm leading-relaxed text-slate-300">
+                  <p>{n.summary[0]}</p>
+                  <p>{n.summary[1]}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
+                  <a
+                    href={n.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white"
+                  >
+                    Read on {n.publisher}
+                    <span aria-hidden="true" className="ml-1">↗</span>
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                  {deal ? (
+                    <Link
+                      href={`/deals/${deal}`}
+                      className="inline-flex min-h-11 items-center text-sm text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white"
+                    >
+                      See the deal entry
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </section>
 
       {/* Doctrine — long form */}
