@@ -273,13 +273,13 @@ export default async function SoundMoneyLodgingPage({
           . No affiliation claimed.
         </p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1 text-base">
-          <a href="#calculators" className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white">
+          <a href="#calculators" className="inline-flex min-h-11 items-center rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white">
             Open the calculators
           </a>
-          <a href="#field-notes" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+          <a href="#field-notes" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Field notes
           </a>
-          <a href="#studio" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+          <a href="#studio" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Generate a Stack memo
           </a>
           <Link href="/markets" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
@@ -359,13 +359,13 @@ export default async function SoundMoneyLodgingPage({
                 {n.table ? (
                   <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
                     <table className="w-full text-left text-xs tabular-nums sm:text-sm">
-                      <caption className="px-2 pt-2 sm:px-3 text-left text-xs leading-relaxed text-slate-300">
+                      <caption className="px-1.5 pt-2 sm:px-3 text-left text-xs leading-relaxed text-slate-300">
                         {n.table.caption}
                       </caption>
-                      <thead className="text-slate-300">
+                      <thead className="text-slate-200">
                         <tr className="border-b border-white/10">
                           {n.table.headers.map((h) => (
-                            <th key={h} scope="col" className="px-2 py-2 align-bottom font-medium sm:px-3">
+                            <th key={h} scope="col" className="px-1.5 py-2 align-bottom font-medium sm:px-3">
                               {h}
                             </th>
                           ))}
@@ -374,11 +374,11 @@ export default async function SoundMoneyLodgingPage({
                       <tbody className="text-slate-200">
                         {n.table.rows.map((r) => (
                           <tr key={r[0]} className="border-b border-white/[0.06] last:border-0">
-                            <th scope="row" className="px-2 py-2 font-medium text-white sm:px-3">
+                            <th scope="row" className="px-1.5 py-2 font-medium text-white sm:px-3">
                               {r[0]}
                             </th>
                             {r.slice(1).map((c, j) => (
-                              <td key={j} className="px-2 py-2 text-slate-200 sm:px-3">
+                              <td key={j} className="px-1.5 py-2 text-slate-200 sm:px-3">
                                 {c}
                               </td>
                             ))}
@@ -388,7 +388,10 @@ export default async function SoundMoneyLodgingPage({
                     </table>
                   </div>
                 ) : null}
-                <p className="text-xs leading-relaxed text-slate-300 sm:hidden">{n.caption}</p>
+                <p className="text-xs leading-relaxed text-slate-300 sm:hidden">
+                  {/* The art is hidden below sm, so the mobile caption drops the sentence about it. */}
+                  {n.caption.replace(/\s*Art is an illustration\.\s*$/, "")}
+                </p>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
                   <a
                     href={n.url}

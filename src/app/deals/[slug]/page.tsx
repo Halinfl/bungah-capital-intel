@@ -486,8 +486,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
       ) : null}
 
       {furtherReading.length ? (
-        <section id="further-reading-section" aria-labelledby="further-reading" className="scroll-mt-24 space-y-3">
-          <h2 id="further-reading" className={h2}>
+        <section id="further-reading-section" aria-labelledby="further-reading" className="space-y-3">
+          <h2 id="further-reading" className={`${h2} scroll-mt-24`}>
             Further reading
           </h2>
           <ul className="space-y-2">
