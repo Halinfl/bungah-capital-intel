@@ -358,14 +358,14 @@ export default async function SoundMoneyLodgingPage({
                 </div>
                 {n.table ? (
                   <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
-                    <table className="w-full min-w-[22rem] text-left text-xs tabular-nums sm:text-sm">
-                      <caption className="px-3 pt-2 text-left text-xs leading-relaxed text-slate-300">
+                    <table className="w-full text-left text-xs tabular-nums sm:text-sm">
+                      <caption className="px-2 pt-2 sm:px-3 text-left text-xs leading-relaxed text-slate-300">
                         {n.table.caption}
                       </caption>
                       <thead className="text-slate-300">
                         <tr className="border-b border-white/10">
                           {n.table.headers.map((h) => (
-                            <th key={h} scope="col" className="px-3 py-2 font-medium">
+                            <th key={h} scope="col" className="px-2 py-2 align-bottom font-medium sm:px-3">
                               {h}
                             </th>
                           ))}
@@ -374,11 +374,11 @@ export default async function SoundMoneyLodgingPage({
                       <tbody className="text-slate-200">
                         {n.table.rows.map((r) => (
                           <tr key={r[0]} className="border-b border-white/[0.06] last:border-0">
-                            <th scope="row" className="px-3 py-2 font-medium text-white">
+                            <th scope="row" className="px-2 py-2 font-medium text-white sm:px-3">
                               {r[0]}
                             </th>
                             {r.slice(1).map((c, j) => (
-                              <td key={j} className="px-3 py-2 text-slate-200">
+                              <td key={j} className="px-2 py-2 text-slate-200 sm:px-3">
                                 {c}
                               </td>
                             ))}
