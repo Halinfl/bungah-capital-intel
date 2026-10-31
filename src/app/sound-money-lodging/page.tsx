@@ -11,7 +11,7 @@ import { SourceChip } from "@/components/SourceChip";
 import { StackMemoView } from "@/components/StackMemoView";
 import { STACK_MEMO_KIND } from "@/lib/stack-memo";
 import { FIELD_NOTES } from "@/lib/field-notes";
-import { fmtDate, sales } from "@/lib/deals";
+import { sales } from "@/lib/deals";
 
 export const dynamic = "force-dynamic";
 
@@ -276,6 +276,9 @@ export default async function SoundMoneyLodgingPage({
           <a href="#calculators" className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 hover:bg-white">
             Open the calculators
           </a>
+          <a href="#field-notes" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+            Field notes
+          </a>
           <a href="#studio" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Generate a Stack memo
           </a>
@@ -315,36 +318,77 @@ export default async function SoundMoneyLodgingPage({
               key={n.id}
               className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]"
             >
-              <figure>
-                <picture>
-                  <source
-                    type="image/webp"
-                    srcSet={`${n.image.srcWebp800} 800w, ${n.image.srcWebp1600} 1600w`}
-                    sizes="(min-width: 1024px) 960px, 100vw"
-                  />
-                  <img
-                    src={n.image.srcJpg1600}
-                    width={n.image.width}
-                    height={n.image.height}
-                    alt={n.image.alt}
-                    loading="lazy"
-                    decoding="async"
-                    className="block h-auto w-full"
-                  />
-                </picture>
+              <figure className="hidden sm:block">
+                <a
+                  href={n.image.srcJpg1600}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block hover:opacity-95"
+                >
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcSet={`${n.image.srcWebp800} 800w, ${n.image.srcWebp1600} 1600w`}
+                      sizes="(min-width: 1280px) 1104px, (min-width: 1024px) calc(100vw - 4rem), 100vw"
+                    />
+                    <img
+                      src={n.image.srcJpg1600}
+                      width={n.image.width}
+                      height={n.image.height}
+                      alt={n.image.alt}
+                      loading="lazy"
+                      decoding="async"
+                      className="block h-auto w-full"
+                    />
+                  </picture>
+                  <span className="sr-only"> (full-size image, opens in a new tab)</span>
+                </a>
                 <figcaption className="border-b border-white/[0.06] px-5 py-2 text-xs leading-relaxed text-slate-300">
                   {n.caption}
                 </figcaption>
               </figure>
               <div className="space-y-3 p-5">
                 <p className="text-xs text-slate-300">
-                  {i === 0 ? "Worked example 1" : `Worked example ${i + 1}`} · {n.publisher} · {fmtDate(n.date)}
+                  {i === 0 ? "Worked example 1" : `Worked example ${i + 1}`} · {n.publisher} · {n.display_date}
                 </p>
                 <h3 className="max-w-3xl text-base font-medium leading-snug text-white">{n.title}</h3>
                 <div className="max-w-3xl space-y-1 text-sm leading-relaxed text-slate-300">
                   <p>{n.summary[0]}</p>
                   <p>{n.summary[1]}</p>
                 </div>
+                {n.table ? (
+                  <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
+                    <table className="w-full min-w-[22rem] text-left text-xs tabular-nums sm:text-sm">
+                      <caption className="px-3 pt-2 text-left text-xs leading-relaxed text-slate-300">
+                        {n.table.caption}
+                      </caption>
+                      <thead className="text-slate-300">
+                        <tr className="border-b border-white/10">
+                          {n.table.headers.map((h) => (
+                            <th key={h} scope="col" className="px-3 py-2 font-medium">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="text-slate-200">
+                        {n.table.rows.map((r) => (
+                          <tr key={r[0]} className="border-b border-white/[0.06] last:border-0">
+                            <th scope="row" className="px-3 py-2 font-medium text-white">
+                              {r[0]}
+                            </th>
+                            {r.slice(1).map((c, j) => (
+                              <td key={j} className="px-3 py-2 text-slate-200">
+                                {c}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
+                <p className="text-xs leading-relaxed text-slate-300 sm:hidden">{n.caption}</p>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
                   <a
                     href={n.url}

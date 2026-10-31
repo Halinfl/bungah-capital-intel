@@ -486,7 +486,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
       ) : null}
 
       {furtherReading.length ? (
-        <section aria-labelledby="further-reading" className="space-y-3">
+        <section id="further-reading-section" aria-labelledby="further-reading" className="scroll-mt-24 space-y-3">
           <h2 id="further-reading" className={h2}>
             Further reading
           </h2>
@@ -500,10 +500,11 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                   className="block min-h-11 rounded-xl border border-white/10 p-3 text-sm hover:border-white/25"
                 >
                   <span className="block text-slate-100">
-                    {n.title} <span className="text-slate-300">↗</span>
+                    {n.title} <span aria-hidden="true" className="text-slate-300">↗</span>
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </span>
                   <span className="mt-1 block text-[13px] text-slate-300">
-                    {n.publisher} · {fmtDate(n.date)} · A thought experiment on this deal, not the buyer&apos;s plan
+                    {n.publisher} · {n.display_date} · A thought experiment on this deal, not the buyer&apos;s plan
                   </span>
                 </a>
               </li>
