@@ -20,6 +20,8 @@ import {
   furtherReadingSection,
   inRange,
   periodOf,
+  rangeCutoff,
+  todayKey as rangeTodayKey,
   RANGE_LABEL,
   signalCites,
   windowSignal,
@@ -58,8 +60,6 @@ export function lensFor(intent: ChatIntent | undefined): Lens {
 }
 
 export function shortName(m: { name: string }): string {
-  // The Dallas market is the Dallas–Fort Worth metro: "Fort Worth" / "DFW" questions land on it, so say both.
-  if (/^Dallas\s*[–—-]\s*Fort Worth\b/.test(m.name)) return "Dallas–Fort Worth";
   return m.name.split(/[–—]/)[0].replace(/\s+MSA$/, "").trim();
 }
 
@@ -258,10 +258,37 @@ function properFirst(m: MarketRow): SignalLike[] {
   return [...rows.filter((s) => !o.re.test(s.title)), ...rows.filter((s) => o.re.test(s.title))];
 }
 
+/**
+ * The area a cited figure covers, for markets whose sources mix geographies (Eric QA r4, Nov 1 2026). The card is
+ * headed by the market's short name ("Dallas"); each figure's citation says what it measures: the Dallas lodging
+ * market (C&W / CoStar market prints, Lodging Econometrics pipeline), the City of Dallas (hotel tax, city visitor
+ * counts, city tax-registry rooms) or the DFW metro (Matthews' DFW report, DFW Airport, Roanoke). First match wins;
+ * a figure that fits none (a single hotel's loan, a state wage floor) is left untagged.
+ */
+type AreaRule = { area: string; test: (f: Fact, hay: string) => boolean };
+const AREA_TAGS: Record<string, AreaRule[]> = {
+  dallas: [
+    { area: "DFW metro", test: (_f, h) => /\bmatthews\b|\bDFW\b|\bRoanoke\b|DFW Airport|crosstimbersgazette/i.test(h) },
+    { area: "City of Arlington", test: (_f, h) => /\bArlington\b[^.;]{0,30}\bHOT\b/i.test(h) },
+    { area: "City of Dallas", test: (f, h) => f.kind === "tax" || f.kind === "visitation" || /\bCity of Dallas\b|dallascityhall|VisitDallas|dallastpid|\bTPID\b|texashotelsearch|data\.texas\.gov/i.test(h) },
+    { area: "Dallas market", test: (_f, h) => /Cushman|\bC&W\b|CoStar|Lodging Econometrics|lodgingeconometrics|\bHVS\b/i.test(h) },
+  ],
+};
+
+/** "Cushman & Wakefield" → "Cushman & Wakefield (Dallas market)", plus `area` on the source (shown in the source preview). */
+export function withArea(slug: string, f: Fact): Fact {
+  const rules = AREA_TAGS[slug];
+  if (!rules) return f;
+  const hay = `${f.text} ${f.title} ${f.source.label} ${f.source.url ?? ""} ${f.source.publisher ?? ""}`;
+  const r = rules.find((x) => x.test(f, hay));
+  if (!r) return f;
+  return { ...f, source: { ...f.source, label: `${f.source.label} (${r.area})`, area: r.area } };
+}
+
 function marketFacts(m: MarketRow): Fact[] {
   const o = OUTSIDE_PROPER[m.slug];
   return m.signals.flatMap((s) =>
-    signalFacts(s as SignalLike).map((f) => (o && o.re.test(f.text) ? { ...f, offCore: true, text: metroLabel(m.slug, f.text) } : f))
+    signalFacts(s as SignalLike).map((f) => withArea(m.slug, o && o.re.test(f.text) ? { ...f, offCore: true, text: metroLabel(m.slug, f.text) } : f))
   );
 }
 
@@ -462,23 +489,62 @@ const SAYS_UP = /\b(up|ris(e|es|ing)|rose|grow(s|ing|n)?|grew|increas\w*|higher|
 const INTEREST_WORDS = /\b(interest|fed|federal reserve|fomc|sofr|treasur(y|ies)|10[- ]?(year|yr)|mortgage|bond|yields?|cap rates?|tax rates?)\b/i;
 
 /** "in Q2 2026 (Cushman & Wakefield)", "year to date through Sep 12 2026 (county data, roadgenius.com)". */
-function premiseWhen(f: Fact): string {
+/**
+ * The period and source of one premise figure: "in Q2 2026 (Cushman & Wakefield)", "year to date through Sep 12
+ * 2026 (county data, roadgenius.com)", "in the week ending May 23, 2026 (CoStar)". The period comes from the fact's
+ * own label words, else its parsed data period; the source is the cited source's name. null when either is missing
+ * (such a figure is not used: every figure in the line carries its period and source).
+ */
+function premiseWhen(f: Fact): string | null {
   const text = cleanFactText(f.text);
   const colon = text.search(/:\s/);
-  const label: string = (colon > 0 && colon <= 60 ? text.slice(0, colon) : f.period?.label ?? (f.asOf ? fmtAsOf(f.asOf) : null)) ?? "";
-  const src = flatSource(f.source.label);
-  const county = /\bcounty\b/i.test(label);
+  const label: string = colon > 0 && colon <= 60 ? text.slice(0, colon) : "";
+  const src = flatSource(f.source.label).trim();
+  if (!src) return null;
+  // "County YTD …", "2025 county OCC / ADR": county-level data (not a place named "… County" elsewhere in a label).
+  const county = /^(?:(?:YE |FY )?20\d\d )?county\b/i.test(label);
   const ytd = label.match(/\bYTD through ([A-Z][a-z]{2,8}\.? \d{1,2},? 20\d\d)/);
   const q = label.match(/\bQ([1-4]) (20\d\d)\b/);
   const wk = label.match(/\b(?:wk|week) ending (20\d\d-\d\d-\d\d|[A-Z][a-z]{2,8}\.? \d{1,2},? 20\d\d)/i);
   const yr = label.match(/^(?:YE |FY |CY )?(20\d\d)\b/);
-  const when = ytd ? `year to date through ${ytd[1]}` : q ? `in Q${q[1]} ${q[2]}` : wk ? `in the week ending ${wk[1]}` : yr && !/\b(Q[1-4]|YTD|T12|month|week|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(label) ? `in ${yr[1]}` : null;
-  if (!when) return `(${[label, src].filter(Boolean).join(", ")})`;
-  return `${when} (${[county ? "county data" : null, src].filter(Boolean).join(", ")})`;
+  const p = f.period;
+  const fromPeriod = p?.label
+    ? /^w\/e /.test(p.label)
+      ? `in the week ending ${p.label.slice(4)}`
+      : /^(YTD|T12|FY|CY|Q[1-4]|[A-Z][a-z]{2}[a-z]* 20\d\d|[A-Z][a-z]{2}[–-]|20\d\d)/.test(p.label)
+        ? /^(YTD|T12)/.test(p.label) ? p.label : `in ${p.label}`
+        : `in ${p.label}`
+    : null;
+  const when = ytd
+    ? `year to date through ${ytd[1]}`
+    : q
+      ? `in Q${q[1]} ${q[2]}`
+      : wk && /20\d\d/.test(wk[1])
+        ? `in the week ending ${wk[1]}`
+        : yr && !/\b(Q[1-4]|YTD|T12|month|week|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(label)
+          ? `in ${yr[1]}`
+          : fromPeriod;
+  if (!when) return null;
+  return `${isoToWords(when)} (${[county ? "county data" : null, src].filter(Boolean).join(", ")})`;
 }
 
+/** "in the week ending 2026-04-11" → "in the week ending Apr 11, 2026" (one date style in a line). */
+function isoToWords(t: string): string {
+  const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return t.replace(/\b(20\d\d)-(\d\d)-(\d\d)\b/g, (_, y, m, d) => `${M[Number(m) - 1]} ${Number(d)}, ${y}`);
+}
+
+/** Forecasts and budgets are not what happened: never a premise figure. */
+const FORECAST = /\b(forecast\w*|projected|projection|outlook|budget(ed)?|expected|estimate[sd]?|guidance)\b/i;
+
 export type PremiseFigure = { text: string; up: boolean; n: string };
-export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = []): { line: string; facts: Fact[]; figures: PremiseFigure[] } | null {
+/**
+ * `today` (yyyymmdd, UTC as elsewhere in chat-brief): only figures whose data period starts within the 12 months before it are weighed (a
+ * full-year 2025 print does not contradict "rates are up" now). Among those, month-or-longer prints are weighed;
+ * a single week counts only when no longer print is left (and a set-aside week pointing the question's way drops
+ * "actually"). Forecasts never count.
+ */
+export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = [], today: number = rangeTodayKey()): { line: string; facts: Fact[]; figures: PremiseFigure[] } | null {
   const down = SAYS_DOWN.test(question);
   const up = SAYS_UP.test(question);
   if (down === up) return null;
@@ -486,13 +552,21 @@ export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = []
   if (!metric) return null;
   const signed = (f: Fact) => {
     const g = f.text.match(metric.f);
-    return g && Number(g[2]) !== 0 ? { f, up: g[1] === "+", n: g[2], unit: g[3] } : null;
+    if (!g || Number(g[2]) === 0 || FORECAST.test(f.text)) return null;
+    const when = premiseWhen(f);
+    return when ? { f, up: g[1] === "+", n: g[2], unit: g[3], when } : null;
   };
-  // The current prints (as the performance lead picks them) plus every print the performance card shows.
-  const current = longestFirst(facts.filter((f) => PERF_FACT(f) && !isSpot(f) && metric.f.test(f.text)));
+  const cutoff = rangeCutoff("12m", today);
+  const inLast12 = (f: Fact) => (f.period ? f.period.start >= cutoff && f.period.end <= today : f.key > 0 && f.key >= cutoff && f.key <= today);
+  // The current prints (as the performance lead picks them) plus every print the performance card shows; only
+  // reported (not forecast) figures from the latest 12 months.
+  const current = longestFirst(facts.filter((f) => PERF_FACT(f) && !isSpot(f) && metric.f.test(f.text) && !FORECAST.test(f.text) && inLast12(f)));
   const pool: Fact[] = [];
   for (const f of [...current, ...shown.filter((x) => metric.f.test(x.text))]) if (!pool.some((y) => y.text === f.text)) pool.push(f);
-  const cands = pool.map(signed).filter((x): x is NonNullable<ReturnType<typeof signed>> => Boolean(x));
+  const all = pool.filter(inLast12).map(signed).filter((x): x is NonNullable<ReturnType<typeof signed>> => Boolean(x));
+  // Month-or-longer prints are weighed; a single week only when nothing longer is left.
+  const longer = all.filter((c) => !isSpot(c.f));
+  const cands = longer.length ? longer : all;
   if (!cands.length) return null;
   // Best figure per direction: month-or-longer before single weeks, then the longest recent period.
   const best = (list: typeof cands) => {
@@ -508,12 +582,14 @@ export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = []
   if (ups.length && downs.length) {
     const first = best(up ? ups : downs);
     const second = best(up ? downs : ups);
-    const line = `Mixed: ${metric.lower} is ${first.up ? "up" : "down"} ${amount(first)} ${premiseWhen(first.f)} but ${second.up ? "up" : "down"} ${amount(second)} ${premiseWhen(second.f)}.`;
+    const line = `Mixed: ${metric.lower} is ${first.up ? "up" : "down"} ${amount(first)} ${first.when} but ${second.up ? "up" : "down"} ${amount(second)} ${second.when}.`;
     return { line, facts: [first.f, second.f], figures };
   }
   const c = best(cands);
   const said = c.up ? "up" : "down";
-  const line = `${metric.name} is ${c.up === up ? "" : "actually "}${said} ${amount(c)} ${premiseWhen(c.f)}.`;
+  // No "actually" while a set-aside single week (e.g. on the card on screen) points the question's way.
+  const weekAgrees = all.some((w) => isSpot(w.f) && w.up === up);
+  const line = `${metric.name} is ${c.up === up || weekAgrees ? "" : "actually "}${said} ${amount(c)} ${c.when}.`;
   return { line, facts: [c.f], figures };
 }
 
@@ -586,7 +662,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
   } else if (lens === "supply" && scoreSig) {
-    const head = signalFacts(scoreSig as SignalLike)[0];
+    const head = withArea(m.slug, signalFacts(scoreSig as SignalLike)[0]);
     answer = headLine(short, "supply", { ...head, text: scrubInternal(scoreSig.title).replace(new RegExp(`^${short}\\s*`, "i"), "") });
     reads = pickReads(facts, "supply", 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
   } else {

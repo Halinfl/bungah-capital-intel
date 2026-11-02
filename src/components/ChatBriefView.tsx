@@ -12,6 +12,8 @@ export type BriefSource = {
   title?: string;
   publisher?: string;
   date?: string;
+  /** What the figure covers when a market's sources mix geographies ("City of Dallas", "DFW metro"). */
+  area?: string;
 };
 export type BriefRead = { text: string; asOf: string | null; source: BriefSource };
 export type BriefSection = { id: string; title: string; count: number; markdown: string };
@@ -168,8 +170,14 @@ function SourceChip({ read, open, onOpen, onClose, mobile }: { read: BriefRead; 
           ✕
         </button>
       </div>
-      {publisher || date ? (
+      {publisher || date || s.area ? (
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-slate-300">
+          {s.area ? (
+            <>
+              <dt className="text-slate-400">Area</dt>
+              <dd className="text-slate-200 [overflow-wrap:anywhere]">{s.area}</dd>
+            </>
+          ) : null}
           {publisher ? (
             <>
               <dt className="text-slate-400">Publisher</dt>

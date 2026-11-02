@@ -22,7 +22,8 @@ export type ChipKind = "Filing" | "Press" | "Record" | "Data";
  * A cited source. `title`, `publisher` and `date` are filled only from real fields of the cited
  * row (link label, URL host, row as-of date); a field with nothing behind it stays undefined.
  */
-export type BriefSource = { kind: ChipKind; label: string; url?: string; title?: string; publisher?: string; date?: string };
+/** `area`: what the figure covers when a market's sources mix geographies ("City of Dallas", "DFW metro"). */
+export type BriefSource = { kind: ChipKind; label: string; url?: string; title?: string; publisher?: string; date?: string; area?: string };
 export type BriefRead = { text: string; asOf: string | null; source: BriefSource };
 export type BriefSection = { id: string; title: string; count: number; markdown: string };
 export type ChatBrief = {
@@ -561,7 +562,7 @@ export function dataSpan(cites: Citation[]): DataSpan {
   return { sources: byKey.size, dated, from: start ? monLabel(start) : null, to: end ? monLabel(end) : null, label };
 }
 
-function todayKey(): number {
+export function todayKey(): number {
   const d = new Date();
   return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
 }

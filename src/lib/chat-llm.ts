@@ -23,6 +23,7 @@ import {
   decisionSupportFooter,
   formatMarketMemo,
   formatSupplyRanking,
+  inMentionOrder,
   isCoveredMarketPhrase,
   isSupplyRankingQuestion,
   namedCoveredMarkets,
@@ -641,7 +642,8 @@ function briefForGraph(question: string, ctx: GraphContext, namedDigests: Corpus
   const { matched, intent, nationalSignals, radars } = ctx;
   if (!question.trim()) return null;
   if (intent === "compare_markets") {
-    const unique = [matched, ...ctx.secondary].filter((m, i, arr): m is NonNullable<typeof m> => Boolean(m) && arr.findIndex((x) => x?.id === m!.id) === i);
+    // The user's order: "Compare Nashville vs Charlotte" leads with Nashville (scoped or not).
+    const unique = inMentionOrder(question, [matched, ...ctx.secondary].filter((m, i, arr): m is NonNullable<typeof m> => Boolean(m) && arr.findIndex((x) => x?.id === m!.id) === i));
     if (unique.length >= 2) return compareBrief(unique[0], unique[1], question, intent);
     return null;
   }

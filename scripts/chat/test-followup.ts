@@ -30,8 +30,10 @@ async function main() {
   const { installGraphFixture } = await import("./graph-fixture");
   installGraphFixture();
   const { answerChat } = await import("@/lib/chat-llm");
-  const { answerHash, applyNoRepeat, parsePrev, parseSeen, resolveFollowUp, NO_REPEAT_LINE, NO_REPEAT_EARLIER_LINE, PREV_MAX_QUESTION, SEEN_MAX } = await import("@/lib/chat-followup");
-  const isNote = (c: string) => c === NO_REPEAT_LINE || c === NO_REPEAT_EARLIER_LINE;
+  const { answerHash, applyNoRepeat, parsePrev, parseSeen, resolveFollowUp, NO_REPEAT_LINE, NO_REPEAT_EARLIER_LINE, CARD_ABOVE_LINE, PREV_MAX_QUESTION, SEEN_MAX } = await import("@/lib/chat-followup");
+  // A repeat is the bare note, or (when the repeated card carried a decline or premise line) that line + CARD_ABOVE_LINE.
+  const EXTRA_NOTE = /^(We don't give buy or sell recommendations\b[^]*|Mixed: [^]*|(?:Occupancy|RevPAR|ADR) is [^]*) The full cited card is above\.$/;
+  const isNote = (c: string) => c === NO_REPEAT_LINE || c === NO_REPEAT_EARLIER_LINE || EXTRA_NOTE.test(c);
   const { retrieveGraphContext, COMPARE_PROMPT } = await import("@/lib/chat");
   const { classifyIntent } = await import("@/lib/chat-intent");
   const { answerKey } = await import("@/lib/chat-cache");
@@ -107,7 +109,8 @@ async function main() {
     // "as above" only when the match is the answer directly above; else "earlier in this chat".
     const above = th.turns[th.turns.length - 2];
     const want = above && above.hash === b.hash ? NO_REPEAT_LINE : NO_REPEAT_EARLIER_LINE;
-    check(b.content === want, `${label}: no-repeat reply ${JSON.stringify(b.content.slice(0, 60))} (want ${JSON.stringify(want.slice(0, 60))})`);
+    // r4: a repeat whose card carries a decline or premise line keeps that line, then "The full cited card is above."
+    check(b.content === want || (EXTRA_NOTE.test(b.content) && b.content.endsWith(` ${CARD_ABOVE_LINE}`)), `${label}: no-repeat reply ${JSON.stringify(b.content.slice(0, 60))} (want ${JSON.stringify(want.slice(0, 60))} or a decline/premise line + ${JSON.stringify(CARD_ABOVE_LINE)})`);
     const chips = b.followUps ?? [];
     chipCounts[chips.length] = (chipCounts[chips.length] ?? 0) + 1;
     check(chips.length >= 2 && chips.length <= 3, `${label}: ${chips.length} chips (want 2–3)`);
@@ -174,6 +177,7 @@ async function main() {
   }
 
   const nash: Scope = { kind: "market", id: "nashville" };
+  const chicagoScope: Scope = { kind: "market", id: "chicago" };
   console.log("Nashville (Eric's pairs):");
   // The starter chip sends its own window (Last 12 months); a typed follow-up is All.
   const p1 = await pair("nashville scoped revpar", nash, "How has RevPAR moved here over the last 12 months?", "What is the 12-month RevPAR trend?", "nashville", "12m");
@@ -364,6 +368,7 @@ async function main() {
   const { isBareRates } = await import("@/lib/chat-intent");
   type F = Parameters<typeof premiseCheck>[0][number];
   const fact = (text: string, key: number, label = "Test source"): F => ({ text, asOf: null, key, source: { label } as F["source"], kind: "metric", title: text, readable: true, period: null });
+  const TODAY = 20261101;
   const signs = (re: RegExp, t: string) => [...t.matchAll(new RegExp(re.source, "gi"))].map((g) => g[1] === "+");
 
   // r3-1. Premise check: "actually" only when every cited figure agrees and contradicts the question; "Mixed:" otherwise.
@@ -371,17 +376,19 @@ async function main() {
     const up1 = fact("C&W Q2 2026: OCC 70.0% (+1.0%)", 20260630, "Cushman & Wakefield");
     const up2 = fact("County YTD through Sep 12 2026: OCC 69.4% (+3.2%)", 20260912, "roadgenius.com");
     const dn1 = fact("C&W Q2 2026 (STR/CoStar): OCC 71.7% (−0.2%)", 20260630, "Cushman & Wakefield");
-    const allUp = premiseCheck([up1, up2], "Why is occupancy down?");
+    const allUp = premiseCheck([up1, up2], "Why is occupancy down?", [], TODAY);
     check(Boolean(allUp && /^Occupancy is actually up /.test(allUp.line)), `r3-1 all-agree contradicted: ${allUp?.line}`);
-    const agree = premiseCheck([up1, up2], "Why is occupancy up?");
+    const agree = premiseCheck([up1, up2], "Why is occupancy up?", [], TODAY);
     check(Boolean(agree && /^Occupancy is up /.test(agree.line) && !/actually/.test(agree.line)), `r3-1 all-agree agreeing: ${agree?.line}`);
-    const mixed = premiseCheck([dn1, up2], "Why is occupancy down?");
+    const mixed = premiseCheck([dn1, up2], "Why is occupancy down?", [], TODAY);
     check(mixed?.line === "Mixed: occupancy is down 0.2% in Q2 2026 (Cushman & Wakefield) but up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com).", `r3-1 mixed line: ${mixed?.line}`);
     // A figure only on the card on screen (a single week, not a current trend print) still counts.
     const wk = { ...fact("CoStar wk ending 2026-08-08: OCC 60.1% (−4.0%)", 20260808, "CoStar"), period: { start: 20260802, end: 20260808, label: "w/e Aug 8 2026" } } as F;
-    const onScreen = premiseCheck([up2, wk], "Why is occupancy down?", [wk]);
-    check(Boolean(onScreen && onScreen.line.startsWith("Mixed: occupancy is down 4.0%") && !/actually/.test(onScreen.line)), `r3-1 on-screen figure ignored: ${onScreen?.line}`);
-    check(premiseCheck([up1], "How is occupancy?") === null, "r3-1 a question with no direction got a premise line");
+    const onScreen = premiseCheck([up2, wk], "Why is occupancy down?", [wk], TODAY);
+    // r4: a single week is set aside when a longer print exists, but if it points the question's way (here: on screen,
+    // down) the line drops "actually".
+    check(onScreen?.line === "Occupancy is up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com).", `r3-1/r4 on-screen week: ${onScreen?.line}`);
+    check(premiseCheck([up1], "How is occupancy?", [], TODAY) === null, "r3-1 a question with no direction got a premise line");
 
     // Eric's repro: the RevPAR card (C&W Q2 OCC −0.2%) is on screen, then "Why is occupancy down?".
     const th = new Thread(nash);
@@ -407,7 +414,10 @@ async function main() {
     for (const m of markets) {
       const perf = await card("How has RevPAR moved here over the last 12 months?", { kind: "market", id: m.slug }, null, "all");
       const pb = perf.brief as Brief;
-      const perfText = [pb?.answer ?? "", ...(pb?.reads ?? []).map((r) => String(r.text ?? ""))].join(" ; ");
+      // r4: only figures the premise weighs: latest 12 months (nothing dated 2025 or earlier alone) and not single weeks.
+      const perfText = [...(pb?.answer ?? "").split(/(?<=\.)\s|;\s/), ...(pb?.reads ?? []).map((r) => String(r.text ?? ""))]
+        .filter((t) => !/\b(wk|week)\b/i.test(t) && !(/\b(?:19|20)[0-2]\d\b|\b2025\b/.test(t) && !/\b2026\b/.test(t)))
+        .join(" ; ");
       for (const [name, re] of MET) {
         for (const dir of ["down", "up"] as const) {
           const q = `Why is ${name} ${dir} in ${shortName(m)}?`;
@@ -452,7 +462,9 @@ async function main() {
     check(Boolean(wb?.premise), `r3-2 ${label}: the why answer has no premise line`);
     const rawHead = (raw.brief as Brief)?.answer ?? "";
     check(answerHash(raw) === w.hash || rawHead !== (wb?.answer ?? "").replace(`${wb?.premise} `, ""), `r3-2 ${label}: same card minus the premise hashes differently`);
-    check(v.repeat && v.content === NO_REPEAT_LINE, `r3-2 ${label}: "${buy}" after the premise answer repeated the card: ${v.head.slice(0, 100)}`);
+    // r4: the advice repeat keeps its decline line, then "The full cited card is above." (never the bare note).
+    check(v.repeat && v.content === `We don't give buy or sell recommendations. ${CARD_ABOVE_LINE}`, `r3-2/r4 ${label}: "${buy}" after the premise answer: ${JSON.stringify(v.content.slice(0, 120))}`);
+    check((v.followUps ?? []).length === 3, `r4 ${label}: advice repeat chips ${(v.followUps ?? []).length} (want 3)`);
     if (v.repeat) await checkNote(`r3-2 ${label}`, th, "nashville");
     checkThread(`r3-2 ${label}`, th);
     console.log(`  r3-2 ${label} "${buy}" after "${why}": ${v.repeat ? `note "${v.content}"` : `card ${v.head.slice(0, 80)}`}`);
@@ -495,7 +507,8 @@ async function main() {
     show("r3-a nashville", nr);
     check(nr.intent === "revpar_metrics" && nr.marketSlug === "nashville", `r3-a "Why are rates up in Nashville?" → ${nr.intent} · ${nr.marketSlug}`);
     check(/\bADR\b/.test(nr.head) && !/\bpax\b/.test(nr.head), `r3-a Nashville rates headline: ${nr.head.slice(0, 160)}`);
-    check(/^(Mixed: ADR|ADR is)/.test(nr.head) && !/actually/.test(nr.head.split(".")[0] ?? "") || /^ADR is actually/.test(nr.head), `r3-a Nashville ADR premise: ${nr.head.slice(0, 160)}`);
+    // r4: only the latest 12 months are weighed, so FY2025 ADR −1.3% no longer makes this "Mixed".
+    check(nr.head.startsWith("ADR is up 1.2% in Q2 2026 (Cushman & Wakefield)."), `r3-a/r4 Nashville ADR premise: ${nr.head.slice(0, 160)}`);
     // Bare "rates" with context: a market on screen → room rates there; an interest-rate card on screen → interest rates.
     const t1 = new Thread(null);
     await t1.ask("What's the supply pipeline in Nashville?");
@@ -539,12 +552,9 @@ async function main() {
     console.log(`  r3-c national note chips: ${(n2.followUps ?? []).map((c) => c.label).join(" | ")}`);
   }
 
-  // Fort Worth → "Dallas–Fort Worth"; "Is it worth building/buying…" → the decline line plus the same data as "should I buy?".
+  // "Is it worth building/buying…" → the decline line plus the same data as "should I buy?". (r4: the Dallas card is
+  // headed "Dallas" again; see the r4 Dallas block for the area tags.)
   {
-    const fw = await ask("How is Fort Worth doing?", null, null);
-    check(fw.marketSlug === "dallas" && fw.head.startsWith("Dallas–Fort Worth"), `r3 Fort Worth label: ${fw.head.slice(0, 60)}`);
-    const dl = await ask("How is Dallas doing?", null, null);
-    check(dl.head.startsWith("Dallas–Fort Worth"), `r3 Dallas label: ${dl.head.slice(0, 60)}`);
     for (const q of ["Is it worth building a hotel in Nashville?", "Is it worth buying a hotel in Nashville?", "Is Nashville worth developing a hotel in?"]) check(classifyAdviceRequest(q) === "buy_sell", `r3 worth: ${JSON.stringify(q)} not declined`);
     for (const q of ["What is a hotel worth per key?", "How much is Nashville's pipeline worth?"]) check(classifyAdviceRequest(q) === null, `r3 worth: ${JSON.stringify(q)} declined`);
     const wb = await ask("Is it worth building a hotel in Nashville?", null, null);
@@ -553,7 +563,123 @@ async function main() {
     const sbb = sb.brief as (Brief & { decline?: string }) | null;
     check(wb.intent === "advice_declined" && Boolean(wbb?.decline) && wbb?.decline === sbb?.decline, `r3 worth: decline ${JSON.stringify(wbb?.decline)?.slice(0, 80)}`);
     check(wb.head === sb.head && JSON.stringify(wbb?.reads?.map((r) => r.text)) === JSON.stringify(sbb?.reads?.map((r) => r.text)), `r3 worth: data differs from "should I buy?" (${wb.head.slice(0, 60)} vs ${sb.head.slice(0, 60)})`);
-    console.log(`  r3 Fort Worth: ${fw.head.slice(0, 50)} · worth building: ${wbb?.decline?.slice(0, 50)} + ${wb.head.slice(0, 50)}`);
+    console.log(`  r3 worth building: ${wbb?.decline?.slice(0, 50)} + ${wb.head.slice(0, 50)}`);
+  }
+
+
+  // ---- QA r3 → r4 (Eric, Nov 1 2026) ----
+  console.log("QA r3 → r4:");
+  {
+    // r4-1. A repeat keeps its new line: premise first, then "The full cited card is above." + 3 chips.
+    const th = new Thread(null);
+    const rev = await th.ask("What's the RevPAR and occupancy read for Nashville?");
+    const rr = await th.ask("Why are rates up in Nashville?");
+    show("r4-1 rates repeat", rr);
+    const rawRates = await card("Why are rates up in Nashville?", null, rev.prevOut, "all");
+    const pl = (rawRates.brief as (Brief & { premise?: string }) | null)?.premise ?? "";
+    check(/^ADR is up 1\.2% in Q2 2026 \(Cushman & Wakefield\)\.$/.test(pl), `r4-1 the rates card's premise: ${pl}`);
+    if (rr.repeat) {
+      check(rr.content === `${pl} ${CARD_ABOVE_LINE}`, `r4-1 rates repeat after the RevPAR card: ${JSON.stringify(rr.content)}`);
+      check((rr.followUps ?? []).length === 3, `r4-1 rates repeat chips: ${(rr.followUps ?? []).length}`);
+      await checkNote("r4-1 rates repeat", th, "nashville");
+    } else check(rr.head.startsWith(pl), `r4-1 rates card does not lead with the ADR line: ${rr.head.slice(0, 120)}`);
+    console.log(`  r4-1 "Why are rates up in Nashville?" after the RevPAR card: ${rr.repeat ? rr.content : rr.head.slice(0, 120)}`);
+    // The bare note only when the repeated card has no new line.
+    const t2 = new Thread(nash);
+    await t2.ask("How has RevPAR moved here over the last 12 months?", "12m");
+    const same = await t2.ask("What is the 12-month RevPAR trend?");
+    check(same.content === NO_REPEAT_LINE, `r4-1 a plain repeat is the bare note: ${JSON.stringify(same.content)}`);
+    // Advice repeat (scoped, no premise on screen): the decline line, then the card note.
+    const t3 = new Thread(nash);
+    await t3.ask("Should I buy?");
+    const again = await t3.ask("Should I buy?");
+    check(again.repeat && again.content === `We don't give buy or sell recommendations. ${CARD_ABOVE_LINE}`, `r4-1 advice repeat: ${JSON.stringify(again.content)}`);
+    check((again.followUps ?? []).length === 3, `r4-1 advice repeat chips: ${(again.followUps ?? []).length}`);
+  }
+  {
+    // r4-2/3. Premise figures: each clause names a period and a source; only the latest 12 months are weighed;
+    // month-or-longer prints before single weeks; forecasts never count.
+    const q2up = { ...fact("C&W Q2 2026: ADR $260 (+1.2%)", 20260630, "Cushman & Wakefield"), period: { start: 20260401, end: 20260630, label: "Q2 2026" } } as F;
+    const fy25 = { ...fact("2025 full year: ADR $255 (−1.3%)", 20251231, "Nashville CVC"), period: { start: 20250101, end: 20251231, label: "2025" } } as F;
+    const r = premiseCheck([q2up, fy25], "Why are rates up?", [], TODAY);
+    check(r?.line === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield).", `r4-3 FY2025 −1.3% outside 12 months still weighed: ${r?.line}`);
+    const rDown = premiseCheck([q2up, fy25], "Why are rates down?", [], TODAY);
+    check(rDown?.line === "ADR is actually up 1.2% in Q2 2026 (Cushman & Wakefield).", `r4-3 "down" vs Q2 only: ${rDown?.line}`);
+    const old = premiseCheck([fy25], "Why are rates up?", [], TODAY);
+    check(old === null, `r4-3 only an older-than-12-months figure still produced a line: ${old?.line}`);
+    const wk = { ...fact("CoStar wk ending Aug 8 2026: ADR $210 (−4.0%)", 20260808, "CoStar"), period: { start: 20260802, end: 20260808, label: "w/e Aug 8 2026" } } as F;
+    const longFirst = premiseCheck([q2up, wk], "Why are rates up?", [], TODAY);
+    check(longFirst?.line === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield).", `r4-3 a single off-screen week outweighed a quarter: ${longFirst?.line}`);
+    const fc = { ...fact("2026 forecast: ADR (−2.0%)", 20261231, "Some forecaster"), period: { start: 20260101, end: 20261231, label: "2026" } } as F;
+    check(premiseCheck([q2up, fc], "Why are rates up?", [], TODAY)?.line === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield).", "r4-2 a forecast counted as a figure");
+    // Live: every premise clause, every market × metric × direction, carries "in/year to date … (source)".
+    const CLAUSE = /(?:is|but) (?:actually )?(?:up|down) \d+(?:\.\d+)? ?(?:%|points?) (in [^()]+|year to date [^()]+) \(([^()]+)\)/g;
+    let clauses = 0;
+    const bad: string[] = [];
+    for (const m of markets) for (const name of ["occupancy", "RevPAR", "ADR"]) for (const dir of ["down", "up"]) {
+      const a = await card(`Why is ${name} ${dir} in ${shortName(m)}?`, null, null, "all");
+      const pl = (a.brief as (Brief & { premise?: string }) | null)?.premise;
+      if (!pl) continue;
+      const parts = pl.replace(/^Mixed: /, "").split(/ but /);
+      const got = [...pl.matchAll(CLAUSE)];
+      clauses += got.length;
+      if (got.length !== parts.length || got.some((g) => /\b20\d\d-\d\d-\d\d\b/.test(g[0]))) bad.push(pl);
+    }
+    check(bad.length === 0, `r4-2 premise clauses without a period or source (or with ISO dates): ${bad.slice(0, 4).join(" || ")}`);
+    console.log(`  r4-2 premise clauses with period + source: ${clauses}`);
+    // Fresh "Why is occupancy down?" (no card above): Mixed is fine; both figures cited.
+    const fresh = await ask("Why is occupancy down?", nash, null);
+    check(/^Mixed: occupancy is down 0\.2% in Q2 2026 \(Cushman & Wakefield\) but up 3\.2% year to date through Sep 12 2026 \(county data, roadgenius\.com\)\./.test(fresh.head), `r4-2 fresh occupancy-down: ${fresh.head.slice(0, 200)}`);
+  }
+  {
+    // r4-4. Compare answers in the user's order (unscoped and scoped).
+    const { inMentionOrder } = await import("@/lib/chat");
+    for (const [q, scope] of [["Compare Nashville vs Charlotte", null], ["Compare Nashville vs Charlotte", { kind: "market", id: "charlotte" } as Scope], ["Charlotte vs Nashville", null], ["Nashville vs Charlotte", { kind: "market", id: "charlotte" } as Scope]] as const) {
+      const t = await ask(q, scope, null);
+      const first = /^Charlotte/.test(q) ? "Charlotte" : "Nashville";
+      const second = first === "Nashville" ? "Charlotte" : "Nashville";
+      const i1 = t.content.indexOf(first), i2 = t.content.indexOf(second);
+      check(t.intent === "compare_markets" && t.head.startsWith(first) && i1 >= 0 && i2 > i1, `r4-4 ${JSON.stringify(q)}${scope ? " (scoped " + scope.id + ")" : ""}: leads with ${t.head.slice(0, 60)}`);
+    }
+    const ord = inMentionOrder("Austin, Atlanta and Charlotte", markets.filter((m) => ["charlotte", "atlanta", "austin"].includes(m.slug))).map((m) => m.slug);
+    check(ord.join() === "austin,atlanta,charlotte", `r4-4 inMentionOrder: ${ord.join()}`);
+  }
+  {
+    // r4 Dallas: card headed "Dallas"; each figure's area in its citation; no doubled name.
+    const dl = await ask("How is Dallas doing?", null, null);
+    check(dl.head.startsWith("Dallas:") && !/Dallas–Fort Worth/.test(dl.head), `r4 Dallas heading: ${dl.head.slice(0, 80)}`);
+    const fw = await ask("How is Fort Worth doing?", null, null);
+    check(fw.marketSlug === "dallas" && fw.head.startsWith("Dallas:"), `r4 Fort Worth → Dallas: ${fw.head.slice(0, 60)}`);
+    check(/\(Cushman & Wakefield, Dallas market\)/.test(dl.head), `r4 Dallas lead figure area tag: ${dl.head.slice(0, 200)}`);
+    const sup = await ask("What's the supply pipeline in Dallas?", null, null);
+    check(sup.head.startsWith("Dallas supply: supply-pressure score") && !/Dallas–Fort Worth supply|supply: Dallas supply/.test(sup.head) && /Lodging Econometrics, Dallas market\)/.test(sup.head), `r4 Dallas supply headline: ${sup.head.slice(0, 160)}`);
+    const all = new Map<string, string>();
+    for (const q of ["How is Dallas doing?", "What's the supply pipeline in Dallas?", "What are the hotel tax collections in Dallas?", "How many visitors does Dallas get?", "Dallas debt and deals", "Dallas airport traffic", "What's the RevPAR and occupancy read for Dallas?"]) {
+      const a = await card(q, null, null, "all");
+      // Every figure citation on the card (headline + reads + sections; the "sources consulted" list is per signal, not per figure).
+      const walk = (o: unknown): void => {
+        if (!o || typeof o !== "object") return;
+        if (Array.isArray(o)) return o.forEach(walk);
+        const src = o as { label?: unknown; url?: unknown; area?: unknown };
+        if (typeof src.url === "string" && typeof src.label === "string" && !all.get(src.url)) all.set(src.url, typeof src.area === "string" ? src.area : "");
+        for (const [k, v] of Object.entries(o)) if (k !== "cited") walk(v);
+      };
+      walk(a.brief);
+      if (/hotel tax/.test(q)) check(/City of Dallas — hotel-tax collections/.test(a.content) && !/Dallas–Fort Worth–Arlington MSA — hotel-tax/.test(a.content), `r4 Dallas tax memo heading: ${a.content.slice(0, 80)}`);
+    }
+    const want: [RegExp, string][] = [[/cushmanwakefield|costar|lodgingeconometrics/i, "Dallas market"], [/data\.texas\.gov|dallascityhall|visitdallas/i, "City of Dallas"], [/dfwairport|crosstimbersgazette|matthews/i, "DFW metro"]];
+    for (const [url, area] of all) for (const [re, a] of want) if (re.test(url)) check(area === a, `r4 Dallas source ${url} tagged ${JSON.stringify(area)} (want ${a})`);
+    console.log(`  r4 Dallas: ${dl.head.slice(0, 120)} · tagged sources ${[...all.values()].filter(Boolean).length}/${all.size}`);
+  }
+  {
+    // r4 Chicago: no LinkedIn-sourced figure (CoStar's YTD-Aug +11.6% was only public as a LinkedIn post).
+    for (const q of ["What's RevPAR in Chicago?", "How is Chicago doing?", "Chicago debt and deals", "What's the RevPAR and occupancy read for Chicago?", "Chicago visitation"]) {
+      const j = JSON.stringify(await card(q, null, null, "all"));
+      check(!/linkedin/i.test(j) && !j.includes("11.6%"), `r4 Chicago ${JSON.stringify(q)}: LinkedIn source or 11.6% figure`);
+    }
+    const t = new Thread(chicagoScope);
+    const c = await t.ask("How has RevPAR moved here over the last 12 months?", "12m");
+    check(!/linkedin/i.test(JSON.stringify(c)), "r4 Chicago scoped RevPAR card cites LinkedIn");
   }
 
   // seen validation (untrusted input): an array of ≤ SEEN_MAX 16-hex strings; anything else is ignored whole.

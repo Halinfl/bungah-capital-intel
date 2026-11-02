@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { withoutSocial } from "./social-sources";
 import { prisma } from "./prisma";
 import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
 
@@ -359,6 +360,9 @@ function taxLine(s: SignalRow): string {
 
 const TAX_TEXT = /\b(hotel|occupancy|lodging|tourist development|transient|accommodations?|bed|room)[- ]+(occupancy |development )?tax|\b(TDT|TOT|TAT|HOT|CDT)\b|hotel-motel tax/i;
 
+/** Markets whose published hotel-tax series is a city's, not the metro's: the heading names the city. */
+const TAX_AREA: Record<string, string> = { dallas: "City of Dallas" };
+
 /** Hotel-tax answer for one market: the published series newest first, each row linked to its source. */
 export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const { other, tax } = splitTaxSeries(market.signals);
@@ -370,7 +374,7 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const caveat = latest && at >= 0 ? latest.body.slice(at + 7).replace(/\s*Decision support\.?$/, "") : "";
   const lines: string[] = figures.length
     ? [
-        `**${market.name} — hotel-tax collections (newest first)**`,
+        `**${TAX_AREA[market.slug] ?? market.name} — hotel-tax collections (newest first)**`,
         "",
         ...figures.map(taxLine),
         ...(caveat ? ["", `_Basis & caveats:_ ${caveat}`] : []),
@@ -668,16 +672,17 @@ export async function retrieveGraphContext(
   const markets = marketsQ.data;
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
-    m.signals = citedOnly(m.signals);
+    // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
+    m.signals = withoutSocial(citedOnly(m.signals));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = citedOnly(
+  const nationalSignals = withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  );
+  ));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -823,10 +828,12 @@ export async function answerFromGraph(
   // Compare markets — require two named/matched markets; never default Orlando vs Vegas
   if (intent === "compare_markets") {
     const scored = [matched, ...ctx.secondary].filter(Boolean) as MarketRow[];
-    const unique: MarketRow[] = [];
+    const deduped: MarketRow[] = [];
     for (const m of scored) {
-      if (!unique.some((u) => u.id === m.id)) unique.push(m);
+      if (!deduped.some((u) => u.id === m.id)) deduped.push(m);
     }
+    // The user's order: "Compare Nashville vs Charlotte" leads with Nashville (scoped or not).
+    const unique = inMentionOrder(question, deduped);
     if (unique.length >= 2) {
       const a = unique[0]!;
       const b = unique[1]!;
@@ -1071,13 +1078,13 @@ export async function answerFromGraph(
 export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
-  const rows = citedOnly(
+  const rows = withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
         select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
       }), [], GRAPH_MEMO)).data
-  );
+  ));
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
   for (const r of rows) {
@@ -1182,6 +1189,22 @@ const GENERIC_PLACE_TOKENS = new Set([
 
 function wordRe(token: string): RegExp {
   return new RegExp(`(^|[^\\p{L}])${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=$|[^\\p{L}])`, "iu");
+}
+
+/** Where a market is first named in the question (its earliest alias / name token); Infinity when not named. */
+export function mentionIndex(question: string, m: { slug: string; name: string }): number {
+  let best = Infinity;
+  for (const t of marketSearchTokens(m)) {
+    const re = ALIAS_PATTERNS[t] ?? wordRe(t);
+    const g = new RegExp(re.source, re.flags.replace("g", "")).exec(question);
+    if (g) best = Math.min(best, g.index + (g[1]?.length ?? 0));
+  }
+  return best;
+}
+
+/** Markets in the order the user named them ("Nashville vs Charlotte" leads with Nashville); unnamed ones keep their place after. */
+export function inMentionOrder<T extends { slug: string; name: string }>(question: string, list: T[]): T[] {
+  return list.map((m, i) => ({ m, i, at: mentionIndex(question, m) })).sort((x, y) => x.at - y.at || x.i - y.i).map((x) => x.m);
 }
 
 /** Covered markets named by a specific (non-generic) token, whole-word match. */

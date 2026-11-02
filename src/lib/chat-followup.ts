@@ -145,6 +145,21 @@ export const NO_REPEAT_LINE = "That's the same answer as above. Nothing more spe
 /** The one-line reply when the matching answer was shown earlier in the thread, not directly above. */
 export const NO_REPEAT_EARLIER_LINE = "That's the same answer as earlier in this chat. Nothing more specific is on file for that.";
 
+/** After a premise or decline line on a repeat: the card itself is not shown again. */
+export const CARD_ABOVE_LINE = "The full cited card is above.";
+
+/**
+ * The new line a repeated card carries, if any: the decline's first sentence ("We don't give buy or sell
+ * recommendations.") and/or the premise check ("Mixed: occupancy is down 0.2% in Q2 2026 (Cushman & Wakefield) but
+ * up 3.2% …"). Plain text (the note is shown as plain text above its chips). Empty when there is none.
+ */
+export function repeatExtraLine(brief: unknown): string {
+  const b = brief as { decline?: string; premise?: string } | null | undefined;
+  const decline = b?.decline ? (b.decline.match(/\*\*([^*]+)\*\*/)?.[1] ?? b.decline.split(/(?<=\.)\s/)[0]).trim() : "";
+  const premise = b?.premise?.trim() ?? "";
+  return [decline, premise].filter(Boolean).join(" ");
+}
+
 /** Which note: "as above" when the match is the last answer (prev.answerHash), else "earlier in this chat". */
 export function noRepeatLine(hash: string, prev: Prev | null | undefined): string {
   return prev?.answerHash === hash ? NO_REPEAT_LINE : NO_REPEAT_EARLIER_LINE;
@@ -286,6 +301,7 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
   const hash = answerHash(answer);
   const shown = shownHashes(x.prev);
   if (!shown.has(hash)) return { answer, hash, repeat: false };
+  const extra = repeatExtraLine(answer.brief);
   const candidates = followUpChips({ intent: answer.intent as ChatIntent | undefined, market: await marketShortName(answer.marketSlug), question: x.question, range: x.range, peers: await peerNames(answer.marketSlug) });
   const taken = new Set<string>([...shown, hash]);
   const followUps: FollowUpChip[] = [];
@@ -299,7 +315,9 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
     followUps.push(c);
   }
   return {
-    answer: { ...answer, content: noRepeatLine(hash, x.prev), brief: null, citations: [], sources: [], answeredWell: false },
+    // Never lose a new line: a premise or decline line is shown first, then "The full cited card is above.";
+    // the bare note only when the repeat adds nothing.
+    answer: { ...answer, content: extra ? `${extra} ${CARD_ABOVE_LINE}` : noRepeatLine(hash, x.prev), brief: null, citations: [], sources: [], answeredWell: false },
     hash,
     repeat: true,
     followUps,
