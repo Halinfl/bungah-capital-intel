@@ -342,8 +342,11 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             <span className="src-meta text-slate-300">
               <span className="src-sep">{"\u00a0· "}</span>
               {s.publisher}
-              {"\u00a0· "}
-              <span className="whitespace-nowrap">{fmtDate(s.date)}</span>
+              {/* Below 640px "· date" never splits, so the grey line never ends on "·". */}
+              <span className="max-sm:whitespace-nowrap">
+                {"\u00a0· "}
+                <span className="whitespace-nowrap">{fmtDate(s.date)}</span>
+              </span>
             </span>
           </span>
         </li>
