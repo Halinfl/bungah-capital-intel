@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
 import { withoutRules } from "./rule-rows";
-import { publisherName, stripLeaks } from "./public-text";
+import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
 import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
 import { prisma } from "./prisma";
 import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
@@ -383,7 +383,7 @@ export function areaCitations(slug: string, rows: SignalRow[]): string[] {
     const links = parseSourceUrls(s.sourceUrls);
     const whole = signalArea(slug, s.title);
     if (!links.length) {
-      if (s.sourceLabel && !/no public read/i.test(s.sourceLabel)) add(whole ?? areaFor(slug, s.kind, `${s.title} ${s.sourceLabel}`) ?? "Other sources", s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, ""));
+      if (s.sourceLabel && !/no public read/i.test(s.sourceLabel) && !/^No linked public source\b/i.test(cleanSourceLabel(s.sourceLabel)) && cleanSourceLabel(s.sourceLabel)) add(whole ?? areaFor(slug, s.kind, `${s.title} ${s.sourceLabel}`) ?? "Other sources", s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, ""));
       continue;
     }
     for (const l of links) {
@@ -392,8 +392,19 @@ export function areaCitations(slug: string, rows: SignalRow[]): string[] {
       add(whole ?? areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
     }
   }
-  const order = [...groups.keys()].sort((a, b) => (a === "Other sources" ? 1 : 0) - (b === "Other sources" ? 1 : 0));
-  return scrubSeedCitations(order.map((a) => `${a}: ${groups.get(a)!.join(" · ")}`));
+  // Each publisher in one group only (Eric r6 QA): the area its rows cover, or Other sources when they span areas.
+  const areasOf = new Map<string, Set<string>>();
+  for (const [area, pubs] of groups) for (const p of pubs) areasOf.set(p, (areasOf.get(p) ?? new Set()).add(area));
+  const single = new Map<string, string[]>();
+  for (const [area, pubs] of groups)
+    for (const p of pubs) {
+      const a = (areasOf.get(p)?.size ?? 0) > 1 ? "Other sources" : area;
+      const g = single.get(a) ?? [];
+      if (!g.includes(p)) g.push(p);
+      single.set(a, g);
+    }
+  const order = [...single.keys()].sort((a, b) => (a === "Other sources" ? 1 : 0) - (b === "Other sources" ? 1 : 0));
+  return dropNoSourceCitations(scrubSeedCitations(order.map((a) => `${a}: ${single.get(a)!.join(" · ")}`)));
 }
 
 /** A caveat with clauses already said elsewhere in it dropped ("self-reported; …. Self-reported; the …" → once). */
@@ -487,9 +498,9 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const own = TAX_AREA[market.slug];
   // "Self-reported" is said once, in the caveat (Eric QA r5): row tags and related rows drop it unless a row differs.
   const saysSelf = /self-reported/i.test(caveat);
-  const allSelf = figures.every((s) => /self-reported/i.test(s.magnitude ?? ""));
   const unSelf = (t: string) => t.replace(/\s*·\s*self-reported\b/gi, "").replace(/\bself-reported\b\s*(?:municipal HOT\s*)?;\s*/gi, "").replace(/\bCaveats:\s*(?=[a-z])/g, "Caveats: ");
-  const shownFigures = saysSelf && allSelf ? figures.map((s) => ({ ...s, magnitude: s.magnitude ? unSelf(s.magnitude) : s.magnitude })) : figures;
+  // Rows that say it repeat the caveat (Houston: every Comptroller row); rows that don't are unaffected.
+  const shownFigures = saysSelf ? figures.map((s) => ({ ...s, magnitude: s.magnitude ? unSelf(s.magnitude) : s.magnitude })) : figures;
   const relatedRow = (s: SignalRow) => (saysSelf ? { ...s, body: unSelf(s.body) } : s);
   const relatedLine = (s0: SignalRow) => {
     const s = relatedRow(s0);

@@ -1328,7 +1328,8 @@ export function makeBrief(
   };
   clean.collapsedChars = collapsedLength(clean);
   // A declined question stays short: under 600 characters collapsed (drop trailing reads; their sources stay in the sections).
-  while (clean.decline && clean.reads.length > 1 && clean.collapsedChars >= 590) {
+  // (The Fed no-forecast line is not a decline of the question: the full card follows it.)
+  while (clean.decline && !/^We don't forecast Fed decisions/.test(clean.decline) && clean.reads.length > 1 && clean.collapsedChars >= 590) {
     clean.reads = clean.reads.slice(0, -1);
     clean.collapsedChars = collapsedLength(clean);
   }

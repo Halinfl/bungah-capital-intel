@@ -12,6 +12,16 @@ export function isRuleRow(r: { kind?: string | null; sourceLabel?: string | null
   return (typeof r.kind === "string" && RULE_KINDS.has(r.kind)) || OWN_SOURCE.test(r.sourceLabel ?? "");
 }
 
+/** A source label / link label that is our own site or synthesis: never shown as a citation. */
+export function isOwnSource(label: string | null | undefined): boolean {
+  return OWN_SOURCE.test(label ?? "") || /\bBungah Capital Intel(?: Baseline)?\s*(?:\(|talent synthesis)/i.test(label ?? "");
+}
+
+/** Source links minus any that cite our own site. */
+export function withoutOwnLinks<T extends { label?: string | null }>(links: T[]): T[] {
+  return links.filter((l) => !isOwnSource(l.label));
+}
+
 export function withoutRules<T extends { kind?: string | null; sourceLabel?: string | null }>(rows: T[]): T[] {
   return rows.filter((r) => !isRuleRow(r));
 }

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
-import { citedOnly, isIndexableMarket, isNoReadSignal } from "@/lib/format";
+import { publicRows, isIndexableMarket, isNoReadSignal } from "@/lib/format";
 import { isPrivatePath } from "@/lib/seo";
 import { reits } from "@/lib/reits";
 import { TT_CAPTURE_DATE, ttIssues } from "@/lib/tuesday-trends";
@@ -27,22 +27,22 @@ const LASTMOD: Record<string, string> = {
 };
 
 /** Latest of the market row update and the newest signal the page shows. */
-type SitemapSignal = { sourceLabel: string | null; title: string; body: string; magnitude: string | null; asOf: string | null; createdAt: Date };
+type SitemapSignal = { kind: string; sourceLabel: string | null; title: string; body: string; magnitude: string | null; asOf: string | null; createdAt: Date };
 function marketLastmod(m: { updatedAt: Date; signals: SitemapSignal[] }): Date {
-  const shown = citedOnly(m.signals).filter((s) => !isNoReadSignal(s));
+  const shown = publicRows(m.signals).filter((s) => !isNoReadSignal(s));
   return shown.reduce((d, s) => (s.createdAt > d ? s.createdAt : d), m.updatedAt);
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // DB outage: still serve the static pages (markets list from cache, or omitted).
-  const { data: markets } = await cachedQuery(["sitemap-markets"], () =>
+  const { data: markets } = await cachedQuery(["sitemap-markets-v2"], () =>
     prisma.market.findMany({
       orderBy: { name: "asc" },
       select: {
         slug: true,
         sourceLabel: true,
         updatedAt: true,
-        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, createdAt: true } },
+        signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, createdAt: true } },
       },
     }), []);
   const indexable = markets.filter(isIndexableMarket);

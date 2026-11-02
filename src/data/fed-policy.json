@@ -6,7 +6,10 @@
     "upper": 4.0,
     "asOf": "2026-11-01",
     "source": "FRED, Federal Reserve Bank of St. Louis (DFEDTARL / DFEDTARU)",
-    "urls": ["https://fred.stlouisfed.org/series/DFEDTARU", "https://fred.stlouisfed.org/series/DFEDTARL"]
+    "urls": [
+      "https://fred.stlouisfed.org/series/DFEDTARU",
+      "https://fred.stlouisfed.org/series/DFEDTARL"
+    ]
   },
   "decisions": [
     {
@@ -29,6 +32,17 @@
       "source": "Federal Reserve",
       "title": "FOMC statement, Sep 16, 2026",
       "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm"
+    }
+  ],
+  "upcomingMeetings": [
+    {
+      "start": "2026-12-08",
+      "end": "2026-12-09",
+      "sep": true,
+      "source": "Federal Reserve, FOMC meeting calendar",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "checkedAt": "2026-11-02",
+      "note": "2026 calendar lists 'December 8-9*' (* = Summary of Economic Projections); the Oct 27-28 meeting precedes it."
     }
   ]
 }

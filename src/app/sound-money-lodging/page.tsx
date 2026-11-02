@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
-import { citedOnly, hasPublicCoverage, isNoReadSignal, isPlaceholderText } from "@/lib/format";
+import { publicRows, hasPublicCoverage, isNoReadSignal, isPlaceholderText } from "@/lib/format";
 import { StackStudio } from "./StackStudio";
 import { SleeveCarryCheck } from "./SleeveCarryCheck";
 import { GroundRentCoverage } from "./GroundRentCoverage";
@@ -215,15 +215,15 @@ export default async function SoundMoneyLodgingPage({
   searchParams: Promise<{ market?: string }>;
 }) {
   const sp = await searchParams;
-  const allMarketsQ = await cachedQuery(["sml-markets"], () =>
+  const allMarketsQ = await cachedQuery(["sml-markets-v2"], () =>
     prisma.market.findMany({
       orderBy: { name: "asc" },
-      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+      include: { signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
     }), []);
   const allMarkets = allMarketsQ.data;
   // The memo picker lists only the markets with cited coverage (same 17-market rule as /markets).
   const markets = allMarkets.filter((m) =>
-    hasPublicCoverage(m, citedOnly(m.signals).filter((x) => !isNoReadSignal(x)).length)
+    hasPublicCoverage(m, publicRows(m.signals).filter((x) => !isNoReadSignal(x)).length)
   );
   const coveredIds = new Set(markets.map((m) => m.id));
   const initialSlug = markets.some((m) => m.slug === sp.market)

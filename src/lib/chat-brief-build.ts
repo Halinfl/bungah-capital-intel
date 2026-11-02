@@ -9,7 +9,7 @@ import { nearestCoveredMarkets } from "./chat-coverage";
 import { coverageInProgressLine, isSeedMarket } from "./format";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import { publisherName, scrubInternal } from "./public-text";
-import { FED_POLICY, fedDate, fedDecisions, isFedPolicyQuestion, rangeText, type FedPolicy } from "./fed-policy";
+import { FED_POLICY, fedDate, fedDecisions, fedForecastLine, isFedForecastQuestion, isFedPolicyQuestion, pct as fedPct, rangeText, type FedPolicy } from "./fed-policy";
 import {
   chipKind,
   coverageLine,
@@ -365,6 +365,8 @@ function headLine(scope: string, lens: Lens, f: Fact): string {
 
 export type BriefOpts = {
   decline?: string;
+  /** ISO date for "today" (tests); defaults to the current date in New York. */
+  today?: string;
   /** Date window (All by default); market rows carry their own via windowMarket. */
   range?: DateRange;
   notes?: string[];
@@ -482,13 +484,17 @@ export function fullPeriodOf(f: Fact): Period | null {
 }
 export function visitorHead(facts: Fact[]): Fact | null {
   const list = facts
-    .filter((f) => f.readable && f.kind !== "tax" && VISITOR_FIG.test(f.text) && VISITOR_COUNT.test(f.text) && !/no public read|\b(forecast|projected|projection|outlook|YTD|year to date|to date)\b|\b(tourist development|occupancy|hotel|lodging|room|accommodations?|transient|bed)\s+(occupancy\s+)?tax\b|\b(TDT|TOT|HOT|TAT)\b/i.test(f.text) && !FORECAST.test(f.text) && !isEventPrint(f))
+    .filter((f) => f.readable && f.kind !== "tax" && VISITOR_FIG.test(f.text) && VISITOR_COUNT.test(f.text) && !/no public read|\b(forecast|projected|projection|outlook|YTD|year to date|to date)\b|\b(tourist development|occupancy|hotel|lodging|room|accommodations?|transient|bed)\s+(occupancy\s+)?tax\b|\b(TDT|TOT|HOT|TAT)\b/i.test(f.text) && !FORECAST.test(f.text) && !isEventPrint(f) && !isStateFigure(f) && !VENUE_COUNT.test(f.text))
     .map((f) => ({ f, p: fullPeriodOf(f) }))
     .filter((x): x is { f: Fact; p: Period } => Boolean(x.p))
     .sort((a, b) => b.p.end - a.p.end || b.f.key - a.f.key);
   const top = list[0];
   // "Dallas visitors 2024 (latest): 27.7M" is dated by its data year, not the article date.
   return top ? { ...top.f, text: top.f.text.replace(/\s*\(latest\)/i, ""), period: top.p } : null;
+}
+/** The newest state-level visitor count (for the "Statewide:" bullet). */
+export function stateVisitorFact(facts: Fact[]): Fact | null {
+  return facts.filter((f) => f.readable && f.kind !== "tax" && VISITOR_FIG.test(f.text) && VISITOR_COUNT.test(f.text) && isStateFigure(f)).sort((a, b) => b.key - a.key)[0] ?? null;
 }
 /** A one-off event (a match, a citywide meeting) of ten days or less. */
 const EVENT_WORDS = /\b(meeting|convention|conference|expo|festival|tournament|concert|match(es)?|game|race|marathon|summit)\b/i;
@@ -500,7 +506,16 @@ export function isEventPrint(f: Fact): boolean {
   return WEEKLY_TEXT.test(f.text) || /^w\/e /.test(f.period?.label ?? "") || (eventSpan && EVENT_TEXT.test(f.text)) || (short && (EVENT_WORDS.test(f.text) || f.kind === "citywide_calendar"));
 }
 /** A single week or event print on a demand card reads as what it is: "Event week: …", "Event: …", "Single week: …". */
+/** A state-level figure ("Georgia statewide visitors 2025: 175.6M"): never a market's visitor headline (Eric r6 QA). */
+const US_STATES = "Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New Hampshire|New Jersey|New Mexico|New York State|North Carolina|North Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington State|West Virginia|Wisconsin|Wyoming";
+const STATE_LEAD = new RegExp(`^(?:${US_STATES})\\b(?!\\s+(?:Avenue|Street|Convention|Center|World|Aquarium))`);
+/** A venue / campus count or a visitor subset ("GWCCA campus FY25: 1.15M out-of-state visitors"): not the market's visitor count. */
+const VENUE_COUNT = /\b(campus|venue|convention cent(?:er|re)|stadium|arena|attendees?|attendance|out-of-state|international visitors only)\b/i;
+export function isStateFigure(f: Pick<Fact, "text">): boolean {
+  return /\bstatewide\b|(?<![-\w])state(?:-level)? (?:total|visitors|visitation|tourism)\b/i.test(f.text) || STATE_LEAD.test(f.text.trim());
+}
 export function spotLabel(f: Fact): string | null {
+  if (isStateFigure(f) && VISITOR_FIG.test(f.text)) return "Statewide";
   if (!isEventPrint(f)) return null;
   const weekly = WEEKLY_TEXT.test(f.text) || /^w\/e /.test(f.period?.label ?? "");
   const event = EVENT_TEXT.test(f.text) || EVENT_WORDS.test(f.text) || f.kind === "citywide_calendar";
@@ -738,6 +753,12 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = headLine(short, "demand", head);
       reads = perfReads(facts, n, new Set([head.text]));
     }
+  } else if (lens === "demand" && intent !== "revpar_metrics" && !visitorHead(facts) && opts.question && VISITOR_Q.test(opts.question) && stateVisitorFact(facts)) {
+    // Only a state-level visitor count on file: say so; the statewide figure is a labeled bullet, not the lead.
+    const st = stateVisitorFact(facts)!;
+    answer = `${short}: no cited city or metro visitor count on file.`;
+    const n = 3 - (opts.extraReads?.length ?? 0);
+    reads = [st, ...demandReads(facts, n, st).filter((f) => !sameFact(f, st) && !isStateFigure(f))].slice(0, n);
   } else if (lens === "demand" && intent !== "revpar_metrics" && visitorHead(facts) && ((opts.question && VISITOR_Q.test(opts.question)) || !pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f)))) {
     // "How many visitors does Dallas get?": the latest full-period visitor count leads; the newest event print
     // (a World Cup week) stays as a labeled bullet.
@@ -750,7 +771,10 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   } else if (lens === "demand" && intent !== "revpar_metrics" && pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f))) {
     // "What's demand doing": a demand driver (visitors, airlift, events, group) leads; the OCC / ADR snapshot
     // belongs to the performance answer, so the two starters never open the same card. Never a single event week.
-    const head = pickReads(facts, "demand", 6).find((f) => DRIVER(f) && !isEventPrint(f))!;
+    const drivers = pickReads(facts, "demand", 6).filter((f) => DRIVER(f) && !isEventPrint(f));
+    const stateLead = (f?: Fact) => Boolean(f && isStateFigure(f) && VISITOR_FIG.test(f.text));
+    // A state-level visitor count never leads a market's demand card: the market's own visitor count does.
+    const head = stateLead(drivers[0]) ? (visitorHead(facts) ?? drivers.find((f) => !stateLead(f)) ?? drivers[0]) : drivers[0];
     answer = headLine(short, "demand", head);
     reads = demandReads(facts, 3 - (opts.extraReads?.length ?? 0), head);
   } else if (lens === "demand" && metrics) {
@@ -988,14 +1012,41 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
     .flatMap((s) => signalFacts(s).slice(0, 1))
     .filter((f) => f.period)
     .sort((a, b) => b.key - a.key)[0];
-  const reads: BriefRead[] = [...decisions.slice(0, 2).map(fedRead)];
+  // The target range itself, linked to the FRED series pages (r6b: a clickable FRED link on the answer).
+  const fredRead = (url: string, which: "upper" | "lower"): BriefRead => {
+    const series = url.split("/").pop() ?? "";
+    return toRead({
+      text: `FRED ${series}: ${which} limit of the fed funds target range ${fedPct(which === "upper" ? tr.upper : tr.lower)}`,
+      asOf: tr.asOf,
+      key: Number(tr.asOf.replace(/-/g, "")),
+      source: { kind: "Record", label: "FRED, Federal Reserve Bank of St. Louis", url, title: `FRED ${series}`, publisher: "Federal Reserve Bank of St. Louis", date: tr.asOf },
+      kind: "rates",
+      title: `FRED ${series}`,
+      readable: true,
+    });
+  };
+  // One bullet for the range, linked to the FRED series page (DFEDTARU; DFEDTARL is in Sources).
+  const upperUrl = tr.urls.find((u) => /DFEDTARU$/.test(u)) ?? tr.urls[0];
+  const fredRange: BriefRead = {
+    ...fredRead(upperUrl, "upper"),
+    text: `FRED DFEDTARU / DFEDTARL: fed funds target range ${rangeText(tr.lower, tr.upper)} (upper ${fedPct(tr.upper)}, lower ${fedPct(tr.lower)})`,
+  };
+  fredRange.source = { ...fredRange.source, title: "FRED DFEDTARU / DFEDTARL" };
+  // Three bullets: the range (FRED), the latest decision (Federal Reserve), the 10-year (market rate). The prior
+  // decision stays in the headline and in Sources.
+  const reads: BriefRead[] = [fredRange, ...decisions.slice(0, 1).map(fedRead)];
   if (tenY) {
     const r = toRead(tenY);
-    reads.push({ ...r, text: `Market rate, not Fed policy: ${r.text.replace(/^US 10Y\b/, "US 10-year")}` });
+    // One date on the 10-year (Eric r6 QA): "5.09% (Oct 16, 2026 close)".
+    const full = tenY.period?.end ? fedDate(`${String(tenY.period.end).slice(0, 4)}-${String(tenY.period.end).slice(4, 6)}-${String(tenY.period.end).slice(6, 8)}`) : null;
+    const text = r.text.replace(/^US 10Y\b/, "US 10-year").replace(/\(([A-Z][a-z]{2} \d{1,2}) close\)/, (m0, d) => (full && full.startsWith(d) ? `(${full} close)` : m0));
+    reads.push({ ...r, text: `Market rate, not Fed policy: ${text}` });
   }
-  const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind) || RATE_ROW.test(s.title));
-  const ordered = [...debt].sort((a, b) => Number(/fed funds|FOMC/i.test(b.title)) - Number(/fed funds|FOMC/i.test(a.title)) || Number(RATE_ROW.test(b.title)) - Number(RATE_ROW.test(a.title)));
   const fred = tr.urls.map((url) => ({ key: url, url, label: tr.source, text: `${url.split("/").pop()} — ${tr.source}`, asOf: tr.asOf, period: periodOf(tr.asOf) }));
+  // A forecast question names the next scheduled meeting: cite the federalreserve.gov calendar it comes from.
+  const cal = /^We don't forecast Fed decisions\. The next FOMC meeting/.test(opts.decline ?? "") ? policy.upcomingMeetings?.[0] : null;
+  for (const d of decisions.slice(1, 2)) fred.push({ key: d.url, url: d.url, label: d.source, text: `${d.title} — ${d.source}`, asOf: d.date, period: periodOf(d.date) });
+  if (cal) fred.push({ key: cal.url, url: cal.url, label: cal.source, text: `FOMC meeting calendar — ${cal.source}`, asOf: cal.checkedAt, period: periodOf(cal.checkedAt) });
   return makeBrief({
     decline: opts.decline,
     answer,
@@ -1006,13 +1057,18 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
       range,
     }),
     window: { range, filterable: true },
-    sections: signalSections(ordered, "debt", "national"),
+    // Fed policy only: the national debt & deals rows are not part of this card (Eric r6 QA).
+    sections: [],
   });
 }
 
 /** Benchmark rate question: the newest cited row for that rate leads, with its date and source. */
 export function ratesBrief(signals: SignalLike[], question: string, opts: BriefOpts = {}): ChatBrief {
-  if (isFedPolicyQuestion(question)) return fedPolicyBrief(signals, opts);
+  if (isFedPolicyQuestion(question)) {
+    // "Will the Fed cut in December?": no forecast; the next scheduled meeting, then the card.
+    const decline = !opts.decline && isFedForecastQuestion(question) ? fedForecastLine(opts.today ?? new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" })) : opts.decline;
+    return fedPolicyBrief(signals, { ...opts, decline });
+  }
   const rows = signals.filter((s) => RATE_ROW.test(s.title));
   const series = rateSeries(question);
   const facts = rows.flatMap((s) => signalFacts(s).slice(0, 1).map((f) => ({ f, s })));

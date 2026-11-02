@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { citedOnly, citedFindings, coverageInProgressLine, fmtPct, fmtUsd, isNoReadSignal, isSeedMarket } from "./format";
+import { publicRows, citedFindings, coverageInProgressLine, fmtPct, fmtUsd, isNoReadSignal, isSeedMarket } from "./format";
 import { parseSourceUrls } from "./source-links";
 import { splitTaxSeries } from "./tax-series";
 import { buildStackMemo, STACK_MEMO_KIND, type MemoPurpose } from "./stack-memo";
@@ -94,7 +94,7 @@ function snapshotRow(market: LoadedMarket): { t: string; u: string[]; d: string 
 
 function tier1Signals<T extends { id: string }>(all: T[], cited: T[]): T[] {
   const ids = new Set(cited.map((s) => s.id));
-  return citedOnly(all as never[]).filter((s: T) => ids.has(s.id) || /^tax-/.test(s.id)) as T[];
+  return publicRows(all as never[]).filter((s: T) => ids.has(s.id) || /^tax-/.test(s.id)) as T[];
 }
 
 async function loadMarket(marketSlug: string) {
@@ -115,10 +115,10 @@ async function loadMarket(marketSlug: string) {
   return {
     ...market,
     seed: isSeedMarket(market),
-    assets: citedOnly(market.assets),
+    assets: publicRows(market.assets),
     // Memos carry the latest four hotel-tax prints, not the full series (that lives on the market page / chat).
     signals: (() => {
-      const { other, tax } = splitTaxSeries(citedOnly(market.signals));
+      const { other, tax } = splitTaxSeries(publicRows(market.signals));
       return [...other, ...tax.filter((t) => !/gaps$/.test(t.id)).slice(0, 4)];
     })(),
     findings: citedFindings(market.findings),

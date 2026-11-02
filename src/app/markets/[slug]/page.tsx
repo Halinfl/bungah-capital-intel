@@ -12,6 +12,7 @@ import { SignalCard } from "@/components/SignalCard";
 import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
+import { isOwnSource, withoutOwnLinks } from "@/lib/rule-rows";
 import {
   fmtPct,
   fmtUsd,
@@ -20,7 +21,7 @@ import {
   fmtRevpar,
   severityClass,
   isSeedMarket,
-  citedOnly,
+  publicRows,
   citedFindings,
   coverageInProgressLine,
   hasPublicCoverage,
@@ -46,10 +47,10 @@ function shortMarketLabel(name: string, slug: string): string {
 /** Markets without public coverage stay reachable by link but are not indexed. */
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data: m } = await cachedQuery(["market-meta", slug], () =>
+  const { data: m } = await cachedQuery(["market-meta-v2", slug], () =>
     prisma.market.findUnique({
       where: { slug },
-      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+      include: { signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
     }), null);
   if (!m) return { title: "Hotel market · Bungah Capital Intel", alternates: { canonical: `/markets/${slug}` } };
   const covered = isIndexableMarket(m);
@@ -103,9 +104,11 @@ export default async function MarketDetailPage({
   if (!market) notFound();
   // Seed / illustrative rows stay in the DB but are never rendered.
   // "tag: none / national applies" placeholder rows are not shown either.
-  market.signals = citedOnly(market.signals).filter((s) => !isNoReadSignal(s));
-  market.assets = citedOnly(market.assets);
-  market.findings = citedFindings(market.findings);
+  // Internal rule / methodology rows (kind nuance / labor_rule) and rows sourced only to our own synthesis are
+  // never shown (r6b); rule wording inside a data row is removed by scrubInternal / briefLine (public-text.ts).
+  market.signals = publicRows(market.signals).filter((s) => !isNoReadSignal(s));
+  market.assets = publicRows(market.assets);
+  market.findings = citedFindings(market.findings).filter((f) => !isOwnSource(f.sourceLabel));
   // Hotel-tax collection series render as their own newest-first section (Orlando-style cards).
   const { other: nonTax, tax: taxSeries } = splitTaxSeries(market.signals);
   market.signals = nonTax;
@@ -119,7 +122,7 @@ export default async function MarketDetailPage({
   const owners = marketOwners(market.slug);
 
   const renderSignal = (s: (typeof market.signals)[number], i: number, prefix = "sig") => {
-    const links = parseSourceUrls(s.sourceUrls);
+    const links = withoutOwnLinks(parseSourceUrls(s.sourceUrls));
     const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
     const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
     const title = scrubInternal(s.title);

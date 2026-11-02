@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
-import { citedFindings, citedOnly, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { citedFindings, publicRows, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { parseSourceUrls } from "@/lib/source-links";
 import { publisherName, scrubInternal } from "@/lib/public-text";
 import { REITS_UNIVERSE, reits } from "@/lib/reits";
@@ -69,14 +69,14 @@ export default async function HomePage() {
       },
     }), []);
   const markets = marketsQ.data;
-  const coveredCount = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length)).length;
+  const coveredCount = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length)).length;
 
   // Hero card: only markets whose snapshot is cited (no seed numbers). Source links come from the
   // market's own cited occupancy / visitation rows, which carry the same publisher documents.
   const snapshot = markets
     .filter((m) => !isSeedMarket(m) && m.occupancy != null && m.adr != null)
     .map((m) => {
-      const urls = citedOnly(m.signals)
+      const urls = publicRows(m.signals)
         .filter((s) => s.kind === "occupancy" || s.kind === "visitation")
         .flatMap((s) => parseSourceUrls(s.sourceUrls).slice(0, 1));
       // One link per publisher, at most two publishers per row.

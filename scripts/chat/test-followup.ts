@@ -738,7 +738,8 @@ async function main() {
     check(cites.length > 0 && cites.every((c) => /^(City of Dallas|City of Arlington|Dallas market|DFW metro|Other sources): /.test(c)), `r5-3 citations not grouped by area: ${JSON.stringify(cites)}`);
     const cod = cites.find((c) => c.startsWith("City of Dallas: ")) ?? "";
     check(!/fortworthreport|Real Deal|tradersunion/.test(cod), `r5-3 outside sources under City of Dallas: ${cod}`);
-    check(cites.some((c) => c === "City of Arlington: fortworthreport.org"), `r5-3 Arlington group: ${JSON.stringify(cites)}`);
+    // r6b (Eric r6 QA): each publisher in one group; fortworthreport.org covers more than one area → Other sources.
+    check(cites.filter((c) => /fortworthreport\.org/.test(c)).length === 1 && cites.some((c) => c.startsWith("Other sources: ") && /fortworthreport\.org/.test(c)), `r5-3/r6b fortworthreport.org group: ${JSON.stringify(cites)}`);
     check(/Arlington June 2026 HOT: \$31M \(\+39%, all-time record\) · Jun 2026 \(City of Arlington\)/.test(t.content), "r5-3 Arlington $31M row not tagged City of Arlington");
     check(((t.content.match(/_Basis & caveats:_[^]*?(?=_Gaps:_|\n|$)/)?.[0] ?? "").match(/self-reported/gi) ?? []).length === 1, `r5-4 'self-reported' repeated in the caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]}`);
     check(/_Basis & caveats:_ Self-reported\. The reporting year is set by the filer and may follow the city FY \(Oct–Sep\)\./.test(t.content), `r5-4 caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]?.slice(0, 160)}`);
@@ -774,9 +775,14 @@ async function main() {
       const f = await ask(q, scope, null);
       check(f.head === FED_HEAD, `r6-1 Fed head (${q}, ${scope?.id ?? "unscoped"}): ${f.head}`);
       const reads = (f.brief?.reads ?? []).map((r) => String(r.text ?? ""));
-      check(/^FOMC Oct 28, 2026: held the target range at 3\.75–4\.00% \(vote 10–2\)/.test(reads[0] ?? ""), `r6-1 first read: ${reads[0]}`);
-      check(reads.some((t) => /^Market rate, not Fed policy: US 10-year Treasury \d+\.\d+%/.test(t)), `r6-1 10-year bullet: ${reads.join(" | ")}`);
-      const said = f.content.replace(/\bno forecast\b/gi, "");
+      // r6b: the FRED range bullet (linked to the series page) first, then the latest decision, then the 10-year with one date.
+      check(reads[0] === "FRED DFEDTARU / DFEDTARL: fed funds target range 3.75–4.00% (upper 4.00%, lower 3.75%)", `r6b FRED bullet: ${reads[0]}`);
+      check((f.brief as { reads?: { source?: { url?: string } }[] } | null)?.reads?.[0]?.source?.url === "https://fred.stlouisfed.org/series/DFEDTARU", "r6b FRED bullet links the DFEDTARU series page");
+      check(/^FOMC Oct 28, 2026: held the target range at 3\.75–4\.00% \(vote 10–2\)/.test(reads[1] ?? ""), `r6-1 decision read: ${reads[1]}`);
+      check(/^Market rate, not Fed policy: US 10-year Treasury \d+\.\d+% \(Oct 16, 2026 close\)$/.test(reads[2] ?? ""), `r6b 10-year one date: ${reads[2]}`);
+      check(!/Debt & deals/.test(f.content) && ((f.brief as { sections?: { title: string }[] } | null)?.sections ?? []).every((x) => x.title === "Sources"), "r6b Fed card carries no Debt & deals section");
+      check(!/We don't forecast/.test(f.content) || /^Will/.test(q), `r6b no-forecast line only on forecast questions (${q})`);
+      const said = f.content.replace(/\bno forecast\b|We don't forecast Fed decisions\. The next FOMC meeting is [^.]*\./gi, "");
       check(!FORECAST.test(said), `r6-1 forecast wording: ${said.match(new RegExp(`.{0,60}(?:${FORECAST.source}).{0,40}`, "i"))?.[0]}`);
       check(/no forecast/.test(f.content), "r6-1 coverage note says no forecast");
       const fc = await card(q, scope, null, "all");
@@ -787,6 +793,22 @@ async function main() {
     }
     const so = await ask("Why is SOFR up?", null, null);
     check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r6-1 SOFR unchanged: ${so.head}`);
+    // r6b-6. Fed forecast questions: no forecast, the next scheduled meeting (federalreserve.gov calendar: "December 8-9*",
+    // checked Nov 2 2026), then the card.
+    const { isFedForecastQuestion, fedForecastLine, nextFomcMeeting } = await import("@/lib/fed-policy");
+    const LINE = "We don't forecast Fed decisions. The next FOMC meeting is Dec 8–9, 2026 (Federal Reserve FOMC calendar).";
+    for (const q of ["Will the Fed cut in December?", "Will the Fed cut rates?", "What are the odds of a Fed rate cut?", "Is the FOMC likely to hike at the next meeting?", "Will the Fed cut in 2027?"]) {
+      check(isFedForecastQuestion(q), `r6b-6 not a forecast question: ${q}`);
+      const t = await ask(q, null, null);
+      check(t.content.startsWith(`${LINE}\n\n${FED_HEAD}`), `r6b-6 forecast opening (${q}): ${t.content.slice(0, 200)}`);
+      check((t.brief?.reads ?? []).length === 3, `r6b-6 full card after the line (${q}): ${(t.brief?.reads ?? []).length} reads`);
+      const said = t.content.replace(/\bno forecast\b|We don't forecast/gi, "");
+      check(!FORECAST.test(said), `r6b-6 forecast wording (${q})`);
+      const tc = await card(q, null, null, "all");
+      check(((tc as { citations?: string[] }).citations ?? []).includes("Federal Reserve, FOMC meeting calendar") && /fomccalendars\.htm/.test(JSON.stringify(tc)), `r6b-6 calendar cited (${q})`);
+    }
+    for (const q of ["Is the Fed cutting rates?", "What did the FOMC do?", "Where is the fed funds rate?"]) check(!isFedForecastQuestion(q), `r6b-6 wrongly a forecast question: ${q}`);
+    check(fedForecastLine("2026-11-02") === LINE && fedForecastLine("2026-12-09") === LINE && fedForecastLine("2026-12-10") === "We don't forecast Fed decisions." && nextFomcMeeting("2026-12-10") === null, "r6b-6 next meeting by date");
     console.log(`  r6-1 ${FED_HEAD}`);
   }
   {
@@ -806,6 +828,23 @@ async function main() {
       if (vh) heads.push(`${m.slug}: ${a.head.slice(0, 70)}`);
     }
     console.log(`  r6-2 ${dv.head} · ${heads.length} markets with a full-period visitor head`);
+    // r6b-1. A state figure never leads a market's visitor answer: Atlanta leads with its own (ACVB) count; Georgia statewide is a "Statewide:" bullet.
+    const { isStateFigure, marketBrief } = await import("@/lib/chat-brief-build");
+    const at = await ask("How many visitors does Atlanta get?", null, null);
+    check(/^Atlanta: visitors 2024 \(latest ACVB\): ~51M/.test(at.head) && !isStateFigure({ text: at.head.replace(/^Atlanta: /, "") }), `r6b-1 Atlanta head: ${at.head}`);
+    check((at.brief?.reads ?? []).some((r) => /^Statewide: Georgia statewide visitors 2025: 175\.6M/.test(String(r.text ?? ""))), `r6b-1 Statewide bullet: ${(at.brief?.reads ?? []).map((r) => r.text).join(" | ").slice(0, 300)}`);
+    const atd = await ask("What's demand doing in Atlanta?", null, null);
+    check(!/statewide/i.test(atd.head), `r6b-1 Atlanta demand head: ${atd.head}`);
+    // With no city or metro count on file, the answer says so and the state figure is the Statewide bullet.
+    const atl = markets.find((m) => m.slug === "atlanta")!;
+    // The same graph minus the ACVB city clause (the row's other clauses, incl. Georgia statewide, stay).
+    const noCity = { ...atl, signals: atl.signals.map((x) => ({ ...x, body: x.body.replace(/Atlanta visitors 2024 \(latest ACVB\)[^|]*\|\s*/, "") })) };
+    const nb = marketBrief(noCity as never, "demand_drivers" as never, { question: "How many visitors does Atlanta get?" });
+    check(nb.answer === "Atlanta: no cited city or metro visitor count on file." && /^Statewide: Georgia statewide visitors 2025: 175\.6M/.test(nb.reads[0]?.text ?? ""), `r6b-1 no-city answer: ${nb.answer} | ${nb.reads[0]?.text}`);
+    for (const m of markets) {
+      const vh = visitorHead(marketFacts(m as never));
+      if (vh) check(!isStateFigure(vh), `r6b-1 ${m.slug} visitor head is a state figure: ${vh.text.slice(0, 100)}`);
+    }
   }
   {
     // QA r5 must-fix: rule / methodology rows never render as answer rows or citations; our own site is never a source.
@@ -855,12 +894,36 @@ async function main() {
     check(/no Cup oversupply \(DFW metro\)\./.test(dt.content) && !/Cup oversupply \(City of Arlington\)/.test(dt.content), "r6-s2 World Cup row not tagged DFW metro");
     // 3. No self-referential source; the tag stays inside the sentence.
     check(!/source: no public read/.test(dt.content) && /lodging DQ cut: no public read \(Dallas market\)\./.test(dt.content), "r6-s3 dangling 'no public read' source");
+    // r6b-3. Every tax market: 'self-reported' at most once (Houston said it on every row).
+    for (const m of markets) {
+      const tx = await card(`What are the hotel tax collections in ${shortName(m)}?`, null, null, "all");
+      check((tx.content.match(/self-reported/gi) ?? []).length <= 1, `r6b-3 ${m.slug} self-reported ×${(tx.content.match(/self-reported/gi) ?? []).length}`);
+    }
+    const hx = await card("What are the hotel tax collections in Houston?", null, null, "all");
+    check(!/·\s*self-reported/.test(hx.content) && /_Basis & caveats:_ Self-reported by the city/.test(hx.content), "r6b-3 Houston: once, in Basis & caveats");
     // 7. 'Self-reported' only in the caveat.
     check((dt.content.match(/self-reported/gi) ?? []).length === 1 && /_Basis & caveats:_ Self-reported\./.test(dt.content), `r6-s7 self-reported count: ${(dt.content.match(/self-reported/gi) ?? []).length}`);
     // 1. Detail-view citations grouped by area (the card's citations, as the detail view shows them).
     const dd = await card("How is Dallas doing?", null, null, "all");
     const dc = (dd as { citations?: string[] }).citations ?? [];
     check(dc.length > 0 && dc.every((c) => /^(City of Dallas|City of Arlington|Dallas market|DFW metro|Other sources): /.test(c)), `r6-s1 Dallas detail citations: ${JSON.stringify(dc)}`);
+    // r6b-2. No "No linked public source" citation; each publisher in one group only (every market, both cards).
+    for (const m of markets)
+      for (const q of [`How is ${shortName(m)} doing?`, `What are the hotel tax collections in ${shortName(m)}?`]) {
+        const c = ((await card(q, null, null, "all")) as { citations?: string[] }).citations ?? [];
+        check(!c.some((x) => /No linked public source/i.test(x)), `r6b-2 ${m.slug} 'No linked public source' cited (${q})`);
+        const grouped = c.filter((x) => /^[^:]{1,60}: /.test(x) && !/https?:/.test(x));
+        if (grouped.length === c.length && c.length > 1) {
+          const seen = new Map<string, string>();
+          for (const g of grouped) {
+            const [area, pubs] = [g.slice(0, g.indexOf(": ")), g.slice(g.indexOf(": ") + 2)];
+            for (const p of pubs.split(" · ")) {
+              check(!seen.has(p) || seen.get(p) === area, `r6b-2 ${m.slug} ${p} in two groups (${seen.get(p)}, ${area})`);
+              seen.set(p, area);
+            }
+          }
+        }
+      }
     // 4. The hidden list key no longer carries the label ("(registry)").
     const sl = (await import("node:fs")).readFileSync(new URL("../../src/components/SourceLinks.tsx", import.meta.url), "utf8");
     check(!/key=\{[^}]*\.label/.test(sl) && /key=\{`\$\{l\.url\}\|\$\{i\}`\}/.test(sl), "r6-s4 SourceLinks key still uses the label");

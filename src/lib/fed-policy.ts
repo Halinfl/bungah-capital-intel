@@ -10,6 +10,8 @@ export type FedPolicy = {
   checkedAt: string;
   targetRange: { lower: number; upper: number; asOf: string; source: string; urls: string[] };
   decisions: FedDecision[];
+  /** Scheduled FOMC meetings, from the federalreserve.gov calendar (checked date and URL kept). */
+  upcomingMeetings?: { start: string; end: string; sep?: boolean; source: string; url: string; checkedAt: string }[];
 };
 
 export const FED_POLICY = data as unknown as FedPolicy;
@@ -45,4 +47,29 @@ export function isFedPolicyQuestion(q: string): boolean {
   if (/\b(sofr|treasur(y|ies)|10[- ]?(year|yr)|2[- ]?(year|yr)|mortgages?|bonds?|yields?|cap rates?|tax rates?)\b/i.test(q)) return false;
   if (/\b(fed|feds|federal reserve|fomc|fed funds|federal funds|policy rate|powell)\b/i.test(q)) return true;
   return /\b(rate (cut|hike|increase|decrease)s?|cut(ting|s)? rates|(rais|hik)(e|es|ing) rates)\b/i.test(q) && !/\b(room|hotel|nightly|adr|average daily)\b/i.test(q);
+}
+
+/** The next scheduled FOMC meeting on or after `today` (ISO date), or null when none is on file. */
+export function nextFomcMeeting(today: string, p: FedPolicy = FED_POLICY) {
+  return [...(p.upcomingMeetings ?? [])].sort((a, b) => a.start.localeCompare(b.start)).find((m) => m.end >= today) ?? null;
+}
+
+/** "Dec 8–9, 2026" (same month) or "Jan 31–Feb 1, 2027". */
+export function meetingDates(m: { start: string; end: string }): string {
+  const [s, e] = [fedDate(m.start), fedDate(m.end)];
+  const [sm, sd] = s.replace(/,.*/, "").split(" ");
+  const [em, ed] = e.replace(/,.*/, "").split(" ");
+  return sm === em ? `${sm} ${sd}–${ed}, ${m.end.slice(0, 4)}` : `${sm} ${sd}–${em} ${ed}, ${m.end.slice(0, 4)}`;
+}
+
+/** A question asking what the Fed WILL do (a forecast): "Will the Fed cut in December?", "Odds of a hike?". */
+export function isFedForecastQuestion(q: string): boolean {
+  if (!isFedPolicyQuestion(q)) return false;
+  return /\b(will|won't|going to|gonna|expect(ed|s)?|likely|odds|chance|probabilit(y|ies)|forecast|predict(ion)?|next (meeting|move|cut|hike)|in (january|february|march|april|may|june|july|august|september|october|november|december|20\d\d)|(this|next) (month|year|meeting)|by (year[- ]end|the end of))\b/i.test(q);
+}
+
+/** The opening line for a Fed forecast question: no forecast, plus the next scheduled meeting (cited). */
+export function fedForecastLine(today: string, p: FedPolicy = FED_POLICY): string {
+  const m = nextFomcMeeting(today, p);
+  return m ? `We don't forecast Fed decisions. The next FOMC meeting is ${meetingDates(m)} (Federal Reserve FOMC calendar).` : "We don't forecast Fed decisions.";
 }

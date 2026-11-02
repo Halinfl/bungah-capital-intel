@@ -1,5 +1,6 @@
 import type { SourceLink } from "@/lib/source-links";
 import { scrubInternal } from "@/lib/public-text";
+import { withoutOwnLinks } from "@/lib/rule-rows";
 
 const linkCls = "relative z-10 text-emerald-300 underline-offset-2 hover:underline focus-visible:underline";
 
@@ -32,6 +33,8 @@ export function SourceLinks({
   noPublicRead?: boolean;
   limit?: number;
 }) {
+  // Our own site is never a source (r6b).
+  links = withoutOwnLinks(links);
   if (!links.length) {
     return noPublicRead ? <span className="text-xs text-slate-300">no public read</span> : null;
   }

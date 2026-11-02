@@ -228,7 +228,25 @@ export function guardPublic<T>(value: T): T {
     }
     return v;
   };
-  return walk(value) as T;
+  const out = walk(value) as T;
+  // "No linked public source (reviewed …)" is not a citation: never listed (Eric r6 QA).
+  const o = out as unknown as { citations?: unknown };
+  if (o && typeof o === "object" && Array.isArray(o.citations)) o.citations = dropNoSourceCitations(o.citations as unknown[]);
+  return out;
+}
+
+const NO_SOURCE = /^No linked public source\b(?:\s*\([^)]*\))?$/i;
+/** Citation strings minus "No linked public source" entries (whole, or one " · " part of an area group). */
+export function dropNoSourceCitations<T>(list: T[]): T[] {
+  return list
+    .map((c) => {
+      if (typeof c !== "string") return c;
+      const m = c.match(/^([^:]{1,60}): (.*)$/);
+      const parts = (m ? m[2] : c).split(" · ").filter((x) => !NO_SOURCE.test(x.trim()));
+      if (!parts.length) return null;
+      return (m ? `${m[1]}: ${parts.join(" · ")}` : parts.join(" · ")) as unknown as T;
+    })
+    .filter((c): c is T => c != null && !(typeof c === "string" && NO_SOURCE.test(c.trim())));
 }
 
 function scrubPlain(s: string): string {

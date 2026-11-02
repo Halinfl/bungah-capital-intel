@@ -1,9 +1,13 @@
 import { splitUrls } from "@/lib/source-links";
 import { cleanSourceLabel } from "@/lib/public-text";
+import { isOwnSource } from "@/lib/rule-rows";
 
 /** Source label; any original URL inside it is clickable (new tab). Internal labels are stripped. */
 export function SourceChip({ label }: { label: string }) {
+  // Our own site is never a source (r6b): no chip rather than a self-citation.
+  if (isOwnSource(label)) return null;
   const clean = cleanSourceLabel(label);
+  if (!clean) return null;
   const parts = splitUrls(clean);
   return (
     <span

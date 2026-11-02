@@ -4,7 +4,8 @@ import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
-import { citedOnly, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { publicRows, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { scrubInternal } from "@/lib/public-text";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +17,12 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketsPage() {
-  const marketsQ = await cachedQuery(["markets-index"], () =>
+  const marketsQ = await cachedQuery(["markets-index-v2"], () =>
     prisma.market.findMany({
       orderBy: { name: "asc" },
       include: {
         assets: { select: { sourceLabel: true, name: true, notes: true } },
-        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
+        signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
       },
     }), []);
   const markets = marketsQ.data;
@@ -29,11 +30,11 @@ export default async function MarketsPage() {
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed
   // (a cited snapshot, or enough cited signals); thin markets are counted in a "more coming" line.
-  const covered = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length));
+  const covered = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length));
   const comingCount = markets.length - covered.length;
   const items = covered.map((m) => {
     const seed = isSeedMarket(m);
-    const signalCount = citedOnly(m.signals).length;
+    const signalCount = publicRows(m.signals).length;
     return {
       id: m.id,
       slug: m.slug,
@@ -41,14 +42,14 @@ export default async function MarketsPage() {
       region: m.region,
       summary: seed
         ? "Cited signals on demand, supply, debt and labor. Open the market for sources."
-        : m.summary,
+        : scrubInternal(m.summary),
       visitorsM: seed ? null : m.visitorsM,
       roomsK: seed ? null : m.roomsK,
       occupancy: seed ? null : m.occupancy,
       adr: seed ? null : m.adr,
       midweekOcc: seed ? null : m.midweekOcc,
       sourceLabel: seed ? "" : m.sourceLabel,
-      assetCount: citedOnly(m.assets).length,
+      assetCount: publicRows(m.assets).length,
       signalCount,
     };
   });

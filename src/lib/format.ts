@@ -1,3 +1,5 @@
+import { withoutRules } from "@/lib/rule-rows";
+
 export function fmtPct(n: number | null | undefined, digits = 1): string {
   if (n == null) return "—";
   return `${n.toFixed(digits)}%`;
@@ -103,6 +105,14 @@ export function citedOnly<T extends SeedCheckable>(rows: T[]): T[] {
   return rows.filter((r) => !isSeedRow(r));
 }
 
+/**
+ * Rows a public page may show (r6b, Hal Nov 2 2026): cited (no seed rows) and never an internal rule /
+ * methodology row (kind nuance / labor_rule) or a row sourced only to our own site (rule-rows.ts). Display only.
+ */
+export function publicRows<T extends SeedCheckable & { kind?: string | null; sourceLabel?: string | null }>(rows: T[]): T[] {
+  return withoutRules(citedOnly(rows));
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function coverageInProgressLine(_marketName?: string): string {
   return "We haven't checked enough sources for this market yet.";
@@ -142,5 +152,5 @@ export function hasPublicCoverage(m: { sourceLabel: string | null }, citedSignal
  * never lists a market page that carries noindex.
  */
 export function isIndexableMarket(m: { sourceLabel: string | null; signals: SeedCheckable[] }): boolean {
-  return hasPublicCoverage(m, citedOnly(m.signals).filter((s) => !isNoReadSignal(s)).length);
+  return hasPublicCoverage(m, publicRows(m.signals).filter((s) => !isNoReadSignal(s)).length);
 }

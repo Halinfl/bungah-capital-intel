@@ -84,18 +84,32 @@ async function main() {
   const ruleMarkets = [...new Set(ruleRows.map((s) => (s.marketId ? slugOf.get(s.marketId) ?? s.marketId : "national")))].sort();
   check(ruleRows.length > 0, "fixture has no rule rows (scan would be vacuous)");
 
-  // 2. Market page text, as src/app/markets/[slug]/page.tsx renders it (scrubInternal / briefLine / cleanSourceLabel).
+  // 2. Market page text, as src/app/markets/[slug]/page.tsx renders it (r6b): the rows publicRows keeps (no seed, no
+  //    rule / methodology row, no row sourced only to our own synthesis), with scrubInternal / briefLine / cleanSourceLabel
+  //    and source links minus our own; plus the market summary / nuance note. Every pattern counts, rule text included.
+  const { publicRows, isNoReadSignal } = await import("@/lib/format");
+  const { withoutOwnLinks, isOwnSource } = await import("@/lib/rule-rows");
   let pageStrings = 0;
   const pageBad: string[] = [];
-  for (const m of raw as unknown as { title: string; body: string; sourceLabel: string; magnitude: string | null; sourceUrls: unknown }[]) {
-    const parts = [scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), cleanSourceLabel(m.sourceLabel), ...parseSourceUrls(m.sourceUrls).map((l) => scrubInternal(l.label))];
+  const removedByPage = new Map<string, string[]>();
+  const fullMarkets = (await retrieveGraphContext("markets")).markets as unknown as { slug: string; summary: string; nuanceNote: string | null; sourceLabel: string; signals: { kind: string; title: string; body: string; sourceLabel: string; magnitude: string | null; sourceUrls: unknown }[] }[];
+  for (const mk of fullMarkets) {
+    const allRaw = raw.filter((x) => (x as unknown as { marketId: string }).marketId && slugOf.get((x as unknown as { marketId: string }).marketId) === mk.slug) as unknown as typeof mk.signals;
+    const kept = publicRows(allRaw).filter((x) => !isNoReadSignal(x));
+    const removed = allRaw.filter((x) => isRuleRow(x) && !kept.includes(x));
+    if (removed.length) removedByPage.set(mk.slug, removed.map((x) => `${x.kind}: ${x.title.slice(0, 60)} [${x.sourceLabel.slice(0, 50)}]`));
+    const parts = [scrubInternal(mk.summary), scrubInternal(mk.nuanceNote), ...(isOwnSource(mk.sourceLabel) ? [] : [cleanSourceLabel(mk.sourceLabel)])];
+    for (const m of kept) parts.push(scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), ...(isOwnSource(m.sourceLabel) ? [] : [cleanSourceLabel(m.sourceLabel)]), ...withoutOwnLinks(parseSourceUrls(m.sourceUrls)).map((l) => scrubInternal(l.label)));
     for (const p of parts) {
       pageStrings++;
-      // The market pages are out of the chat's scope for rule rows (reported separately); paths / IDs / codes count.
-      const l = findLeaks(p).filter((x) => !/^(ruleText|ownSource)/.test(x));
-      if (l.length) pageBad.push(`${m.title.slice(0, 50)}: ${l.join(", ")}`);
+      // Seed / illustrative snapshot labels are never rendered on a page (isSeedMarket); skip them here.
+      if (/Illustrative seed/i.test(p)) continue;
+      const l = findLeaks(p);
+      if (l.length) pageBad.push(`${mk.slug}: ${l.join(", ")} — ${p.slice(0, 80)}`);
     }
   }
+  check(removedByPage.has("chicago") && removedByPage.has("las-vegas") && removedByPage.has("miami") && removedByPage.has("orlando"), `page filter: rule / own-source rows not found for the four pages: ${[...removedByPage.keys()].join(", ")}`);
+  check(isOwnSource("Bungah Capital Intel talent synthesis (public construction/crew reporting)") && !isOwnSource("Texas Comptroller") && withoutOwnLinks([{ label: "Bungah Capital Intel (x)", url: "https://bungah.io" }, { label: "BLS", url: "https://bls.gov" }]).length === 1, "own-source helpers");
   check(pageBad.length === 0, `market-page text leaks: ${pageBad.slice(0, 5).join(" || ")}`);
 
   // 3. Every market × questions, plus national.
@@ -125,6 +139,7 @@ async function main() {
   const byKind = new Map<string, number>();
   for (const b of bad) for (const k of b.split(": ").slice(1).join(": ").split(", ")) byKind.set(k.split(":")[0], (byKind.get(k.split(":")[0]) ?? 0) + 1);
   if (bad.length) console.log("leak kinds:", JSON.stringify([...byKind]));
+  for (const [slug, rows] of removedByPage) console.log(`  page /markets/${slug}: ${rows.length} rule / own-source rows not shown — ${rows.join(" || ")}`);
   console.log(`public-leak test: ${checks - fails.length}/${checks} checks pass`);
   for (const f of fails) console.log("FAIL", f);
   process.exit(fails.length ? 1 : 0);
