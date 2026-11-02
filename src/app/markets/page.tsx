@@ -27,7 +27,7 @@ export default async function MarketsPage() {
     }), []);
   const markets = marketsQ.data;
   // Social posts are never sources: rows resting only on them don't count toward coverage.
-  for (const m of markets) m.signals = withoutSocial(m.signals);
+  for (const m of markets) m.signals = withoutSocial(citedOnly(m.signals));
   const dbDown = !marketsQ.ok;
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed

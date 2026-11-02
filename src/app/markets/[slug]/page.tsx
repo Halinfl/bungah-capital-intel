@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       where: { slug },
       include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } } },
     }), null);
-  if (m) m.signals = withoutSocial(m.signals);
+  if (m) m.signals = withoutSocial(citedOnly(m.signals));
   if (!m) return { title: "Hotel market · Bungah Capital Intel", alternates: { canonical: `/markets/${slug}` } };
   const covered = isIndexableMarket(m);
   const extras = [

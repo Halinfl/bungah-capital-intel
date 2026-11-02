@@ -222,7 +222,7 @@ export default async function SoundMoneyLodgingPage({
       include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } } },
     }), []);
   const allMarkets = allMarketsQ.data;
-  for (const m of allMarkets) m.signals = withoutSocial(m.signals);
+  for (const m of allMarkets) m.signals = withoutSocial(citedOnly(m.signals));
   // The memo picker lists only the markets with cited coverage (same 17-market rule as /markets).
   const markets = allMarkets.filter((m) =>
     hasPublicCoverage(m, citedOnly(m.signals).filter((x) => !isNoReadSignal(x)).length)
