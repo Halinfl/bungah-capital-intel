@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
+import { publisherName, stripLeaks } from "./public-text";
+import { areaFor, hasAreaTags } from "./chat-brief-build";
 import { prisma } from "./prisma";
 import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
 
@@ -350,12 +352,91 @@ function primaryLink(s: SignalRow): { url: string; label: string } | null {
   return l ? { url: l.url, label: l.label } : null;
 }
 
+/** A signal body whose " | " rows from an area other than `own` end with that area, e.g. "(City of Arlington)". */
+function tagRows(slug: string, s: SignalRow, own: string): string {
+  return s.body
+    .split(" | ")
+    .map((row) => {
+      const a = areaFor(slug, "", row);
+      if (!a || a === own) return row;
+      // Before a trailing period / house note, so the row still reads as one sentence.
+      const m = row.match(/^(.*?)(\.?(?:\s+Decision support\.?)?)$/);
+      return `${m?.[1] ?? row} (${a})${m?.[2] ?? ""}`;
+    })
+    .join(" | ");
+}
+
+/** Citations grouped by area ("City of Dallas: …", "City of Arlington: …", "Other sources: …"), one publisher once. */
+function areaCitations(slug: string, rows: SignalRow[]): string[] {
+  const groups = new Map<string, string[]>();
+  const add = (area: string, pub: string) => {
+    const g = groups.get(area) ?? [];
+    if (!g.includes(pub)) g.push(pub);
+    groups.set(area, g);
+  };
+  for (const s of rows) {
+    const links = parseSourceUrls(s.sourceUrls);
+    if (!links.length) {
+      if (s.sourceLabel && !/no public read/i.test(s.sourceLabel)) add(areaFor(slug, s.kind, `${s.title} ${s.sourceLabel}`) ?? "Other sources", s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, ""));
+      continue;
+    }
+    for (const l of links) {
+      const host = (() => { try { return new URL(l.url).hostname; } catch { return ""; } })();
+      const pub = /(^|\.)data\.texas\.gov$/.test(host) ? "Texas Comptroller of Public Accounts (data.texas.gov)" : publisherName(l.url);
+      add(areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
+    }
+  }
+  const order = [...groups.keys()].sort((a, b) => (a === "Other sources" ? 1 : 0) - (b === "Other sources" ? 1 : 0));
+  return scrubSeedCitations(order.map((a) => `${a}: ${groups.get(a)!.join(" · ")}`));
+}
+
+/** A caveat with clauses already said elsewhere in it dropped ("self-reported; …. Self-reported; the …" → once). */
+export function dedupeClauses(text: string): string {
+  if (!text) return text;
+  const STOP = new Set(["the", "a", "an", "is", "are", "and", "of", "by", "to"]);
+  const words = (c: string) => new Set(c.toLowerCase().replace(/[^a-z0-9%$ -]/g, " ").split(/\s+/).filter((w) => w && !STOP.has(w)));
+  const sentences = text.split(/(?<=\.)\s+/).map((s) => s.split(/;\s+/));
+  const all = sentences.flatMap((cl, i) => cl.map((c, j) => ({ i, j, w: words(c), len: c.length })));
+  const covered = (i: number, j: number) => {
+    const me = all.find((x) => x.i === i && x.j === j)!;
+    if (!me.w.size) return false;
+    return all.some((o) => (o.i !== i || o.j !== j) && (o.len > me.len || (o.len === me.len && (o.i < i || (o.i === i && o.j < j)))) && [...me.w].every((w) => o.w.has(w)));
+  };
+  return sentences
+    .map((cl, i) => cl.filter((_, j) => !covered(i, j)))
+    .filter((cl) => cl.length)
+    .map((cl) => {
+      const t = cl.join("; ");
+      return /[.!?]$/.test(t) ? t : `${t}.`;
+    })
+    .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+    .join(" ");
+}
+
 /** One tax-series bullet: title, magnitude (basis label), period, linked publisher. */
 function taxLine(s: SignalRow): string {
   const link = primaryLink(s);
   const pub = (link?.label ?? s.sourceLabel).split(" — ")[0];
   const tail = link ? ` — [${pub} ↗](${link.url})` : /no public read/i.test(s.magnitude ?? "") ? "" : " — _no public read_";
   return `- **${s.title}** — ${s.magnitude ?? "—"}${tail}`;
+}
+
+/**
+ * Leak guard at load (src/lib/public-text.ts stripLeaks): file paths, code files, dataset IDs used as labels and internal
+ * codes ("(D3)") leave every signal before any fact is read, and known internal source references become their public
+ * citation (e.g. the Texas Comptroller HOT dataset with its period and URL). Display layer only; DB rows unchanged.
+ */
+function withoutLeaks<T extends { title: string; body: string; sourceLabel: string; sourceUrls?: unknown; magnitude?: string | null }>(rows: T[]): T[] {
+  return rows.map((r) => ({
+    ...r,
+    title: stripLeaks(r.title),
+    body: stripLeaks(r.body),
+    sourceLabel: stripLeaks(r.sourceLabel).trim(),
+    ...(typeof r.magnitude === "string" ? { magnitude: stripLeaks(r.magnitude) } : {}),
+    ...(Array.isArray(r.sourceUrls)
+      ? { sourceUrls: (r.sourceUrls as { url?: string; label?: string }[]).map((l) => (l && typeof l.label === "string" ? { ...l, label: stripLeaks(l.label).trim() } : l)) }
+      : {}),
+  }));
 }
 
 const TAX_TEXT = /\b(hotel|occupancy|lodging|tourist development|transient|accommodations?|bed|room)[- ]+(occupancy |development )?tax|\b(TDT|TOT|TAT|HOT|CDT)\b|hotel-motel tax/i;
@@ -371,7 +452,10 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const related = other.filter((s) => s.kind === "tax" || TAX_TEXT.test(`${s.title} ${s.body}`));
   const latest = figures.find((s) => primaryLink(s));
   const at = latest ? latest.body.indexOf("Basis:") : -1;
-  const caveat = latest && at >= 0 ? latest.body.slice(at + 7).replace(/\s*Decision support\.?$/, "") : "";
+  const caveat = dedupeClauses(latest && at >= 0 ? latest.body.slice(at + 7).replace(/\s*Decision support\.?$/, "") : "");
+  // Mixed-geography markets (Dallas): a related row from another area says so, and the citations are grouped by area.
+  const own = TAX_AREA[market.slug];
+  const relatedLine = (s: SignalRow) => (own && hasAreaTags(market.slug) ? signalLine({ ...s, body: tagRows(market.slug, s, own) }) : signalLine(s));
   const lines: string[] = figures.length
     ? [
         `**${TAX_AREA[market.slug] ?? market.name} — hotel-tax collections (newest first)**`,
@@ -379,7 +463,7 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
         ...figures.map(taxLine),
         ...(caveat ? ["", `_Basis & caveats:_ ${caveat}`] : []),
         ...gaps.map((g) => `\n_Gaps:_ ${g.body.replace(/^[^:]*:\s*/, "").replace(/\s*Decision support\.?$/, "")}`),
-        ...(related.length ? ["", "Related tax / CVB signals:", ...related.map(signalLine)] : []),
+        ...(related.length ? ["", "Related tax / CVB signals:", ...related.map(relatedLine)] : []),
       ]
     : [
         `**${market.name} — hotel-tax signals (newest first)**`,
@@ -390,7 +474,9 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
       ];
   return {
     content: dedupeBlank([...lines, "", footer()]),
-    citations: cites(...figures.map((s) => s.sourceLabel), ...related.map((s) => s.sourceLabel)),
+    citations: hasAreaTags(market.slug)
+      ? areaCitations(market.slug, [...figures, ...related])
+      : cites(...figures.map((s) => s.sourceLabel), ...related.map((s) => s.sourceLabel)),
     intent: "tax_collections",
     marketSlug: market.slug,
     mode: "deterministic",
@@ -673,16 +759,16 @@ export async function retrieveGraphContext(
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = withoutSocial(citedOnly(m.signals));
+    m.signals = withoutLeaks(withoutSocial(citedOnly(m.signals)));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withoutSocial(citedOnly(
+  const nationalSignals = withoutLeaks(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  ));
+  )));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -1078,13 +1164,13 @@ export async function answerFromGraph(
 export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
-  const rows = withoutSocial(citedOnly(
+  const rows = withoutLeaks(withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
         select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
       }), [], GRAPH_MEMO)).data
-  ));
+  )));
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
   for (const r of rows) {

@@ -8,6 +8,7 @@
     "test:starters": "tsx scripts/chat/verify-starters.ts",
     "test:matcher": "tsx scripts/chat/test-market-matcher.ts",
     "test:followup": "tsx scripts/chat/test-followup.ts",
+    "test:leaks": "tsx scripts/chat/test-public-leaks.ts",
     "postbuild": "node scripts/check-ic-frame.mjs",
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",

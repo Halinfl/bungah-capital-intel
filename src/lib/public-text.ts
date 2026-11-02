@@ -126,6 +126,96 @@ const RULES: [RegExp, string][] = [
   [/\bAtlas\b(?! (?:Hotel|Brief|Hospitality|Holdings))(?<!The Atlas)/gi, "\uE000atlas"],
 ];
 
+/**
+ * Leak guard (Eric QA r4 → r5): no filesystem path, code file, dataset ID used as a label, query-string fragment or
+ * internal matrix code ("(D3)") reaches a public answer, citation or page. Known internal source references are
+ * first rewritten to their public citation (display layer; the DB rows are unchanged).
+ */
+const TX_HOT_DATASETS: Record<string, { fy: string; url: string }> = {
+  "er34-v24h": { fy: "FY2025", url: "https://data.texas.gov/dataset/Local-Hotel-Occupancy-Tax-Reporting-2025/er34-v24h" },
+  "ifh4-9tpn": { fy: "FY2024", url: "https://data.texas.gov/dataset/Local-Hotel-Occupancy-Tax-Reporting-2024/ifh4-9tpn" },
+};
+const txHot = (id: string) => TX_HOT_DATASETS[id];
+const SOURCE_REWRITES: [RegExp, (...m: string[]) => string][] = [
+  // "source: /workspace/…/msa-registry.ts (Texas HOT SODA er34-v24h)" → the Comptroller dataset, its period and URL.
+  [/(?:[\w~./-]*\/)?msa-registry\.ts\s*\(\s*Texas HOT SODA ([a-z0-9]{4}-[a-z0-9]{4})\s*\)/g, (_m, id) =>
+    txHot(id) ? `Texas Comptroller hotel occupancy tax data (Local HOT Reporting, ${txHot(id).fy}) → ${txHot(id).url}` : "Texas Comptroller hotel occupancy tax data"],
+  // Source label "Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=Dallas type=city".
+  [/Texas Comptroller Local HOT Reporting (20\d\d) SODA [a-z0-9]{4}-[a-z0-9]{4} \(data\.texas\.gov\)(?:;?\s*\b[a-z]+=[\w%-]+(?: [A-Z][\w-]*)*)*/g, (_m, y) =>
+    `Texas Comptroller of Public Accounts (data.texas.gov) — Local Hotel Occupancy Tax Reporting, FY${y}`],
+  // "source: msa-registry.ts / https://…" → "source: https://…"
+  [/(?:[\w~./-]*\/)?[\w-]+\.(?:tsx?|mjs|cjs|py|md|jsonl?|csv|sql|prisma)\s*\/\s*(?=https?:\/\/)/g, () => ""],
+];
+/** A Socrata-style dataset ID ("er34-v24h", "vmy5-jctb"): one half mixes letters and digits ("1000-room" is not one). */
+const isDatasetId = (m: string) => m.split("-").some((h) => /[a-z]/.test(h) && /\d/.test(h));
+const LEAK_PATTERNS: Record<string, RegExp> = {
+  path: /(?:^|(?<=[\s(:"'`]))(?:\/workspace|\/home|\/tmp|\/Users|\/root|\/var|~)\/[^\s)|;,"'`]*/g,
+  codePath: /\b(?:src|scripts|node_modules)\/[\w./-]+|\b(?:content|app|lib|data)\/[\w.-]+\/[\w./-]+/g,
+  codeFile: /\b[\w-]+\.(?:tsx?|mjs|cjs|py|md|jsonl?|csv|sql|prisma)\b/g,
+  internalCode: /\s*\((?:matrix )?D\d{1,2}\)/g,
+  registryTag: /\s*\(registry\)/g,
+  datasetId: /\b[a-z0-9]{4}-[a-z0-9]{4}\b/g,
+  queryParam: /(?:;\s*)?\b(?:city|type|name|id|slug|market)=[\w%-]+(?: [A-Z][\w-]*)*/g,
+  soda: /\bSODA\b/g,
+};
+
+/** Non-URL text with every leak pattern removed (known internal sources first rewritten to their public citation). */
+function stripLeaksPlain(s: string): string {
+  let t = s;
+  for (const [re, rep] of SOURCE_REWRITES) t = t.replace(re, rep as (...a: string[]) => string);
+  // A rewrite can introduce a URL: guard only the text around it.
+  return t
+    .split(URL_SPLIT)
+    .map((part, i) => {
+      if (i % 2 === 1) return part;
+      let x = part;
+      x = x.replace(/\bSODA\s+[a-z0-9]{4}-[a-z0-9]{4}\b/g, "dataset").replace(LEAK_PATTERNS.soda, "dataset");
+      for (const k of ["path", "codePath", "codeFile", "internalCode", "registryTag", "queryParam"]) x = x.replace(LEAK_PATTERNS[k], "");
+      x = x.replace(LEAK_PATTERNS.datasetId, (m) => (isDatasetId(m) ? "" : m));
+      if (x === part) return part;
+      // Tidy what a removal leaves behind: "source:  ()", "source: /", doubled spaces, stray separators.
+      return x
+        .replace(/\(\s*\)/g, "")
+        .replace(/\bsource:\s*[/;,]?\s*(?=\))/g, "source: no public read")
+        .replace(/\bsource:\s*\/\s*/g, "source: ")
+        .replace(/(\S) {2,}/g, "$1 ")
+        .replace(/(\S) +([.,;:)])/g, "$1$2");
+    })
+    .join("");
+}
+
+/** Public-text leak guard for any string (URLs untouched). */
+export function stripLeaks(text: string | null | undefined): string {
+  if (!text) return text ?? "";
+  return stripLeaksPlain(text);
+}
+
+/** Which leak patterns a public string still contains (URLs excluded); empty when clean. For tests and scans. */
+export function findLeaks(text: string | null | undefined): string[] {
+  if (!text) return [];
+  const plain = text.split(URL_SPLIT).filter((_, i) => i % 2 === 0).join(" ");
+  const out: string[] = [];
+  for (const [k, re] of Object.entries(LEAK_PATTERNS))
+    for (const m of plain.matchAll(new RegExp(re.source, "g"))) if (k !== "datasetId" || isDatasetId(m[0])) out.push(`${k}: ${m[0].trim()}`);
+  return out;
+}
+
+/** Deep render-time guard: every string in an answer / brief / citation object, except URLs and wire keys. */
+const GUARD_SKIP = new Set(["url", "href", "id", "answerHash", "threadId", "marketSlug", "intent", "mode", "kind", "key", "slug"]);
+export function guardPublic<T>(value: T): T {
+  const walk = (v: unknown, key = ""): unknown => {
+    if (typeof v === "string") return GUARD_SKIP.has(key) || /^https?:\/\/\S+$/.test(v) ? v : stripLeaks(v);
+    if (Array.isArray(v)) return v.map((x) => walk(x, key));
+    if (v && typeof v === "object" && Object.getPrototypeOf(v) === Object.prototype) {
+      const o: Record<string, unknown> = {};
+      for (const [k, x] of Object.entries(v)) o[k] = walk(x, k);
+      return o;
+    }
+    return v;
+  };
+  return walk(value) as T;
+}
+
 function scrubPlain(s: string): string {
   let t = s;
   for (const [re, rep] of RULES) t = t.replace(re, rep);
@@ -136,7 +226,7 @@ function scrubPlain(s: string): string {
 /** Strip internal team / agent labels from any public text. URLs are left untouched. */
 export function scrubInternal(text: string | null | undefined): string {
   if (!text) return text ?? "";
-  return text
+  return stripLeaks(text)
     .split(URL_SPLIT)
     .map((part, i) => (i % 2 === 1 ? part : scrubPlain(part)))
     .join("")
@@ -333,7 +423,7 @@ export function cleanSourceLabel(
 ): string {
   const raw = (label ?? "").trim();
   if (!raw) return raw;
-  if (!INTERNAL_SEG.test(raw)) return raw;
+  if (!INTERNAL_SEG.test(raw)) return stripLeaks(raw).trim();
   const date = raw.match(/\b(20\d\d-\d\d-\d\d)\b/)?.[1];
   const segs = raw.split(/;\s+/);
   const kept: string[] = [];

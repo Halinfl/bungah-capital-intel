@@ -842,12 +842,20 @@ function signalFactsRaw(s: SignalLike): Fact[] {
     const unattributed = ownedFirst && !specificLink(it.text, links);
     // Each fact is dated by the period its data covers (week, month, quarter…), never the load date.
     const period = itemPeriod(s, it.text, links);
+    // A row cited through the signal's first link must not borrow that link's row title ("Under construction" and
+    // "Openings" both titled "Total pipeline"): when the link's title names another row, the row's own label is used.
+    let src = withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), period?.label);
+    if (!specificLink(it.text, links) && src.title) {
+      const own = it.text.split(":")[0].trim();
+      const other = items.some((o) => o !== it && o.text.trim().startsWith(`${src.title}:`));
+      if (other && own && own !== src.title && own.length <= 80) src = { ...src, title: own };
+    }
     out.push({
       text: text ?? plain(it.text),
       asOf: period?.label ?? null,
       period,
       key: period ? (period.yearOnly ? period.start : period.end) : 0,
-      source: withDate(sourceFrom(linkFor(it.text, links), s.sourceLabel), period?.label),
+      source: src,
       kind: s.kind,
       title,
       readable: Boolean(text) && Boolean(period) && !sigBad && !unattributed && !NO_READ.test(it.text) && !RULE_ROW.test(it.text) && METRIC.test(it.text) && !OFF_LIMITS.test(it.text),

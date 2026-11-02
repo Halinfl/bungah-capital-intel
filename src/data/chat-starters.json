@@ -1,6 +1,6 @@
 {
- "verifiedAt": "2026-10-27T16:04:48.534Z",
- "basis": "graph dump 20261027T060017Z",
+ "verifiedAt": "2026-11-02T05:28:04.980Z",
+ "basis": "graph dump 20261101T070624Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
   "aspen-vail": "Aspen / Vail",
@@ -385,6 +385,9 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
+   },
+   {
+    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "APLE": [
@@ -526,6 +529,83 @@
   ]
  },
  "deal": {
+  "midway-portfolio-chicago": [
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "hotel-zags-portland-or": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   }
+  ],
+  "bellmoor-rehoboth-beach": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   }
+  ],
+  "embassy-suites-las-vegas": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   },
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "fairmont-scottsdale-princess": [
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "four-seasons-scottsdale-troon-north": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   },
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "the-wade-chicago": [
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "tideline-palm-beach": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   }
+  ],
+  "embassy-suites-dulles-airport": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   },
+   {
+    "q": "What's demand doing in this market?"
+   }
+  ],
+  "embassy-suites-philadelphia-airport": [
+   {
+    "q": "What did the buyer pay per key, and how does that compare?"
+   },
+   {
+    "q": "Why did this grade the way it did?"
+   }
+  ],
   "grande-lakes-orlando": [
    {
     "q": "What did the buyer pay per key, and how does that compare?"
@@ -1957,12 +2037,7 @@
   {
    "scope": "reit:PK",
    "q": "What debt is coming due?",
-   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\")"
-  },
-  {
-   "scope": "reit:PK",
-   "q": "Which hotels have they bought or sold lately?",
-   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\"; no key read on topic)"
+   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 4 hotel transactions\")"
   },
   {
    "scope": "reit:APLE",
@@ -1993,6 +2068,61 @@
    "scope": "reit:AHT",
    "q": "What did they guide on the last call?",
    "reason": "intent reit_reported"
+  },
+  {
+   "scope": "deal:midway-portfolio-chicago",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "off-topic card (\"Midway Portfolio, Chicago, IL (Midway): $68M for 1,057 keys, $64k per \"; no key read on topic)"
+  },
+  {
+   "scope": "deal:midway-portfolio-chicago",
+   "q": "Why did this grade the way it did?",
+   "reason": "intent demand_visitation"
+  },
+  {
+   "scope": "deal:hotel-zags-portland-or",
+   "q": "Why did this grade the way it did?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "deal:hotel-zags-portland-or",
+   "q": "What's demand doing in this market?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "deal:bellmoor-rehoboth-beach",
+   "q": "What's demand doing in this market?",
+   "reason": "no summary card"
+  },
+  {
+   "scope": "deal:fairmont-scottsdale-princess",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "no summary card"
+  },
+  {
+   "scope": "deal:fairmont-scottsdale-princess",
+   "q": "Why did this grade the way it did?",
+   "reason": "intent demand_visitation"
+  },
+  {
+   "scope": "deal:the-wade-chicago",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "no summary card"
+  },
+  {
+   "scope": "deal:the-wade-chicago",
+   "q": "Why did this grade the way it did?",
+   "reason": "intent demand_visitation"
+  },
+  {
+   "scope": "deal:tideline-palm-beach",
+   "q": "What's demand doing in this market?",
+   "reason": "0 key reads"
+  },
+  {
+   "scope": "deal:embassy-suites-philadelphia-airport",
+   "q": "What's demand doing in this market?",
+   "reason": "0 key reads"
   },
   {
    "scope": "general",

@@ -269,11 +269,24 @@ type AreaRule = { area: string; test: (f: Fact, hay: string) => boolean };
 const AREA_TAGS: Record<string, AreaRule[]> = {
   dallas: [
     { area: "DFW metro", test: (_f, h) => /\bmatthews\b|\bDFW\b|\bRoanoke\b|DFW Airport|crosstimbersgazette/i.test(h) },
-    { area: "City of Arlington", test: (_f, h) => /\bArlington\b[^.;]{0,30}\bHOT\b/i.test(h) },
+    { area: "City of Arlington", test: (_f, h) => /\bArlington\b[^.;]{0,30}\bHOT\b|fortworthreport\.org\/\S*arlington/i.test(h) },
     { area: "City of Dallas", test: (f, h) => f.kind === "tax" || f.kind === "visitation" || /\bCity of Dallas\b|dallascityhall|VisitDallas|dallastpid|\bTPID\b|texashotelsearch|data\.texas\.gov/i.test(h) },
     { area: "Dallas market", test: (_f, h) => /Cushman|\bC&W\b|CoStar|Lodging Econometrics|lodgingeconometrics|\bHVS\b/i.test(h) },
   ],
 };
+
+/** Markets whose citations carry an area tag. */
+export function hasAreaTags(slug: string | null | undefined): boolean {
+  return Boolean(slug && AREA_TAGS[slug]);
+}
+
+/** The area a piece of text (a link's label + URL, or one row of a signal) covers, or null. `kind` is the signal's. */
+export function areaFor(slug: string, kind: string, hay: string): string | null {
+  const rules = AREA_TAGS[slug];
+  if (!rules) return null;
+  const f = { kind } as Fact;
+  return rules.find((x) => x.test(f, hay))?.area ?? null;
+}
 
 /** "Cushman & Wakefield" → "Cushman & Wakefield (Dallas market)", plus `area` on the source (shown in the source preview). */
 export function withArea(slug: string, f: Fact): Fact {
@@ -587,9 +600,22 @@ export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = []
   }
   const c = best(cands);
   const said = c.up ? "up" : "down";
-  // No "actually" while a set-aside single week (e.g. on the card on screen) points the question's way.
-  const weekAgrees = all.some((w) => isSpot(w.f) && w.up === up);
-  const line = `${metric.name} is ${c.up === up || weekAgrees ? "" : "actually "}${said} ${amount(c)} ${c.when}.`;
+  // A set-aside single week that points the question's way: no "actually", and the line names that week, e.g.
+  // "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield), though the week ending Aug 8 was down 4.1% (CoStar)."
+  const weeks = all.filter((w) => isSpot(w.f) && w.up === up && c.up !== up);
+  const week = weeks.length ? weeks.reduce((a, b) => ((b.f.period?.end ?? b.f.key) > (a.f.period?.end ?? a.f.key) ? b : a)) : null;
+  if (week) {
+    const m = week.when.match(/^in the week ending (.+?) \((.+)\)$/);
+    const yr = c.when.match(/\b(20\d\d)\b/)?.[1];
+    const date = m ? (yr ? m[1].replace(new RegExp(`,? ${yr}$`), "") : m[1]) : null;
+    // A short print that is not a calendar week (an event month, say) reads the same way: "though Jan 2026 was down 31.3% (CoStar)".
+    const other = m ? null : week.when.match(/^in (.+?) \((.+)\)$/);
+    const dir = `${week.up ? "up" : "down"} ${amount(week)}`;
+    const tail = m ? `the week ending ${date} was ${dir} (${m[2]})` : other ? `${other[1]} was ${dir} (${other[2]})` : `${dir} ${week.when}`;
+    const line = `${metric.name} is ${said} ${amount(c)} ${c.when}, though ${tail}.`;
+    return { line, facts: [c.f, week.f], figures };
+  }
+  const line = `${metric.name} is ${c.up === up ? "" : "actually "}${said} ${amount(c)} ${c.when}.`;
   return { line, facts: [c.f], figures };
 }
 
@@ -727,23 +753,49 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   });
 }
 
+/** The newest cited print that carries both occupancy and ADR (month or longer), for a market with no snapshot. */
+function citedSnapshotFact(facts: Fact[]): Fact | undefined {
+  const c = facts.filter((f) => f.readable && !isSpot(f) && f.kind !== "tax" && /\b(OCC|occupancy)\b[^;|]{0,20}?\d+(\.\d+)?%/i.test(f.text) && /\bADR\b[^;|]{0,20}?\$\d/.test(f.text) && Boolean(premiseWhen(f)));
+  return c.sort((x, y) => (y.period?.end ?? y.key) - (x.period?.end ?? x.key) || spanDays(y) - spanDays(x))[0];
+}
+
+/** "OCC 71.7% (−0.2%), ADR $186 (+1.2%), RevPAR $133 (+1.0%) (Q2 2026, Cushman & Wakefield)". */
+function citedSnapshotText(f: Fact): string {
+  const at = f.text.search(/\b(OCC|occupancy|ADR|RevPAR)\b/i);
+  const clause = f.text.slice(Math.max(0, at)).split(/;\s+/)[0].replace(/[.\s]+$/, "");
+  const when = premiseWhen(f) ?? "";
+  // premiseWhen → "in Q2 2026 (Cushman & Wakefield)": shown as "(Q2 2026, Cushman & Wakefield)".
+  const m = when.match(/^(?:in )?(.+?) \((.+)\)$/);
+  return m ? `${clause} (${m[1]}, ${m[2]})` : `${clause} (${flatSource(f.source.label)})`;
+}
+
 /** Two covered markets side by side. */
 export function compareBrief(a: MarketRow, b: MarketRow, question: string, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = /\b(supply|pipeline)\b/i.test(question) && !/\b(revpar|demand|occupancy|adr)\b/i.test(question) ? "supply" : lensFor(intent === "compare_markets" ? "revpar_metrics" : intent);
-  const ma = metricsLine(a);
-  const mb = metricsLine(b);
   const sa = shortName(a);
   const sb = shortName(b);
-  const seedNames = [a, b].filter((m) => !metricsLine(m)).map(shortName);
-  const answer =
-    ma && mb
-      ? `${sa}: ${ma} (${snapshotSource(a).label}) · ${sb}: ${mb} (${snapshotSource(b).label}).`
-      : `${sa} vs ${sb}: no cited OCC/ADR snapshot${windowOf(a) && [a, b].some((m) => !metricsLine(m) && !isSeedMarket(m)) ? ` in the ${RANGE_LABEL[windowOf(a)!.range].toLowerCase()}` : ""} for ${seedNames.length === 2 ? "either" : seedNames[0]}, cited reads for each below.`;
   const fa = marketFacts(a);
   const fb = marketFacts(b);
+  // Each side: the market snapshot when it is a cited one, else the newest cited OCC + ADR print (e.g. Nashville's
+  // C&W Q2 2026 row), else a plain "no cited occupancy/ADR snapshot on file" for that market only.
+  const snapOf = (m: MarketRow, facts: Fact[]): { text: string; fact?: Fact } | null => {
+    const ml = metricsLine(m);
+    if (ml) return { text: `${ml} (${snapshotSource(m).label})` };
+    const f = citedSnapshotFact(facts);
+    return f ? { text: citedSnapshotText(f), fact: f } : null;
+  };
+  const pa = snapOf(a, fa);
+  const pb = snapOf(b, fb);
   const label = (m: string, f: Fact): Fact => ({ ...f, text: `${m}: ${f.text}` });
-  const ra = pickReads(fa, lens, 1).map((f) => label(sa, f));
-  const rb = pickReads(fb, lens, 1).map((f) => label(sb, f));
+  // A snapshot taken from a cited print is that market's read, so the figures in the answer carry their citation.
+  const ra = (pa?.fact ? [pa.fact] : pickReads(fa, lens, 1)).map((f) => label(sa, f));
+  const rb = (pb?.fact ? [pb.fact] : pickReads(fb, lens, 1)).map((f) => label(sb, f));
+  const side = (n: string, p: typeof pa) => (p ? `${n}: ${p.text}` : `${n}: no cited occupancy/ADR snapshot on file`);
+  const inWin = windowOf(a) ? ` in the ${RANGE_LABEL[windowOf(a)!.range].toLowerCase()}` : "";
+  const answer =
+    pa || pb
+      ? `${side(sa, pa)} · ${side(sb, pb)}${!pa || !pb ? inWin : ""}.`
+      : `${sa} vs ${sb}: no cited occupancy/ADR snapshot on file for either${inWin}.${ra.length && rb.length ? " Cited reads for each below." : ""}`;
   const used = new Set([...ra, ...rb].map((f) => f.text.replace(/^[^:]+:\s/, "")));
   const secondLens: Lens = /\bsupply|pipeline\b/i.test(question) && lens !== "supply" ? "supply" : "demand";
   const third = pickReads([...fa.map((f) => label(sa, f)), ...fb.map((f) => label(sb, f))], secondLens, 3, new Set([...ra, ...rb].map((f) => f.text)))
@@ -836,8 +888,17 @@ export function ratesBrief(signals: SignalLike[], question: string, opts: BriefO
   const byNewest = (a: { f: Fact }, b: { f: Fact }) => b.f.key - a.f.key;
   const head = facts.filter((x) => x.f.period && series.re.test(x.s.title)).sort(byNewest)[0];
   const range = opts.range ?? "all";
-  const answer = head
-    ? `${head.f.text.replace(/\.$/, "")} (${[head.f.asOf, flatSource(head.f.source.label)].filter(Boolean).join(", ")}).`
+  // One date: "SOFR 3.88% (Oct 16)" + asOf "Oct 16, 2026" → "SOFR 3.88% (Oct 16, 2026, FRED)".
+  // "10-year 5.09% (Oct 16 close)" → "10-year 5.09% (Oct 16, 2026 close, U.S. Treasury …)".
+  const headParts = (f: Fact): { text: string; when: string | null } => {
+    const t = f.text.replace(/\.$/, "");
+    const d = t.match(/\s*\(([A-Z][a-z]{2,8}\.? \d{1,2}(?:, 20\d\d)?|20\d\d-\d\d-\d\d)( close| open| average)?\)$/);
+    if (d && f.asOf && f.asOf.startsWith(d[1])) return { text: t.slice(0, d.index), when: `${f.asOf}${d[2] ?? ""}` };
+    return { text: t, when: f.asOf };
+  };
+  const hp = head ? headParts(head.f) : null;
+  const answer = head && hp
+    ? `${hp.text} (${[hp.when, flatSource(head.f.source.label)].filter(Boolean).join(", ")}).`
     : `US ${series.name}: no cited, dated read${range === "all" ? " on file yet" : ` in the ${RANGE_LABEL[range].toLowerCase()}`}.`;
   // Reads: the newest row of each other benchmark (one per series), then the next-newest of the asked one.
   const seen = new Set<string>([head ? rateSeries(head.s.title).name : series.name]);

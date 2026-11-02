@@ -387,7 +387,8 @@ async function main() {
     const onScreen = premiseCheck([up2, wk], "Why is occupancy down?", [wk], TODAY);
     // r4: a single week is set aside when a longer print exists, but if it points the question's way (here: on screen,
     // down) the line drops "actually".
-    check(onScreen?.line === "Occupancy is up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com).", `r3-1/r4 on-screen week: ${onScreen?.line}`);
+    // r5: ... and names that week with its figure.
+    check(onScreen?.line === "Occupancy is up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com), though the week ending Aug 8 was down 4.0% (CoStar).", `r3-1/r4 on-screen week: ${onScreen?.line}`);
     check(premiseCheck([up1], "How is occupancy?", [], TODAY) === null, "r3-1 a question with no direction got a premise line");
 
     // Eric's repro: the RevPAR card (C&W Q2 OCC −0.2%) is on screen, then "Why is occupancy down?".
@@ -680,6 +681,83 @@ async function main() {
     const t = new Thread(chicagoScope);
     const c = await t.ask("How has RevPAR moved here over the last 12 months?", "12m");
     check(!/linkedin/i.test(JSON.stringify(c)), "r4 Chicago scoped RevPAR card cites LinkedIn");
+  }
+
+
+  // ---- QA r4 → r5 (Eric, Nov 1 2026) ----
+  console.log("QA r4 → r5:");
+  {
+    // r5-1. A set-aside week that backs the user is named in the line (real cited figures).
+    const wkDown = await card("Why are rates down in Nashville?", null, null, "all");
+    const pl = (wkDown.brief as (Brief & { premise?: string }) | null)?.premise ?? "";
+    check(pl === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield), though the week ending Aug 8 was down 4.1% (CoStar).", `r5-1 though-line: ${pl}`);
+    const rd = ((wkDown.brief as Brief | null)?.reads ?? []).map((r) => String(r.text ?? ""));
+    check(rd.some((t) => /ADR −4\.1%/.test(t)) && rd.some((t) => /ADR \$186 \(\+1\.2%\)/.test(t)), `r5-1 both figures are cited reads: ${rd.join(" | ").slice(0, 200)}`);
+    const q2 = { ...fact("C&W Q2 2026: ADR $186 (+1.2%)", 20260630, "Cushman & Wakefield"), period: { start: 20260401, end: 20260630, label: "Q2 2026" } } as F;
+    const wk = { ...fact("CoStar wk ending Aug 8 2026: ADR $158 (−4.1%)", 20260808, "CoStar"), period: { start: 20260802, end: 20260808, label: "w/e Aug 8 2026" } } as F;
+    // A single week only counts when it is on the card on screen (shown), as in r3-1.
+    check(premiseCheck([q2, wk], "Why are rates down?", [wk], TODAY)?.line === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield), though the week ending Aug 8 was down 4.1% (CoStar).", `r5-1 unit: ${premiseCheck([q2, wk], "Why are rates down?", [wk], TODAY)?.line}`);
+    check(premiseCheck([q2, wk], "Why are rates up?", [wk], TODAY)?.line === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield).", "r5-1 a week against the user is not mentioned");
+    // Across markets: every "though" line names a week, its change and its source; never with "actually".
+    let though = 0;
+    for (const m of markets) for (const name of ["occupancy", "RevPAR", "ADR"]) for (const dir of ["down", "up"]) {
+      const a = await card(`Why is ${name} ${dir} in ${shortName(m)}?`, null, null, "all");
+      const p = (a.brief as (Brief & { premise?: string }) | null)?.premise ?? "";
+      if (!/, though /.test(p)) continue;
+      though++;
+      check(/, though (the week ending [A-Z][a-z]{2} \d{1,2}(?:, 20\d\d)?|[A-Z][^,()]{2,40}) was (up|down) \d+(\.\d+)?(%| points) \([^()]+\)\.$/.test(p) && !/actually/.test(p) && new RegExp(`was ${dir} `).test(p), `r5-1 malformed though-line (or the week does not back the user): ${p}`);
+    }
+    console.log(`  r5-1 "Why are rates down in Nashville?": ${pl} (${though} though-lines across markets)`);
+  }
+  {
+    // r5-2. Compare: Nashville's cited C&W Q2 2026 snapshot (OCC 71.7%, ADR $186: C&W MarketBeat U.S. Hospitality Q2 2026,
+    // checked against the PDF); a peer with none says so for itself; "for each below" only when both have reads.
+    const nc = await ask("Compare Nashville vs Charlotte", null, null);
+    check(nc.head === "Nashville: OCC 71.7% (−0.2%), ADR $186 (+1.2%), RevPAR $133 (+1.0%) (Q2 2026, Cushman & Wakefield) · Charlotte: no cited occupancy/ADR snapshot on file.", `r5-2 Nashville vs Charlotte: ${nc.head}`);
+    check(!/for either|for each below/.test(nc.content), "r5-2 'for either' / 'for each below' still shown");
+    check(((nc.brief as Brief | null)?.reads ?? []).some((r) => /OCC 71\.7% \(−0\.2%\), ADR \$186/.test(String(r.text ?? ""))), "r5-2 Nashville snapshot is not a cited read");
+    const cn = await ask("Charlotte vs Nashville", null, null);
+    check(cn.head.startsWith("Charlotte: no cited occupancy/ADR snapshot on file · Nashville: OCC 71.7%"), `r5-2 order kept: ${cn.head.slice(0, 120)}`);
+    const na = await ask("Compare Nashville vs Atlanta", null, null);
+    check(/^Nashville: OCC 71\.7% .* · Atlanta: OCC 65\.9% \(\+0\.5%\), ADR \$133 \(\+5\.0%\), RevPAR \$88 \(\+5\.5%\) \(Q2 2026, Cushman & Wakefield\)\.$/.test(na.head), `r5-2 Nashville vs Atlanta: ${na.head}`);
+    const ac = await ask("Austin vs Charlotte", null, null);
+    const acReads = ((ac.brief as Brief | null)?.reads ?? []).map((r) => String(r.text ?? ""));
+    const both = acReads.some((t) => t.startsWith("Austin:")) && acReads.some((t) => t.startsWith("Charlotte:"));
+    check(/^Austin vs Charlotte: no cited occupancy\/ADR snapshot on file for either\./.test(ac.head) && /Cited reads for each below/.test(ac.head) === both, `r5-2 neither: ${ac.head} (reads for both: ${both})`);
+    for (const m of markets.slice(0, 55)) {
+      const t = await card(`Compare ${shortName(m)} vs Nashville`, null, null, "all");
+      const h = (t.brief as Brief | null)?.answer ?? "";
+      check(!/no cited OCC\/ADR snapshot/.test(h) && !(/for each below/i.test(h) && !(t.brief as Brief | null)?.reads?.length), `r5-2 ${m.slug} vs Nashville: ${h.slice(0, 120)}`);
+    }
+    console.log(`  r5-2 ${nc.head}`);
+  }
+  {
+    // r5-3/4. Dallas tax memo: citations grouped by area; the Arlington row tagged; the caveat said once.
+    const t = await card("What are the hotel tax collections in Dallas?", null, null, "all");
+    const cites = (t as { citations?: string[] }).citations ?? [];
+    check(cites.length > 0 && cites.every((c) => /^(City of Dallas|City of Arlington|Dallas market|DFW metro|Other sources): /.test(c)), `r5-3 citations not grouped by area: ${JSON.stringify(cites)}`);
+    const cod = cites.find((c) => c.startsWith("City of Dallas: ")) ?? "";
+    check(!/fortworthreport|Real Deal|tradersunion/.test(cod), `r5-3 outside sources under City of Dallas: ${cod}`);
+    check(cites.some((c) => c === "City of Arlington: fortworthreport.org"), `r5-3 Arlington group: ${JSON.stringify(cites)}`);
+    check(/Arlington June 2026 HOT: \$31M \(\+39%, all-time record\) · Jun 2026 \(City of Arlington\)/.test(t.content), "r5-3 Arlington $31M row not tagged City of Arlington");
+    check(((t.content.match(/_Basis & caveats:_[^]*?(?=_Gaps:_|\n|$)/)?.[0] ?? "").match(/self-reported/gi) ?? []).length === 1, `r5-4 'self-reported' repeated in the caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]}`);
+    check(/_Basis & caveats:_ Self-reported\. The reporting year is set by the filer and may follow the city FY \(Oct–Sep\)\./.test(t.content), `r5-4 caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]?.slice(0, 160)}`);
+    check(/\(2026-09-28; source: Texas Comptroller hotel occupancy tax data \(Local HOT Reporting, FY2025\) → https:\/\/data\.texas\.gov\/dataset\/Local-Hotel-Occupancy-Tax-Reporting-2025\/er34-v24h\)/.test(t.content) && !/\/workspace|msa-registry|\(D3\)|SODA/.test(t.content), "r5 must-fix: Dallas registry row not replaced by the public Comptroller citation");
+    const { dedupeClauses } = await import("@/lib/chat");
+    check(dedupeClauses("self-reported; reporting year set by filer. Self-reported; the reporting year is set by the filer and may follow the city FY (Oct–Sep). State 6% not included.") === "Self-reported. The reporting year is set by the filer and may follow the city FY (Oct–Sep). State 6% not included.", "r5-4 dedupeClauses unit");
+    check(dedupeClauses("OCC 70%; ADR $150. RevPAR $105.") === "OCC 70%; ADR $150. RevPAR $105.", "r5-4 dedupeClauses keeps distinct clauses");
+  }
+  {
+    // r5-5. One date on the rates card.
+    const so = await ask("Why is SOFR up?", null, null);
+    check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r5-5 SOFR: ${so.head}`);
+    const ty = await ask("Where is the 10-year Treasury?", null, null);
+    check(/^US 10-year Treasury \d+\.\d+% \(Oct 16, 2026 close, U\.S\. Treasury par yield curve\)\.$/.test(ty.head), `r5-5 10-year: ${ty.head}`);
+    // r5-6. Lodging Econometrics rows keep their own titles (no two reads titled "Total pipeline").
+    const sp = await card("What's the supply pipeline in Dallas?", null, null, "all");
+    const titles = ((sp.brief as Brief | null)?.reads ?? []).map((r) => (r as { source?: { title?: string; url?: string } }).source).filter((x) => x?.url && /lodgingeconometrics/.test(x.url)).map((x) => x!.title);
+    check(titles.length >= 2 && new Set(titles).size === titles.length && !titles.includes("Total pipeline"), `r5-6 LE read titles: ${JSON.stringify(titles)}`);
+    console.log(`  r5-5 ${so.head} · ${ty.head} · r5-6 LE titles ${JSON.stringify(titles)}`);
   }
 
   // seen validation (untrusted input): an array of ≤ SEEN_MAX 16-hex strings; anything else is ignored whole.

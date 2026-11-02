@@ -4,7 +4,7 @@ import { answerChat, isLlmEnabled } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
-import { scrubInternal, cleanSourceLabel } from "@/lib/public-text";
+import { scrubInternal, cleanSourceLabel, guardPublic } from "@/lib/public-text";
 import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
@@ -189,7 +189,8 @@ export async function POST(req: Request) {
       const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent });
       const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
       const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
-      return {
+      // Final leak guard on everything the card carries (idempotent; answerChat already ran it).
+      return guardPublic({
         content: answer.content,
         brief: answer.brief ?? null,
         citations,
@@ -199,7 +200,7 @@ export async function POST(req: Request) {
         mode: answer.mode,
         answeredWell: answer.answeredWell,
         ...(answer.followUps?.length ? { followUps: answer.followUps } : {}),
-      };
+      });
     };
 
     // Deterministic answers are shared (src/lib/chat-cache.ts). Model answers (spend-locked off) never are.

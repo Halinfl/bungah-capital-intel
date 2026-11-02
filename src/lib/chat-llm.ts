@@ -36,7 +36,7 @@ import { adviceDeclineLines, classifyAdviceRequest, type AdviceKind } from "./ch
 import { isBareRates } from "./chat-intent";
 import { detectUncoveredPlaces, uncoveredMarketLines, withoutPlaces, type UncoveredPlace } from "./chat-coverage";
 import { scrubSeedLines } from "./format";
-import { scrubInternal } from "./public-text";
+import { guardPublic, scrubInternal } from "./public-text";
 import type { ChatIntent } from "./chat-intent";
 import {
   formatDigestFallbackMemo,
@@ -201,7 +201,9 @@ function cleanLegacy(content: string): string {
  * rewrite `content` afterwards (one answer per question, no post-render swap).
  * With a brief, the stored text is the brief's own markdown (same facts, same order).
  */
-function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
+function finalize(answer0: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
+  // Render-time leak guard (public-text.ts guardPublic): no file path, dataset ID label or internal code in any string.
+  const answer = guardPublic(answer0);
   // A one-line prompt with chips ("Which two markets should I compare?") is shown as is, without the footer.
   const content = answer.brief ? briefMarkdown(answer.brief) : answer.prompt ? answer.content : cleanLegacy(answer.content);
   // Under a date window the answer's citations are exactly the windowed brief's citations.
