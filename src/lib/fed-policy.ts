@@ -12,6 +12,8 @@ export type FedPolicy = {
   decisions: FedDecision[];
   /** Scheduled FOMC meetings, from the federalreserve.gov calendar (checked date and URL kept). */
   upcomingMeetings?: { start: string; end: string; sep?: boolean; source: string; url: string; checkedAt: string }[];
+  /** The 10-year Treasury (a market rate, not Fed policy): latest FRED DGS10 print with its as-of date (r6c). */
+  tenYear?: { value: number; asOf: string; series: string; source: string; url: string; checkedAt: string; note?: string };
 };
 
 export const FED_POLICY = data as unknown as FedPolicy;

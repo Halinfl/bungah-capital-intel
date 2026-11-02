@@ -1299,7 +1299,7 @@ export function collapsedLength(b: Pick<ChatBrief, "decline" | "answer" | "reads
 }
 
 export function makeBrief(
-  input: Omit<ChatBrief, "collapsedChars" | "footer" | "coverage"> & { footer?: string; coverage: string | Coverage }
+  input: Omit<ChatBrief, "collapsedChars" | "footer" | "coverage"> & { footer?: string; coverage: string | Coverage; maxReads?: number }
 ): ChatBrief {
   const cov = typeof input.coverage === "string" ? null : input.coverage;
   const b = { ...input, coverage: cov ? cov.text : (input.coverage as string) };
@@ -1309,7 +1309,8 @@ export function makeBrief(
     decline: b.decline ? scrubInternal(b.decline) : undefined,
     answer: balanceParens(scrubInternal(b.answer)),
     ...(b.premise ? { premise: balanceParens(scrubInternal(b.premise)) } : {}),
-    reads: b.reads.slice(0, 3).map((r) => ({
+    // Three key reads by default; the Fed card carries four (range, two decisions, the 10-year; Eric r6b QA).
+    reads: b.reads.slice(0, b.maxReads ?? 3).map((r) => ({
       ...r,
       text: balanceParens(scrubInternal(r.text)),
       source: {

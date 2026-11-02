@@ -996,8 +996,9 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
       ? ` Latest FOMC decision, ${fedDate(latest.date)}: held the range${lastChange ? `; the last change was a ${amount(lastChange)}${changeWord(lastChange)} on ${fedDate(lastChange.date)}` : ""} (Federal Reserve).`
       : ` Latest FOMC decision, ${fedDate(latest.date)}: a ${amount(latest)}${changeWord(latest)} (Federal Reserve).`;
   const answer = `Fed funds target range: ${rangeText(tr.lower, tr.upper)} (as of ${fedDate(tr.asOf)}, FRED).${latestText}`;
-  const fedRead = (d: (typeof decisions)[number]): BriefRead =>
-    toRead({
+  // The decision date is in the text ("FOMC Oct 28, 2026: …"), so no separate as-of tag: one date per bullet (r6c).
+  const fedRead = (d: (typeof decisions)[number]): BriefRead => ({
+    ...toRead({
       text: `FOMC ${fedDate(d.date)}: ${d.action === "held" ? `held the target range at ${rangeText(d.lower, d.upper)}` : `${d.action} the target range ${d.changeBp ? `${(d.changeBp / 100).toFixed(2)} point ` : ""}to ${rangeText(d.lower, d.upper)}`}${d.vote ? ` (vote ${d.vote})` : ""}`,
       asOf: d.date,
       key: Number(d.date.replace(/-/g, "")),
@@ -1005,7 +1006,9 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
       kind: "rates",
       title: d.title,
       readable: true,
-    });
+    }),
+    asOf: null,
+  });
   // The 10-year, from our own cited rows: a market rate, labeled as such.
   const tenY = signals
     .filter((s) => /\b(10-year|10Y)\b/i.test(s.title))
@@ -1032,20 +1035,27 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
     text: `FRED DFEDTARU / DFEDTARL: fed funds target range ${rangeText(tr.lower, tr.upper)} (upper ${fedPct(tr.upper)}, lower ${fedPct(tr.lower)})`,
   };
   fredRange.source = { ...fredRange.source, title: "FRED DFEDTARU / DFEDTARL" };
-  // Three bullets: the range (FRED), the latest decision (Federal Reserve), the 10-year (market rate). The prior
-  // decision stays in the headline and in Sources.
-  const reads: BriefRead[] = [fredRange, ...decisions.slice(0, 1).map(fedRead)];
-  if (tenY) {
+  // Four bullets (Eric r6b QA): the range (FRED), the latest decision and the one before it with its vote (Federal
+  // Reserve), then the 10-year (market rate). The 10-year comes from the data layer (latest FRED DGS10 print, its
+  // as-of date shown once, as the tag); a cited DB row is the fallback when the data layer has none.
+  const reads: BriefRead[] = [fredRange, ...decisions.slice(0, 2).map(fedRead)];
+  const ty = policy.tenYear;
+  if (ty) {
+    reads.push({
+      text: `Market rate, not Fed policy: US 10-year Treasury ${fedPct(ty.value)} (FRED ${ty.series})`,
+      asOf: fedDate(ty.asOf),
+      source: { kind: "Record", label: ty.source, url: ty.url, title: `FRED ${ty.series}`, publisher: "Federal Reserve Bank of St. Louis", date: ty.asOf },
+    });
+  } else if (tenY) {
     const r = toRead(tenY);
-    // One date on the 10-year (Eric r6 QA): "5.09% (Oct 16, 2026 close)".
+    // One date on the 10-year (Eric r6 QA): "5.09% (Oct 16, 2026 close)", no separate as-of tag (r6c).
     const full = tenY.period?.end ? fedDate(`${String(tenY.period.end).slice(0, 4)}-${String(tenY.period.end).slice(4, 6)}-${String(tenY.period.end).slice(6, 8)}`) : null;
     const text = r.text.replace(/^US 10Y\b/, "US 10-year").replace(/\(([A-Z][a-z]{2} \d{1,2}) close\)/, (m0, d) => (full && full.startsWith(d) ? `(${full} close)` : m0));
-    reads.push({ ...r, text: `Market rate, not Fed policy: ${text}` });
+    reads.push({ ...r, text: `Market rate, not Fed policy: ${text}`, asOf: /\(\w{3} \d{1,2}, 20\d\d close\)/.test(text) ? null : r.asOf });
   }
   const fred = tr.urls.map((url) => ({ key: url, url, label: tr.source, text: `${url.split("/").pop()} — ${tr.source}`, asOf: tr.asOf, period: periodOf(tr.asOf) }));
   // A forecast question names the next scheduled meeting: cite the federalreserve.gov calendar it comes from.
   const cal = /^We don't forecast Fed decisions\. The next FOMC meeting/.test(opts.decline ?? "") ? policy.upcomingMeetings?.[0] : null;
-  for (const d of decisions.slice(1, 2)) fred.push({ key: d.url, url: d.url, label: d.source, text: `${d.title} — ${d.source}`, asOf: d.date, period: periodOf(d.date) });
   if (cal) fred.push({ key: cal.url, url: cal.url, label: cal.source, text: `FOMC meeting calendar — ${cal.source}`, asOf: cal.checkedAt, period: periodOf(cal.checkedAt) });
   return makeBrief({
     decline: opts.decline,
@@ -1059,6 +1069,7 @@ export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, poli
     window: { range, filterable: true },
     // Fed policy only: the national debt & deals rows are not part of this card (Eric r6 QA).
     sections: [],
+    maxReads: 4,
   });
 }
 

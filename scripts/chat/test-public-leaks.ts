@@ -102,14 +102,16 @@ async function main() {
     const allRaw = raw.filter((x) => (x as unknown as { marketId: string }).marketId && slugOf.get((x as unknown as { marketId: string }).marketId) === mk.slug) as unknown as typeof mk.signals;
     // As the page renders: withoutSocial(citedOnly) then publicRows (markets/[slug]/page.tsx).
     const kept = publicRows(withoutSocial(citedOnly(allRaw))).filter((x) => !isNoReadSignal(x));
-    for (const x of allRaw) socialLinksSeen += parseSourceUrls(x.sourceUrls).filter((l) => isSocialUrl(l.url)).length;
+    const rawLinks = (x: { sourceUrls: unknown }) => (Array.isArray(x.sourceUrls) ? x.sourceUrls : []) as { url?: string }[];
+    // Raw stored links (parseSourceUrls already drops social URLs, so count them before it).
+    for (const x of allRaw) socialLinksSeen += rawLinks(x).filter((l) => isSocialUrl(l?.url)).length;
+    for (const x of kept) for (const l of rawLinks(x)) if (isSocialUrl(l?.url)) socialBad.push(`${mk.slug}: social link survives withoutSocial — ${l.url}`);
     const removed = allRaw.filter((x) => isRuleRow(x) && !kept.includes(x));
     if (removed.length) removedByPage.set(mk.slug, removed.map((x) => `${x.kind}: ${x.title.slice(0, 60)} [${x.sourceLabel.slice(0, 50)}]`));
     const parts = [scrubInternal(mk.summary), scrubInternal(mk.nuanceNote), ...(isOwnSource(mk.sourceLabel) ? [] : [cleanSourceLabel(mk.sourceLabel)])];
     for (const m of kept) {
       const links = withoutSocialLinks(withoutOwnLinks(parseSourceUrls(m.sourceUrls)));
       parts.push(scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), ...(isOwnSource(m.sourceLabel) ? [] : [withoutSocialLabel(cleanSourceLabel(m.sourceLabel))]), ...links.map((l) => scrubInternal(l.label)));
-      for (const l of withoutOwnLinks(parseSourceUrls(m.sourceUrls))) if (isSocialUrl(l.url)) socialBad.push(`${mk.slug}: social link survives withoutSocial — ${l.url}`);
     }
     if (mk.slug === "chicago" && kept.some((x) => /11\.6%/.test(`${x.title} ${x.body} ${x.magnitude ?? ""}`))) socialBad.push("chicago: the LinkedIn-only +11.6% card is still rendered");
     for (const p of parts) {
