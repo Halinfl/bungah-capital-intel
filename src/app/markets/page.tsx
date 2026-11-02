@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withoutSocial } from "@/lib/social-sources";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
@@ -21,10 +22,12 @@ export default async function MarketsPage() {
       orderBy: { name: "asc" },
       include: {
         assets: { select: { sourceLabel: true, name: true, notes: true } },
-        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
+        signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } },
       },
     }), []);
   const markets = marketsQ.data;
+  // Social posts are never sources: rows resting only on them don't count toward coverage.
+  for (const m of markets) m.signals = withoutSocial(m.signals);
   const dbDown = !marketsQ.ok;
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed

@@ -76,3 +76,28 @@ export function stripSocial<T extends Sig>(s: T): T | null {
 export function withoutSocial<T extends Sig>(rows: T[]): T[] {
   return rows.map((r) => stripSocial(r)).filter((r): r is T => r !== null);
 }
+
+const MD_LINK = /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g;
+const HTML_LINK = /<a\b[^>]*href=['"](https?:\/\/[^'"]+)['"][^>]*>[\s\S]*?<\/a>/gi;
+
+/**
+ * Markdown (stored memos, generated copy) without social citations: a line whose only links are social posts is
+ * dropped (the claim rested on them); a line that also cites a non-social source just loses the social link.
+ */
+export function stripSocialMarkdown(md: string): string {
+  return md
+    .split("\n")
+    .flatMap((line) => {
+      const urls = [...line.matchAll(MD_LINK)].map((m) => m[2]).concat([...line.matchAll(HTML_LINK)].map((m) => m[1]));
+      const social = urls.filter(isSocialUrl);
+      if (!social.length && !SOCIAL_URL_IN_TEXT.test(line)) return [line];
+      if (social.length === urls.length) return [];
+      const cleaned = line
+        .replace(MD_LINK, (all, _t, u) => (isSocialUrl(u) ? "\u0000" : all))
+        .replace(HTML_LINK, (all, u) => (isSocialUrl(u) ? "\u0000" : all))
+        .replace(/\s*(?:·|,|;)?\s*\u0000(?:\s*\{tag: self-reported\})?/g, "")
+        .replace(/\s+$/, "");
+      return SOCIAL_URL_IN_TEXT.test(cleaned) ? [] : [cleaned];
+    })
+    .join("\n");
+}

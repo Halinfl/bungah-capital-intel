@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { withoutSocial } from "@/lib/social-sources";
 import { AskAboutButton } from "@/components/AskAboutButton";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -49,8 +50,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: m } = await cachedQuery(["market-meta", slug], () =>
     prisma.market.findUnique({
       where: { slug },
-      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } } },
+      include: { signals: { select: { sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } } },
     }), null);
+  if (m) m.signals = withoutSocial(m.signals);
   if (!m) return { title: "Hotel market · Bungah Capital Intel", alternates: { canonical: `/markets/${slug}` } };
   const covered = isIndexableMarket(m);
   const extras = [
@@ -103,7 +105,8 @@ export default async function MarketDetailPage({
   if (!market) notFound();
   // Seed / illustrative rows stay in the DB but are never rendered.
   // "tag: none / national applies" placeholder rows are not shown either.
-  market.signals = citedOnly(market.signals).filter((s) => !isNoReadSignal(s));
+  // LinkedIn / social posts are never sources: their links, and rows resting only on them, are not rendered (DB unchanged).
+  market.signals = withoutSocial(citedOnly(market.signals)).filter((s) => !isNoReadSignal(s));
   market.assets = citedOnly(market.assets);
   market.findings = citedFindings(market.findings);
   // Hotel-tax collection series render as their own newest-first section (Orlando-style cards).

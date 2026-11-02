@@ -65,11 +65,16 @@ DEAD = {  # verified 404 at build time; never linked
     "https://www.morningstar.com/news/pr-newswire/20260505la48357/davidson-hospitality-group-tapped-to-manage-cadillac-hotel-beach-club-autograph-collection",
 }
 
+SOCIAL_RE = re.compile(r"^https?://(?:[a-z0-9-]+\.)*(?:linkedin\.com|lnkd\.in|x\.com|twitter\.com|facebook\.com|instagram\.com|threads\.net|tiktok\.com)/", re.I)
+
 def urls_in(s):
     out = []
     for u in URL_RE.findall(s or ""):
         u = u.rstrip(".,;:*_")
         if "/_src/" in u or "neo-capital-intel" in u or u in DEAD:
+            continue
+        # House rule: LinkedIn and other social posts are never sources (rows left with no link are skipped).
+        if SOCIAL_RE.search(u):
             continue
         if u not in out:
             out.append(u)

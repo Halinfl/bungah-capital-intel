@@ -4,7 +4,11 @@
  */
 import { dealAliases, matchDealName, MARKET_TOPIC } from "../../src/lib/chat-deal-match";
 import { dealAdviceBrief, dealBrief, dealLens } from "../../src/lib/chat-items";
-import { isSocialUrl, stripSocial } from "../../src/lib/social-sources";
+import { isSocialUrl, stripSocial, stripSocialMarkdown, withoutSocial } from "../../src/lib/social-sources";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { publisherName } from "../../src/lib/public-text";
+import { isOriginalUrl, parseSourceUrls } from "../../src/lib/source-links";
 
 let fail = 0;
 const check = (ok: boolean, msg: string) => {
@@ -79,6 +83,28 @@ for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scot
   const a = dealAdviceBrief(slug, DECLINE)!;
   const src = a.brief.sections.find((x) => x.id === "sources");
   check(!!src && a.citations.length === src.count, `${slug}: citations ${a.citations.length} = Sources ${src?.count}`);
+}
+
+// r7: public pages. Memo markdown, publisher labels and source links never carry a social post.
+{
+  const md = [
+    "- Rule with no source.",
+    "- Claim resting on a post (2026-09-11) · [x.com ↗](https://x.com/someone/status/1) {tag: self-reported}",
+    "- Two sources · [Hotel Dive ↗](https://www.hoteldive.com/a) · [linkedin.com ↗](https://www.linkedin.com/posts/a_b)",
+    "- Inline html <a href='https://www.linkedin.com/posts/c_d'>post</a>",
+  ].join("\n");
+  const out = stripSocialMarkdown(md);
+  check(out.split("\n").length === 2 && out.includes("Rule with no source.") && out.includes("[Hotel Dive ↗](https://www.hoteldive.com/a)") && !/linkedin|x\.com/i.test(out), `stripSocialMarkdown keeps sourced/unsourced rows, drops post-only rows: ${JSON.stringify(out)}`);
+  check(!/via LinkedIn/.test(publisherName("https://www.linkedin.com/posts/costar_top-us-hotel-markets-activity-1")) && publisherName("https://www.linkedin.com/posts/costar_x-1") !== "CoStar", `publisherName(linkedin post) is not "CoStar, via LinkedIn": ${publisherName("https://www.linkedin.com/posts/costar_x-1")}`);
+  check(!isOriginalUrl("https://x.com/a/status/1") && isOriginalUrl("https://www.costar.com/article/1"), "isOriginalUrl: social posts are not original sources");
+  check(parseSourceUrls([{ url: "https://www.linkedin.com/posts/a_b" }, { url: "https://www.str.com/x", label: "STR" }]).map((l) => l.label).join() === "STR", "parseSourceUrls drops social links");
+  check(withoutSocial([{ title: "a", body: "b", sourceLabel: "Post https://www.linkedin.com/posts/a_b", sourceUrls: [{ url: "https://www.linkedin.com/posts/a_b" }] }, { title: "c", body: "d", sourceLabel: "STR", sourceUrls: [{ url: "https://str.com/" }] }]).length === 1, "withoutSocial drops a row resting only on a post");
+}
+{
+  // The Stack memo generator and its Tier 1 data carry no social links.
+  const tier1 = readFileSync(join(__dirname, "../../src/data/stack-memo-tier1.json"), "utf8");
+  const memoSrc = readFileSync(join(__dirname, "../../src/lib/stack-memo.ts"), "utf8");
+  check(!/https?:\/\/(?:[a-z0-9-]+\.)*(?:linkedin\.com|lnkd\.in|x\.com|twitter\.com|facebook\.com|instagram\.com|threads\.net|tiktok\.com)\//i.test(tier1 + memoSrc), "stack-memo-tier1.json and stack-memo.ts cite no social posts");
 }
 
 // End to end through answerChat, when a graph fixture is available (BUNGAH_GRAPH_FIXTURE, as for test:matcher).

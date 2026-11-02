@@ -195,7 +195,6 @@ const PUBLISHERS: Record<string, string> = {
   "morningstar.com": "Morningstar DBRS",
   "bankerandtradesman.com": "Banker & Tradesman",
   "suntimes.com": "Chicago Sun-Times",
-  "linkedin.com": "LinkedIn",
   "discoverlosangeles.com": "Discover Los Angeles",
   "hotelinvestmenttoday.com": "Hotel Investment Today",
   "hotelbusiness.com": "Hotel Business",
@@ -291,18 +290,10 @@ const PATH_PUBLISHERS: [RegExp, string][] = [
   [/^https?:\/\/assets\.simpleviewcms\.com\/simpleview\/image\/upload\/v1\/clients\/lasvegas\//, "LVCVA"],
 ];
 
-/** Real publisher name for a URL (falls back to the registrable domain). */
-const LINKEDIN_AUTHORS: Record<string, string> = { costar: "CoStar", "costar-group": "CoStar", str: "STR", cbre: "CBRE", jll: "JLL", hvs: "HVS" };
-
+/** Real publisher name for a URL (falls back to the registrable domain). Social posts are never sources: a social URL
+ * gets only its host, never an author "via LinkedIn" label, and callers drop those links (src/lib/social-sources.ts). */
 export function publisherName(url: string): string {
   for (const [re, name] of PATH_PUBLISHERS) if (re.test(url)) return name;
-  // A LinkedIn post is published by its author, not by LinkedIn.
-  const li = url.match(/^https?:\/\/(?:[a-z]+\.)?linkedin\.com\/(?:posts\/([a-z0-9-]+?)_|company\/([a-z0-9-]+))/i);
-  if (li) {
-    const slug = (li[1] ?? li[2] ?? "").toLowerCase();
-    const who = LINKEDIN_AUTHORS[slug];
-    if (who) return `${who}, via LinkedIn`;
-  }
   let host = "";
   try {
     host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");

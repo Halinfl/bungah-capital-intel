@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { withoutSocial } from "@/lib/social-sources";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
@@ -69,6 +70,8 @@ export default async function HomePage() {
       },
     }), []);
   const markets = marketsQ.data;
+  // Social posts are never sources (src/lib/social-sources.ts).
+  for (const m of markets) m.signals = withoutSocial(m.signals);
   const coveredCount = markets.filter((m) => hasPublicCoverage(m, citedOnly(m.signals).length)).length;
 
   // Hero card: only markets whose snapshot is cited (no seed numbers). Source links come from the
