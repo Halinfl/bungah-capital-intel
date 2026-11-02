@@ -78,6 +78,14 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   check(!!s && !/linkedin|Host post/i.test(JSON.stringify(s)) && s.magnitude === "2 rows" && /STR/.test(s.sourceLabel) && /\(accessed 2026-10-11\)$/.test(s.sourceLabel), `stripSocial: only the LinkedIn row goes (${s?.sourceLabel} | ${s?.body})`);
 }
 
+{
+  // A row a non-social link also backs keeps its text (only the post link goes); "N changes" follows the rows left.
+  const both = stripSocial({ title: "t", body: "Lead. Evo: managing Hotel Z | Bartell: owner", magnitude: "2 rows", sourceLabel: "x", sourceUrls: [{ url: "https://www.hoteldive.com/a", label: "Evo — hoteldive.com" }, { url: "https://www.linkedin.com/posts/a_b", label: "Evo — linkedin.com" }, { url: "https://bartell.com/", label: "Bartell" }] });
+  check(!!both && both.body.includes("Evo: managing Hotel Z") && both.magnitude === "2 rows" && !/linkedin/.test(JSON.stringify(both)), `stripSocial keeps a row a non-social link also backs (${both?.body})`);
+  const ch = stripSocial({ title: "t", body: "Lead. A moved (PRWeb). | B adds hotels (self-reported). | C wins (BW).", magnitude: "3 changes", sourceLabel: "PRWeb · B on LinkedIn · BW", sourceUrls: [{ url: "https://prweb.com/a", label: "A moved — PRWeb" }, { url: "https://www.linkedin.com/posts/b_c", label: "B adds hotels — B on LinkedIn (self-reported)" }, { url: "https://businesswire.com/x", label: "C wins — BW" }] });
+  check(!!ch && ch.magnitude === "2 changes" && !/B adds/.test(ch.body), `stripSocial: "3 changes" -> "${ch?.magnitude}", post-only change dropped`);
+}
+
 // r7: the citations field lists each cited link once, matching the Sources section.
 for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scottsdale-princess", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
   const a = dealAdviceBrief(slug, DECLINE)!;

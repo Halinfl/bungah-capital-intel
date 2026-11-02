@@ -56,7 +56,10 @@ export function stripSocial<T extends Sig>(s: T): T | null {
   if (!kept.length) return null;
   let body = s.body;
   // Link labels can carry a host or qualifier suffix ("… — linkedin.com", "(self-reported)"); match on the head.
-  for (const l of social) if (l.label) body = dropRow(body, l.label.split(" — ")[0].replace(/\s*\([^)]*\)\s*$/, "").trim() || l.label);
+  const head = (label: string) => label.split(" — ")[0].replace(/\s*\([^)]*\)\s*$/, "").trim() || label;
+  // A row that a non-social link also backs (same row label) stays; only its social link goes.
+  const keptHeads = new Set(kept.map((l) => (l?.label ? head(l.label) : "")).filter(Boolean));
+  for (const l of social) if (l.label && !keptHeads.has(head(l.label))) body = dropRow(body, head(l.label));
   // A row whose own inline "source: <social url>" is its only attribution goes too.
   body = body
     .split(" | ")
@@ -68,7 +71,10 @@ export function stripSocial<T extends Sig>(s: T): T | null {
   const segs = s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, "").split(sep);
   const sourceLabel = (segs.filter((p) => !SOCIAL_WORD.test(p) && !SOCIAL_URL_IN_TEXT.test(p)).join(sep).trim() + accessed).trim();
   const nRows = body.split(" | ").length;
-  const magnitude = typeof s.magnitude === "string" && /^\d+ rows?$/.test(s.magnitude) ? `${nRows} row${nRows === 1 ? "" : "s"}` : s.magnitude;
+  // A row count in the magnitude ("4 rows", "3 changes") follows the rows that are left.
+  const nBefore = s.body.split(" | ").length;
+  const mm = typeof s.magnitude === "string" ? s.magnitude.match(/^(\d+) (row|change|item)s?$/) : null;
+  const magnitude = mm && Number(mm[1]) === nBefore ? `${nRows} ${mm[2]}${nRows === 1 ? "" : "s"}` : s.magnitude;
   return { ...s, body, magnitude, sourceLabel: sourceLabel || (kept[0].label ?? ""), sourceUrls: kept };
 }
 
