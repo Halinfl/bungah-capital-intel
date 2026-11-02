@@ -72,7 +72,7 @@ import {
   type BriefOpts,
 } from "./chat-brief-build";
 import { matchProperty } from "./chat-property";
-import { dealBrief, dealLens, dealMarketSlug, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
+import { dealAdviceBrief, dealBrief, dealLens, dealMarketSlug, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
 import type { ChatScope } from "./chat-scope";
 import { digestTickers } from "./chat-retrieve";
 import { MARKET_TOPIC, matchDealName } from "./chat-deal-match";
@@ -299,6 +299,8 @@ function adviceAnswer(
     citations.push(...digests.map((d) => d.citePath));
   }
   if (!market && !digestMemo && !(places.length && !alsoCovered)) {
+    // No facts follow: don't promise them.
+    for (let i = 0; i < lines.length; i++) lines[i] = lines[i].replace(/\s*Below are the relevant cited facts for your own decision\./, "");
     lines.push(
       "Name a market or a REIT (for example, [Nashville](/markets/nashville) or [Host Hotels](/reits)) and Chat will show its cited facts. Or [browse the markets we cover](/markets)."
     , "");
@@ -333,6 +335,10 @@ export async function answerChat(
   const scope = opts?.scope ?? null;
   // "Ask about this": an item chip routes the question to that item first.
   if (scope?.kind === "deal") {
+    // Buy / sell about this deal: decline, then the deal's cited facts.
+    const adv = classifyAdviceRequest(question);
+    const advItem = adv ? dealAdviceBrief(scope.id, declineText(adv)) : null;
+    if (advItem) return finalizeItem(advItem);
     const lens = dealLens(question);
     const item = lens ? dealBrief(scope.id, lens) : null;
     if (item) return finalizeItem(item);
@@ -362,8 +368,12 @@ export async function answerChat(
   // market-metric question that only mentions the deal.
   if (!scope) {
     const dealSlug = matchDealName(question);
+    const adv = dealSlug ? classifyAdviceRequest(question) : null;
+    // "Should I buy The Wade?" / "Is it worth buying The Wade?": decline, then the deal's cited facts.
+    const advItem = dealSlug && adv ? dealAdviceBrief(dealSlug, declineText(adv)) : null;
+    if (advItem) return finalizeItem(advItem);
     const dl = dealSlug ? dealLens(question) : null;
-    if (dealSlug && !classifyAdviceRequest(question) && (dl || !MARKET_TOPIC.test(question))) {
+    if (dealSlug && !adv && (dl || !MARKET_TOPIC.test(question))) {
       const item = dealBrief(dealSlug, dl ?? "grade") ?? (dl ? null : dealBrief(dealSlug, "price"));
       if (item) return finalizeItem(item);
     }

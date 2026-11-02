@@ -27,6 +27,26 @@ export const metadata: Metadata = {
   alternates: { canonical: "/deals" },
 };
 
+/**
+ * Separator for wrapped inline text: a no-break space before the dot glues it to the word before, so a wrapped line
+ * never starts with "·" (it can only end with one). Eric r5/r6.
+ */
+const SEP = "\u00a0· ";
+/** Keep a short phrase on one line ("Chicago, IL", "replacement cost"). */
+const glue = (t: string) => t.replace(/ /g, "\u00a0");
+
+const ngItems = (line: string) => line.replace(/^Not graded:\s*/, "").split(", ");
+/** First item ("replacement cost,"), kept with the label. */
+const notGradedHead = (line: string) => {
+  const items = ngItems(line);
+  return `${items[0]}${items.length > 1 ? "," : ""}`;
+};
+/** Remaining items, each kept whole ("spread, supply"). */
+const notGradedTail = (line: string) => {
+  const rest = ngItems(line).slice(1);
+  return rest.length ? ` ${rest.map(glue).join(", ")}` : "";
+};
+
 function GradeRow({ sale }: { sale: Sale }) {
   const g = gradesFor(sale.sale_id)[0];
   if (!g) return <div className="text-[13px] text-slate-300">Not graded yet</div>;
@@ -47,12 +67,15 @@ function GradeRow({ sale }: { sale: Sale }) {
         </>
       ) : (
         <span className="font-semibold text-slate-100">{m.grade}</span>
-      )}{" "}
-      · <span className="whitespace-nowrap">{m.coverage}</span>
+      )}
+      {SEP}
+      <span className="whitespace-nowrap">{m.coverage}</span>
       {m.notGraded ? (
         <>
-          {" "}
-          · <span className="whitespace-nowrap">Not graded:</span> {m.notGraded.replace(/^Not graded:\s*/, "")}
+          {SEP}
+          {/* "Not graded:" stays on the line with its first item; the list may wrap after that. */}
+          <span className="whitespace-nowrap">Not graded: {notGradedHead(m.notGraded)}</span>
+          {notGradedTail(m.notGraded)}
         </>
       ) : null}
     </p>
@@ -86,13 +109,21 @@ function DealCard({ sale }: { sale: Sale }) {
     >
       <div>
         <span className="font-semibold text-white">{sale.property}</span>
-        <span className="text-slate-300"> · {sale.market}</span>
+        <span className="text-slate-300">
+          {SEP}
+          <span className="whitespace-nowrap">{sale.market}</span>
+        </span>
       </div>
       <div className="text-sm tabular-nums text-slate-200">
-        {salePrice(sale)} · {fmtPerKey(sale.price_per_key)} · {fmtKeys(sale.keys)}
+        {salePrice(sale)}
+        {SEP}
+        {glue(fmtPerKey(sale.price_per_key))}
+        {SEP}
+        {glue(fmtKeys(sale.keys))}
       </div>
       <div className="text-[13px] text-slate-300">
-        Buyer {sale.buyer} · Seller {sale.seller}
+        Buyer {sale.buyer}
+        {SEP}Seller {sale.seller}
       </div>
       <GradeRow sale={sale} />
       <VersionRow sale={sale} />
@@ -169,11 +200,20 @@ function LogTable({ rows }: { rows: LogRow[] }) {
             <div className="text-slate-100">
               <a href={r.source_url} className="inline-flex min-h-11 items-center hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
-              </a>{" "}
-              <span className="text-slate-300">· {displayMarket(r.market)}</span>
+              </a>
+              <span className="text-slate-300">
+                {SEP}
+                <span className="whitespace-nowrap">{displayMarket(r.market)}</span>
+              </span>
             </div>
             <div className="text-[13px] text-slate-300">
-              {fmtDate(r.announce_date)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}
+              <span className="whitespace-nowrap">{fmtDate(r.announce_date)}</span>
+              {SEP}
+              {logPrice(r)}
+              {SEP}
+              {basisLabel(r.inclusion_basis)}
+              {SEP}
+              {logStatus(r)}
             </div>
           </li>
         ))}

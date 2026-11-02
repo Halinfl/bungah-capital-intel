@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { withoutSocial } from "./social-sources";
 import { prisma } from "./prisma";
 import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
 
@@ -662,16 +663,17 @@ export async function retrieveGraphContext(
   const markets = marketsQ.data;
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
-    m.signals = citedOnly(m.signals);
+    // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
+    m.signals = withoutSocial(citedOnly(m.signals));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = citedOnly(
+  const nationalSignals = withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  );
+  ));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -1067,13 +1069,13 @@ export async function answerFromGraph(
 export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
-  const rows = citedOnly(
+  const rows = withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
         select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
       }), [], GRAPH_MEMO)).data
-  );
+  ));
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
   for (const r of rows) {

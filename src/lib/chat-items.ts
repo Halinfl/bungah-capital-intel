@@ -5,7 +5,7 @@
  */
 import { reitByTicker, fmtQuarter, fmtRange, fmtDay } from "@/lib/reits";
 import type { Reit, Cited, Guidance, Transaction } from "@/lib/reits-shared";
-import { saleBySlug, gradesFor, headlineFor, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
+import { saleBySlug, gradesFor, headlineFor, cardMetaFor, salePrice, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
 import {
   makeBrief,
   coverageLine,
@@ -21,7 +21,7 @@ import {
 } from "./chat-brief";
 import { publisherName } from "./public-text";
 
-export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade"; marketSlug: string | null };
+export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade" | "advice_declined"; marketSlug: string | null };
 
 const FILED = /(?:filed|released)\s+([A-Z][a-z]{2} \d{1,2}, \d{4})/;
 const filedDate = (src: string): string | null => FILED.exec(src)?.[1] ?? null;
@@ -309,6 +309,85 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   let brief = build(3);
   for (let n = 2; n >= 1 && brief.collapsedChars >= 600; n--) brief = build(n);
   return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: lens === "price" ? "deal_sale" : "deal_grade", marketSlug: sale.market_slug };
+}
+
+/**
+ * Buy / sell / "is it worth buying" about a named deal: the decline, then the deal's cited facts so the "here's what
+ * the data shows" promise is kept. Grade meta ("4.8 of 5 · 3 of 5 factors graded"), the generated grade line, the
+ * price, and the factor reads, all from the deal data, each with its source. Null when the deal has no cited facts.
+ */
+export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | null {
+  const sale = saleBySlug(slug);
+  if (!sale) return null;
+  const grade = gradesFor(sale.sale_id)[0] ?? null;
+  const entry = entryFor(sale.sale_id);
+  const main = entry.sources.find((s) => s.kind === sale.price_source_kind) ?? entry.sources[0];
+  const mainUrl = main?.url ?? sale.source_uris[0];
+  const cites: Citation[] = [];
+  const reads: BriefRead[] = [];
+  const parts: string[] = [];
+  if (grade) {
+    const m = cardMetaFor(grade);
+    // The meta line carries the count, so the grade line drops its own trailing count.
+    const line = headlineFor(grade).replace(/; \d+ of \d+ factors graded(; insufficient public data)?\.$/, ".");
+    parts.push(`${grade.overall === null ? "Insufficient public data" : m.grade} · ${m.coverage} (rubric ${grade.rubric_version}, graded ${dealDate(grade.graded_on)}). ${line}`);
+  }
+  const price = salePrice(sale);
+  if (mainUrl) {
+    const keys = sale.keys ? `${sale.keys.toLocaleString("en-US")} keys` : "";
+    const priceText =
+      sale.price != null
+        ? `Price ${price}${keys ? ` for ${keys}${sale.price_per_key ? `, ${fmtPerKey(sale.price_per_key)}` : ""}` : ""}, announced ${dealDate(sale.announced_on)}`
+        : `Announced ${dealDate(sale.announced_on)}${keys ? `, ${keys}` : ""}; price: ${price.charAt(0).toLowerCase()}${price.slice(1)}`;
+    cites.push(cite(mainUrl, main ? `${main.publisher}: ${main.title}` : "Sale filing", main?.date ?? sale.announced_on));
+    const r = read(priceText, main?.date ?? sale.announced_on, { kind: chipFor(mainUrl), label: main?.publisher ?? (publisherName(mainUrl) || "Sale filing"), url: mainUrl, title: main?.title });
+    if (r) reads.push(r);
+  }
+  const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
+  for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
+  for (const f of [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0)).slice(0, 2)) {
+    const label = short(f.factor);
+    const r = read(`${label} ${f.score}/5: ${fitFact(f.input_text!) ?? shortInput(f.input_text!)}`, f.as_of, {
+      kind: chipFor(f.source_uri!),
+      label: publisherName(f.source_uri!) || label,
+      url: f.source_uri!,
+      title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200),
+    });
+    if (r) reads.push(r);
+  }
+  if (!parts.length || !cites.length) return null;
+  const sections: BriefSection[] = [];
+  if (grade) {
+    sections.push({
+      id: "deal-factors",
+      title: `Grade factors (${grade.overall_label})`,
+      count: grade.factor_scores.length,
+      markdown: [
+        "| Factor | Score | Weight | Input | Source |",
+        "| --- | --- | --- | --- | --- |",
+        ...grade.factor_scores.map((f) => {
+          const label = factorMeta(f.factor)?.label ?? f.factor;
+          return f.graded
+            ? `| ${label} | ${f.score}/5 | ${Math.round((f.effective_weight ?? f.weight) * 100)}% | ${f.input_text} | [${publisherName(f.source_uri!) || "Source"}](${f.source_uri}) |`
+            : `| ${label} | Not graded | — | ${f.reason ?? "No qualifying public source."} | — |`;
+        }),
+      ].join("\n"),
+    });
+  }
+  sections.push({ id: "further", title: "Further reading", count: 1, markdown: `- [${sale.property}: full deal entry](/deals/${sale.slug})` });
+  const answer = `${dealShort(sale)}: ${parts.join(" ")}`;
+  const build = (n: number) =>
+    makeBrief({
+      decline,
+      answer,
+      reads: reads.slice(0, n),
+      coverage: coverageLine({ cites, notes: ["Public sources only; no licensed data."] }),
+      window: { range: "all", filterable: false },
+      sections,
+    });
+  let brief = build(3);
+  for (let n = 2; n >= 1 && brief.collapsedChars >= 750; n--) brief = build(n);
+  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: "advice_declined", marketSlug: sale.market_slug };
 }
 
 /** "grande-lakes-orlando" → "Grande Lakes" (same rule as the deal page breadcrumb). */
