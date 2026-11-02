@@ -1,0 +1,333 @@
+diff --git a/scripts/chat/test-deal-match.ts b/scripts/chat/test-deal-match.ts
+index dcd2977..117972c 100644
+--- a/scripts/chat/test-deal-match.ts
++++ b/scripts/chat/test-deal-match.ts
+@@ -45,10 +45,15 @@ for (const [q, want] of cases) check(matchDealName(q) === want, `"${q}" -> ${mat
+ check(dealAliases("The Wade (former W Chicago Lakeshore)").every((a) => a.split(" ").length >= 2), "aliases are 2+ words");
+ check(MARKET_TOPIC.test("Chicago supply near The Wade"), "market topic words detected");
+ 
+-const q = "Tell me about The Wade";
++// Wade Option B: The Wade's overall is withheld (Insufficient, stated reason); the 4.8 grade-card checks use Hotel Zags.
++{
++  const w = dealBrief(matchDealName("Tell me about The Wade")!, "grade");
++  check(w?.intent === "deal_grade" && /^The Wade, Chicago, IL: no overall grade \(rubric v1\.1, /.test(w.brief.answer) && /insufficient public data \(supply withdrawn/.test(w.brief.answer) && !/4\.8/.test(w.brief.answer), `Wade (Option B) grade card: ${w?.brief.answer.slice(0, 90)}`);
++}
++const q = "Tell me about Hotel Zags";
+ const item = dealBrief(matchDealName(q)!, dealLens(q) ?? "grade");
+ check(item?.intent === "deal_grade", `deal card intent: ${item?.intent}`);
+-check(/The Wade/.test(item?.brief.answer ?? "") && /4\.8 of 5/.test(item?.brief.answer ?? ""), `answer: ${(item?.brief.answer ?? "").slice(0, 120)}`);
++check(/Hotel Zags/.test(item?.brief.answer ?? "") && /4\.8 of 5/.test(item?.brief.answer ?? ""), `answer: ${(item?.brief.answer ?? "").slice(0, 120)}`);
+ check(/spread not graded \(/.test(item?.brief.answer ?? ""), "answer uses 'not graded'");
+ check(!/\bSTR\b/.test(JSON.stringify(item?.brief ?? {})), "no 'STR' in the deal brief");
+ check(/no licensed data/.test(JSON.stringify(item?.brief ?? {})), "coverage says 'no licensed data'");
+@@ -67,7 +72,7 @@ for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scot
+   check(!/Below are the relevant cited facts/.test(JSON.stringify(b ?? {})), `${slug}: no empty 'facts below' promise`);
+ }
+ const wadeAdv = dealAdviceBrief("the-wade-chicago", DECLINE)!.brief;
+-check(/^The Wade, Chicago, IL: 4\.8 of 5 · 3 of 5 factors graded/.test(wadeAdv.answer), "Wade advice answer leads with 4.8 of 5 · 3 of 5 factors graded");
++check(/^The Wade, Chicago, IL: Insufficient public data · 3 of 5 factors graded/.test(wadeAdv.answer), "Wade advice answer leads with Insufficient public data · 3 of 5 factors graded (Option B)");
+ {
+   const pr = wadeAdv.reads.find((r) => r.text.startsWith("Price $25M for 520 keys"));
+   check(!!pr && /first confirmed Oct 25, 2026 \(announced Sep 17, 2026\)/.test(pr.text) && /vishal-thakkar/.test(pr.source.url ?? ""), `Wade advice: price read cites the Oct 25 confirmation (${pr?.text} · ${pr?.source.label})`);
+@@ -160,10 +165,10 @@ async function e2e() {
+   if (!installGraphFixture()) throw new Error("graph fixture not installed");
+   const { answerChat } = await import("../../src/lib/chat-llm");
+   const a = await answerChat("Tell me about The Wade");
+-  check(a.intent === "deal_grade" && /4\.8 of 5/.test(a.brief?.answer ?? ""), `answerChat("Tell me about The Wade") -> ${a.intent}: ${(a.brief?.answer ?? a.content).slice(0, 90)}`);
++  check(a.intent === "deal_grade" && /no overall grade/.test(a.brief?.answer ?? "") && !/4\.8 of 5/.test(a.brief?.answer ?? ""), `answerChat("Tell me about The Wade") (Option B: no overall grade) -> ${a.intent}: ${(a.brief?.answer ?? a.content).slice(0, 90)}`);
+   for (const q of ["Should I buy The Wade?", "Is it worth buying The Wade?", "is The Wade worth buying"]) {
+     const x = await answerChat(q);
+-    check(x.intent === "advice_declined" && /4\.8 of 5 · 3 of 5 factors graded/.test(x.brief?.answer ?? "") && (x.citations?.length ?? 0) > 0, `answerChat("${q}") -> ${x.intent}, ${x.citations?.length} citations`);
++    check(x.intent === "advice_declined" && /Insufficient public data · 3 of 5 factors graded/.test(x.brief?.answer ?? "") && (x.citations?.length ?? 0) > 0, `answerChat("${q}") -> ${x.intent}, ${x.citations?.length} citations`);
+   }
+   const z = await answerChat("Should I sell Hotel Zags?", { scope: { kind: "deal", id: "hotel-zags-portland-or" } });
+   check(z.intent === "advice_declined" && /Hotel Zags/.test(z.brief?.answer ?? ""), `scoped advice -> ${z.intent}`);
+diff --git a/scripts/deals/test-headline.ts b/scripts/deals/test-headline.ts
+index 6b1dbfb..8d3ece7 100644
+--- a/scripts/deals/test-headline.ts
++++ b/scripts/deals/test-headline.ts
+@@ -39,9 +39,10 @@ for (const g of latest.values()) {
+ }
+ 
+ const expect: Record<string, { label: string; line: string }> = {
++  // Wade Option B (v1.1 revision 5): overall withheld by a stated decision; factor rows unchanged.
+   "the-wade-chicago-2026": {
+-    label: "4.8 of 5",
+-    line: "Underwritten at a 90% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded.",
++    label: "Insufficient public data",
++    line: "Underwritten at a 90% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded; insufficient public data (supply withdrawn for lack of a room count, leaving only the rubric minimum).",
+   },
+   "four-seasons-scottsdale-troon-north-2026": {
+     label: "2.9 of 5",
+@@ -77,7 +78,7 @@ for (const [id, e] of Object.entries(expect)) {
+ 
+ // Compact index-card line (r5): grade · coverage · Not graded: … (no reasons, count once).
+ const cards: Record<string, string> = {
+-  "the-wade-chicago-2026": "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
++  "the-wade-chicago-2026": "Insufficient · 3 of 5 factors graded · Not graded: spread, supply",
+   "four-seasons-scottsdale-troon-north-2026": "2.9 of 5 · 4 of 5 factors graded · Not graded: supply",
+   "embassy-suites-las-vegas-2026": "3.6 of 5 · 4 of 5 factors graded · Not graded: spread",
+   "hotel-zags-portland-2026": "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
+@@ -105,7 +106,7 @@ check((entriesText.match(/No qualifying cap rate, so no spread is computed\./g)
+ 
+ const wade = latest.get("the-wade-chicago-2026")!;
+ const hist = revisionHistoryLine(wade, grades.filter((g) => g.sale_id === wade.sale_id));
+-check(hist === "Earlier v1.1 grade 4.0 (supply scored 1; withdrawn Nov 1: room count unavailable)", `Wade history line: ${hist}`);
++check(hist === "Earlier v1.1 grade 4.8 (overall withheld Nov 2: supply withdrawn for lack of a room count, leaving only the rubric minimum)", `Wade history line: ${hist}`);
+ for (const g of latest.values())
+   if (g.sale_id !== wade.sale_id) check(revisionHistoryLine(g, grades.filter((x) => x.sale_id === g.sale_id)) === null, `${g.sale_id}: no history line`);
+ 
+diff --git a/src/data/deals/grade_log.csv b/src/data/deals/grade_log.csv
+index 9b830e3..2077b7d 100644
+--- a/src/data/deals/grade_log.csv
++++ b/src/data/deals/grade_log.csv
+@@ -17,3 +17,4 @@ logged_on,log_id,sale_id,event,from_rubric,to_rubric,from_overall,to_overall,fac
+ 2026-11-01,DL-2026-008,embassy-suites-las-vegas-2026,revision,v1.1,v1.1,3.6 of 5,3.6 of 5,none,"v1.1 revision 1->2 (QA): 11,471 rooms and 7.63% labelled 'our calculation'. Inputs and scores unchanged."
+ 2026-11-01,DL-2026-012,hotel-zags-portland-2026,revision,v1.1,v1.1,4.8 of 5,4.8 of 5,none,"v1.1 revision 1->2 (QA): 'tax liability' (the dataset's field) instead of 'tax receipts'; annual sums and the +0.94% labelled 'our calculation'. Inputs and scores unchanged."
+ 2026-11-01,DL-2026-005,the-wade-chicago-2026,revision,v1.1,v1.1,4.0 of 5,4.8 of 5,supply 1->ungraded,"v1.1 revision 3->4 (rubric v1.1 clarification approved by Hal 2026-11-01: closures listed without a room count mean supply is not graded; the gross fallback is removed). The Choose Chicago PDF lists 8 Sonder properties removed from inventory but not their room count, so net supply can't be computed. Graded on the remaining 3 of 5 factors (RC 5, demand 4, debt context 5; spread ungraded): 4.75, shown 4.8 of 5."
++2026-11-02,DL-2026-005,the-wade-chicago-2026,revision,v1.1,v1.1,4.8 of 5,Insufficient public data,none,"v1.1 revision 4->5 (Option B, decided by Hal 2026-11-02): overall withheld. Room count unavailable, so supply was withdrawn at revision 4, leaving only the minimum 3 of 5 factors (RC 5, demand 4, debt context 5). Factor scores unchanged; the 3-of-5 rule alone gives 4.8 of 5, so this is a stated decision recorded as withhold_overall in the grader inputs. Shown as Insufficient public data."
+diff --git a/src/data/deals/grader-inputs/the-wade-chicago-2026.json b/src/data/deals/grader-inputs/the-wade-chicago-2026.json
+index 6d7503e..3b43d3d 100644
+--- a/src/data/deals/grader-inputs/the-wade-chicago-2026.json
++++ b/src/data/deals/grader-inputs/the-wade-chicago-2026.json
+@@ -95,5 +95,10 @@
+         }
+       }
+     }
++  },
++  "withhold_overall": {
++    "reason": "supply withdrawn for lack of a room count, leaving only the rubric minimum",
++    "decided_by": "Hal Vespucci (Wade Option B)",
++    "decided_on": "2026-11-02"
+   }
+ }
+diff --git a/src/data/deals/sale_grades.json b/src/data/deals/sale_grades.json
+index 1f1dfbd..173ca33 100644
+--- a/src/data/deals/sale_grades.json
++++ b/src/data/deals/sale_grades.json
+@@ -2735,5 +2735,117 @@
+     "overall_label": "4.8 of 5",
+     "output_text": "Underwritten at a 90% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded.",
+     "revision": 4
++  },
++  {
++    "log_id": "DL-2026-005",
++    "sale_id": "the-wade-chicago-2026",
++    "rubric_version": "v1.1",
++    "graded_on": "2026-11-02",
++    "public_data_as_of": "2026-09-17",
++    "factor_scores": [
++      {
++        "factor": "replacement_cost",
++        "weight": 0.3,
++        "effective_weight": 0.5,
++        "score": 5,
++        "value": -89.7,
++        "input_text": "$48k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 90% below. First confirmed price, Oct 25, 2026; only a $20M to $25M range was public at announcement (price from press; no deed located yet)",
++        "band_text": "5 = 40% or more below replacement cost",
++        "as_of": "2026-07-13",
++        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
++        "graded": true,
++        "also_sources": [
++          {
++            "label": "$25M purchase closed (The Real Deal, Oct 25, 2026)",
++            "url": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
++            "date": "2026-10-25"
++          },
++          {
++            "label": "$20M to $25M range at announcement (The Real Deal, Sep 17, 2026)",
++            "url": "https://therealdeal.com/chicago/2026/09/17/ketu-amin-purchases-wade-hotel-in-downtown-chicago/",
++            "date": "2026-09-17"
++          }
++        ],
++        "label": "price from press; no deed located yet",
++        "reason": null
++      },
++      {
++        "factor": "spread",
++        "weight": 0.25,
++        "effective_weight": null,
++        "score": null,
++        "value": null,
++        "input_text": null,
++        "band_text": null,
++        "as_of": null,
++        "source_uri": null,
++        "graded": false,
++        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement."
++      },
++      {
++        "factor": "supply",
++        "weight": 0.15,
++        "effective_weight": null,
++        "score": null,
++        "value": null,
++        "input_text": null,
++        "band_text": null,
++        "as_of": "2026-08-25",
++        "source_uri": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
++        "also_sources": [
++          {
++            "label": "Choose Chicago, Hotel Capacity Update, Aug 2026",
++            "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
++            "date": "2026-08-25",
++            "cite_id": "choose-chicago-capacity-aug-2026"
++          }
++        ],
++        "graded": false,
++        "reason": "The source lists 8 Sonder properties removed from inventory but not their room count, so net supply can't be computed."
++      },
++      {
++        "factor": "demand",
++        "weight": 0.15,
++        "effective_weight": 0.25,
++        "score": 4,
++        "value": 2.87,
++        "input_text": "Lodging tax receipts +2.87% (trailing 12 months vs prior 12, City of Chicago hotel tax revenue, calendar 2025 vs 2024, the latest full year published; $161.1M vs $156.6M (printed +$4.5M))",
++        "band_text": "4 = flat to up under 5%",
++        "as_of": "2026-06-25",
++        "source_uri": "https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf",
++        "graded": true,
++        "also_sources": [
++          {
++            "label": "Choose Chicago economic impact page",
++            "url": "https://www.choosechicago.com/chicago-economic-impact-2025/",
++            "date": "2026-06-25"
++          }
++        ],
++        "label": null,
++        "reason": null
++      },
++      {
++        "factor": "debt_context",
++        "weight": 0.15,
++        "effective_weight": 0.25,
++        "score": 5,
++        "value": "clean_arms_length",
++        "input_text": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026.",
++        "band_text": "5 = Clean arm's-length sale with no distress",
++        "as_of": "2026-09-17",
++        "source_uri": "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
++        "graded": true,
++        "also_sources": [],
++        "label": null,
++        "reason": null
++      }
++    ],
++    "factors_graded": 3,
++    "factors_total": 5,
++    "overall": null,
++    "overall_label": "Insufficient public data",
++    "output_text": "Underwritten at a 90% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded; insufficient public data (supply withdrawn for lack of a room count, leaving only the rubric minimum).",
++    "withheld_reason": "supply withdrawn for lack of a room count, leaving only the rubric minimum",
++    "revision": 5
+   }
+ ]
+diff --git a/src/lib/chat-items.ts b/src/lib/chat-items.ts
+index fdfba0f..9a4c701 100644
+--- a/src/lib/chat-items.ts
++++ b/src/lib/chat-items.ts
+@@ -270,8 +270,12 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
+       if (x) reads.push(x);
+     }
+   } else {
+-    if (!grade || grade.overall == null) return null;
+-    answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
++    // A withheld overall (Wade Option B) still answers the grade question, with the stated reason on the line.
++    if (!grade || (grade.overall == null && !grade.withheld_reason)) return null;
++    answer =
++      grade.overall == null
++        ? `${dealShort(sale)}: no overall grade (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`
++        : `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
+     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
+     for (const f of byWeight.slice(0, 3)) {
+       const x = factorRead(f.factor, true);
+@@ -334,7 +338,9 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
+   if (grade) {
+     const m = cardMetaFor(grade);
+     // The meta line carries the count, so the grade line drops its own trailing count.
+-    const line = headlineFor(grade).replace(/; \d+ of \d+ factors graded(; insufficient public data)?\.$/, ".");
++    const line = headlineFor(grade)
++      .replace(/; \d+ of \d+ factors graded; insufficient public data \(([^)]*)\)\.$/, "; overall withheld ($1).")
++      .replace(/; \d+ of \d+ factors graded(; insufficient public data)?\.$/, ".");
+     parts.push(`${grade.overall === null ? "Insufficient public data" : m.grade} · ${m.coverage} (rubric ${grade.rubric_version}, graded ${dealDate(grade.graded_on)}). ${line}`);
+   }
+   const price = salePrice(sale);
+diff --git a/src/lib/deals-grade.ts b/src/lib/deals-grade.ts
+index 207a0aa..1df00d7 100644
+--- a/src/lib/deals-grade.ts
++++ b/src/lib/deals-grade.ts
+@@ -125,6 +125,11 @@ export type DealInputs = {
+   sale_id: string;
+   announced_on: string; // YYYY-MM-DD, the no-look-ahead anchor
+   factors: Partial<Record<FactorId, FactorInput>>;
++  /**
++   * A stated, logged decision to show no overall grade even though the minimum number of factors is graded (The Wade,
++   * Option B). The factor rows are graded as usual; only the overall is withheld, with this reason on the output line.
++   */
++  withhold_overall?: { reason: string; decided_by: string; decided_on: string };
+ };
+ 
+ export type FactorResult = {
+@@ -156,6 +161,8 @@ export type GradeResult = {
+   overall: number | null;
+   overall_label: string;
+   output_text: string;
++  /** Set when the overall is withheld by a stated decision (DealInputs.withhold_overall); shown on the output line. */
++  withheld_reason?: string;
+ };
+ 
+ const NO_CAP = "No trailing-12-month cap rate or NOI disclosed.";
+@@ -379,7 +386,8 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
+   const graded = rows.filter((r) => r.graded);
+   const wSum = graded.reduce((s, r) => s + r.weight, 0);
+   for (const r of graded) r.effective_weight = Math.round((r.weight / wSum) * 1000) / 1000;
+-  const enough = graded.length >= rubric.missing_factor_rule.min_factors_graded;
++  const withheld = inputs.withhold_overall?.reason?.trim() || null;
++  const enough = graded.length >= rubric.missing_factor_rule.min_factors_graded && !withheld;
+   // Integer weights (percent) avoid float drift in the weighted mean.
+   const wInt = graded.reduce((s, r) => s + Math.round(r.weight * 100), 0);
+   const overall = enough ? round1(graded.reduce((s, r) => s + (r.score as number) * Math.round(r.weight * 100), 0) / wInt) : null;
+@@ -387,7 +395,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
+   // Rubrics with output_template.ungraded_factor (v1.1 on) name every ungraded factor with its reason; earlier rubrics keep
+   // the line they were published with, so v1 grades re-run byte-identical.
+   const output_text = rubric.output_template.ungraded_factor
+-    ? headlineText(rubric, { factor_scores: rows, factors_graded: graded.length, factors_total: rows.length, overall })
++    ? headlineText(rubric, { factor_scores: rows, factors_graded: graded.length, factors_total: rows.length, overall, ...(withheld ? { withheld_reason: withheld } : {}) })
+     : legacyOutputText(rubric, rows, graded.length, enough);
+ 
+   const asOfDates = graded.map((r) => r.as_of as string).sort();
+@@ -402,6 +410,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
+     overall,
+     overall_label: enough ? `${overall!.toFixed(1)} of ${rubric.scale.max}` : rubric.missing_factor_rule.insufficient_label,
+     output_text,
++    ...(withheld ? { withheld_reason: withheld } : {}),
+   };
+ }
+ 
+@@ -482,7 +491,7 @@ const CAP_RATE_REASON = /cap rate or NOI/i;
+  */
+ export function headlineText(
+   rubric: Pick<Rubric, "output_template" | "missing_factor_rule">,
+-  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">,
++  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall" | "withheld_reason">,
+ ): string {
+   const rows = g.factor_scores;
+   const t = rubric.output_template;
+@@ -510,7 +519,7 @@ export function headlineText(
+     parts.push(r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+   }
+   parts.push(`${g.factors_graded} of ${g.factors_total} factors graded`);
+-  if (g.overall === null) parts.push(rubric.missing_factor_rule.insufficient_label.toLowerCase());
++  if (g.overall === null) parts.push(`${rubric.missing_factor_rule.insufficient_label.toLowerCase()}${g.withheld_reason ? ` (${g.withheld_reason})` : ""}`);
+   return `${parts.join("; ")}.`;
+ }
+ 
+@@ -551,6 +560,7 @@ export function revisionHistoryLine(current: GradeResult, sameVersion: GradeResu
+       notes.push(`${name} scored ${was.score}; ${now.score} from ${monthDay(current.graded_on)}`);
+     }
+   }
++  if (current.withheld_reason && !earlier.withheld_reason) notes.push(`overall withheld ${monthDay(current.graded_on)}: ${current.withheld_reason}`);
+   return `Earlier ${earlier.rubric_version} grade ${label}${notes.length ? ` (${notes.join("; ")})` : ""}`;
+ }
+ 
