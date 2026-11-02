@@ -93,7 +93,7 @@ const CARDONE_HOTEL_SECTION: string[] = [
   `- Bitcoin is bought only from cash left after the PIP, the FF&E reserve, management and franchise fees, and a fully staffed hotel. The FF&E reserve level is a house assumption set by the franchise, management or loan documents, not a sourced figure.`,
   `- Under a lender lockbox or cash sweep, only released cash or new equity can buy Bitcoin; swept cash never does (CMBS loan-structure background) · [${publisherName(CARDONE_SRC.lockbox)} ↗](${CARDONE_SRC.lockbox})`,
   `- The refinance test runs on hotel income alone, with no Bitcoin credit. A Bitcoin tranche never fixes a debt-yield shortfall.`,
-  `- Bitcoin is never counted on to cover capex or debt maturities: the franchisor sets PIP timing, and a PIP can come due in a Bitcoin drawdown.`,
+  `- Bitcoin is never counted on to cover capex or debt maturities: the franchisor sets PIP timing, and a PIP can come due in a Bitcoin drawdown (house rule).`,
   `- Illustration: Boca's debt yield is about 7.5% (166-day NOI of $4.80M annualised ≈ $10.5M ÷ the $140M filed loan; our arithmetic), before any Bitcoin is counted · [${publisherName(CARDONE_SRC.filing)} ↗](${CARDONE_SRC.filing}) {tag: watch}`,
   `- No staff cuts and no automating guest-facing roles to free cash for Bitcoin.`,
   ``,

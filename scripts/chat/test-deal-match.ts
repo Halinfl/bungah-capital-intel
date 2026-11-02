@@ -8,6 +8,7 @@ import { isSocialUrl, stripSocial, stripSocialMarkdown, withoutSocial } from "..
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { publisherName } from "../../src/lib/public-text";
+import { fixMemoCopy } from "../../src/lib/memo-copy";
 import { isOriginalUrl, parseSourceUrls } from "../../src/lib/source-links";
 
 let fail = 0;
@@ -84,6 +85,17 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   check(!!both && both.body.includes("Evo: managing Hotel Z") && both.magnitude === "2 rows" && !/linkedin/.test(JSON.stringify(both)), `stripSocial keeps a row a non-social link also backs (${both?.body})`);
   const ch = stripSocial({ title: "t", body: "Lead. A moved (PRWeb). | B adds hotels (self-reported). | C wins (BW).", magnitude: "3 changes", sourceLabel: "PRWeb · B on LinkedIn · BW", sourceUrls: [{ url: "https://prweb.com/a", label: "A moved — PRWeb" }, { url: "https://www.linkedin.com/posts/b_c", label: "B adds hotels — B on LinkedIn (self-reported)" }, { url: "https://businesswire.com/x", label: "C wins — BW" }] });
   check(!!ch && ch.magnitude === "2 changes" && !/B adds/.test(ch.body), `stripSocial: "3 changes" -> "${ch?.magnitude}", post-only change dropped`);
+}
+
+// r7c: memo copy. The LinkedIn-only +11.6% figure and "No greenlight." never reach a memo, saved or new.
+{
+  const saved = "Downtown trades. A 2026 T12 carrying the +11.6% displaced-meeting lift (CoStar, Sep 2026) overstates debt yield. Labor at contract. No greenlight.";
+  const out = fixMemoCopy(saved);
+  check(out === "Downtown trades. A 2026 T12 carrying World Cup-displaced meetings overstates debt yield. Labor at contract. Debt test not yet cleared.", `fixMemoCopy rewrites saved memos: ${out}`);
+  const t1 = readFileSync(join(__dirname, "../../src/data/stack-memo-tier1.json"), "utf8");
+  const sm = readFileSync(join(__dirname, "../../src/lib/stack-memo.ts"), "utf8");
+  check(!/11\.6%/.test(t1) && !/No greenlight/.test(t1) && /World Cup-displaced meetings overstates debt yield/.test(t1) && (t1.match(/Debt test not yet cleared\./g) ?? []).length === 15, "tier1 JSON: no 11.6%, no 'No greenlight.', 15 'Debt test not yet cleared.'");
+  check(/a PIP can come due in a Bitcoin drawdown \(house rule\)\./.test(sm), "stack-memo.ts: capex rule ends '(house rule)'");
 }
 
 // r7: the citations field lists each cited link once, matching the Sources section.

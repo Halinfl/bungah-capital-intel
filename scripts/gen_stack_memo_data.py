@@ -677,6 +677,10 @@ IC_REWRITES = [
      "A Cup-inflated T12 will overstate debt yield, and after August's 63.6% occupancy anything that only clears on the Cup window stays watch. Underwrite a stripped T12."),
     ("Against the ≥7.5–8.0% conduit takeout (10Y ~5.18–5.24%, SOFR ~3.90%), a 2026 T12", "A 2026 T12"),
     ("Normalize it, and treat anything that only reaches ≥10% DY on the 2026 T12 as a ≤9% flag.", "Normalize it before testing debt yield."),
+    # The +11.6% figure came only from a LinkedIn post (social posts are never sources): keep the point, drop the figure.
+    ("A 2026 T12 carrying the +11.6% displaced-meeting lift (CoStar, Sep 2026) overstates debt yield.",
+     "A 2026 T12 carrying World Cup-displaced meetings overstates debt yield."),
+    ("No greenlight.", "Debt test not yet cleared."),
 ]
 IC_GUARD = re.compile(
     r"house frame|\bhouse\b[^.]{0,40}(?:takeout|DY|debt yield)|hard[- ]watch|(?<!four-conduit )takeout|7\.5[–-]8\.0|"

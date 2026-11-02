@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { fixMemoCopy } from "@/lib/memo-copy";
 import { stripSocialMarkdown } from "@/lib/social-sources";
 import { scrubInternal } from "@/lib/public-text";
 
@@ -9,7 +10,7 @@ import { scrubInternal } from "@/lib/public-text";
  */
 export function StackMemoView({ text }: { text: string }) {
   // Display-time guard: plain-language rewrites + internal-label scrub also cover memos stored earlier.
-  const blocks = scrubInternal(stripSocialMarkdown(text)).split(/\n\n+/);
+  const blocks = scrubInternal(fixMemoCopy(stripSocialMarkdown(text))).split(/\n\n+/);
   const out: ReactNode[] = [];
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
