@@ -366,6 +366,6 @@ export function formatDigestFallbackMemo(hits: DigestHit[]): string | null {
   return [
     ...parts,
     "",
-    "_Decision support:_ digest facts are editor-authored summaries of public IR — not licensed STR. Pair with Capital Graph markets/signals before underwriting.",
+    "_Decision support:_ digest facts are editor-authored summaries of public IR — not licensed data. Pair with Capital Graph markets/signals before underwriting.",
   ].join("\n\n");
 }

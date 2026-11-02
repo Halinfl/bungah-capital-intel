@@ -73,7 +73,7 @@ const RULES: [RegExp, string][] = [
   [/the Wave 1 West Coast markets/g, "the tracked West Coast markets"],
   [/A\*\/Atlas signals/g, "A* / supply signals"],
   [/Hal\/Neo[- ]authored/gi, "editor-authored"],
-  [/\bnot Neo STR\b/g, "not licensed STR"],
+  [/\bnot Neo STR\b/g, "not licensed data"],
   [/\bNeo stack\b/g, "stack"],
   [/propose-only/gi, "decision support"],
   [/\btax ≠ refinance capacity\b/g, "tax receipts are not refinance capacity"],
