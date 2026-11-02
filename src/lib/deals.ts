@@ -1,4 +1,5 @@
-import rubricJson from "@/data/deals/rubric-v1.json";
+import rubricJson from "@/data/deals/rubric-v1.1.json";
+import rubricV1Json from "@/data/deals/rubric-v1.json";
 import salesJson from "@/data/deals/graded_sales.json";
 import gradesJson from "@/data/deals/sale_grades.json";
 import anniversariesJson from "@/data/deals/sale_anniversaries.json";
@@ -23,6 +24,8 @@ export type Sale = {
   price_display?: string;
   price_qualifier?: string;
   price_per_key: number | null;
+  /** Rubric v1.1 price-range rule: the date the price was first confirmed, when only a range was public at announcement. */
+  price_confirmed_on?: string;
   keys: number | null;
   keys_detail?: string;
   announced_on: string;
@@ -62,13 +65,15 @@ export type LogRow = {
   graded: string;
 };
 
+/** Current rubric (v1.1, approved 2026-11-01). Earlier versions stay importable for the version history. */
 export const RUBRIC = rubricJson as unknown as Rubric;
+export const RUBRIC_HISTORY = [rubricV1Json as unknown as Rubric, RUBRIC];
 export const DISCLAIMER = RUBRIC.disclaimer;
 const SALES = salesJson as Sale[];
 const GRADES = gradesJson as unknown as GradeResult[];
 /** Labels for context sections that aren't rubric factors. */
 export const CONTEXT_LABELS: Record<string, string> = {
-  access: "Access: airlift and drive (not a rubric v1 factor; no weight)",
+  access: "Access: airlift and drive (not a rubric factor; no weight)",
 };
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;

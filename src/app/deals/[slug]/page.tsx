@@ -248,7 +248,10 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         <h2 id="grade" className={h2}>
           Grade at announcement
         </h2>
-        <span className="text-[13px] text-slate-300">As of {fmtDate(sale.announced_on)}</span>
+        <span className="text-[13px] text-slate-300">
+          As of {fmtDate(sale.announced_on)}
+          {sale.price_confirmed_on && current?.rubric_version !== "v1" ? `; price per key as of ${fmtDate(sale.price_confirmed_on)} (first confirmed price)` : ""}
+        </span>
       </div>
       <FactorTable rows={rows} kindOf={kindOf} />
       {ungraded ? <p className="text-[13px] text-slate-300">Weights of ungraded factors are spread across graded ones.</p> : null}
@@ -271,7 +274,7 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
       </div>
       {older.map((g) => (
         <details key={g.rubric_version} className="text-sm text-slate-200">
-          <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}</summary>
+          <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}</summary>
           <div className="mt-2 space-y-2">
             <p>{g.output_text}</p>
             <FactorTable rows={g.factor_scores} kindOf={kindOf} />

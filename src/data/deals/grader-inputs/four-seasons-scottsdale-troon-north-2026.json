@@ -65,5 +65,51 @@
       "source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
       "summary": "No documented trigger: no foreclosure, receivership, lender-directed sale, named-hotel impairment or company statement of distress by Sep 29, 2026."
     }
+  },
+  "versions": {
+    "v1.1": {
+      "_built_on": "2026-11-01",
+      "_note": "v1.1: spread graded as our calculation using Braemar's published NOI definition on its published TTM hotel EBITDA. Other factors as v1.",
+      "factors": {
+        "spread": {
+          "as_of": "2026-08-05",
+          "source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000123/bhr2026q2earningsrelease.htm",
+          "source_label": "BHR Q2 2026 earnings release (8-K Ex. 99.1, Aug 5, 2026), hotel-level TTM ended Jun 30, 2026",
+          "cap_rate_basis": "ttm_month_end_before_announcement",
+          "cap_rate_period_end": "2026-06-30",
+          "noi_calc": {
+            "company": "Braemar",
+            "hotel_ebitda_usd": 28316000,
+            "total_revenue_usd": 80453000,
+            "reserve_pct_of_revenue": 4,
+            "price_usd": 372000000,
+            "definition_text": "Net operating income is the property's hotel EBITDA minus a capital expense reserve of 4% of gross revenue.",
+            "definition_source_uri": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000068/bhr2026beavercreekpsapr.htm",
+            "definition_date": "2026-04-30"
+          },
+          "treasury_10y_pct": 5.26,
+          "treasury_as_of": "2026-09-29",
+          "treasury_source_uri": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+          "note": "Four Seasons Resort Scottsdale, TTM ended Jun 30, 2026: total hotel revenue $80,453k, hotel EBITDA $28,316k (BHR Q2 2026 release). Braemar's sale release of Apr 30, 2026 defines NOI as hotel EBITDA minus a 4% capital expense reserve; NOI $25.098M / $372.0M = 6.75%. Braemar's investor presentations say 4% or 5%; at 5% the cap rate is 6.53% and the spread 127bp, the same score.",
+          "also_sources": [
+            {
+              "label": "Braemar NOI definition (4% reserve), BHR 8-K Ex. 99.1, Apr 30, 2026",
+              "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000068/bhr2026beavercreekpsapr.htm",
+              "date": "2026-04-30"
+            },
+            {
+              "label": "Price $372.0M, BHR 8-K filed Sep 29, 2026",
+              "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm",
+              "date": "2026-09-29"
+            },
+            {
+              "label": "10-year par yield 5.26%, Sep 29, 2026 (U.S. Treasury)",
+              "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+              "date": "2026-09-29"
+            }
+          ]
+        }
+      }
+    }
   }
 }

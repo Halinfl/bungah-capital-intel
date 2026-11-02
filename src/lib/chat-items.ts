@@ -259,7 +259,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   let answer: string;
   if (lens === "price") {
     if (sale.price == null) return null;
-    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
+    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)}${sale.price_confirmed_on ? `, price first confirmed ${dealDate(sale.price_confirmed_on)}` : ""} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
     for (const id of ["replacement_cost", "spread", "demand"]) {
       const x = factorRead(id, false);
       if (x) reads.push(x);

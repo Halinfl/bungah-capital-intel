@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { UnderwriteNote } from "@/components/deals/DotBar";
-import { RUBRIC, fmtDate } from "@/lib/deals";
+import { RUBRIC, RUBRIC_HISTORY, fmtDate } from "@/lib/deals";
 
 export const metadata: Metadata = {
   title: "Recent Deals methodology · Bungah Capital Intel",
-  description: "How Recent Deals grades US hotel sales: the inclusion rule, rubric v1 factors, weights and bands, the missing-factor rule and the no-look-ahead rule.",
+  description: "How Recent Deals grades US hotel sales: the inclusion rule, rubric factors, weights and bands, the missing-factor rule and the no-look-ahead rule.",
   alternates: { canonical: "/deals/methodology" },
 };
 
@@ -13,16 +13,16 @@ const SOURCES: Record<string, { source: string; asOf: string }> = {
   replacement_cost: {
     source:
       "HVS U.S. Hotel Development Cost Survey (free): median total development cost per key, including land, blended by keys across the HVS classes of the hotels in the deal; edition and classes stated",
-    asOf: "Latest edition published before the announcement",
+    asOf: "Latest edition published before the announcement; if only a price range was public, the first confirmed price, dated to its confirmation",
   },
   spread: {
     source:
-      "Cap rate on net operating income (NOI) for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
+      "Cap rate on net operating income (NOI) for a trailing 12 months ending at a month-end before the announcement (disclosed, disclosed NOI divided by price, or our calculation applying the company's own published NOI definition to its published hotel EBITDA, labelled as such); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
     asOf: "10-year yield at the close on the announcement date",
   },
   supply: {
     source:
-      "One public source (CBRE or PwC outlooks, other free publications, or our supply radars) giving the total pipeline, under construction plus planned, as a share of existing rooms; never combined across sources or stages; partial-stage figures are context only",
+      "One free public source giving the total pipeline, under construction plus planned, net of closures, and the existing rooms it is measured against; a visitor bureau, city or state that republishes pipeline totals is cited as the source; for downtown hotels the visitor bureau's downtown area can be the market; never combined across sources or stages; partial-stage figures are context only",
     asOf: "Published before the announcement",
   },
   demand: {
@@ -75,8 +75,8 @@ export default function DealsMethodologyPage() {
           Rubric {r.rubric_version}
         </h2>
         <p className={p}>
-          Each factor is scored {r.scale.min} to {r.scale.max}. Public data only: no Trepp loan-level data, CoStar, STR or CBRE Horizons, and no paid
-          sources. Spreads are stated as a plain number of basis points.
+          Each factor is scored {r.scale.min} to {r.scale.max}. Public data only: no paid or subscription data. Spreads are stated as a plain number of
+          basis points.
         </p>
         <ul className="space-y-3 md:hidden">
           {r.factors.map((f) => (
@@ -172,11 +172,18 @@ export default function DealsMethodologyPage() {
         </h2>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
           <li>
-            Rubric {r.rubric_version}, {fmtDate(r.drafted_on)}: first version, approved and published before any deal was graded. Same day, before
-            any grade: named the cap-rate basis (trailing-12-month NOI), the 10-year timing (close on the announcement date), the demand measure
-            (trailing 12 vs prior 12 months), the replacement-cost basis (HVS median including land, blended by keys), the supply source rule (one
-            source, total pipeline) and the geography (50 states and DC).
+            Rubric v1, {fmtDate(RUBRIC_HISTORY[0].drafted_on)}: first version, approved and published before any deal was graded. Same day, before any
+            grade: named the cap-rate basis (trailing-12-month NOI), the 10-year timing (close on the announcement date), the demand measure (trailing 12
+            vs prior 12 months), the replacement-cost basis (HVS median including land, blended by keys), the supply source rule (one source, total
+            pipeline) and the geography (50 states and DC).
           </li>
+          {(r.changelog ?? [])
+            .filter((c) => c.version !== "v1")
+            .map((c) => (
+              <li key={c.version}>
+                Rubric {c.version}, {fmtDate(c.date)}: {c.line} Every deal was re-graded; the v1 grade stays on each deal page as the original.
+              </li>
+            ))}
         </ul>
         <p className={p}>{r.versioning} The original grade is never overwritten.</p>
       </section>

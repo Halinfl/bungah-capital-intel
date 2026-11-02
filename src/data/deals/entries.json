@@ -9,17 +9,17 @@
     "factor_context": {
       "supply": [
         {
-          "text": "Early-planning pipeline at the end of Q2 2026: 54 projects, 5,474 rooms (Lodging Econometrics, free release), equal to 4.13% of Visit Orlando's year-end 2025 inventory of 132,685 rooms. Early planning only, not the total pipeline.",
+          "text": "Early-planning pipeline at the end of Q2 2026: 54 projects, 5,474 rooms (free industry pipeline release), equal to 4.13% of Visit Orlando's year-end 2025 inventory of 132,685 rooms. Early planning only, not the total pipeline.",
           "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
           "date": "2026-07-27"
         },
         {
-          "text": "New project announcements in Q2 2026: 8 projects, 1,292 rooms (Lodging Econometrics), equal to 0.97% of the same base. A single quarter's flow.",
+          "text": "New project announcements in Q2 2026: 8 projects, 1,292 rooms (same release), equal to 0.97% of the same base. A single quarter's flow.",
           "url": "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
           "date": "2026-07-27"
         },
         {
-          "text": "Projected 2026 new-build openings: 1,988 rooms (CoStar, free press release), equal to 1.50% of the same base.",
+          "text": "Projected 2026 new-build openings: 1,988 rooms (free industry press release), equal to 1.50% of the same base.",
           "url": "https://www.costar.com/products/str-benchmark/resources/press-releases/nyc-phoenix-projected-open-most-hotel-rooms-2026",
           "date": "2026-01-16"
         },
@@ -349,7 +349,7 @@
       ],
       "supply": [
         {
-          "text": "Choose Chicago downtown (CBD) lodging supply: 46,901 daily rooms at year-end 2025, with the pipeline listed by project and no share of existing rooms stated.",
+          "text": "Choose Chicago downtown (CBD) daily room supply: 46,901 rooms at year-end 2025 and 46,857 projected for year-end 2026.",
           "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
           "date": "2026-08-25"
         }
@@ -521,12 +521,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Sep 29, 2026 close: 5.26%. No gradeable cap rate, so no spread is computed.",
-          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
-          "date": "2026-09-29"
-        },
-        {
-          "text": "Status after announcement: BHR published a 6.2% cap rate on net operating income (NOI) for the trailing 12 months ended August 2026, including $23M of anticipated capex. Not graded: published after the announcement and not on a quarter-end period.",
+          "text": "Status after announcement: BHR published a 6.2% cap rate on net operating income (NOI) for the trailing 12 months ended August 2026, including $23M of anticipated capex. Not graded: published after the announcement.",
           "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000151/ex991portfolioupdatepressr.htm",
           "date": "2026-10-08"
         }
@@ -781,12 +776,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Oct 8, 2026 close: 5.22%. No gradeable cap rate, so no spread is computed.",
-          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
-          "date": "2026-10-08"
-        },
-        {
-          "text": "Published at announcement, on another basis: 8.6% cap rate on hotel net operating income (NOI) of $2.7M and 10.4x hotel EBITDA, both for the trailing 12 months ended August 2026. Not graded under v1.",
+          "text": "Also published at announcement: 10.4x hotel EBITDA for the trailing 12 months ended August 2026.",
           "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/drh-20261001.htm",
           "date": "2026-10-08"
         }

@@ -56,5 +56,33 @@
       "category": "clean_arms_length",
       "summary": "All-cash purchase by a REIT; seller not named; no financing, deposit or distress disclosed (DRH 8-K filed Oct 8, 2026)."
     }
+  },
+  "versions": {
+    "v1.1": {
+      "_built_on": "2026-11-01",
+      "_note": "v1.1: the disclosed cap rate on TTM to Aug 31, 2026 (a month-end before the announcement) now qualifies. Other factors as v1.",
+      "factors": {
+        "spread": {
+          "as_of": "2026-10-08",
+          "source_uri": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000043/exhibit99110126.htm",
+          "source_label": "DRH press release, 8-K Ex. 99.1, Oct 8, 2026",
+          "cap_rate_pct": 8.6,
+          "cap_rate_basis": "ttm_month_end_before_announcement",
+          "cap_rate_period_end": "2026-08-31",
+          "label": "NOI unaudited",
+          "treasury_10y_pct": 5.22,
+          "treasury_as_of": "2026-10-08",
+          "treasury_source_uri": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+          "note": "Printed: 8.6% capitalization rate on Hotel NOI, TTM ended Aug 31, 2026 (Hotel NOI $2.7M = Hotel EBITDA $3.0M less a 4% capital reserve) on the $31.0M price.",
+          "also_sources": [
+            {
+              "label": "10-year par yield 5.22%, Oct 8, 2026 (U.S. Treasury)",
+              "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+              "date": "2026-10-08"
+            }
+          ]
+        }
+      }
+    }
   }
 }

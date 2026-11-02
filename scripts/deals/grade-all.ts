@@ -1,5 +1,7 @@
 /**
- * Grade every deal in src/data/deals/grader-inputs/ under the live rubric (v1), and the PROPOSED v1.1 side-by-side.
+ * Grade every deal in src/data/deals/grader-inputs/ under rubric v1 (the original grades), and the earlier unapproved
+ * debt-context proposal side-by-side (console only). That proposal is NOT rubric v1.1 (approved 2026-11-01); v1.1 grades
+ * are appended per deal with: npx tsx scripts/deals/grade.ts --inputs <file> --rubric src/data/deals/rubric-v1.1.json --write
  *
  *   npx tsx scripts/deals/grade-all.ts [--graded-on YYYY-MM-DD] [--write]
  *
@@ -47,6 +49,9 @@ for (const g of v1) {
   console.log(`${g.log_id} ${g.sale_id.padEnd(42)} [${sc}] ${g.overall_label.padEnd(24)} v1.1: ${alt.overall_label}${alt.changed_factors.length ? " *" : ""}`);
 }
 if (process.argv.includes("--write")) {
-  fs.writeFileSync(path.join(root, "src/data/deals/sale_grades.json"), JSON.stringify(v1, null, 2) + "\n");
-  console.error(`wrote ${v1.length} v1 grades (v1.1-proposed is printed only, never written)`);
+  // Rebuild the v1 grades only; grades under later rubric versions (appended by grade.ts) are kept as they are.
+  const target = path.join(root, "src/data/deals/sale_grades.json");
+  const later = (JSON.parse(fs.readFileSync(target, "utf8")) as GradeResult[]).filter((g) => g.rubric_version !== rubric.rubric_version);
+  fs.writeFileSync(target, JSON.stringify([...v1, ...later], null, 2) + "\n");
+  console.error(`wrote ${v1.length} v1 grades; kept ${later.length} grades under later rubric versions (v1.1-proposed debt-context side-by-side is printed only)`);
 }

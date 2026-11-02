@@ -43,5 +43,30 @@
       "category": "clean_arms_length",
       "summary": "Cash sale to an unnamed third party; the hotel was unencumbered; no loan event or distress disclosed (PEB 8-K filed Oct 9, 2026)."
     }
+  },
+  "versions": {
+    "v1.1": {
+      "_built_on": "2026-11-01",
+      "_note": "v1.1: demand graded from Oregon DOR state lodging tax, Portland Metro, FY2025 vs FY2024; publish date confirmed from the dataset's revision history. Other factors as v1.",
+      "factors": {
+        "demand": {
+          "as_of": "2025-10-14",
+          "source_uri": "https://data.oregon.gov/Administrative/State-Transient-Lodging-Tax-Return-Statistics-by-R/mf7n-egve",
+          "source_label": "Oregon Department of Revenue, State Transient Lodging Tax Return Statistics by Region (data.oregon.gov), Portland Metro; FY2025 rows published Oct 14, 2025",
+          "tax_receipts_yoy_pct": 0.94,
+          "measure": "ttm_vs_prior_ttm",
+          "latest_month_end": "2025-06-30",
+          "period": "Oregon state lodging tax, Portland Metro region, fiscal year Jul 2024 to Jun 2025 vs the prior fiscal year: $11,210k vs $11,106k, the latest full year published by Oct 9, 2026",
+          "note": "Publish date: the dataset's public revision history (data.oregon.gov/api/publishing/v1/revision/mf7n-egve) shows revision 8 replaced the data on Oct 14, 2025 with 860 rows, which is exactly the row count through FY2025; the FY2026 rows (40 more) came with revision 9 on Oct 16, 2026, after the announcement and are not used.",
+          "also_sources": [
+            {
+              "label": "Dataset revision history: 860 rows published Oct 14, 2025",
+              "url": "https://data.oregon.gov/api/publishing/v1/revision/mf7n-egve",
+              "date": "2025-10-14"
+            }
+          ]
+        }
+      }
+    }
   }
 }

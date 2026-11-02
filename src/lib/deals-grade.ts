@@ -1,5 +1,5 @@
 /**
- * Recent Deals grader. Pure, deterministic, no I/O: reads a rubric (rubric-v1.json) and one deal's inputs,
+ * Recent Deals grader. Pure, deterministic, no I/O: reads a rubric (rubric-v1.json or rubric-v1.1.json) and one deal's inputs,
  * returns factor scores, coverage, the overall score (or none) and the mechanical output line.
  * Used by scripts/deals/grade.ts. Pages only render what that script wrote to sale_grades.json.
  */
@@ -15,9 +15,20 @@ export type RubricFactor = {
   unit: string;
   bands: RubricBand[];
   cuts?: { direction: string; thresholds: Threshold[] };
-  basis_rule?: { cap_rate_basis?: string; treasury_date?: string; statistic?: string; land?: string };
+  basis_rule?: {
+    cap_rate_basis?: string;
+    /** v1.1: every basis that qualifies (month-end TTM before announcement includes the quarter-end basis). */
+    accepted_cap_rate_bases?: string[];
+    /** v1.1: a company's published NOI definition may be applied to its published hotel EBITDA. */
+    company_noi_definition?: { allowed: boolean; label: string };
+    treasury_date?: string;
+    statistic?: string;
+    land?: string;
+    /** v1.1: "first_confirmed_price" lets price per key use the first confirmed price when only a range was public. */
+    price_range_rule?: string;
+  };
   measure_rule?: { primary: string; fallback: string };
-  source_rule?: { single_source_required: boolean; required_stage: string };
+  source_rule?: { single_source_required: boolean; required_stage: string; net_of_closures?: boolean };
 };
 export type Rubric = {
   rubric_version: string;
@@ -32,6 +43,7 @@ export type Rubric = {
   output_template: { text: string; ungraded_replacement: string; ungraded_spread: string };
   versioning: string;
   disclaimer: string;
+  changelog?: { version: string; date: string; line: string }[];
 };
 
 export type FactorId = "replacement_cost" | "spread" | "supply" | "demand" | "debt_context";
@@ -46,11 +58,41 @@ type Common = { as_of: string; source_uri: string; source_label?: string; note?:
 /** One factor's input. Omit a factor, or pass { missing: reason }, to leave it ungraded. */
 export type FactorInput =
   | { missing: string }
-  | (Common & { price_per_key: number; replacement_cost_per_key?: number; replacement_basis: string; total_keys?: number; components?: { label: string; hvs_class: string; keys: number; median_per_key: number }[] })
-  | (Common & { cap_rate_pct: number; cap_rate_basis: string; cap_rate_period_end: string; results_public_note?: string; treasury_10y_pct: number; treasury_as_of: string; treasury_source_uri: string })
-  | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string })
+  | (Common & {
+      price_per_key: number;
+      replacement_cost_per_key?: number;
+      replacement_basis: string;
+      total_keys?: number;
+      components?: { label: string; hvs_class: string; keys: number; median_per_key: number }[];
+      /** v1.1 price-range rule: the range public at announcement, and the date the price was first confirmed. */
+      price_range_at_announcement?: string;
+      price_confirmed_on?: string;
+    })
+  | (Common & {
+      cap_rate_pct?: number;
+      cap_rate_basis: string;
+      cap_rate_period_end: string;
+      results_public_note?: string;
+      treasury_10y_pct: number;
+      treasury_as_of: string;
+      treasury_source_uri: string;
+      /** v1.1: cap rate computed by applying the company's published NOI definition to its published hotel EBITDA. */
+      noi_calc?: NoiCalc;
+    })
+  | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string; net_of_closures?: boolean })
   | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
   | (Common & { category: string });
+
+export type NoiCalc = {
+  company: string;
+  hotel_ebitda_usd: number;
+  total_revenue_usd: number;
+  reserve_pct_of_revenue: number;
+  price_usd: number;
+  definition_text: string;
+  definition_source_uri: string;
+  definition_date: string;
+};
 
 export type DealInputs = {
   /** true for local test fixtures. The script refuses to write fixture grades into public data. */
@@ -106,6 +148,11 @@ export function lastQuarterEnd(iso: string): string {
   return `${best[0]}-${String(best[1]).padStart(2, "0")}-${String(best[2]).padStart(2, "0")}`;
 }
 const isDate = (s: unknown) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+/** True when the ISO date is the last day of its calendar month. */
+const isMonthEnd = (iso: string) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m, 0)).getUTCDate() === d;
+};
 /** Round half up to one decimal, robust to binary float error (e.g. 4.25 -> 4.3, not 4.2). */
 /** "a" or "an" before a spoken number: an 8, an 11, an 18, an 80-89, an 800... */
 const article = (n: number) => (/^8/.test(String(n)) || n === 11 || n === 18 ? "an" : "a");
@@ -139,6 +186,13 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       // Hal 2026-10-25: HVS median incl. land, blended by keys across the deal's HVS classes.
       const comps = Array.isArray(a.components) ? (a.components as { label: string; hvs_class: string; keys: number; median_per_key: number }[]) : null;
       let r = num("replacement_cost_per_key");
+      if (a.price_confirmed_on !== undefined) {
+        // v1.1 (Hal 2026-11-01): only a range was public at announcement -> first confirmed price, dated to its confirmation.
+        if (f.basis_rule?.price_range_rule !== "first_confirmed_price")
+          return { error: "Only a price range was public at announcement; price per key isn't graded under this rubric version." };
+        if (!isDate(a.price_confirmed_on) || !a.price_range_at_announcement)
+          return { error: "First-confirmed-price input needs the range public at announcement and the confirmation date." };
+      }
       if (comps && comps.length) {
         if (comps.some((c) => !(c.keys > 0) || !(c.median_per_key > 0))) return { error: "Replacement-cost components need keys and a median per key." };
         const k = comps.reduce((t, c) => t + c.keys, 0);
@@ -151,22 +205,50 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       // so -67.47 -> -67.5 -> "68%" in both the factor line and the output line.
       const pct = Math.round(Math.abs(round1(prem)));
       const dir = prem < 0 ? "below" : "above";
-      return { value: round1(prem), text: `${usdK(p)} per key vs ${usdK(r)} replacement cost per key (${a.replacement_basis}); ${pct}% ${dir}` };
+      const confirmed = a.price_confirmed_on
+        ? `. First confirmed price, ${humanDate(a.price_confirmed_on)}; only ${a.price_range_at_announcement} was public at announcement`
+        : "";
+      return { value: round1(prem), text: `${usdK(p)} per key vs ${usdK(r)} replacement cost per key (${a.replacement_basis}); ${pct}% ${dir}${confirmed}` };
     }
     case "spread": {
-      const c = num("cap_rate_pct"), t = num("treasury_10y_pct");
+      let c = num("cap_rate_pct");
+      const t = num("treasury_10y_pct");
+      let calcLabel = "";
+      const nc = a.noi_calc as NoiCalc | undefined;
+      if (nc) {
+        const allow = f.basis_rule?.company_noi_definition;
+        if (!allow?.allowed) return { error: "Cap rate calculated from hotel EBITDA isn't a disclosed NOI under this rubric version; recorded, not graded." };
+        const ok = [nc.hotel_ebitda_usd, nc.total_revenue_usd, nc.reserve_pct_of_revenue, nc.price_usd].every((x) => typeof x === "number" && Number.isFinite(x)) && nc.price_usd > 0;
+        if (!ok || !nc.company || !nc.definition_source_uri || !isDate(nc.definition_date) || !nc.definition_text)
+          return { error: "NOI calculation needs the company's hotel EBITDA, revenue, reserve, price and a dated, cited NOI definition." };
+        if (nc.definition_date > anchor) return { error: "The company's NOI definition was published after the announcement; not used." };
+        const noi = nc.hotel_ebitda_usd - (nc.reserve_pct_of_revenue / 100) * nc.total_revenue_usd;
+        c = Math.round((noi / nc.price_usd) * 10000) / 100;
+        calcLabel = allow.label.replace("{company}", nc.company);
+      }
       if (c === null) return { error: NO_CAP };
       if (t === null) return { error: "Missing 10-year yield." };
       if (!isDate(a.treasury_as_of) || !a.treasury_source_uri) return { error: "10-year yield lacks a date or source." };
       // Amendment A: cap rate on trailing-12-month NOI through the last quarter before announcement;
       // 10-year from the last trading day BEFORE the announcement.
       const rule = f.basis_rule;
-      if (rule && a.cap_rate_basis !== rule.cap_rate_basis)
-        return { error: `Cap rate basis "${String(a.cap_rate_basis)}" isn't the rubric basis (trailing 12 months through the last quarter before announcement); recorded, not graded.` };
+      const accepted = rule?.accepted_cap_rate_bases ?? (rule?.cap_rate_basis ? [rule.cap_rate_basis] : []);
+      const monthEndRule = accepted.includes("ttm_month_end_before_announcement");
+      if (rule && !accepted.includes(a.cap_rate_basis as string))
+        return {
+          error: monthEndRule
+            ? `Cap rate basis "${String(a.cap_rate_basis)}" isn't a trailing 12 months ending at a month-end before the announcement; recorded, not graded.`
+            : `Cap rate basis "${String(a.cap_rate_basis)}" isn't the rubric basis (trailing 12 months through the last quarter before announcement); recorded, not graded.`,
+        };
       // Rule as applied 2026-10-26 (wording pending Hal's confirmation): the last quarter-end whose results were
       // public by the announcement date. That is the last calendar quarter-end before the announcement, or the one
       // before it when the later quarter's results weren't out yet (the input must say so in results_public_note).
-      if (rule) {
+      if (rule && monthEndRule) {
+        // v1.1 (Hal 2026-11-01): a trailing 12 months ending at any calendar month-end strictly before the announcement.
+        const pe = a.cap_rate_period_end as string;
+        if (!isDate(pe) || !isMonthEnd(pe) || pe >= anchor)
+          return { error: "Cap rate period must be a trailing 12 months ending at a calendar month-end before the announcement." };
+      } else if (rule) {
         const pe = a.cap_rate_period_end as string;
         const lq = lastQuarterEnd(anchor);
         const ok = isDate(pe) && (pe === lq || (pe === priorQuarterEnd(lq) && typeof a.results_public_note === "string" && a.results_public_note.length > 0));
@@ -177,7 +259,10 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       if (rule && rule.treasury_date === "announcement_date_close" && (a.treasury_as_of as string) > anchor)
         return { error: "10-year must be the close on the announcement date." };
       const bp = Math.round((c - t) * 100);
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${humanDate(a.cap_rate_period_end)}) vs ${t.toFixed(2)}% 10-year (${humanDate(a.treasury_as_of)} close); ${bp}bp spread` };
+      const calc = nc
+        ? `, ${calcLabel}: hotel EBITDA ${usdK(nc.hotel_ebitda_usd)} less a ${nc.reserve_pct_of_revenue}% reserve on ${usdK(nc.total_revenue_usd)} revenue = NOI ${usdK(nc.hotel_ebitda_usd - (nc.reserve_pct_of_revenue / 100) * nc.total_revenue_usd)}, over ${usdK(nc.price_usd)}`
+        : "";
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${humanDate(a.cap_rate_period_end)}${calc}) vs ${t.toFixed(2)}% 10-year (${humanDate(a.treasury_as_of)} close); ${bp}bp spread` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -188,8 +273,10 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
           return { error: "No single public source gives the total pipeline as a share of existing rooms; figures aren't combined across sources or stages." };
         if (a.stage !== f.source_rule.required_stage)
           return { error: "Only partial pipeline stages are public (not under construction plus planned); shown as context, not graded." };
+        if (f.source_rule.net_of_closures && a.net_of_closures !== true)
+          return { error: "Pipeline share isn't stated net of closures; shown as context, not graded." };
       }
-      return { value: v, text: `Pipeline ${v}% of existing rooms (${a.pipeline_definition})` };
+      return { value: v, text: `Pipeline ${v}% of existing rooms${f.source_rule?.net_of_closures ? ", net of closures" : ""} (${a.pipeline_definition})` };
     }
     case "demand": {
       const v = num("tax_receipts_yoy_pct");
@@ -226,10 +313,21 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     const c = inp as Common;
     if (!isDate(c.as_of)) return { ...base, graded: false, reason: "Input has no publication date." };
     if (!c.source_uri) return { ...base, graded: false, reason: "Input has no source." };
-    // No look-ahead: every dated input must be public on or before the announcement.
-    const dates = [c.as_of, (inp as { treasury_as_of?: string }).treasury_as_of, ...(c.also_sources ?? []).map((x) => x.date)].filter(Boolean) as string[];
-    if (dates.some((d) => d > anchor)) {
-      return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: `Input dated after the announcement (${humanDate(anchor)}); not used.` };
+    // No look-ahead: every dated input must be public on or before the announcement. v1.1 price-range rule: price per key
+    // is dated to the first confirmed price instead (only when the rubric allows it; measure() rejects it otherwise).
+    const confirmedOn = (inp as { price_confirmed_on?: string }).price_confirmed_on;
+    const fAnchor =
+      f.id === "replacement_cost" && isDate(confirmedOn) && f.basis_rule?.price_range_rule === "first_confirmed_price" && confirmedOn! > anchor ? confirmedOn! : anchor;
+    const nc = (inp as { noi_calc?: NoiCalc }).noi_calc;
+    const dates = [c.as_of, (inp as { treasury_as_of?: string }).treasury_as_of, nc?.definition_date, ...(c.also_sources ?? []).map((x) => x.date)].filter(Boolean) as string[];
+    if (dates.some((d) => d > fAnchor)) {
+      return {
+        ...base,
+        as_of: c.as_of,
+        source_uri: c.source_uri,
+        graded: false,
+        reason: fAnchor === anchor ? `Input dated after the announcement (${humanDate(anchor)}); not used.` : `Input dated after the price was confirmed (${humanDate(fAnchor)}); not used.`,
+      };
     }
     const m = measure(f, inp, anchor);
     if ("error" in m) return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: m.error };
