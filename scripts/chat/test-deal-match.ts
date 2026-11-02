@@ -74,6 +74,13 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   check(!!s && !/linkedin|Host post/i.test(JSON.stringify(s)) && s.magnitude === "2 rows" && /STR/.test(s.sourceLabel) && /\(accessed 2026-10-11\)$/.test(s.sourceLabel), `stripSocial: only the LinkedIn row goes (${s?.sourceLabel} | ${s?.body})`);
 }
 
+// r7: the citations field lists each cited link once, matching the Sources section.
+for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scottsdale-princess", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
+  const a = dealAdviceBrief(slug, DECLINE)!;
+  const src = a.brief.sections.find((x) => x.id === "sources");
+  check(!!src && a.citations.length === src.count, `${slug}: citations ${a.citations.length} = Sources ${src?.count}`);
+}
+
 // End to end through answerChat, when a graph fixture is available (BUNGAH_GRAPH_FIXTURE, as for test:matcher).
 async function e2e() {
   if (!process.env.BUNGAH_GRAPH_FIXTURE) {

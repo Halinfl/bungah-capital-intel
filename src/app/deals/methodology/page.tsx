@@ -134,7 +134,7 @@ export default function DealsMethodologyPage() {
                     <span className="w-4 shrink-0 tabular-nums text-white">{b.score}</span>
                     <span className="text-slate-200">
                       {b.text}
-                      <span className="text-xs text-slate-300"> · {b.set_by === "Hal" ? "top band" : "stepped down"}</span>
+                      <span className="text-xs text-slate-300">{"\u00a0· "}{b.set_by === "Hal" ? "top band" : "stepped down"}</span>
                     </span>
                   </li>
                 ))}

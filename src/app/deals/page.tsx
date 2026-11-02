@@ -139,13 +139,13 @@ function logStatus(r: LogRow): React.ReactNode {
   const sale = sales().find((s) => r.log_id && s.log_id === r.log_id);
   if (sale && gradesFor(sale.sale_id).length)
     return (
-      <Link href={`/deals/${sale.slug}`} className="inline-flex min-h-11 items-center underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="-mx-1 px-1 py-3.5 underline decoration-white/30 underline-offset-2 hover:text-white">
         Graded
       </Link>
     );
   if (sale)
     return (
-      <Link href={`/deals/${sale.slug}`} className="inline-flex min-h-11 items-center underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="-mx-1 px-1 py-3.5 underline decoration-white/30 underline-offset-2 hover:text-white">
         Grading
       </Link>
     );
@@ -198,7 +198,8 @@ function LogTable({ rows }: { rows: LogRow[] }) {
         {rows.map((r) => (
           <li key={`${r.log_id}-m`} className="py-2 text-sm">
             <div className="text-slate-100">
-              <a href={r.source_url} className="inline-flex min-h-11 items-center hover:text-white" rel="noopener" target="_blank">
+              {/* Plain inline (not inline-flex) so "\u00a0· City, ST" stays glued; py-3.5 keeps a 44px tap height. */}
+              <a href={r.source_url} className="py-3.5 hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
               </a>
               <span className="text-slate-300">

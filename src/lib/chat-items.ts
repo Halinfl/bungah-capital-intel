@@ -34,6 +34,11 @@ function read(text: string, asOf: string | null, src: { kind: ChipKind; label: s
   return { text: t, asOf: date && !t.includes(date) ? date : null, source: { ...src, publisher: publisherName(src.url) || undefined, ...(date ? { date } : {}) } };
 }
 const cite = (url: string, label: string, asOf: string | null): Citation => ({ key: url, url, label, text: label, asOf, period: periodOf(asOf) });
+/** One label per cited URL, as the Sources section shows them (a second label on the same link is not a second source). */
+const citationLabels = (cites: Citation[]): string[] => {
+  const seen = new Set<string>();
+  return [...new Set(cites.filter((c) => (seen.has(c.url ?? c.label) ? false : (seen.add(c.url ?? c.label), true))).map((c) => c.label))];
+};
 const money = (v: number, digits = 1) => `$${v.toLocaleString("en-US", { maximumFractionDigits: digits })}`;
 /** USD millions for a list row: amounts under $0.05M show in thousands, so nothing nonzero prints as "$0M". */
 const moneyM = (v: number) => (v > 0 && v < 0.05 ? `$${Math.round(v * 1000).toLocaleString("en-US")}K` : `${money(v)}M`);
@@ -209,7 +214,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     window: { range: "all", filterable: false },
     sections,
   });
-  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: lens === "reported" ? "reit_reported" : "reit_call", marketSlug: null };
+  return { brief, citations: citationLabels(cites), intent: lens === "reported" ? "reit_reported" : "reit_call", marketSlug: null };
 }
 
 /* ------------------------------------------------------------------ */
@@ -308,7 +313,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   // Collapsed view stays under 600 characters: drop trailing reads (their facts stay in the factor table).
   let brief = build(3);
   for (let n = 2; n >= 1 && brief.collapsedChars >= 600; n--) brief = build(n);
-  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: lens === "price" ? "deal_sale" : "deal_grade", marketSlug: sale.market_slug };
+  return { brief, citations: citationLabels(cites), intent: lens === "price" ? "deal_sale" : "deal_grade", marketSlug: sale.market_slug };
 }
 
 /**
@@ -392,7 +397,7 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
     });
   let brief = build(3);
   for (let n = 2; n >= 1 && brief.collapsedChars >= 750; n--) brief = build(n);
-  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: "advice_declined", marketSlug: sale.market_slug };
+  return { brief, citations: citationLabels(cites), intent: "advice_declined", marketSlug: sale.market_slug };
 }
 
 /** "grande-lakes-orlando" → "Grande Lakes" (same rule as the deal page breadcrumb). */

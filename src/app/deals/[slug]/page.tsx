@@ -52,6 +52,12 @@ const KIND_ORDER = { filing: 0, record: 1, report: 2, press: 3 } as const;
 const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : k === "report" ? "Report" : "Press");
 /** At least 44px tall tap target for inline links and toggles (WCAG 2.5.5 / Eric's mobile spec). */
 const TAP = "inline-flex min-h-11 items-center";
+/**
+ * A link inside running text: stays plain inline so a following "\u00a0·" stays glued to it (an inline-flex box lets
+ * the line break right after the link, so a dot could start the next line). The 44px tap height comes from vertical
+ * padding, which does not change the line box; -mx-1 px-1 widens short links ("source") without moving the text.
+ */
+const TAP_INLINE = "-mx-1 px-1 py-3.5";
 const linkCls = "underline decoration-white/30 underline-offset-2 hover:text-white";
 /** Short display name for the breadcrumb: the slug minus its market suffix, title-cased (grande-lakes-orlando → Grande Lakes). */
 const shortName = (s: Sale) => {
@@ -281,17 +287,20 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         <span className="font-medium text-white">Overall</span>
         {current && current.overall !== null ? (
           <>
-            <span className="tabular-nums text-white">
-              {current.overall.toFixed(1)} of {RUBRIC.scale.max}
+            {/* One inline flow: the dot is glued to the score (a separate flex item could wrap and start a row with "·"). */}
+            <span>
+              <span className="tabular-nums text-white">
+                {current.overall.toFixed(1)} of {RUBRIC.scale.max}
+              </span>
+              <span className="text-slate-300">{"\u00a0· "}{current.factors_graded} of {current.factors_total} factors graded</span>
             </span>
-            <span className="text-slate-300">· {current.factors_graded} of {current.factors_total} factors graded</span>
           </>
         ) : current ? (
           <span className="text-slate-200">
-            {RUBRIC.missing_factor_rule.insufficient_label} · {current.factors_graded} of {current.factors_total} factors graded
+            {RUBRIC.missing_factor_rule.insufficient_label}{"\u00a0· "}{current.factors_graded} of {current.factors_total} factors graded
           </span>
         ) : (
-          <span className="text-slate-300">Not graded yet · 0 of {RUBRIC.factors.length} factors graded</span>
+          <span className="text-slate-300">Not graded yet{"\u00a0· "}0 of {RUBRIC.factors.length} factors graded</span>
         )}
       </div>
       {older.map((g) => (
@@ -327,12 +336,14 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         <li key={s.url} className="flex flex-wrap items-start gap-2 text-sm">
           <Chip>{kindLabel(s.kind)}</Chip>
           <span className="min-w-0 flex-1">
-            <a href={s.url} className={`${TAP} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
+            <a href={s.url} className={`${TAP_INLINE} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
               {citationText(s.cite_id, s.title)}
             </a>
             <span className="text-slate-300">
-              {" "}
-              · {s.publisher} · {fmtDate(s.date)}
+              {"\u00a0· "}
+              {s.publisher}
+              {"\u00a0· "}
+              <span className="whitespace-nowrap">{fmtDate(s.date)}</span>
             </span>
           </span>
         </li>
@@ -430,10 +441,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                 {items.map((c) => (
                   <li key={c.text} className="max-w-3xl">
                     {c.text}{" "}
-                    <a href={c.url} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
+                    <a href={c.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
-                    <span className="text-slate-300"> · {fmtDate(c.date)}</span>
+                    <span className="text-slate-300">{"\u00a0· "}<span className="whitespace-nowrap">{fmtDate(c.date)}</span></span>
                   </li>
                 ))}
               </ul>
@@ -458,14 +469,14 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         </div>
         <ol className="grid gap-3 md:grid-cols-3">
           <li className="rounded-xl border border-white/10 p-3">
-            <div className="text-sm font-medium text-white">T0 · at announcement</div>
+            <div className="text-sm font-medium text-white">T0{"\u00a0· "}at announcement</div>
             <div className="text-[13px] text-slate-300">{fmtDate(sale.announced_on)}</div>
             {entry.baseline?.length ? (
               <ul className="mt-1 space-y-1 text-[13px] text-slate-200">
                 {entry.baseline.map((b) => (
                   <li key={b.text}>
                     {b.text}{" "}
-                    <a href={b.url} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
+                    <a href={b.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
                   </li>
@@ -483,10 +494,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     {vals.map((v) => (
                       <li key={v.market_metric}>
                         {v.market_metric}: {v.value}{" "}
-                        <a href={v.source_uri} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
+                        <a href={v.source_uri} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                           source
-                        </a>{" "}
-                        <span className="text-slate-300">· recorded {fmtDate(v.recorded_on)}</span>
+                        </a>
+                        <span className="text-slate-300">{"\u00a0· "}recorded <span className="whitespace-nowrap">{fmtDate(v.recorded_on)}</span></span>
                       </li>
                     ))}
                   </ul>
@@ -533,7 +544,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     <span className="sr-only"> (opens in a new tab)</span>
                   </span>
                   <span className="mt-1 block text-[13px] text-slate-300">
-                    {n.publisher} · {n.display_date} · A thought experiment on this deal, not the buyer&apos;s plan
+                    {n.publisher}{"\u00a0· "}{n.display_date}{"\u00a0· "}A thought experiment on this deal, not the buyer&apos;s plan
                   </span>
                 </a>
               </li>
