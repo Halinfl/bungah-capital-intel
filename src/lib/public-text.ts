@@ -145,6 +145,16 @@ const SOURCE_REWRITES: [RegExp, (...m: string[]) => string][] = [
     `Texas Comptroller of Public Accounts (data.texas.gov) — Local Hotel Occupancy Tax Reporting, FY${y}`],
   // "source: msa-registry.ts / https://…" → "source: https://…"
   [/(?:[\w~./-]*\/)?[\w-]+\.(?:tsx?|mjs|cjs|py|md|jsonl?|csv|sql|prisma)\s*\/\s*(?=https?:\/\/)/g, () => ""],
+  // Eric QA r5: a self-referential "(source: no public read)" after "no public read" says nothing.
+  [/\s*\(source: no public read\)/gi, () => ""],
+  // Internal working rules inside a data row (rule rows themselves are dropped by kind, src/lib/rule-rows.ts):
+  // "(separate — do not fold into Ch.351 implied room rev)", "(rule, 2026-09)", "Do not overwrite seed lodging metrics…".
+  [/\s*[—–-]\s*do not (?:add|fold) into (?:[^)|;.\n]|\.(?=\S))*/gi, () => ""],
+  [/\s*\(rule\b[^)]*\)/gi, () => ""],
+  [/[^.|\n]*\b(?:Do not (?:overwrite|invent|underwrite)|Pair with licensed STR|Never underwrite)\b[^.|\n]*\.?/g, () => ""],
+  // Data caveat wording: "NOT licensed STR RevPAR/OCC/ADR" → "not RevPAR/OCC/ADR"; any other mention → "licensed data".
+  [/\b(?:NOT|not) licensed STR (?=RevPAR|OCC|ADR)/g, () => "not "],
+  [/\blicensed STR\b/g, () => "licensed data"],
 ];
 /** A Socrata-style dataset ID ("er34-v24h", "vmy5-jctb"): one half mixes letters and digits ("1000-room" is not one). */
 const isDatasetId = (m: string) => m.split("-").some((h) => /[a-z]/.test(h) && /\d/.test(h));
@@ -157,6 +167,10 @@ const LEAK_PATTERNS: Record<string, RegExp> = {
   datasetId: /\b[a-z0-9]{4}-[a-z0-9]{4}\b/g,
   queryParam: /(?:;\s*)?\b(?:city|type|name|id|slug|market)=[\w%-]+(?: [A-Z][\w-]*)*/g,
   soda: /\bSODA\b/g,
+  // Detection only (findLeaks / the leak test): internal working rules and our own site as a source. Rule rows are
+  // dropped by kind at load (rule-rows.ts) and the SOURCE_REWRITES above remove rule wording inside a data row.
+  ruleText: /\(rule\b|\bDo not (?:overwrite|invent|underwrite)\b|\bseed lodging metrics\b|\blicensed STR\b|\bNever underwrite\b|\bDecision-support rule\b|\bdo not (?:add|fold) into\b/gi,
+  ownSource: /\bBungah Capital Intel(?: Baseline)? (?:\(|talent synthesis)/g,
 };
 
 /** Non-URL text with every leak pattern removed (known internal sources first rewritten to their public citation). */
@@ -176,7 +190,8 @@ function stripLeaksPlain(s: string): string {
       // Tidy what a removal leaves behind: "source:  ()", "source: /", doubled spaces, stray separators.
       return x
         .replace(/\(\s*\)/g, "")
-        .replace(/\bsource:\s*[/;,]?\s*(?=\))/g, "source: no public read")
+        .replace(/;\s*source:\s*[/;,]?\s*(?=\))/g, "")
+        .replace(/\(\s*source:\s*[/;,]?\s*\)/g, "")
         .replace(/\bsource:\s*\/\s*/g, "source: ")
         .replace(/(\S) {2,}/g, "$1 ")
         .replace(/(\S) +([.,;:)])/g, "$1$2");

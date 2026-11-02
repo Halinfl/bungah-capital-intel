@@ -760,6 +760,113 @@ async function main() {
     console.log(`  r5-5 ${so.head} · ${ty.head} · r5-6 LE titles ${JSON.stringify(titles)}`);
   }
 
+  // ---- r6 (Hal, Nov 2 2026) + QA r5 → r6 (Eric) ----
+  console.log("r6:");
+  {
+    // r6-1. Fed policy questions lead with the target range and the latest FOMC decision (data layer: src/data/fed-policy.json,
+    // checked against FRED DFEDTARU/DFEDTARL and the Oct 28 2026 FOMC statement); the 10-year is a labeled market-rate bullet; no forecast.
+    const { isFedPolicyQuestion } = await import("@/lib/fed-policy");
+    for (const q of ["Is the Fed cutting rates?", "Will the Fed hike?", "What did the FOMC do?", "Where is the fed funds rate?", "Are rate cuts coming?", "What's the Federal Reserve policy rate?"]) check(isFedPolicyQuestion(q), `r6-1 not a Fed question: ${q}`);
+    for (const q of ["Why is SOFR up?", "Where is the 10-year Treasury?", "Why are room rates up?", "What are mortgage rates?", "What's the hotel tax rate in Dallas?", "Are cap rates falling?"]) check(!isFedPolicyQuestion(q), `r6-1 wrongly a Fed question: ${q}`);
+    const FED_HEAD = "Fed funds target range: 3.75–4.00% (as of Nov 1, 2026, FRED). Latest FOMC decision, Oct 28, 2026: held the range; the last change was a 0.25-point increase on Sep 16, 2026 (Federal Reserve).";
+    const FORECAST = /\b(will (?:cut|hike|raise|lower)|expected to|likely|forecast|odds|probabilit|futures|next meeting|we expect|should cut)\b/i;
+    for (const [q, scope] of [["Is the Fed cutting rates?", null], ["Will the Fed cut rates?", null], ["Is the Fed cutting rates?", { kind: "market", id: "nashville" }]] as [string, Scope | null][]) {
+      const f = await ask(q, scope, null);
+      check(f.head === FED_HEAD, `r6-1 Fed head (${q}, ${scope?.id ?? "unscoped"}): ${f.head}`);
+      const reads = (f.brief?.reads ?? []).map((r) => String(r.text ?? ""));
+      check(/^FOMC Oct 28, 2026: held the target range at 3\.75–4\.00% \(vote 10–2\)/.test(reads[0] ?? ""), `r6-1 first read: ${reads[0]}`);
+      check(reads.some((t) => /^Market rate, not Fed policy: US 10-year Treasury \d+\.\d+%/.test(t)), `r6-1 10-year bullet: ${reads.join(" | ")}`);
+      const said = f.content.replace(/\bno forecast\b/gi, "");
+      check(!FORECAST.test(said), `r6-1 forecast wording: ${said.match(new RegExp(`.{0,60}(?:${FORECAST.source}).{0,40}`, "i"))?.[0]}`);
+      check(/no forecast/.test(f.content), "r6-1 coverage note says no forecast");
+      const fc = await card(q, scope, null, "all");
+      const cites = (fc as { citations?: string[] }).citations ?? [];
+      check(cites.includes("Federal Reserve") && cites.some((c) => /^FRED/.test(c)) && !cites.some((c) => /Bungah/.test(c)), `r6-1 citations: ${JSON.stringify(cites)}`);
+      const urls = JSON.stringify(fc);
+      check(/federalreserve\.gov\/newsevents\/pressreleases\/monetary20261028a\.htm/.test(urls) && /fred\.stlouisfed\.org\/series\/DFEDTAR[UL]/.test(urls), "r6-1 FOMC / FRED links missing");
+    }
+    const so = await ask("Why is SOFR up?", null, null);
+    check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r6-1 SOFR unchanged: ${so.head}`);
+    console.log(`  r6-1 ${FED_HEAD}`);
+  }
+  {
+    // r6-2. Visitor headlines lead with the latest full period (annual / 12 months); a single event week is a labeled bullet.
+    const dv = await ask("How many visitors does Dallas get?", null, null);
+    check(dv.head === "Dallas: visitors 2024: 27.7M (record); $10.9B economic impact; $649M state/local tax (dallasexaminer.com, City of Dallas).", `r6-2 Dallas head: ${dv.head}`);
+    const dr = (dv.brief?.reads ?? []).map((r) => String(r.text ?? ""));
+    check(dr.some((t) => /^Event week: CoStar week ending 2026-07-18 \(WC semifinal\)/.test(t)), `r6-2 Dallas event-week bullet: ${dr.join(" | ").slice(0, 300)}`);
+    check(!/semifinal|week ending/i.test(dv.head), "r6-2 Dallas head still an event week");
+    const { marketFacts, visitorHead, isEventPrint } = await import("@/lib/chat-brief-build");
+    const heads: string[] = [];
+    for (const m of markets) {
+      const vh = visitorHead(marketFacts(m as never));
+      if (vh) check(!isEventPrint(vh), `r6-2 ${m.slug} visitor head is an event print: ${vh.text.slice(0, 100)}`);
+      const a = await ask(`How many visitors does ${shortName(m)} get?`, null, null);
+      check(!/\bweek ending\b|\bw\/e\b|semifinal|room nights/i.test(a.head), `r6-2 ${m.slug} visitor headline leads with an event: ${a.head.slice(0, 140)}`);
+      if (vh) heads.push(`${m.slug}: ${a.head.slice(0, 70)}`);
+    }
+    console.log(`  r6-2 ${dv.head} · ${heads.length} markets with a full-period visitor head`);
+  }
+  {
+    // QA r5 must-fix: rule / methodology rows never render as answer rows or citations; our own site is never a source.
+    const RULE = /\(rule\b|Do not (?:overwrite|invent|underwrite)|seed lodging metrics|licensed STR|Never underwrite|Decision-support rule|do not (?:add|fold) into/i;
+    for (const slug of ["austin", "houston", "san-antonio", "dallas", "orlando", "chicago", "miami", "new-york-city", "washington-dc", "nashville", "phoenix", "san-diego", "las-vegas"]) {
+      for (const q of ["What are the hotel tax collections in {m}?", "How is {m} doing?", "Is there a staffing greenlight in {m}?"]) {
+        const m = markets.find((x) => x.slug === slug)!;
+        const a = await card(q.replace("{m}", shortName(m)), null, null, "all");
+        const all = JSON.stringify(a);
+        check(!RULE.test(all), `r6 must-fix ${slug} rule text (${q}): ${all.match(new RegExp(`.{0,60}(?:${RULE.source}).{0,60}`, "i"))?.[0]}`);
+        check(!/Bungah Capital Intel/.test(JSON.stringify((a as { citations?: string[] }).citations ?? [])) && !/"label":"Bungah/.test(all), `r6 must-fix ${slug} own site cited (${q})`);
+      }
+    }
+    const au = await card("What are the hotel tax collections in Austin?", null, null, "all");
+    check(/Texas Comptroller/.test(JSON.stringify((au as { citations?: string[] }).citations ?? [])), `r6 must-fix Austin cites the Comptroller: ${JSON.stringify((au as { citations?: string[] }).citations)}`);
+    check(/\(separate base\)/.test(au.content), "r6 must-fix Austin Ch.334 row keeps '(separate base)'");
+  }
+  {
+    // QA r5 should-fixes.
+    const { TAX_AREA } = await import("@/lib/chat");
+    // 5/6. Tax answers headed by the taxing area (city vs MSA), heading on its own line, one row per line, newest first.
+    let headed = 0;
+    for (const m of markets) {
+      const t = await card(`What are the hotel tax collections in ${shortName(m)}?`, null, null, "all");
+      const blocks = t.content.split(/\n{2,}/);
+      const first = blocks[0] ?? "";
+      if (!/hotel-tax/.test(first)) continue;
+      headed++;
+      const own = TAX_AREA[m.slug];
+      if (own) check(first.startsWith(`**${own} — `), `r6-s5 ${m.slug} heading: ${first}`);
+      check(!/\bMSA\b|Metropolitan|–[A-Z][a-z]+, [A-Z]{2}/.test(first) || !own, `r6-s5 ${m.slug} MSA heading: ${first}`);
+      check(!first.includes("\n"), `r6-s6 ${m.slug} heading not on its own line`);
+      const list = blocks.find((b) => b.startsWith("- "));
+      if (list) {
+        const rows = list.split("\n");
+        check(rows.every((r) => r.startsWith("- ")), `r6-s6 ${m.slug} a row is not on its own line`);
+        // The period's end year (the latest year in the row title: "FY2026 (Jul 2025–Jun 2026)" → 2026).
+        const years = rows.map((r) => Math.max(0, ...[...(r.match(/^- \*\*([^*]*)\*\*/)?.[1] ?? "").matchAll(/\b(20\d\d)\b/g)].map((x) => Number(x[1])))).filter(Boolean);
+        check(years.every((y, i) => i === 0 || y <= years[i - 1]), `r6-s6 ${m.slug} rows not newest first: ${years.join(",")}`);
+      }
+      const rel = blocks.findIndex((b) => b === "Related tax / CVB signals:");
+      if (rel >= 0) check((blocks[rel + 1] ?? "").split("\n").every((r) => r.startsWith("- ")), `r6-s6 ${m.slug} related rows not one per line`);
+    }
+    check(headed >= 15, `r6-s5 only ${headed} tax memos`);
+    const dt = await card("What are the hotel tax collections in Dallas?", null, null, "all");
+    // 2. World Cup HVS row covers Dallas/Arlington/Fort Worth.
+    check(/no Cup oversupply \(DFW metro\)\./.test(dt.content) && !/Cup oversupply \(City of Arlington\)/.test(dt.content), "r6-s2 World Cup row not tagged DFW metro");
+    // 3. No self-referential source; the tag stays inside the sentence.
+    check(!/source: no public read/.test(dt.content) && /lodging DQ cut: no public read \(Dallas market\)\./.test(dt.content), "r6-s3 dangling 'no public read' source");
+    // 7. 'Self-reported' only in the caveat.
+    check((dt.content.match(/self-reported/gi) ?? []).length === 1 && /_Basis & caveats:_ Self-reported\./.test(dt.content), `r6-s7 self-reported count: ${(dt.content.match(/self-reported/gi) ?? []).length}`);
+    // 1. Detail-view citations grouped by area (the card's citations, as the detail view shows them).
+    const dd = await card("How is Dallas doing?", null, null, "all");
+    const dc = (dd as { citations?: string[] }).citations ?? [];
+    check(dc.length > 0 && dc.every((c) => /^(City of Dallas|City of Arlington|Dallas market|DFW metro|Other sources): /.test(c)), `r6-s1 Dallas detail citations: ${JSON.stringify(dc)}`);
+    // 4. The hidden list key no longer carries the label ("(registry)").
+    const sl = (await import("node:fs")).readFileSync(new URL("../../src/components/SourceLinks.tsx", import.meta.url), "utf8");
+    check(!/key=\{[^}]*\.label/.test(sl) && /key=\{`\$\{l\.url\}\|\$\{i\}`\}/.test(sl), "r6-s4 SourceLinks key still uses the label");
+    console.log(`  r6-s ${headed} tax memos; Dallas detail citations ${JSON.stringify(dc).slice(0, 160)}`);
+  }
+
   // seen validation (untrusted input): an array of ≤ SEEN_MAX 16-hex strings; anything else is ignored whole.
   const h = (i: number) => i.toString(16).padStart(16, "0");
   check(parseSeen([h(1), h(2)]).join() === [h(1), h(2)].join(), "parseSeen dropped valid entries");

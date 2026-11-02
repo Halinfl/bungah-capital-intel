@@ -9,6 +9,7 @@ import { nearestCoveredMarkets } from "./chat-coverage";
 import { coverageInProgressLine, isSeedMarket } from "./format";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import { publisherName, scrubInternal } from "./public-text";
+import { FED_POLICY, fedDate, fedDecisions, isFedPolicyQuestion, rangeText, type FedPolicy } from "./fed-policy";
 import {
   chipKind,
   coverageLine,
@@ -16,6 +17,8 @@ import {
   dropRepeatedDate,
   flatSource,
   dateShown,
+  periodsIn,
+  type Period,
   digestDate,
   furtherReadingSection,
   inRange,
@@ -275,6 +278,17 @@ const AREA_TAGS: Record<string, AreaRule[]> = {
   ],
 };
 
+/**
+ * A signal that covers several cities at once is tagged for the whole metro: the World Cup host read titled
+ * "Dallas / Arlington / Fort Worth (host)" (HVS) is "DFW metro", not the City of Arlington its body mentions.
+ */
+const WHOLE_SIGNAL: Record<string, { area: string; re: RegExp }[]> = {
+  dallas: [{ area: "DFW metro", re: /\bDallas\s*\/\s*Arlington\s*\/\s*Fort Worth\b|\bDallas[–-]Fort Worth\b|\bDFW\b/i }],
+};
+export function signalArea(slug: string | null | undefined, title: string): string | null {
+  return (slug && WHOLE_SIGNAL[slug]?.find((x) => x.re.test(title))?.area) || null;
+}
+
 /** Markets whose citations carry an area tag. */
 export function hasAreaTags(slug: string | null | undefined): boolean {
   return Boolean(slug && AREA_TAGS[slug]);
@@ -293,12 +307,12 @@ export function withArea(slug: string, f: Fact): Fact {
   const rules = AREA_TAGS[slug];
   if (!rules) return f;
   const hay = `${f.text} ${f.title} ${f.source.label} ${f.source.url ?? ""} ${f.source.publisher ?? ""}`;
-  const r = rules.find((x) => x.test(f, hay));
-  if (!r) return f;
-  return { ...f, source: { ...f.source, label: `${f.source.label} (${r.area})`, area: r.area } };
+  const area = signalArea(slug, f.title) ?? rules.find((x) => x.test(f, hay))?.area;
+  if (!area) return f;
+  return { ...f, source: { ...f.source, label: `${f.source.label} (${area})`, area } };
 }
 
-function marketFacts(m: MarketRow): Fact[] {
+export function marketFacts(m: MarketRow): Fact[] {
   const o = OUTSIDE_PROPER[m.slug];
   return m.signals.flatMap((s) =>
     signalFacts(s as SignalLike).map((f) => withArea(m.slug, o && o.re.test(f.text) ? { ...f, offCore: true, text: metroLabel(m.slug, f.text) } : f))
@@ -381,7 +395,7 @@ function spanDays(f: Fact): number {
 /** A single week or event print: never the lead for "how has RevPAR moved" (it is not the trend). */
 const WEEKLY_TEXT = /\b(week ending|wk ending|w\/e|weekly|week of)\b/i;
 const EVENT_TEXT = /\b(World Cup|Cup|WC|semifinal|quarterfinal|final match|Super Bowl|F1|Grand Prix|Formula 1|eclipse|calendar shift|counter-signal|peak[- ]period|inauguration)\b/i;
-function isSpot(f: Fact): boolean {
+export function isSpot(f: Fact): boolean {
   return /^w\/e /.test(f.period?.label ?? "") || WEEKLY_TEXT.test(f.text) || EVENT_TEXT.test(f.text) || (f.period != null && spanDays(f) < 25);
 }
 const PERF_FACT = (f: Fact) => f.readable && PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(tax|TDT|TOT|HOT|collections?)\b/i.test(f.text) && f.kind !== "tax";
@@ -450,6 +464,52 @@ const RISK = (f: Fact) => SLOT_RULES.demand.find((x) => x.name === "risk")!.test
  */
 /** Debt rows are not demand reads ("$100M CMBS to special servicing" on a demand card). */
 const DEMAND_OFF = /\b(CMBS|SASB|loans?|special[- ]servic\w*|foreclos\w*|delinquen\w*|default)\b/i;
+
+/**
+ * Visitor questions (chat r6): a visitor count over a full period (a calendar or fiscal year, the latest 12 months)
+ * leads, with its source and period; a single event week ("CoStar week ending Jul 18 (WC semifinal)") never leads a
+ * visitor or demand headline. It stays as a labeled bullet: "Event week: …".
+ */
+const VISITOR_Q = /\b(visitors?|visitation|visits|tourists?|tourism)\b/i;
+const VISITOR_FIG = /\b(visitors?|visitation|visits|tourists)\b/i;
+const VISITOR_COUNT = /\d+(?:\.\d+)?\s?(?:M|million|B|billion|K)\b|\b\d{1,3}(?:,\d{3}){2,}\b/;
+const keyDate = (k: number) => Date.UTC(Math.floor(k / 10000), (Math.floor(k / 100) % 100) - 1, k % 100);
+const periodDays = (p: Period) => (keyDate(p.end) - keyDate(p.start)) / 86400000;
+/** The fact's full data period (≥ ~10 months: a year, a fiscal year, T12), from its own period or its wording. */
+export function fullPeriodOf(f: Fact): Period | null {
+  const cands = [...(f.period ? [f.period] : []), ...periodsIn(f.text, f.key || undefined)].filter((p) => !p.open && periodDays(p) >= 300);
+  return cands.sort((a, b) => b.end - a.end)[0] ?? null;
+}
+export function visitorHead(facts: Fact[]): Fact | null {
+  const list = facts
+    .filter((f) => f.readable && f.kind !== "tax" && VISITOR_FIG.test(f.text) && VISITOR_COUNT.test(f.text) && !/no public read|\b(forecast|projected|projection|outlook|YTD|year to date|to date)\b|\b(tourist development|occupancy|hotel|lodging|room|accommodations?|transient|bed)\s+(occupancy\s+)?tax\b|\b(TDT|TOT|HOT|TAT)\b/i.test(f.text) && !FORECAST.test(f.text) && !isEventPrint(f))
+    .map((f) => ({ f, p: fullPeriodOf(f) }))
+    .filter((x): x is { f: Fact; p: Period } => Boolean(x.p))
+    .sort((a, b) => b.p.end - a.p.end || b.f.key - a.f.key);
+  const top = list[0];
+  // "Dallas visitors 2024 (latest): 27.7M" is dated by its data year, not the article date.
+  return top ? { ...top.f, text: top.f.text.replace(/\s*\(latest\)/i, ""), period: top.p } : null;
+}
+/** A one-off event (a match, a citywide meeting) of ten days or less. */
+const EVENT_WORDS = /\b(meeting|convention|conference|expo|festival|tournament|concert|match(es)?|game|race|marathon|summit)\b/i;
+/** A single event or single-week print: never a demand / visitor headline (an article date alone is not one). */
+export function isEventPrint(f: Fact): boolean {
+  const short = f.period != null && spanDays(f) <= 10;
+  // An event named in a longer series ("~$89M projected FY26 (Cup-driven)") is not an event print.
+  const eventSpan = f.period == null || spanDays(f) <= 45;
+  return WEEKLY_TEXT.test(f.text) || /^w\/e /.test(f.period?.label ?? "") || (eventSpan && EVENT_TEXT.test(f.text)) || (short && (EVENT_WORDS.test(f.text) || f.kind === "citywide_calendar"));
+}
+/** A single week or event print on a demand card reads as what it is: "Event week: …", "Event: …", "Single week: …". */
+export function spotLabel(f: Fact): string | null {
+  if (!isEventPrint(f)) return null;
+  const weekly = WEEKLY_TEXT.test(f.text) || /^w\/e /.test(f.period?.label ?? "");
+  const event = EVENT_TEXT.test(f.text) || EVENT_WORDS.test(f.text) || f.kind === "citywide_calendar";
+  return event ? (weekly ? "Event week" : "Event") : "Single week";
+}
+const labeledSpot = (r: BriefRead, f: Fact): BriefRead => {
+  const l = spotLabel(f);
+  return l && !r.text.startsWith(`${l}:`) ? { ...r, text: `${l}: ${r.text}` } : r;
+};
 
 function demandReads(facts: Fact[], max: number, head: Fact): Fact[] {
   const pool = facts
@@ -678,10 +738,19 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = headLine(short, "demand", head);
       reads = perfReads(facts, n, new Set([head.text]));
     }
-  } else if (lens === "demand" && intent !== "revpar_metrics" && pickReads(facts, "demand", 3).some((f) => DRIVER(f))) {
+  } else if (lens === "demand" && intent !== "revpar_metrics" && visitorHead(facts) && ((opts.question && VISITOR_Q.test(opts.question)) || !pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f)))) {
+    // "How many visitors does Dallas get?": the latest full-period visitor count leads; the newest event print
+    // (a World Cup week) stays as a labeled bullet.
+    const head = visitorHead(facts)!;
+    answer = headLine(short, "demand", head);
+    const n = 3 - (opts.extraReads?.length ?? 0);
+    reads = demandReads(facts, n, head).filter((f) => !sameFact(f, head));
+    const ev = facts.filter((f) => f.readable && spotLabel(f)?.startsWith("Event")).sort((a, b) => b.key - a.key)[0];
+    if (ev && !reads.some((f) => f === ev || sameFact(f, ev))) reads = [...reads.slice(0, Math.max(0, n - 1)), ev];
+  } else if (lens === "demand" && intent !== "revpar_metrics" && pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f))) {
     // "What's demand doing": a demand driver (visitors, airlift, events, group) leads; the OCC / ADR snapshot
-    // belongs to the performance answer, so the two starters never open the same card.
-    const head = pickReads(facts, "demand", 3).find((f) => DRIVER(f))!;
+    // belongs to the performance answer, so the two starters never open the same card. Never a single event week.
+    const head = pickReads(facts, "demand", 6).find((f) => DRIVER(f) && !isEventPrint(f))!;
     answer = headLine(short, "demand", head);
     reads = demandReads(facts, 3 - (opts.extraReads?.length ?? 0), head);
   } else if (lens === "demand" && metrics) {
@@ -692,9 +761,13 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     answer = headLine(short, "supply", { ...head, text: scrubInternal(scoreSig.title).replace(new RegExp(`^${short}\\s*`, "i"), "") });
     reads = pickReads(facts, "supply", 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
   } else {
-    const first = pickReads(facts, lens, 1);
-    const head = first[0];
-    if (head) {
+    // A demand headline never leads with a single week or event print; it stays a labeled bullet below.
+    const ranked = pickReads(facts, lens, lens === "demand" ? 6 : 1);
+    const head = lens === "demand" ? ranked.find((f) => !isEventPrint(f) && !DEMAND_OFF.test(f.text)) : ranked[0];
+    if (!head && lens === "demand" && ranked.length) {
+      answer = `${short}: no full-period demand figure on file; the cited event and single-week reads are below.`;
+      reads = ranked.slice(0, 3 - (opts.extraReads?.length ?? 0));
+    } else if (head) {
       answer = headLine(short, lens, head);
       reads = pickReads(facts, lens, 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
     } else if (metrics) {
@@ -713,7 +786,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     const pf = premise.facts;
     reads = [...pf, ...reads.filter((f) => !pf.some((p) => f.text === p.text || sameFact(f, p)))].slice(0, Math.max(pf.length, 3 - (opts.extraReads?.length ?? 0)));
   }
-  const readList = [...reads.map(toRead), ...(opts.extraReads ?? [])].slice(0, 3);
+  const readList = [...reads.map((f) => (lens === "demand" && intent !== "revpar_metrics" ? labeledSpot(toRead(f), f) : toRead(f))), ...(opts.extraReads ?? [])].slice(0, 3);
 
   const sections: BriefSection[] = [];
   const mt = metricsTable(m);
@@ -880,8 +953,66 @@ function rateSeries(question: string): { name: string; re: RegExp } {
   return { name: "10-year Treasury", re: /\b10-year|10Y\b/i };
 }
 
+/**
+ * Fed policy question ("Is the Fed cutting rates?"): the current fed funds target range and the latest FOMC
+ * decision lead, cited to FRED / the Federal Reserve (src/data/fed-policy.json, not the DB). The 10-year Treasury
+ * follows as a bullet labeled a market rate, not Fed policy. Facts only: no forecast of what the Fed will do.
+ */
+export function fedPolicyBrief(signals: SignalLike[], opts: BriefOpts = {}, policy: FedPolicy = FED_POLICY): ChatBrief {
+  const range = opts.range ?? "all";
+  const tr = policy.targetRange;
+  const decisions = fedDecisions(policy);
+  const latest = decisions[0];
+  const lastChange = decisions.find((d) => d.action !== "held");
+  const amount = (d: { changeBp?: number }) => (d.changeBp ? `${(d.changeBp / 100).toFixed(2)}-point ` : "");
+  const changeWord = (d: { action: string }) => (d.action === "raised" ? "increase" : "cut");
+  const latestText = !latest
+    ? ""
+    : latest.action === "held"
+      ? ` Latest FOMC decision, ${fedDate(latest.date)}: held the range${lastChange ? `; the last change was a ${amount(lastChange)}${changeWord(lastChange)} on ${fedDate(lastChange.date)}` : ""} (Federal Reserve).`
+      : ` Latest FOMC decision, ${fedDate(latest.date)}: a ${amount(latest)}${changeWord(latest)} (Federal Reserve).`;
+  const answer = `Fed funds target range: ${rangeText(tr.lower, tr.upper)} (as of ${fedDate(tr.asOf)}, FRED).${latestText}`;
+  const fedRead = (d: (typeof decisions)[number]): BriefRead =>
+    toRead({
+      text: `FOMC ${fedDate(d.date)}: ${d.action === "held" ? `held the target range at ${rangeText(d.lower, d.upper)}` : `${d.action} the target range ${d.changeBp ? `${(d.changeBp / 100).toFixed(2)} point ` : ""}to ${rangeText(d.lower, d.upper)}`}${d.vote ? ` (vote ${d.vote})` : ""}`,
+      asOf: d.date,
+      key: Number(d.date.replace(/-/g, "")),
+      source: { kind: "Record", label: d.source, url: d.url, title: d.title, publisher: d.source, date: d.date },
+      kind: "rates",
+      title: d.title,
+      readable: true,
+    });
+  // The 10-year, from our own cited rows: a market rate, labeled as such.
+  const tenY = signals
+    .filter((s) => /\b(10-year|10Y)\b/i.test(s.title))
+    .flatMap((s) => signalFacts(s).slice(0, 1))
+    .filter((f) => f.period)
+    .sort((a, b) => b.key - a.key)[0];
+  const reads: BriefRead[] = [...decisions.slice(0, 2).map(fedRead)];
+  if (tenY) {
+    const r = toRead(tenY);
+    reads.push({ ...r, text: `Market rate, not Fed policy: ${r.text.replace(/^US 10Y\b/, "US 10-year")}` });
+  }
+  const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind) || RATE_ROW.test(s.title));
+  const ordered = [...debt].sort((a, b) => Number(/fed funds|FOMC/i.test(b.title)) - Number(/fed funds|FOMC/i.test(a.title)) || Number(RATE_ROW.test(b.title)) - Number(RATE_ROW.test(a.title)));
+  const fred = tr.urls.map((url) => ({ key: url, url, label: tr.source, text: `${url.split("/").pop()} — ${tr.source}`, asOf: tr.asOf, period: periodOf(tr.asOf) }));
+  return makeBrief({
+    decline: opts.decline,
+    answer,
+    reads,
+    coverage: coverageLine({
+      cites: citationsOf(reads, [], fred),
+      notes: ["Fed policy: the target range and FOMC decisions on file, no forecast. The 10-year Treasury is a market rate, not Fed policy."],
+      range,
+    }),
+    window: { range, filterable: true },
+    sections: signalSections(ordered, "debt", "national"),
+  });
+}
+
 /** Benchmark rate question: the newest cited row for that rate leads, with its date and source. */
 export function ratesBrief(signals: SignalLike[], question: string, opts: BriefOpts = {}): ChatBrief {
+  if (isFedPolicyQuestion(question)) return fedPolicyBrief(signals, opts);
   const rows = signals.filter((s) => RATE_ROW.test(s.title));
   const series = rateSeries(question);
   const facts = rows.flatMap((s) => signalFacts(s).slice(0, 1).map((f) => ({ f, s })));

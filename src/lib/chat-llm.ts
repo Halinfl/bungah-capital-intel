@@ -36,6 +36,7 @@ import { adviceDeclineLines, classifyAdviceRequest, type AdviceKind } from "./ch
 import { isBareRates } from "./chat-intent";
 import { detectUncoveredPlaces, uncoveredMarketLines, withoutPlaces, type UncoveredPlace } from "./chat-coverage";
 import { scrubSeedLines } from "./format";
+import { isFedPolicyQuestion } from "./fed-policy";
 import { guardPublic, scrubInternal } from "./public-text";
 import type { ChatIntent } from "./chat-intent";
 import {
@@ -605,6 +606,8 @@ async function answerChatIn(
   const fallback: ChatAnswer & { brief?: ChatBrief } = await answerFromGraph(question, opts);
   const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : [], range);
   if (graphBrief) fallback.brief = graphBrief;
+  // A Fed policy answer cites exactly what it shows (FRED, the FOMC statements, the 10-year row), not the debt memo's list.
+  if (graphBrief && ctx.intent === "rates" && isFedPolicyQuestion(question)) fallback.citations = [...new Set((graphBrief.cited ?? []).map((c) => c.label))];
   // A named issuer alongside a market: one memo with a REIT section, not a second answer.
   if (digestMemo && ctx.matched) {
     const merged: ChatAnswer = {
@@ -651,6 +654,8 @@ function briefForGraph(question: string, ctx: GraphContext, namedDigests: Corpus
   }
   // Hotel-tax series answers keep their newest-first table (no brief).
   if (intent === "tax_collections") return null;
+  // Fed policy questions answer from the Fed's own figures, even inside a market's chat.
+  if (intent === "rates" && isFedPolicyQuestion(question)) return ratesBrief(nationalSignals, question, { range });
   if (matched) {
     const overlay =
       intent === "talent_greenlight"

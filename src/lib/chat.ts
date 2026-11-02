@@ -1,7 +1,8 @@
 import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
+import { withoutRules } from "./rule-rows";
 import { publisherName, stripLeaks } from "./public-text";
-import { areaFor, hasAreaTags } from "./chat-brief-build";
+import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
 import { prisma } from "./prisma";
 import { cachedQuery, GRAPH_REFRESH_S } from "./db-safe";
 
@@ -354,20 +355,24 @@ function primaryLink(s: SignalRow): { url: string; label: string } | null {
 
 /** A signal body whose " | " rows from an area other than `own` end with that area, e.g. "(City of Arlington)". */
 function tagRows(slug: string, s: SignalRow, own: string): string {
+  // A signal about several cities at once ("Dallas / Arlington / Fort Worth (host)") is tagged for the whole signal.
+  const whole = signalArea(slug, s.title);
   return s.body
     .split(" | ")
     .map((row) => {
-      const a = areaFor(slug, "", row);
+      const a = whole ?? areaFor(slug, "", row);
       if (!a || a === own) return row;
-      // Before a trailing period / house note, so the row still reads as one sentence.
-      const m = row.match(/^(.*?)(\.?(?:\s+Decision support\.?)?)$/);
-      return `${m?.[1] ?? row} (${a})${m?.[2] ?? ""}`;
+      // The house note and a self-referential "(source: no public read)" go; the tag sits inside the sentence:
+      // "… lodging DQ cut: no public read (Dallas market)."
+      const clean = row.replace(/\s*\(source: no public read\)/gi, "").replace(/\.?\s*\bDecision support\b[^|]*$/i, "").trim();
+      const m = clean.match(/^(.*?)(\.?)$/);
+      return `${m?.[1] ?? clean} (${a})${m?.[2] || (clean !== row ? "." : "")}`;
     })
     .join(" | ");
 }
 
 /** Citations grouped by area ("City of Dallas: …", "City of Arlington: …", "Other sources: …"), one publisher once. */
-function areaCitations(slug: string, rows: SignalRow[]): string[] {
+export function areaCitations(slug: string, rows: SignalRow[]): string[] {
   const groups = new Map<string, string[]>();
   const add = (area: string, pub: string) => {
     const g = groups.get(area) ?? [];
@@ -376,14 +381,15 @@ function areaCitations(slug: string, rows: SignalRow[]): string[] {
   };
   for (const s of rows) {
     const links = parseSourceUrls(s.sourceUrls);
+    const whole = signalArea(slug, s.title);
     if (!links.length) {
-      if (s.sourceLabel && !/no public read/i.test(s.sourceLabel)) add(areaFor(slug, s.kind, `${s.title} ${s.sourceLabel}`) ?? "Other sources", s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, ""));
+      if (s.sourceLabel && !/no public read/i.test(s.sourceLabel)) add(whole ?? areaFor(slug, s.kind, `${s.title} ${s.sourceLabel}`) ?? "Other sources", s.sourceLabel.replace(/\s*\(accessed [^)]*\)\s*$/, ""));
       continue;
     }
     for (const l of links) {
       const host = (() => { try { return new URL(l.url).hostname; } catch { return ""; } })();
       const pub = /(^|\.)data\.texas\.gov$/.test(host) ? "Texas Comptroller of Public Accounts (data.texas.gov)" : publisherName(l.url);
-      add(areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
+      add(whole ?? areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
     }
   }
   const order = [...groups.keys()].sort((a, b) => (a === "Other sources" ? 1 : 0) - (b === "Other sources" ? 1 : 0));
@@ -441,8 +447,32 @@ function withoutLeaks<T extends { title: string; body: string; sourceLabel: stri
 
 const TAX_TEXT = /\b(hotel|occupancy|lodging|tourist development|transient|accommodations?|bed|room)[- ]+(occupancy |development )?tax|\b(TDT|TOT|TAT|HOT|CDT)\b|hotel-motel tax/i;
 
-/** Markets whose published hotel-tax series is a city's, not the metro's: the heading names the city. */
-const TAX_AREA: Record<string, string> = { dallas: "City of Dallas" };
+/**
+ * The jurisdiction each market's published hotel-tax series covers (Eric QA r3/r5): a tax answer is headed by it, never
+ * by the MSA name ("City of Austin", not "Austin–Round Rock–Georgetown MSA"). Every market that shows a tax row has an
+ * entry (scripts/chat/test-followup.ts checks it).
+ */
+export const TAX_AREA: Record<string, string> = {
+  atlanta: "City of Atlanta",
+  austin: "City of Austin",
+  boston: "City of Boston",
+  chicago: "City of Chicago (city and MPEA hotel taxes)",
+  dallas: "City of Dallas",
+  houston: "City of Houston",
+  "las-vegas": "Clark County (LVCVA room tax)",
+  "los-angeles": "City of Los Angeles",
+  miami: "Miami-Dade County",
+  nashville: "Metro Nashville–Davidson County",
+  "new-york-city": "New York City",
+  orlando: "Orange County, FL",
+  phoenix: "City of Phoenix",
+  "san-antonio": "City of San Antonio",
+  "san-diego": "City of San Diego",
+  "san-francisco-bay": "City and County of San Francisco",
+  seattle: "Seattle and King County (convention-center lodging tax)",
+  honolulu: "Hawaii statewide and Oʻahu",
+  "washington-dc": "District of Columbia",
+};
 
 /** Hotel-tax answer for one market: the published series newest first, each row linked to its source. */
 export function formatTaxMemo(market: MarketRow): ChatAnswer {
@@ -455,18 +485,28 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const caveat = dedupeClauses(latest && at >= 0 ? latest.body.slice(at + 7).replace(/\s*Decision support\.?$/, "") : "");
   // Mixed-geography markets (Dallas): a related row from another area says so, and the citations are grouped by area.
   const own = TAX_AREA[market.slug];
-  const relatedLine = (s: SignalRow) => (own && hasAreaTags(market.slug) ? signalLine({ ...s, body: tagRows(market.slug, s, own) }) : signalLine(s));
+  // "Self-reported" is said once, in the caveat (Eric QA r5): row tags and related rows drop it unless a row differs.
+  const saysSelf = /self-reported/i.test(caveat);
+  const allSelf = figures.every((s) => /self-reported/i.test(s.magnitude ?? ""));
+  const unSelf = (t: string) => t.replace(/\s*·\s*self-reported\b/gi, "").replace(/\bself-reported\b\s*(?:municipal HOT\s*)?;\s*/gi, "").replace(/\bCaveats:\s*(?=[a-z])/g, "Caveats: ");
+  const shownFigures = saysSelf && allSelf ? figures.map((s) => ({ ...s, magnitude: s.magnitude ? unSelf(s.magnitude) : s.magnitude })) : figures;
+  const relatedRow = (s: SignalRow) => (saysSelf ? { ...s, body: unSelf(s.body) } : s);
+  const relatedLine = (s0: SignalRow) => {
+    const s = relatedRow(s0);
+    return own && hasAreaTags(market.slug) ? signalLine({ ...s, body: tagRows(market.slug, s, own) }) : signalLine(s);
+  };
   const lines: string[] = figures.length
     ? [
-        `**${TAX_AREA[market.slug] ?? market.name} — hotel-tax collections (newest first)**`,
+        `**${own ?? market.name} — hotel-tax collections (newest first)**`,
         "",
-        ...figures.map(taxLine),
+        ...shownFigures.map(taxLine),
         ...(caveat ? ["", `_Basis & caveats:_ ${caveat}`] : []),
         ...gaps.map((g) => `\n_Gaps:_ ${g.body.replace(/^[^:]*:\s*/, "").replace(/\s*Decision support\.?$/, "")}`),
-        ...(related.length ? ["", "Related tax / CVB signals:", ...related.map(relatedLine)] : []),
+        // Own blocks (blank lines between): a phone shows the heading, then one row per line (Eric QA r5).
+        ...(related.length ? ["", "Related tax / CVB signals:", "", ...related.map(relatedLine)] : []),
       ]
     : [
-        `**${market.name} — hotel-tax signals (newest first)**`,
+        `**${related.length ? own ?? market.name : market.name} — hotel-tax signals (newest first)**`,
         "",
         ...(related.length
           ? related.map(signalLine)
@@ -543,7 +583,8 @@ export function formatMarketMemo(
               : `**${market.name}**`;
     return {
       content: dedupeBlank(citedOnlyMemo(market, heading, focus)),
-      citations: cites(...market.signals.map((s) => s.sourceLabel)),
+      // Mixed-geography markets (Dallas): the detail view's citations are grouped by area (Eric QA r5).
+      citations: hasAreaTags(market.slug) ? areaCitations(market.slug, market.signals) : cites(...market.signals.map((s) => s.sourceLabel)),
       intent,
       marketSlug: market.slug,
       mode: "deterministic",
@@ -704,11 +745,14 @@ export function formatMarketMemo(
 
   return {
     content: dedupeBlank(body),
-    citations: cites(
-      ...market.signals.map((s) => s.sourceLabel),
-      market.sourceLabel,
-      ...market.assets.map((a) => a.sourceLabel)
-    ),
+    // Mixed-geography markets (Dallas): the detail view's citations are grouped by area, as on the tax answer.
+    citations: hasAreaTags(market.slug)
+      ? areaCitations(market.slug, market.signals)
+      : cites(
+          ...market.signals.map((s) => s.sourceLabel),
+          market.sourceLabel,
+          ...market.assets.map((a) => a.sourceLabel)
+        ),
     intent,
     marketSlug: market.slug,
     mode: "deterministic",
@@ -759,16 +803,16 @@ export async function retrieveGraphContext(
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = withoutLeaks(withoutSocial(citedOnly(m.signals)));
+    m.signals = withoutLeaks(withoutRules(withoutSocial(citedOnly(m.signals))));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withoutLeaks(withoutSocial(citedOnly(
+  const nationalSignals = withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  )));
+  ))));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -1164,13 +1208,13 @@ export async function answerFromGraph(
 export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
-  const rows = withoutLeaks(withoutSocial(citedOnly(
+  const rows = withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
-        select: { title: true, body: true, sourceLabel: true, sourceUrls: true },
+        select: { title: true, body: true, sourceLabel: true, sourceUrls: true, kind: true },
       }), [], GRAPH_MEMO)).data
-  )));
+  ))));
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
   for (const r of rows) {

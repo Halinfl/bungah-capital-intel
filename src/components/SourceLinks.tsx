@@ -40,8 +40,9 @@ export function SourceLinks({
   return (
     <div className="relative z-10 text-xs leading-snug">
       <ul className="flex flex-wrap gap-x-3 gap-y-1">
-        {shown.map((l) => (
-          <Item key={`${l.url}|${l.label}`} l={l} />
+        {/* The key never carries the raw label (it ships in the page payload): URL + position only. */}
+        {shown.map((l, i) => (
+          <Item key={`${l.url}|${i}`} l={l} />
         ))}
       </ul>
       {rest.length ? (
@@ -51,8 +52,8 @@ export function SourceLinks({
             +{rest.length} more source{rest.length === 1 ? "" : "s"}
           </summary>
           <ul className="flex flex-wrap gap-x-3 gap-y-1">
-            {rest.map((l) => (
-              <Item key={`${l.url}|${l.label}`} l={l} />
+            {rest.map((l, i) => (
+              <Item key={`${l.url}|${shown.length + i}`} l={l} />
             ))}
           </ul>
         </details>

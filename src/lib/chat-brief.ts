@@ -95,11 +95,14 @@ export function plain(s: string): string {
 /** Remove per-row "Decision support…" boilerplate (one decision-support line ends the answer). */
 export function stripDecisionBoilerplate(s: string): string {
   return s
-    .replace(/\s*\.?\s*\b[Ll]abor underwritten at the new floors(?: with no staff cuts)?\.?/g, ".")
-    .replace(/\.\s*\./g, ".")
-    .replace(/\s*\bDecision support(?:[;,][^.|\n]*)?\.(?=\s|$|\s*\|)/g, "")
-    .replace(/\s*\bDecision support\s*$/g, "")
-    .replace(/\s{2,}/g, " ")
+    // Line breaks are kept (Eric QA r5: a tax memo's heading, rows and caveat each on their own line); only runs of
+    // spaces inside a line collapse.
+    .replace(/[^\S\n]*\.?[^\S\n]*\b[Ll]abor underwritten at the new floors(?: with no staff cuts)?\.?/g, ".")
+    .replace(/\.[^\S\n]*\./g, ".")
+    .replace(/[^\S\n]*\bDecision support(?:[;,][^.|\n]*)?\.(?=\s|$|\s*\|)/g, "")
+    .replace(/[^\S\n]*\bDecision support[^\S\n]*$/gm, "")
+    .replace(/[^\S\n]{2,}/g, " ")
+    .replace(/[^\S\n]+\n/g, "\n")
     .trim();
 }
 
@@ -110,9 +113,9 @@ const OFF_LIMITS = /\b(house )?IC (pack|hurdle|threshold)s?\b|\bhurdles?\b|\bthr
 export function dropOffLimitsSentences(s: string): string {
   if (!OFF_LIMITS.test(s)) return s;
   return s
-    .split(/(?<=[.!?])\s+(?=[A-Z0-9"$~(])/)
-    .filter((x) => !OFF_LIMITS.test(x))
-    .join(" ");
+    .split("\n")
+    .map((line) => line.split(/(?<=[.!?])\s+(?=[A-Z0-9"$~(])/).filter((x) => !OFF_LIMITS.test(x)).join(" "))
+    .join("\n");
 }
 
 function norm(s: string): string[] {

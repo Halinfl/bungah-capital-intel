@@ -43,6 +43,17 @@ async function main() {
     check(stripLeaks(ok) === ok, `clean text changed: ${JSON.stringify(ok)} → ${JSON.stringify(stripLeaks(ok))}`);
     check(findLeaks(ok).length === 0, `false positive: ${JSON.stringify(ok)} → ${findLeaks(ok).join(", ")}`);
   }
+  // r6 (Eric QA r5 must-fix): internal working rules and our own site as a source.
+  const AUSTIN_RULE = "Texas hotel-tax receipts are not the same as RevPAR — municipal tax scope (rule, 2026-09) — Local HOT revenue ÷ stated Ch.351 rate estimates the taxable lodging base remitted to the city — not MSA RevPAR, OCC, or ADR. Do not overwrite seed lodging metrics from tax. Pair with licensed STR / CVB when underwriting.";
+  check(findLeaks(AUSTIN_RULE).some((x) => x.startsWith("ruleText")), "findLeaks misses the Austin rule text");
+  check(findLeaks("Bungah Capital Intel (Texas Comptroller HOT methodology)").some((x) => x.startsWith("ownSource")), "findLeaks misses our own site as a source");
+  check(findLeaks(stripLeaks(AUSTIN_RULE)).length === 0, `rule wording survives the guard: ${stripLeaks(AUSTIN_RULE)}`);
+  check(stripLeaks("Also Ch.334 venue tax rate 2.0% / revenue $29,363,083 (separate base — do not add into Ch.351 implied room rev).") === "Also Ch.334 venue tax rate 2.0% / revenue $29,363,083 (separate base).", `in-row instruction: ${stripLeaks("Also Ch.334 venue tax rate 2.0% / revenue $29,363,083 (separate base — do not add into Ch.351 implied room rev).")}`);
+  check(stripLeaks("TPID collections: no public read (source: no public read).") === "TPID collections: no public read.", `self-referential source: ${stripLeaks("TPID collections: no public read (source: no public read).")}`);
+  const { isRuleRow, withoutRules } = await import("@/lib/rule-rows");
+  check(isRuleRow({ kind: "nuance", sourceLabel: "Texas Comptroller" }) && isRuleRow({ kind: "labor_rule", sourceLabel: "NYT" }) && isRuleRow({ kind: "talent", sourceLabel: "Bungah Capital Intel talent synthesis (public construction/crew reporting)" }) && !isRuleRow({ kind: "tax", sourceLabel: "Texas Comptroller" }), "isRuleRow by kind / own source");
+  check(withoutRules([{ kind: "nuance", sourceLabel: "x" }, { kind: "demand", sourceLabel: "y" }]).length === 1, "withoutRules");
+
   const g = guardPublic({ content: "x (D3). y", brief: { reads: [{ text: "a (registry): 1", source: { url: "https://x.org/a/b.md", label: "src/data/x.ts" } }] }, citations: ["Texas Comptroller Local HOT Reporting 2025 SODA er34-v24h (data.texas.gov); city=Dallas type=city"], answerHash: "0123456789abcdef", intent: "tax_collections" });
   check(g.content === "x. y" && g.brief.reads[0].text === "a: 1" && g.brief.reads[0].source.url === "https://x.org/a/b.md" && g.brief.reads[0].source.label === "" && !/SODA|er34/.test(g.citations[0]) && g.answerHash === "0123456789abcdef", `guardPublic deep: ${JSON.stringify(g)}`);
 
@@ -66,6 +77,12 @@ async function main() {
     .map((l) => JSON.parse(l)) as { title: string; body: string; sourceLabel: string }[];
   const rawLeaks = raw.filter((s) => findLeaks(`${s.title} ${s.body} ${s.sourceLabel}`).length).length;
   check(rawLeaks > 0, "fixture has no raw leaks (scan would be vacuous)");
+  // Rule / methodology rows and own-site rows in the graph, by market (the chat must show none of them).
+  const marketRows = gunzipSync(readFileSync(join(process.env.BUNGAH_GRAPH_FIXTURE, "Market.jsonl.gz"))).toString("utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)) as { id: string; slug: string }[];
+  const slugOf = new Map(marketRows.map((m) => [m.id, m.slug]));
+  const ruleRows = (raw as unknown as { kind: string; sourceLabel: string; marketId: string | null; title: string }[]).filter((s) => isRuleRow(s));
+  const ruleMarkets = [...new Set(ruleRows.map((s) => (s.marketId ? slugOf.get(s.marketId) ?? s.marketId : "national")))].sort();
+  check(ruleRows.length > 0, "fixture has no rule rows (scan would be vacuous)");
 
   // 2. Market page text, as src/app/markets/[slug]/page.tsx renders it (scrubInternal / briefLine / cleanSourceLabel).
   let pageStrings = 0;
@@ -74,15 +91,16 @@ async function main() {
     const parts = [scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), cleanSourceLabel(m.sourceLabel), ...parseSourceUrls(m.sourceUrls).map((l) => scrubInternal(l.label))];
     for (const p of parts) {
       pageStrings++;
-      const l = findLeaks(p);
+      // The market pages are out of the chat's scope for rule rows (reported separately); paths / IDs / codes count.
+      const l = findLeaks(p).filter((x) => !/^(ruleText|ownSource)/.test(x));
       if (l.length) pageBad.push(`${m.title.slice(0, 50)}: ${l.join(", ")}`);
     }
   }
   check(pageBad.length === 0, `market-page text leaks: ${pageBad.slice(0, 5).join(" || ")}`);
 
   // 3. Every market × questions, plus national.
-  const QS = ["How is {m} doing?", "What's the RevPAR and occupancy read for {m}?", "What are the hotel tax collections in {m}?", "How many visitors does {m} get?", "What's the supply pipeline in {m}?", "{m} debt and deals", "Who are the operators in {m}?", "What events are coming up in {m}?", "{m} airport traffic", "Should I buy a hotel in {m}?", "Why is occupancy down in {m}?", "Why are rates up in {m}?"];
-  const NATIONAL = ["Why is SOFR up?", "Where is the 10-year Treasury?", "What's the national hotel debt and refinancing picture?", "What's the national RevPAR and ADR picture?", "Which markets have the heaviest supply?", "Compare Nashville vs Charlotte", "Compare Dallas vs Houston"];
+  const QS = ["How is {m} doing?", "What's the RevPAR and occupancy read for {m}?", "What are the hotel tax collections in {m}?", "How many visitors does {m} get?", "What's the supply pipeline in {m}?", "{m} debt and deals", "Who are the operators in {m}?", "What events are coming up in {m}?", "{m} airport traffic", "Should I buy a hotel in {m}?", "Why is occupancy down in {m}?", "Why are rates up in {m}?", "Is there a staffing greenlight in {m}?", "What should I know before underwriting in {m}?"];
+  const NATIONAL = ["Why is SOFR up?", "Where is the 10-year Treasury?", "What's the national hotel debt and refinancing picture?", "What's the national RevPAR and ADR picture?", "Which markets have the heaviest supply?", "Compare Nashville vs Charlotte", "Compare Dallas vs Houston", "Is the Fed cutting rates?", "What's the national hotel labor picture?", "Is there a staffing greenlight nationally?"];
   const strings = (o: unknown, key = "", out: string[] = []): string[] => {
     if (typeof o === "string") {
       if (!["url", "href", "answerHash", "id"].includes(key)) out.push(o);
@@ -103,7 +121,10 @@ async function main() {
     }
   }
   check(bad.length === 0, `answer leaks: ${[...new Set(bad)].slice(0, 8).join(" || ")}`);
-  console.log(`leak scan: ${rawLeaks} raw signals with leaks in the graph; ${pageStrings} market-page strings and ${answers} answers (${markets.length} markets × ${QS.length} questions + ${NATIONAL.length} national) scanned`);
+  console.log(`leak scan: ${rawLeaks} raw signals with leaks in the graph; ${ruleRows.length} rule / own-source rows (${ruleMarkets.join(", ")}); ${pageStrings} market-page strings and ${answers} answers (${markets.length} markets × ${QS.length} questions + ${NATIONAL.length} national) scanned`);
+  const byKind = new Map<string, number>();
+  for (const b of bad) for (const k of b.split(": ").slice(1).join(": ").split(", ")) byKind.set(k.split(":")[0], (byKind.get(k.split(":")[0]) ?? 0) + 1);
+  if (bad.length) console.log("leak kinds:", JSON.stringify([...byKind]));
   console.log(`public-leak test: ${checks - fails.length}/${checks} checks pass`);
   for (const f of fails) console.log("FAIL", f);
   process.exit(fails.length ? 1 : 0);
