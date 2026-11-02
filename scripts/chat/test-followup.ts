@@ -754,7 +754,32 @@ async function main() {
     const so = await ask("Why is SOFR up?", null, null);
     check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r5-5 SOFR: ${so.head}`);
     const ty = await ask("Where is the 10-year Treasury?", null, null);
-    check(/^US 10-year Treasury \d+\.\d+% \(Oct 16, 2026 close, U\.S\. Treasury par yield curve\)\.$/.test(ty.head), `r5-5 10-year: ${ty.head}`);
+    // r6d: the 10-year is the one data-layer read (latest FRED DGS10), one date.
+    check(/^US 10-year Treasury \d+\.\d+% \([A-Z][a-z]{2} \d{1,2}, 20\d\d, FRED DGS10\)\.$/.test(ty.head), `r5-5/r6d 10-year: ${ty.head}`);
+    {
+      // r6d (Hal): every 10-year mention shows the same single value and date, from src/data/fed-policy.json (tenYear).
+      const { TEN_YEAR, tenYearPct, fedDate } = await import("@/lib/fed-policy");
+      const P = tenYearPct(), D = fedDate(TEN_YEAR.asOf);
+      const tenYears = (o: unknown) => [...JSON.stringify(o).matchAll(/10-year Treasury (\d+\.\d+%)/g)].map((m) => m[1]);
+      const sofr = await ask("Why is SOFR up?", null, null);
+      const sr = ((sofr.brief?.reads ?? []) as { text: string; asOf: string | null }[]).find((r) => /10-year/.test(r.text));
+      check(!!sr && sr.text === `US 10-year Treasury ${P}` && sr.asOf === D, `r6d SOFR answer 10-year: ${sr?.text} · ${sr?.asOf}`);
+      const bare = await ask("What's the 10-year?", null, null);
+      check(bare.head === `US 10-year Treasury ${P} (${D}, FRED DGS10).`, `r6d bare 10-year: ${bare.head}`);
+      const fed = await ask("Is the Fed cutting rates?", null, null);
+      const fr = ((fed.brief?.reads ?? []) as { text: string; asOf: string | null }[]).find((r) => /10-year/.test(r.text));
+      check(!!fr && fr.text.includes(`US 10-year Treasury ${P}`) && fr.asOf === D, `r6d Fed card 10-year: ${fr?.text} · ${fr?.asOf}`);
+      check(sr?.asOf === fr?.asOf && !!sr && !!fr && sr.text.match(/\d+\.\d+%/)?.[0] === fr.text.match(/\d+\.\d+%/)?.[0], "r6d SOFR answer and Fed card: same 10-year value and date");
+      const refi = await ask("Dallas refinancing", null, null);
+      for (const [name, o] of [["SOFR", sofr], ["bare", bare], ["Fed", fed], ["refi", refi], ["10-year", ty]] as [string, unknown][])
+        check(tenYears(o).every((v) => v === P) && !/5\.09%|5\.10%|5\.24%|Oct 16, 2026 close/.test(JSON.stringify(o)), `r6d ${name}: stale 10-year ${JSON.stringify(tenYears(o))}`);
+      const { fixMemoCopy } = await import("@/lib/memo-copy");
+      const saved = fixMemoCopy("- 10-year Treasury 5.09% (2026-10-16 close) · [home.treasury.gov ↗](https://home.treasury.gov/x) · [fred.stlouisfed.org ↗](https://fred.stlouisfed.org/series/DGS10)");
+      check(saved === `- 10-year Treasury ${P} (${TEN_YEAR.asOf}, FRED DGS10) · [fred.stlouisfed.org ↗](${TEN_YEAR.url})`, `r6d saved Stack memo 10-year: ${saved}`);
+      const sm = (await import("node:fs")).readFileSync(new URL("../../src/lib/stack-memo.ts", import.meta.url), "utf8");
+      check(!/10-year Treasury \d+\.\d+%/.test(sm) && /tenYearMemoText\(\)/.test(sm), "r6d stack-memo.ts: no hardcoded 10-year value");
+      console.log(`  r6d 10-year ${P} · ${D}: SOFR "${sr?.text} · ${sr?.asOf}" · bare "${bare.head}" · Fed "${fr?.text} · ${fr?.asOf}" · refi "${refi.head}"`);
+    }
     // r5-6. Lodging Econometrics rows keep their own titles (no two reads titled "Total pipeline").
     const sp = await card("What's the supply pipeline in Dallas?", null, null, "all");
     const titles = ((sp.brief as Brief | null)?.reads ?? []).map((r) => (r as { source?: { title?: string; url?: string } }).source).filter((x) => x?.url && /lodgingeconometrics/.test(x.url)).map((x) => x!.title);

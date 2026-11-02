@@ -2,6 +2,7 @@ import tier1Data from "@/data/stack-memo-tier1.json";
 import { publisherName, scrubInternal } from "./public-text";
 import { parseSourceUrls } from "./source-links";
 import { sortTaxNewest, isTaxSeries } from "./tax-series";
+import { TEN_YEAR, tenYearMemoText } from "./fed-policy";
 
 /**
  * Sound Asset Lodging Stack memo — deterministic, no LLM.
@@ -292,7 +293,8 @@ export function buildStackMemo(opts: {
     ``,
     `> **Refinance test (not a quote or appraisal; rates as of ${RATE.asOf}):** debt is sized on a normalized T12 at current rates. This test outranks every other block in the memo.`,
     ``,
-    `- 10-year Treasury 5.09% (2026-10-16 close) · ${links([RATE.treasury, RATE.tenY])}`,
+    // The 10-year comes from the data layer (src/data/fed-policy.json, latest FRED DGS10), like the chat answers (r6d).
+    `- ${tenYearMemoText()} · ${links([TEN_YEAR.url])}`,
     `- SOFR 3.88% (2026-10-16) · ${links([RATE.sofr])}`,
     `- Fed funds target 3.75–4.00% (since the 2026-09-16 FOMC) · ${links([RATE.fed])}`,
     `- National lodging CMBS delinquency 6.18% (Sep 2026) · ${links([RATE.dq])} {tag: national}`,

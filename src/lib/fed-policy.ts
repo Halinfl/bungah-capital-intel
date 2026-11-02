@@ -75,3 +75,43 @@ export function fedForecastLine(today: string, p: FedPolicy = FED_POLICY): strin
   const m = nextFomcMeeting(today, p);
   return m ? `We don't forecast Fed decisions. The next FOMC meeting is ${meetingDates(m)} (Federal Reserve FOMC calendar).` : "We don't forecast Fed decisions.";
 }
+
+/**
+ * The 10-year Treasury, from one place (r6d): the latest FRED DGS10 print in src/data/fed-policy.json. Every 10-year
+ * mention (the Fed card, the rates / SOFR answer, the refinancing lead, Stack memos) reads it from here, so none can
+ * disagree. Update `tenYear` in fed-policy.json (value + asOf, checked on fred.stlouisfed.org) and they all move.
+ */
+export const TEN_YEAR = FED_POLICY.tenYear!;
+/** "4.98%". */
+export const tenYearPct = () => pct(TEN_YEAR.value);
+/** Memo line: "10-year Treasury 4.98% (2026-10-29, FRED DGS10)". */
+export const tenYearMemoText = () => `10-year Treasury ${tenYearPct()} (${TEN_YEAR.asOf}, FRED ${TEN_YEAR.series})`;
+const SHORT = (iso: string) => fedDate(iso).replace(/, \d{4}$/, "");
+
+/**
+ * The data-layer 10-year as a national graph row (display layer only; the DB is unchanged). It stands in for the
+ * stored 10-year rows (e.g. "US 10-year Treasury 5.09% (Oct 16 close)"), which are dropped at load when older.
+ */
+export function tenYearSignal<T>(): T {
+  const short = SHORT(TEN_YEAR.asOf);
+  return {
+    id: `data-layer-${TEN_YEAR.series.toLowerCase()}-${TEN_YEAR.asOf}`,
+    marketId: null,
+    kind: "rates",
+    title: `US 10-year Treasury ${tenYearPct()}`,
+    body: `US 10-year Treasury ${tenYearPct()} (FRED ${TEN_YEAR.series}). National rate read for the refinance test.`,
+    magnitude: tenYearPct(),
+    asOf: TEN_YEAR.asOf,
+    sourceLabel: TEN_YEAR.source,
+    sourceUrls: [{ url: TEN_YEAR.url, label: `10-year ${tenYearPct()}, ${short} — FRED ${TEN_YEAR.series}`, secondary: false }],
+    createdAt: new Date(`${TEN_YEAR.checkedAt}T12:00:00Z`),
+  } as unknown as T;
+}
+
+/** A stored 10-year Treasury rate row (any date): replaced by the data-layer read. */
+export const isTenYearRow = (s: { kind?: string; title: string }) => /\b(10-year|10Y)\b/i.test(s.title) && /Treasury|\b10Y\b/i.test(s.title) && (s.kind ?? "rates") === "rates";
+
+/** National rows with every stored 10-year row replaced by the one data-layer 10-year. */
+export function withDataLayerTenYear<T extends { kind?: string; title: string }>(rows: T[]): T[] {
+  return [tenYearSignal<T>(), ...rows.filter((s) => !isTenYearRow(s))];
+}

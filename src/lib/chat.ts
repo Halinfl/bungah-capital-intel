@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
+import { withDataLayerTenYear } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
 import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
@@ -850,13 +851,13 @@ export async function retrieveGraphContext(
     m.signals = withoutLeaks(withoutRules(withoutSocial(citedOnly(m.signals))));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  const nationalSignals = withDataLayerTenYear(withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  ))));
+  )))));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -1252,13 +1253,14 @@ export async function answerFromGraph(
 export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
-  const rows = withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  // The 10-year is the data-layer read (r6d), never a stored older row.
+  const rows = withDataLayerTenYear(withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },
         select: { title: true, body: true, sourceLabel: true, sourceUrls: true, kind: true },
       }), [], GRAPH_MEMO)).data
-  ))));
+  )))))
   const out: NonNullable<ChatAnswer["sources"]> = [];
   const seen = new Set<string>();
   for (const r of rows) {
