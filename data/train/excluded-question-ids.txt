@@ -12,3 +12,17 @@ cmvon8syo000nl207s4lt2t3n  # prod QA run
 cmvon8tle000rl207fp0a6ocq  # prod QA run
 cmvon8u2h000vl2076ymvtycs  # prod QA run
 cmvon8um0000zl207lt0jk0iv  # prod QA run
+#
+# 2026-11-01 9:49-9:51 PM ET (02:49-02:51 UTC Nov 2): Eric's QA repro of the Nashville follow-up bug on prod,
+# signed out, from the box. 8 public rows; their ChatThread rows are cmvynugvg0008jq08wfsuf426,
+# cmvynuh52000cjq08iculu64z, cmvynuhaq000gjq08sca1ub9k, cmvynuufu000kjq089aqwrsey, cmvynuuqc000ojq08kaz96kyp,
+# cmvynuv2j000sjq086u9pcq19, cmvynvsi7000wjq08oiulk67n, cmvynvsv30010jq08ut5dx0di (kept, not deleted).
+# See /workspace/bungah-audit/chat-ask-spike/excluded-test-traffic.md.
+cmvynugy3000bjq0822gao0up  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynuh73000fjq08cg57v7er  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynuhct000jjq0881xnxxlq  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynuuic000njq08xjexfvwq  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynuusf000rjq08hxrgji71  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynuv4m000vjq08vgac23xa  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynvskn000zjq084qjteq6f  # prod QA 2026-11-01 (Eric, follow-up repro)
+cmvynvsx50013jq086s54ez30  # prod QA 2026-11-01 (Eric, follow-up repro)
