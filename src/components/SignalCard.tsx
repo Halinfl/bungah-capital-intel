@@ -38,7 +38,7 @@ export function SignalCard({
             href={primaryUrl!}
             target="_blank"
             rel="noopener noreferrer"
-            className="outline-none group-hover:text-emerald-200"
+            className="py-3.5 outline-none group-hover:text-emerald-200"
           >
             <span aria-hidden="true" className="absolute inset-0 rounded-lg" />
             {title}

@@ -5,7 +5,7 @@
  */
 import { reitByTicker, fmtQuarter, fmtRange, fmtDay } from "@/lib/reits";
 import type { Reit, Cited, Guidance, Transaction } from "@/lib/reits-shared";
-import { saleBySlug, gradesFor, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
+import { saleBySlug, gradesFor, headlineFor, cardMetaFor, salePrice, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
 import {
   makeBrief,
   coverageLine,
@@ -21,7 +21,7 @@ import {
 } from "./chat-brief";
 import { publisherName } from "./public-text";
 
-export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade"; marketSlug: string | null };
+export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade" | "advice_declined"; marketSlug: string | null };
 
 const FILED = /(?:filed|released)\s+([A-Z][a-z]{2} \d{1,2}, \d{4})/;
 const filedDate = (src: string): string | null => FILED.exec(src)?.[1] ?? null;
@@ -34,6 +34,11 @@ function read(text: string, asOf: string | null, src: { kind: ChipKind; label: s
   return { text: t, asOf: date && !t.includes(date) ? date : null, source: { ...src, publisher: publisherName(src.url) || undefined, ...(date ? { date } : {}) } };
 }
 const cite = (url: string, label: string, asOf: string | null): Citation => ({ key: url, url, label, text: label, asOf, period: periodOf(asOf) });
+/** One label per cited URL, as the Sources section shows them (a second label on the same link is not a second source). */
+const citationLabels = (cites: Citation[]): string[] => {
+  const seen = new Set<string>();
+  return [...new Set(cites.filter((c) => (seen.has(c.url ?? c.label) ? false : (seen.add(c.url ?? c.label), true))).map((c) => c.label))];
+};
 const money = (v: number, digits = 1) => `$${v.toLocaleString("en-US", { maximumFractionDigits: digits })}`;
 /** USD millions for a list row: amounts under $0.05M show in thousands, so nothing nonzero prints as "$0M". */
 const moneyM = (v: number) => (v > 0 && v < 0.05 ? `$${Math.round(v * 1000).toLocaleString("en-US")}K` : `${money(v)}M`);
@@ -209,7 +214,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     window: { range: "all", filterable: false },
     sections,
   });
-  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: lens === "reported" ? "reit_reported" : "reit_call", marketSlug: null };
+  return { brief, citations: citationLabels(cites), intent: lens === "reported" ? "reit_reported" : "reit_call", marketSlug: null };
 }
 
 /* ------------------------------------------------------------------ */
@@ -259,14 +264,14 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   let answer: string;
   if (lens === "price") {
     if (sale.price == null) return null;
-    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
+    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)}${sale.price_confirmed_on ? `, price first confirmed ${dealDate(sale.price_confirmed_on)}` : ""} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
     for (const id of ["replacement_cost", "spread", "demand"]) {
       const x = factorRead(id, false);
       if (x) reads.push(x);
     }
   } else {
     if (!grade || grade.overall == null) return null;
-    answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${grade.output_text}`;
+    answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);
@@ -308,7 +313,91 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   // Collapsed view stays under 600 characters: drop trailing reads (their facts stay in the factor table).
   let brief = build(3);
   for (let n = 2; n >= 1 && brief.collapsedChars >= 600; n--) brief = build(n);
-  return { brief, citations: [...new Set(cites.map((c) => c.label))], intent: lens === "price" ? "deal_sale" : "deal_grade", marketSlug: sale.market_slug };
+  return { brief, citations: citationLabels(cites), intent: lens === "price" ? "deal_sale" : "deal_grade", marketSlug: sale.market_slug };
+}
+
+/**
+ * Buy / sell / "is it worth buying" about a named deal: the decline, then the deal's cited facts so the "here's what
+ * the data shows" promise is kept. Grade meta ("4.8 of 5 · 3 of 5 factors graded"), the generated grade line, the
+ * price, and the factor reads, all from the deal data, each with its source. Null when the deal has no cited facts.
+ */
+export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | null {
+  const sale = saleBySlug(slug);
+  if (!sale) return null;
+  const grade = gradesFor(sale.sale_id)[0] ?? null;
+  const entry = entryFor(sale.sale_id);
+  const main = entry.sources.find((s) => s.kind === sale.price_source_kind) ?? entry.sources[0];
+  const mainUrl = main?.url ?? sale.source_uris[0];
+  const cites: Citation[] = [];
+  const reads: BriefRead[] = [];
+  const parts: string[] = [];
+  if (grade) {
+    const m = cardMetaFor(grade);
+    // The meta line carries the count, so the grade line drops its own trailing count.
+    const line = headlineFor(grade).replace(/; \d+ of \d+ factors graded(; insufficient public data)?\.$/, ".");
+    parts.push(`${grade.overall === null ? "Insufficient public data" : m.grade} · ${m.coverage} (rubric ${grade.rubric_version}, graded ${dealDate(grade.graded_on)}). ${line}`);
+  }
+  const price = salePrice(sale);
+  if (mainUrl) {
+    const keys = sale.keys ? `${sale.keys.toLocaleString("en-US")} keys` : "";
+    const priceText =
+      sale.price != null
+        ? `Price ${price}${keys ? ` for ${keys}${sale.price_per_key ? `, ${fmtPerKey(sale.price_per_key)}` : ""}` : ""}, ${sale.price_confirmed_on ? `first confirmed ${dealDate(sale.price_confirmed_on)} (announced ${dealDate(sale.announced_on)})` : `announced ${dealDate(sale.announced_on)}`}`
+        : `Announced ${dealDate(sale.announced_on)}${keys ? `, ${keys}` : ""}; price: ${price.charAt(0).toLowerCase()}${price.slice(1)}`;
+    cites.push(cite(mainUrl, main ? `${main.publisher}: ${main.title}` : "Sale filing", main?.date ?? sale.announced_on));
+    // A price confirmed after announcement cites the report that confirmed it, not the announcement.
+    const confirmUrl = sale.price_confirmed_on && sale.close_report?.date === sale.price_confirmed_on ? sale.close_report.url : undefined;
+    if (confirmUrl) cites.push(cite(confirmUrl, `Price: ${publisherName(confirmUrl) || "press"}`, sale.price_confirmed_on ?? null));
+    const r = confirmUrl
+      ? read(priceText, sale.price_confirmed_on!, { kind: chipFor(confirmUrl), label: sale.close_report?.source?.split(",")[0] || publisherName(confirmUrl) || "Press", url: confirmUrl })
+      : read(priceText, main?.date ?? sale.announced_on, { kind: chipFor(mainUrl), label: main?.publisher ?? (publisherName(mainUrl) || "Sale filing"), url: mainUrl, title: main?.title });
+    if (r) reads.push(r);
+  }
+  const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
+  for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
+  for (const f of [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0)).slice(0, 2)) {
+    const label = short(f.factor);
+    const r = read(`${label} ${f.score}/5: ${fitFact(f.input_text!) ?? shortInput(f.input_text!)}`, f.as_of, {
+      kind: chipFor(f.source_uri!),
+      label: publisherName(f.source_uri!) || label,
+      url: f.source_uri!,
+      title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200),
+    });
+    if (r) reads.push(r);
+  }
+  if (!parts.length || !cites.length) return null;
+  const sections: BriefSection[] = [];
+  if (grade) {
+    sections.push({
+      id: "deal-factors",
+      title: `Grade factors (${grade.overall_label})`,
+      count: grade.factor_scores.length,
+      markdown: [
+        "| Factor | Score | Weight | Input | Source |",
+        "| --- | --- | --- | --- | --- |",
+        ...grade.factor_scores.map((f) => {
+          const label = factorMeta(f.factor)?.label ?? f.factor;
+          return f.graded
+            ? `| ${label} | ${f.score}/5 | ${Math.round((f.effective_weight ?? f.weight) * 100)}% | ${f.input_text} | [${publisherName(f.source_uri!) || "Source"}](${f.source_uri}) |`
+            : `| ${label} | Not graded | — | ${f.reason ?? "No qualifying public source."} | — |`;
+        }),
+      ].join("\n"),
+    });
+  }
+  sections.push({ id: "further", title: "Further reading", count: 1, markdown: `- [${sale.property}: full deal entry](/deals/${sale.slug})` });
+  const answer = `${dealShort(sale)}: ${parts.join(" ")}`;
+  const build = (n: number) =>
+    makeBrief({
+      decline,
+      answer,
+      reads: reads.slice(0, n),
+      coverage: coverageLine({ cites, notes: ["Public sources only; no licensed data."] }),
+      window: { range: "all", filterable: false },
+      sections,
+    });
+  let brief = build(3);
+  for (let n = 2; n >= 1 && brief.collapsedChars >= 750; n--) brief = build(n);
+  return { brief, citations: citationLabels(cites), intent: "advice_declined", marketSlug: sale.market_slug };
 }
 
 /** "grande-lakes-orlando" → "Grande Lakes" (same rule as the deal page breadcrumb). */

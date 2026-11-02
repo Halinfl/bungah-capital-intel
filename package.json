@@ -9,6 +9,8 @@
     "test:matcher": "tsx scripts/chat/test-market-matcher.ts",
     "test:followup": "tsx scripts/chat/test-followup.ts",
     "test:leaks": "tsx scripts/chat/test-public-leaks.ts",
+    "test:deals-headline": "tsx scripts/deals/test-headline.ts",
+    "test:deal-match": "tsx scripts/chat/test-deal-match.ts",
     "postbuild": "node scripts/check-ic-frame.mjs",
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",

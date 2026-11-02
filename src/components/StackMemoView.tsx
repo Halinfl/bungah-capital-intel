@@ -1,5 +1,8 @@
 import { Fragment, type ReactNode } from "react";
+import { fixMemoCopy } from "@/lib/memo-copy";
+import { stripSocialMarkdown } from "@/lib/social-sources";
 import { scrubInternal } from "@/lib/public-text";
+import { glueHtml } from "@/lib/glue";
 
 /**
  * Renders a Stack memo. A bullet with links becomes a whole-row link to its first source (stretched
@@ -8,7 +11,7 @@ import { scrubInternal } from "@/lib/public-text";
  */
 export function StackMemoView({ text }: { text: string }) {
   // Display-time guard: plain-language rewrites + internal-label scrub also cover memos stored earlier.
-  const blocks = scrubInternal(text).split(/\n\n+/);
+  const blocks = scrubInternal(stripSocialMarkdown(fixMemoCopy(text))).split(/\n\n+/);
   const out: ReactNode[] = [];
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -19,7 +22,7 @@ export function StackMemoView({ text }: { text: string }) {
       i++;
       out.push(
         <details key={i} className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2">
-          <summary className="cursor-pointer text-xs font-medium text-slate-300">{first.slice(4)}</summary>
+          <summary className="-my-2 cursor-pointer py-3.5 text-xs font-medium text-slate-300">{first.slice(4)}</summary>
           <List lines={body.split("\n")} plain />
         </details>
       );
@@ -72,15 +75,36 @@ function List({ lines, plain = false }: { lines: string[]; plain?: boolean }) {
           }
           return (
             <li key={j} data-row-link={first[2]}
-              className="group relative rounded-md border border-white/[0.06] px-2 py-1.5 text-[13px] leading-snug text-slate-200 transition-colors hover:border-emerald-400/40 hover:bg-white/[0.04]">
+              className="group relative min-h-11 rounded-md border border-white/[0.06] px-2 py-1.5 text-[13px] leading-snug text-slate-200 transition-colors hover:border-emerald-400/40 hover:bg-white/[0.04]">
+              {/* Whole-row link from 640px; below that the row's own source links are the tap targets. */}
               <a href={first[2]} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${first[1]}`}
-                className="absolute inset-0 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-emerald-400/60" />
-              <span dangerouslySetInnerHTML={{ __html: inline(body, true) }} />
+                className="absolute inset-0 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-emerald-400/60 max-sm:hidden" />
+              <span dangerouslySetInnerHTML={{ __html: rowHtml(body) }} />
             </li>
           );
         })}
     </ul>
   );
+}
+
+// Trailing source-link group: " · [A](u) · [B](u)" (+ optional {tag: …}) at the end of a row.
+const TAIL = /^([\s\S]*?)((?:\s+·\s+\[[^\]]+\]\(https?:\/\/[^)\s]+\))+)((?:\s*\{tag: [^}]+\})*)\s*$/;
+
+/**
+ * Row body HTML. With 2+ trailing source links, they become a source-link group: inline with "·" from
+ * 640px, one 44px block row per link below it (globals.css .src-group), so no link's padding covers another.
+ */
+export function rowHtml(body: string): string {
+  const m = body.match(TAIL);
+  const links = m ? [...m[2].matchAll(LINK)] : [];
+  if (!m || links.length < 2) return inline(body, true);
+  const items = links
+    .map(
+      (l) =>
+        `<span class='src-item'><span class='src-sep'>&nbsp;· </span>${inline(l[0], true).replace("class='", "class='src-link ")}</span>`
+    )
+    .join("");
+  return `${inline(m[1], true)}<span class='src-group'>${items}</span>${m[3] ? inline(m[3], true) : ""}`;
 }
 
 function esc(s: string): string {
@@ -92,7 +116,7 @@ function inline(s: string, raised = false): string {
   return esc(s)
     .replace(
       /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
-      `<a href='$2' target='_blank' rel='noopener noreferrer' class='text-emerald-300/90 underline-offset-2 hover:underline${z}'>$1</a>`
+      `<a href='$2' target='_blank' rel='noopener noreferrer' class='py-3.5 text-emerald-300/90 underline-offset-2 hover:underline${z}'>$1</a>`
     )
     .replace(/\{tag: ([^}]+)\}/g, (_m, t: string) => {
       const tone = /watch|negative leverage/i.test(t)
@@ -103,5 +127,7 @@ function inline(s: string, raised = false): string {
       return `<span class='ml-1 inline-block rounded border px-1 py-px text-xs uppercase tracking-wide ${tone}'>${t}</span>`;
     })
     .replace(/\*\*(.+?)\*\*/g, "<strong class='font-semibold text-white'>$1</strong>")
-    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-300'>$2</em>");
+    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-300'>$2</em>")
+    // A "·" never starts a line and "City, ST" never splits (no-break spaces).
+    .replace(/[\s\S]*/, (h) => glueHtml(h));
 }

@@ -1,3 +1,4 @@
+import { isSocialUrl } from "./social-sources";
 /** Clickable original-article links for signals (Hal, 2026-10-11). Original URLs only — never local copies. */
 export type SourceLink = { url: string; label: string; secondary?: boolean };
 
@@ -6,6 +7,8 @@ export const URL_RE = /https?:\/\/[^\s)<>|;,"']+[^\s)<>|;,."']/g;
 export function isOriginalUrl(url: string): boolean {
   if (!/^https?:\/\//i.test(url)) return false;
   if (/(^|\/)_src\//.test(url) || /capital\/_src/.test(url)) return false;
+  // House rule: LinkedIn and other social posts are never sources.
+  if (isSocialUrl(url)) return false;
   return true;
 }
 

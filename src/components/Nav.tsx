@@ -33,7 +33,7 @@ export async function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#2f333c]/95 backdrop-blur-md">
       <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link href={userId ? "/workspace" : "/"} className="group flex shrink-0 items-center gap-2.5">
+        <Link href={userId ? "/workspace" : "/"} className="group flex min-h-11 shrink-0 items-center gap-2.5">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.08] text-xs font-semibold tracking-tight text-white ring-1 ring-white/15">
             B
           </span>
@@ -57,7 +57,7 @@ export async function Nav() {
             <>
               <Link
                 href="/login"
-                className="hidden whitespace-nowrap px-2 py-1.5 text-sm text-slate-300 hover:text-white lg:inline"
+                className="hidden min-h-11 items-center whitespace-nowrap px-2 text-sm text-slate-300 hover:text-white lg:inline-flex"
               >
                 Sign in
               </Link>

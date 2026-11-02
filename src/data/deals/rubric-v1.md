@@ -121,3 +121,6 @@ Ungraded pieces read "replacement cost not graded" / "spread not gradeable (no t
 - **A. Cap rate and Treasury timing.** Cap-rate basis approved. The proposed prior-trading-day Treasury close was **replaced by Hal** with the announcement-date close.
 - **B. Demand measure.** Approved. Reasoning: a single month is noisy, and fiscal YTD varies with where the deal falls in the fiscal year. Trailing 12 vs prior 12 months is the same length for every deal and removes seasonality.
 - **C. Supply source rule.** Approved. Reasoning: figures combined from different publishers and stages double-count some rooms and miss others. One source and one definition can't be steered by picking pieces. When the public record lacks the number, the honest result is "Not graded".
+
+## Changelog
+- v1.1 (2026-11-01, approved by Hal): supply net of closures, CVB downtown market, public-body republished pipeline totals, company NOI definition on hotel EBITDA, month-end TTM before announcement, first confirmed price when only a range was public. See `rubric-v1.1.md`. This v1 document is kept unchanged above as the record of v1.

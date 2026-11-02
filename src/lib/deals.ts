@@ -1,10 +1,12 @@
-import rubricJson from "@/data/deals/rubric-v1.json";
+import rubricJson from "@/data/deals/rubric-v1.1.json";
+import rubricV1Json from "@/data/deals/rubric-v1.json";
 import salesJson from "@/data/deals/graded_sales.json";
 import gradesJson from "@/data/deals/sale_grades.json";
 import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
-import type { FactorResult, GradeResult, Rubric } from "@/lib/deals-grade";
+import citationsJson from "@/data/deals/citations.json";
+import { cardMetaParts, headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
@@ -23,6 +25,8 @@ export type Sale = {
   price_display?: string;
   price_qualifier?: string;
   price_per_key: number | null;
+  /** Rubric v1.1 price-range rule: the date the price was first confirmed, when only a range was public at announcement. */
+  price_confirmed_on?: string;
   keys: number | null;
   keys_detail?: string;
   announced_on: string;
@@ -34,7 +38,27 @@ export type Sale = {
   price_source_kind: "filing" | "press" | "record";
   source_uris: string[];
 };
-export type Source = { kind: "filing" | "record" | "press"; title: string; publisher: string; date: string; url: string };
+/** "report": a public body's own research publication (e.g. a visitors bureau PDF). */
+export type Source = { kind: "filing" | "record" | "report" | "press"; title: string; publisher: string; date: string; url: string; cite_id?: string };
+
+type Citation = { title: string; data_credit: string; url: string; date: string };
+const CITATIONS = citationsJson as unknown as Record<string, Citation | string>;
+/** Public citation line for a source in citations.json: "<title> (data: <credit>)". The credit lives in one field there. */
+export function citationText(id: string | undefined, fallback: string): string {
+  const c = id ? CITATIONS[id] : undefined;
+  if (!c || typeof c === "string") return fallback;
+  return c.data_credit ? `${c.title} (data: ${c.data_credit})` : c.title;
+}
+/** Hosts whose PDFs are public-body research reports rather than press. */
+export const REPORT_HOSTS = /(^|\.)choosechicago\.com$|(^|\.)lvcva\.com$/;
+export const isReportUrl = (u: string) => {
+  try {
+    const url = new URL(u);
+    return REPORT_HOSTS.test(url.hostname) || (url.hostname === "res.cloudinary.com" && url.pathname.includes("/clients/lasvegas/"));
+  } catch {
+    return false;
+  }
+};
 export type ContextItem = { text: string; url: string; date: string };
 export type Entry = {
   tape: string | null;
@@ -62,13 +86,15 @@ export type LogRow = {
   graded: string;
 };
 
+/** Current rubric (v1.1, approved 2026-11-01). Earlier versions stay importable for the version history. */
 export const RUBRIC = rubricJson as unknown as Rubric;
+export const RUBRIC_HISTORY = [rubricV1Json as unknown as Rubric, RUBRIC];
 export const DISCLAIMER = RUBRIC.disclaimer;
 const SALES = salesJson as Sale[];
 const GRADES = gradesJson as unknown as GradeResult[];
 /** Labels for context sections that aren't rubric factors. */
 export const CONTEXT_LABELS: Record<string, string> = {
-  access: "Access: airlift and drive (not a rubric v1 factor; no weight)",
+  access: "Access: airlift and drive (not a rubric factor; no weight)",
 };
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
@@ -80,10 +106,36 @@ export function sales(): Sale[] {
 export function saleBySlug(slug: string): Sale | undefined {
   return SALES.find((s) => s.slug === slug);
 }
-/** All grades for a sale, current rubric version first. Originals are kept, never overwritten. */
+/**
+ * Grades for a sale, current rubric version first: the latest revision of each rubric version. Earlier revisions and
+ * original versions stay in sale_grades.json, never overwritten.
+ */
 export function gradesFor(saleId: string): GradeResult[] {
-  return GRADES.filter((g) => g.sale_id === saleId).sort((a, b) => b.rubric_version.localeCompare(a.rubric_version));
+  const latest = new Map<string, GradeResult>();
+  for (const g of GRADES.filter((x) => x.sale_id === saleId)) {
+    const cur = latest.get(g.rubric_version);
+    if (!cur || (g.revision ?? 1) > (cur.revision ?? 1)) latest.set(g.rubric_version, g);
+  }
+  return [...latest.values()].sort((a, b) => b.rubric_version.localeCompare(a.rubric_version));
 }
+/**
+ * The grade's output line as shown on the pages. Grades under the current rubric are rendered in code from their factor
+ * rows (every ungraded factor named with its reason); grades under earlier rubrics show the line stored when they were
+ * graded. sale_grades.json is never rewritten.
+ */
+export function headlineFor(g: GradeResult): string {
+  return g.rubric_version === RUBRIC.rubric_version ? headlineText(RUBRIC, g) : g.output_text;
+}
+/** Compact index-card line parts (grade · coverage · Not graded: …). */
+export function cardMetaFor(g: GradeResult) {
+  return cardMetaParts(RUBRIC, g);
+}
+/** "Earlier v1.1 grade 4.0 (supply scored 1; withdrawn Nov 1: room count unavailable)", or null. Reads appended revisions. */
+export function historyLineFor(current: GradeResult): string | null {
+  return revisionHistoryLine(current, GRADES.filter((x) => x.sale_id === current.sale_id));
+}
+/** "4.0 of 5" or "Insufficient public data". */
+export const gradeLabel = (g: GradeResult) => (g.overall === null ? RUBRIC.missing_factor_rule.insufficient_label : `${g.overall.toFixed(1)} of ${RUBRIC.scale.max}`);
 export function entryFor(saleId: string): Entry {
   return ENTRIES[saleId] ?? { tape: null, financing_tags: [], watches_for: null, related: [], sources: [] };
 }

@@ -75,7 +75,7 @@ export function SleeveCarryCheck() {
           <div>
             <dt className="text-xs text-slate-300">Debt yield, BTC excluded</dt>
             <dd data-testid="scc-dy" className={`font-medium ${DY_TONE[out.dyStatus]}`}>
-              {pct(out.debtYield, 2)} · {DY_LABEL[out.dyStatus]}
+              {pct(out.debtYield, 2)}{"\u00a0·"} {DY_LABEL[out.dyStatus]}
             </dd>
           </div>
           <div>
@@ -83,7 +83,7 @@ export function SleeveCarryCheck() {
             <dd data-testid="scc-dscr-io" className={`font-medium ${out.dscrIO < 1 ? "text-rose-300" : "text-slate-200"}`}>
               {xx(out.dscrIO)}
               {out.dscrIOWithoutSleeve !== null ? (
-                <span className="text-slate-300"> · {xx(out.dscrIOWithoutSleeve)} without the sleeve</span>
+                <span className="text-slate-300">{"\u00a0· "}{xx(out.dscrIOWithoutSleeve)} without the sleeve</span>
               ) : null}
             </dd>
           </div>
@@ -98,7 +98,7 @@ export function SleeveCarryCheck() {
           <div>
             <dt className="text-xs text-slate-300">Yearly cost of the sleeve</dt>
             <dd data-testid="scc-carry" className="font-medium text-slate-200">
-              {usd(out.btcCarry)} · {pct(out.btcCarryShareOfNoi)} of NOI
+              {usd(out.btcCarry)}{"\u00a0·"} {pct(out.btcCarryShareOfNoi)} of NOI
             </dd>
           </div>
           {out.ltv !== null ? (
@@ -140,9 +140,9 @@ export function SleeveCarryCheck() {
 
       <div className="mt-4 space-y-1 text-xs leading-relaxed text-slate-300">
         <p>
-          Formulas: debt yield = NOI ÷ total loan (BTC dollars count, BTC value does not) · DSCR
-          interest-only = NOI ÷ (loan × coupon) · DSCR amortizing = NOI ÷ (loan × mortgage
-          constant, monthly pay) · yearly sleeve cost = BTC dollars × coupon · breakeven growth g
+          Formulas: debt yield = NOI ÷ total loan (BTC dollars count, BTC value does not){"\u00a0·"} DSCR
+          interest-only = NOI ÷ (loan × coupon){"\u00a0·"} DSCR amortizing = NOI ÷ (loan × mortgage
+          constant, monthly pay){"\u00a0·"} yearly sleeve cost = BTC dollars × coupon{"\u00a0·"} breakeven growth g
           solves share × ((1 + g)^years − 1) = coupon × years (ignores fees, taxes and time
           value).
         </p>
@@ -154,7 +154,7 @@ export function SleeveCarryCheck() {
             href="https://peersense.com/cmbs-loans/hotel"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-300 underline-offset-2 hover:text-slate-200 hover:underline"
+            className="py-3.5 text-slate-300 underline-offset-2 hover:text-slate-200 hover:underline"
           >
             PeerSense, Jul 2026
           </a>

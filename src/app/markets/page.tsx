@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { withoutSocial } from "@/lib/social-sources";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
-import { publicRows, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { citedOnly, publicRows, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { scrubInternal } from "@/lib/public-text";
 
 export const dynamic = "force-dynamic";
@@ -22,10 +23,12 @@ export default async function MarketsPage() {
       orderBy: { name: "asc" },
       include: {
         assets: { select: { sourceLabel: true, name: true, notes: true } },
-        signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true } },
+        signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } },
       },
     }), []);
   const markets = marketsQ.data;
+  // Social posts are never sources: rows resting only on them don't count toward coverage.
+  for (const m of markets) m.signals = withoutSocial(citedOnly(m.signals));
   const dbDown = !marketsQ.ok;
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed

@@ -70,3 +70,35 @@ html {
   }
 }
 }
+
+/*
+ * Source-link groups (2+ links after a data row). Below 640px each link is its own block row, at least
+ * 44px tall, with no "·" separators, so a wrapped link's padding can never cover the link above it
+ * (no reliance on hover or z-index). At 640px and up the links stay inline, exactly as before.
+ * Unlayered on purpose: it overrides the padding utilities on the same links.
+ */
+@media (max-width: 639.98px) {
+  .src-group {
+    display: block;
+  }
+  .src-group .src-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0;
+  }
+  .src-group .src-link {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+  }
+  .src-group .src-sep {
+    display: none;
+  }
+  .src-group .src-meta {
+    display: block;
+  }
+}

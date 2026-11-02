@@ -10,6 +10,8 @@ import {
   fmtPerKey,
   fmtPrice,
   gradesFor,
+  gradeLabel,
+  cardMetaFor,
   salePrice,
   sales,
   closeLabel,
@@ -25,25 +27,75 @@ export const metadata: Metadata = {
   alternates: { canonical: "/deals" },
 };
 
+/**
+ * Separator for wrapped inline text: a no-break space before the dot glues it to the word before, so a wrapped line
+ * never starts with "·" (it can only end with one). Eric r5/r6.
+ */
+const SEP = "\u00a0· ";
+/** Keep a short phrase on one line ("Chicago, IL", "replacement cost"). */
+const glue = (t: string) => t.replace(/ /g, "\u00a0");
+
+const ngItems = (line: string) => line.replace(/^Not graded:\s*/, "").split(", ");
+/** First item ("replacement cost,"), kept with the label. */
+const notGradedHead = (line: string) => {
+  const items = ngItems(line);
+  return `${items[0]}${items.length > 1 ? "," : ""}`;
+};
+/** Remaining items, each kept whole ("spread, supply"). */
+const notGradedTail = (line: string) => {
+  const rest = ngItems(line).slice(1);
+  return rest.length ? ` ${rest.map(glue).join(", ")}` : "";
+};
+
 function GradeRow({ sale }: { sale: Sale }) {
   const g = gradesFor(sale.sale_id)[0];
   if (!g) return <div className="text-[13px] text-slate-300">Not graded yet</div>;
-  if (g.overall === null)
-    return (
-      <div className="text-[13px] text-slate-200">
-        {RUBRIC.missing_factor_rule.insufficient_label}
-        <span className="text-slate-300"> · {g.factors_graded} of {g.factors_total} factors graded</span>
-      </div>
-    );
+  // One compact meta line (Eric r4): grade · coverage · Not graded: … The full output line stays on the deal page.
+  const m = cardMetaFor(g);
+  // Inline flow (not flex-wrap) so a wrapped line never starts with a dangling "·".
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
-      <span className="text-base font-semibold tabular-nums text-white">
-        {g.overall.toFixed(1)}
-        <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
+    <p className="text-[13px] leading-6 text-slate-300">
+      {g.overall !== null ? (
+        <>
+          <span className="text-base font-semibold tabular-nums text-white">
+            {g.overall.toFixed(1)}
+            <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
+          </span>{" "}
+          <span className="inline-flex align-middle">
+            <DotBar score={g.overall} />
+          </span>
+        </>
+      ) : (
+        <span className="font-semibold text-slate-100">{m.grade}</span>
+      )}
+      {SEP}
+      <span className="whitespace-nowrap">{m.coverage}</span>
+      {m.notGraded ? (
+        <>
+          {SEP}
+          {/* "Not graded:" stays on the line with its first item; the list may wrap after that. */}
+          <span className="whitespace-nowrap">Not graded: {notGradedHead(m.notGraded)}</span>
+          {notGradedTail(m.notGraded)}
+        </>
+      ) : null}
+    </p>
+  );
+}
+
+/** Eric's spec: current and original grades both visible. */
+function VersionRow({ sale }: { sale: Sale }) {
+  const gs = gradesFor(sale.sale_id);
+  if (gs.length < 2) return null;
+  const cur = gs[0];
+  const orig = gs[gs.length - 1];
+  return (
+    <div className="flex flex-col text-[13px] text-slate-300 sm:flex-row sm:gap-x-1">
+      <span className="whitespace-nowrap">Rubric {cur.rubric_version} (current)</span>
+      <span aria-hidden="true" className="hidden sm:inline">
+        |
       </span>
-      <DotBar score={g.overall} />
-      <span className="text-slate-300">
-        {g.factors_graded} of {g.factors_total} factors graded
+      <span>
+        Rubric {orig.rubric_version} (original): {gradeLabel(orig)}
       </span>
     </div>
   );
@@ -57,15 +109,24 @@ function DealCard({ sale }: { sale: Sale }) {
     >
       <div>
         <span className="font-semibold text-white">{sale.property}</span>
-        <span className="text-slate-300"> · {sale.market}</span>
+        <span className="text-slate-300">
+          {SEP}
+          <span className="whitespace-nowrap">{sale.market}</span>
+        </span>
       </div>
       <div className="text-sm tabular-nums text-slate-200">
-        {salePrice(sale)} · {fmtPerKey(sale.price_per_key)} · {fmtKeys(sale.keys)}
+        {salePrice(sale)}
+        {SEP}
+        {glue(fmtPerKey(sale.price_per_key))}
+        {SEP}
+        {glue(fmtKeys(sale.keys))}
       </div>
       <div className="text-[13px] text-slate-300">
-        Buyer {sale.buyer} · Seller {sale.seller}
+        Buyer {sale.buyer}
+        {SEP}Seller {sale.seller}
       </div>
       <GradeRow sale={sale} />
+      <VersionRow sale={sale} />
       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
         <span>Announced {fmtDate(sale.announced_on)}</span>
         <Chip>{closeLabel(sale)}</Chip>
@@ -78,13 +139,13 @@ function logStatus(r: LogRow): React.ReactNode {
   const sale = sales().find((s) => r.log_id && s.log_id === r.log_id);
   if (sale && gradesFor(sale.sale_id).length)
     return (
-      <Link href={`/deals/${sale.slug}`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="-mx-1 px-1 py-3.5 underline decoration-white/30 underline-offset-2 hover:text-white">
         Graded
       </Link>
     );
   if (sale)
     return (
-      <Link href={`/deals/${sale.slug}`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="-mx-1 px-1 py-3.5 underline decoration-white/30 underline-offset-2 hover:text-white">
         Grading
       </Link>
     );
@@ -120,7 +181,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
             <tr key={r.log_id} className="border-b border-white/[0.06] align-top">
               <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{fmtDate(r.announce_date)}</td>
               <td className="py-2 pr-3">
-                <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+                <a href={r.source_url} className="inline-flex min-h-11 items-center hover:text-white" rel="noopener" target="_blank">
                   {r.hotel}
                 </a>
               </td>
@@ -137,13 +198,23 @@ function LogTable({ rows }: { rows: LogRow[] }) {
         {rows.map((r) => (
           <li key={`${r.log_id}-m`} className="py-2 text-sm">
             <div className="text-slate-100">
-              <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+              {/* Plain inline (not inline-flex) so "\u00a0· City, ST" stays glued; py-3.5 keeps a 44px tap height. */}
+              <a href={r.source_url} className="py-3.5 hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
-              </a>{" "}
-              <span className="text-slate-300">· {displayMarket(r.market)}</span>
+              </a>
+              <span className="text-slate-300">
+                {SEP}
+                <span className="whitespace-nowrap">{displayMarket(r.market)}</span>
+              </span>
             </div>
             <div className="text-[13px] text-slate-300">
-              {fmtDate(r.announce_date)} · {logPrice(r)} · {basisLabel(r.inclusion_basis)} · {logStatus(r)}
+              <span className="whitespace-nowrap">{fmtDate(r.announce_date)}</span>
+              {SEP}
+              {logPrice(r)}
+              {SEP}
+              {basisLabel(r.inclusion_basis)}
+              {SEP}
+              {logStatus(r)}
             </div>
           </li>
         ))}
@@ -166,10 +237,10 @@ export default function DealsIndexPage() {
           Graded autopsies of notable US hotel sales, on public data. Decision support, not a recommendation.
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <Link href="/deals/methodology#inclusion-rule" className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href="/deals/methodology#inclusion-rule" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
             Inclusion rule
           </Link>
-          <Link href="/deals/methodology#rubric" className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href="/deals/methodology#rubric" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
             Rubric {RUBRIC.rubric_version}
           </Link>
         </div>
@@ -192,7 +263,7 @@ export default function DealsIndexPage() {
         <LogTable rows={first} />
         {rest.length ? (
           <details className="group">
-            <summary className="cursor-pointer text-sm text-slate-200 hover:text-white">Show all ({log.length})</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center text-sm text-slate-200 hover:text-white">Show all ({log.length})</summary>
             <div className="mt-2">
               <LogTable rows={rest} />
             </div>

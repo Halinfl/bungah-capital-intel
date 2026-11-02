@@ -91,11 +91,11 @@ function SourceList({ items, title = "Sources" }: { items: { label: string; url?
         <span aria-hidden="true" className="transition-transform group-open:rotate-90">›</span>
         {title} ({items.length})
       </summary>
-      <ul className="mt-2 space-y-1 border-l border-white/10 pl-3 leading-snug">
+      <ul className={`${items.filter((p) => p.url).length >= 2 ? "src-group " : ""}mt-2 space-y-1 border-l border-white/10 pl-3 leading-snug`}>
         {items.map((p, i) => (
           <li key={i}>
             {p.url ? (
-              <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-emerald-300 underline-offset-2 hover:underline">
+              <a href={p.url} target="_blank" rel="noopener noreferrer" className="src-link text-emerald-300 underline-offset-2 hover:underline">
                 {p.label} ↗
               </a>
             ) : (

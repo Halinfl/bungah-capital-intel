@@ -29,7 +29,7 @@ function Evidence({ c, withRationale = true }: { c: Cell; withRationale?: boolea
   return (
     <>
       {withRationale ? <p className="mb-1.5 text-[13px] leading-snug text-slate-200">{c.rationale}</p> : null}
-      <ul className="space-y-1 border-l border-white/10 pl-3 text-xs leading-snug">
+      <ul className={`${c.evidence.length >= 2 ? "src-group " : ""}space-y-1 border-l border-white/10 pl-3 text-xs leading-snug`}>
         {c.evidence.map((id) => (
           <li key={id}>
             <SourceLink id={id} />
@@ -244,7 +244,7 @@ export default function ScorecardPage() {
             <li key={w.label} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
               <div className="font-medium text-white">{w.label}</div>
               <p className="mt-1 text-[13px] leading-snug text-slate-300">{w.detail}</p>
-              <div className="mt-2 flex flex-col gap-0.5 text-xs">
+              <div className={`${w.evidence.length >= 2 ? "src-group " : ""}mt-2 flex flex-col gap-0.5 text-xs`}>
                 {w.evidence.map((id) => (
                   <SourceLink key={id} id={id} short />
                 ))}

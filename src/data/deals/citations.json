@@ -1,0 +1,9 @@
+{
+  "_note": "Public citation lines for report-type sources. The page renders: <title> (data: <data_credit>). To drop the vendor credit, set data_credit to \"\" (one line; Hal deciding as of 2026-11-01).",
+  "choose-chicago-capacity-aug-2026": {
+    "title": "Choose Chicago, Hotel Capacity Update, Aug 2026",
+    "data_credit": "Build Central, LARC",
+    "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+    "date": "2026-08-25"
+  }
+}

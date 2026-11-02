@@ -71,10 +71,10 @@
     "seller_tickers": [
       "PK"
     ],
-    "price": null,
-    "price_display": "$20M–$25M range",
-    "price_qualifier": "range reported at announcement; no single price, so not graded",
-    "price_per_key": null,
+    "price": 25000000,
+    "price_display": "$25M",
+    "price_qualifier": "first confirmed price (press, Oct 25, 2026); a $20M to $25M range was reported at announcement",
+    "price_per_key": 48077,
     "keys": 520,
     "announced_on": "2026-09-17",
     "closed_on": null,
@@ -89,9 +89,11 @@
     "price_source_kind": "press",
     "source_uris": [
       "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
-      "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html"
+      "https://finance.yahoo.com/real-estate/articles/vishal-thakkar-endeavor-snags-midway-120000106.html",
+      "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/"
     ],
-    "seller_note": "Status only: The Real Deal reported a $25M close on Oct 25, 2026, after the announcement."
+    "seller_note": "Price: $25M close first reported by The Real Deal on Oct 25, 2026 (\"earlier this month\"); no recorded deed located yet. If a deed shows a different price, the deed price is used.",
+    "price_confirmed_on": "2026-10-25"
   },
   {
     "sale_id": "tideline-palm-beach-2026",

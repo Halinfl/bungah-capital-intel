@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
-import { publicRows, citedFindings, coverageInProgressLine, fmtPct, fmtUsd, isNoReadSignal, isSeedMarket } from "./format";
+import { withoutSocial } from "./social-sources";
+import { citedOnly, publicRows, citedFindings, coverageInProgressLine, fmtPct, fmtUsd, isNoReadSignal, isSeedMarket } from "./format";
 import { parseSourceUrls } from "./source-links";
 import { splitTaxSeries } from "./tax-series";
 import { buildStackMemo, STACK_MEMO_KIND, type MemoPurpose } from "./stack-memo";
@@ -52,7 +53,8 @@ export async function generateIcOnePager(marketSlug: string) {
 /** Sound Asset Lodging Stack memo — checked Tier 1 market data, deterministic, no LLM. */
 export async function generateStackMemo(marketSlug: string, purpose: MemoPurpose = "acquisition") {
   const market = await loadMarket(marketSlug);
-  const all = await prisma.signal.findMany({ where: { marketId: market.id }, orderBy: { createdAt: "desc" } });
+  // Social posts are never sources: memos never cite them (src/lib/social-sources.ts).
+  const all = withoutSocial(await prisma.signal.findMany({ where: { marketId: market.id }, orderBy: { createdAt: "desc" } }));
   const { markdown, tier1 } = buildStackMemo({
     slug: market.slug,
     name: market.name,
@@ -118,7 +120,7 @@ async function loadMarket(marketSlug: string) {
     assets: publicRows(market.assets),
     // Memos carry the latest four hotel-tax prints, not the full series (that lives on the market page / chat).
     signals: (() => {
-      const { other, tax } = splitTaxSeries(publicRows(market.signals));
+      const { other, tax } = splitTaxSeries(publicRows(withoutSocial(citedOnly(market.signals))));
       return [...other, ...tax.filter((t) => !/gaps$/.test(t.id)).slice(0, 4)];
     })(),
     findings: citedFindings(market.findings),

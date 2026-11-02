@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { withoutSocial } from "@/lib/social-sources";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
-import { citedFindings, publicRows, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
+import { citedFindings, citedOnly, publicRows, derivedRevpar, fmtPct, fmtUsd, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { parseSourceUrls } from "@/lib/source-links";
 import { publisherName, scrubInternal } from "@/lib/public-text";
 import { REITS_UNIVERSE, reits } from "@/lib/reits";
@@ -69,6 +70,8 @@ export default async function HomePage() {
       },
     }), []);
   const markets = marketsQ.data;
+  // Social posts are never sources (src/lib/social-sources.ts).
+  for (const m of markets) m.signals = withoutSocial(citedOnly(m.signals));
   const coveredCount = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length)).length;
 
   // Hero card: only markets whose snapshot is cited (no seed numbers). Source links come from the
@@ -240,7 +243,7 @@ export default async function HomePage() {
                         <Link href={`/markets/${r.slug}`} className={`${HIT_AREA} font-medium text-white hover:underline`}>
                           {r.name}
                         </Link>
-                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300">
+                        <div className={`${r.links.length >= 2 ? "src-group " : ""}mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300`}>
                           {r.period ? <span>{r.period}</span> : null}
                           {r.links.map((l) => (
                             <a
@@ -248,7 +251,7 @@ export default async function HomePage() {
                               href={l.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`${r.links.length === 1 ? HIT_AREA : ""} text-emerald-300 underline-offset-2 hover:underline`}
+                              className={`${r.links.length === 1 ? HIT_AREA : "src-link"} text-emerald-300 underline-offset-2 hover:underline`}
                             >
                               {l.label} ↗
                             </a>

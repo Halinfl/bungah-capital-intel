@@ -36,5 +36,64 @@
       "category": "clean_arms_length",
       "summary": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026."
     }
+  },
+  "versions": {
+    "v1.1": {
+      "_built_on": "2026-11-01",
+      "_note": "v1.1: supply graded on Choose Chicago's CBD area (downtown hotel). Price per key graded on the first confirmed price ($25M, Oct 25, 2026), dated to that confirmation. Other factors as v1. Supply copy corrected 2026-11-01 (legal review): denominator labelled YE2025 supply; citation text set; pipeline total confirmed visually. Revision 3 (2026-11-01, QA): closures listed without a room count, so the pipeline is labelled gross; derived figures labelled our calculation; citation credit moved to citations.json. Revision 4 (2026-11-01, Hal): closures listed without a room count, so supply is not graded under the v1.1 clarification; graded on the remaining factors.",
+      "factors": {
+        "replacement_cost": {
+          "as_of": "2026-07-13",
+          "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+          "source_label": "HVS U.S. Hotel Development Cost Survey 2026, Exhibit 6, median total incl. land",
+          "price_per_key": 48077,
+          "total_keys": 520,
+          "replacement_basis": "HVS 2026 full-service median including land, $467,244; single class",
+          "components": [
+            {
+              "label": "The Wade",
+              "hvs_class": "full-service",
+              "keys": 520,
+              "median_per_key": 467244
+            }
+          ],
+          "price_range_at_announcement": "a $20M to $25M range",
+          "price_confirmed_on": "2026-10-25",
+          "label": "price from press; no deed located yet",
+          "also_sources": [
+            {
+              "label": "$25M purchase closed (The Real Deal, Oct 25, 2026)",
+              "url": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
+              "date": "2026-10-25"
+            },
+            {
+              "label": "$20M to $25M range at announcement (The Real Deal, Sep 17, 2026)",
+              "url": "https://therealdeal.com/chicago/2026/09/17/ketu-amin-purchases-wade-hotel-in-downtown-chicago/",
+              "date": "2026-09-17"
+            }
+          ]
+        },
+        "supply": {
+          "as_of": "2026-08-25",
+          "source_uri": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+          "source_label": "Choose Chicago, Hotel Capacity Update, Aug 2026",
+          "pipeline_pct_of_rooms": 10.7,
+          "pipeline_definition": "Choose Chicago downtown (CBD) pipeline, Aug 2026: the listed projects sum to 5,018 rooms (819 under construction plus 4,199 in planning), divided by YE2025 supply of 46,901 rooms (CBD daily room supply at year-end 2025, the latest actual); The Wade is in the CBD",
+          "single_source": true,
+          "stage": "total_under_construction_plus_planned",
+          "net_of_closures": false,
+          "note": "PDF Updates box: 'Sonder properties (8) removed from inventory', with no room count anywhere in the PDF, so net supply can't be computed and supply is not graded (v1.1 clarification, Hal 2026-11-01). For the record only (not graded): the listed projects sum to 5,018 rooms (819 under construction plus 4,199 in planning; our sum of the pipeline table, an embedded image with no printed total) vs YE2025 Daily Room Supply of 46,901. Checked visually 2026-11-01.",
+          "also_sources": [
+            {
+              "label": "Choose Chicago, Hotel Capacity Update, Aug 2026",
+              "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+              "date": "2026-08-25",
+              "cite_id": "choose-chicago-capacity-aug-2026"
+            }
+          ],
+          "closures_listed_without_room_count": "8 Sonder properties removed from inventory"
+        }
+      }
+    }
   }
 }

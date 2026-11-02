@@ -22,6 +22,11 @@ import {
   sales,
   closeLabel,
   fmtKeys,
+  citationText,
+  gradeLabel,
+  headlineFor,
+  historyLineFor,
+  isReportUrl,
   type FactorResult,
   type GradeResult,
   type Sale,
@@ -43,8 +48,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const KIND_ORDER = { filing: 0, record: 1, press: 2 } as const;
-const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : "Press");
+const KIND_ORDER = { filing: 0, record: 1, report: 2, press: 3 } as const;
+const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : k === "report" ? "Report" : "Press");
+/** At least 44px tall tap target for inline links and toggles (WCAG 2.5.5 / Eric's mobile spec). */
+const TAP = "inline-flex min-h-11 items-center";
+/**
+ * A link inside running text: stays plain inline so a following "\u00a0·" stays glued to it (an inline-flex box lets
+ * the line break right after the link, so a dot could start the next line). The 44px tap height comes from vertical
+ * padding, which does not change the line box; -mx-1 px-1 widens short links ("source") without moving the text.
+ */
+const TAP_INLINE = "-mx-1 px-1 py-3.5";
+const linkCls = "underline decoration-white/30 underline-offset-2 hover:text-white";
 /** Short display name for the breadcrumb: the slug minus its market suffix, title-cased (grande-lakes-orlando → Grande Lakes). */
 const shortName = (s: Sale) => {
   const base = s.market_slug && s.slug.endsWith(`-${s.market_slug}`) ? s.slug.slice(0, -(s.market_slug.length + 1)) : s.slug;
@@ -64,7 +78,7 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
+function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | undefined; original?: GradeResult }) {
   return (
     <div className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4">
       {!g ? (
@@ -93,12 +107,25 @@ function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
               <span className="text-base font-semibold text-white">{RUBRIC.missing_factor_rule.insufficient_label}</span>
             )}
           </div>
-          <p className="text-sm text-slate-200">{g.output_text}</p>
+          <p className="text-sm text-slate-200">{headlineFor(g)}</p>
+          {historyLineFor(g) ? <p className="text-[13px] text-slate-300">{historyLineFor(g)}</p> : null}
         </>
       )}
-      <Link href="/deals/methodology#rubric" className="inline-block">
-        <Chip>Rubric {g?.rubric_version ?? RUBRIC.rubric_version}</Chip>
-      </Link>
+      <div className="flex flex-col items-start text-sm sm:flex-row sm:items-center sm:gap-x-1" role="group" aria-label="Rubric versions">
+        <Link href="/deals/methodology#rubric" className={`${TAP} min-w-11 px-1`}>
+          <Chip>Rubric {g?.rubric_version ?? RUBRIC.rubric_version}{original ? " (current)" : ""}</Chip>
+        </Link>
+        {original ? (
+          <>
+            <span aria-hidden="true" className="hidden text-slate-300 sm:inline">
+              |
+            </span>
+            <a href="#original-grade" className={`${TAP} px-1 text-slate-200 ${linkCls}`}>
+              Rubric {original.rubric_version} (original): {gradeLabel(original)}
+            </a>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -111,6 +138,7 @@ function kindResolver(sources: Source[]): KindOf {
   return (uri) => {
     const k = byUrl.get(uri);
     if (k) return k;
+    if (isReportUrl(uri)) return "report";
     const host = (() => {
       try {
         return new URL(uri).hostname;
@@ -130,7 +158,7 @@ function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
     <span className="inline-flex flex-col gap-1">
       <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
         <Chip>{kindLabel(kindOf(r.source_uri))}</Chip>
-        <a href={r.source_uri} className="underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+        <a href={r.source_uri} className={`${TAP} ${linkCls}`} rel="noopener" target="_blank">
           {r.as_of ? fmtDate(r.as_of) : "Source"}
           <span className="sr-only"> (opens source)</span>
         </a>
@@ -139,12 +167,12 @@ function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
         <a
           key={x.url + x.label}
           href={x.url}
-          title={x.label}
-          className="whitespace-normal text-[12px] text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+          title={citationText(x.cite_id, x.label)}
+          className={`${TAP} whitespace-normal text-[12px] text-slate-300 ${linkCls}`}
           rel="noopener"
           target="_blank"
         >
-          + {x.label}
+          + {x.cite_id ? citationText(x.cite_id, x.label) : x.label}
         </a>
       ))}
     </span>
@@ -210,7 +238,7 @@ function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf })
           return (
             <li key={`${r.factor}-m`}>
               <details className="group px-3 py-2.5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
                   <span className="min-w-0 text-sm text-slate-100">
                     {f.label} <span className="text-slate-300">{Math.round(f.weight * 100)}%</span>
                     {!r.graded && r.reason ? (
@@ -248,7 +276,10 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         <h2 id="grade" className={h2}>
           Grade at announcement
         </h2>
-        <span className="text-[13px] text-slate-300">As of {fmtDate(sale.announced_on)}</span>
+        <span className="text-[13px] text-slate-300">
+          As of {fmtDate(sale.announced_on)}
+          {sale.price_confirmed_on && current?.rubric_version !== "v1" ? `; price per key as of ${fmtDate(sale.price_confirmed_on)} (first confirmed price)` : ""}
+        </span>
       </div>
       <FactorTable rows={rows} kindOf={kindOf} />
       {ungraded ? <p className="text-[13px] text-slate-300">Weights of ungraded factors are spread across graded ones.</p> : null}
@@ -256,22 +287,27 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         <span className="font-medium text-white">Overall</span>
         {current && current.overall !== null ? (
           <>
-            <span className="tabular-nums text-white">
-              {current.overall.toFixed(1)} of {RUBRIC.scale.max}
+            {/* One inline flow: the dot is glued to the score (a separate flex item could wrap and start a row with "·"). */}
+            <span>
+              <span className="tabular-nums text-white">
+                {current.overall.toFixed(1)} of {RUBRIC.scale.max}
+              </span>
+              <span className="text-slate-300">{"\u00a0· "}{current.factors_graded} of {current.factors_total} factors graded</span>
             </span>
-            <span className="text-slate-300">· {current.factors_graded} of {current.factors_total} factors graded</span>
           </>
         ) : current ? (
           <span className="text-slate-200">
-            {RUBRIC.missing_factor_rule.insufficient_label} · {current.factors_graded} of {current.factors_total} factors graded
+            {RUBRIC.missing_factor_rule.insufficient_label}{"\u00a0· "}{current.factors_graded} of {current.factors_total} factors graded
           </span>
         ) : (
-          <span className="text-slate-300">Not graded yet · 0 of {RUBRIC.factors.length} factors graded</span>
+          <span className="text-slate-300">Not graded yet{"\u00a0· "}0 of {RUBRIC.factors.length} factors graded</span>
         )}
       </div>
       {older.map((g) => (
-        <details key={g.rubric_version} className="text-sm text-slate-200">
-          <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}</summary>
+        <details key={g.rubric_version} id="original-grade" className="scroll-mt-24 text-sm text-slate-200">
+          <summary className="flex min-h-11 cursor-pointer items-center hover:text-white">
+            Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}
+          </summary>
           <div className="mt-2 space-y-2">
             <p>{g.output_text}</p>
             <FactorTable rows={g.factor_scores} kindOf={kindOf} />
@@ -290,20 +326,27 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
   const entry = entryFor(sale.sale_id);
   const landed = anniversariesFor(sale.sale_id);
   const furtherReading = fieldNotesForSale(sale.sale_id);
+  // Context groups with no cited line are dropped (no empty headings).
+  const contextGroups = Object.entries(entry.factor_context ?? {}).filter(([, items]) => items.length > 0);
   const sources = [...entry.sources].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.date.localeCompare(b.date));
 
   const sourceList = (
-    <ul className="space-y-2">
+    <ul className={`${sources.length >= 2 ? "src-group " : ""}space-y-2`}>
       {sources.map((s) => (
         <li key={s.url} className="flex flex-wrap items-start gap-2 text-sm">
           <Chip>{kindLabel(s.kind)}</Chip>
           <span className="min-w-0 flex-1">
-            <a href={s.url} className="text-slate-100 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
-              {s.title}
+            <a href={s.url} className={`src-link ${TAP_INLINE} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
+              {citationText(s.cite_id, s.title)}
             </a>
-            <span className="text-slate-300">
-              {" "}
-              · {s.publisher} · {fmtDate(s.date)}
+            <span className="src-meta text-slate-300">
+              <span className="src-sep">{"\u00a0· "}</span>
+              {s.publisher}
+              {/* Below 640px "· date" never splits, so the grey line never ends on "·". */}
+              <span className="max-sm:whitespace-nowrap">
+                {"\u00a0· "}
+                <span className="whitespace-nowrap">{fmtDate(s.date)}</span>
+              </span>
             </span>
           </span>
         </li>
@@ -316,7 +359,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
       <DealsSubnav active="entry" />
       <header className="space-y-4">
         <nav aria-label="Breadcrumb" className="text-xs text-slate-300">
-          <Link href="/deals" className="hover:text-white">
+          <Link href="/deals" className={`${TAP} min-w-11 hover:text-white`}>
             Deals
           </Link>{" "}
           / <span aria-current="page">{shortName(sale)}</span>
@@ -328,7 +371,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           </div>
           <div className="mt-1 text-sm">
             {sale.market_slug ? (
-              <Link href={`/markets/${sale.market_slug}`} className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+              <Link href={`/markets/${sale.market_slug}`} className={`${TAP} text-slate-200 ${linkCls}`}>
                 {sale.market}
               </Link>
             ) : (
@@ -336,8 +379,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             )}
           </div>
         </div>
-        <GradeSummary sale={sale} g={grades[0]} />
-        <UnderwriteNote text={DISCLAIMER} />
+        <GradeSummary sale={sale} g={grades[0]} original={grades.length > 1 ? grades[grades.length - 1] : undefined} />
+        <UnderwriteNote text={`${DISCLAIMER} Decision support, not a recommendation.`} />
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
           <Fact label="Buyer">{sale.buyer}</Fact>
           <Fact label="Seller">{sale.seller}</Fact>
@@ -356,7 +399,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             {sale.status === "closed" && !sale.closed_on && sale.close_report ? (
               <a
                 href={sale.close_report.url}
-                className="block text-xs text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+                className={`flex min-h-11 items-center text-xs text-slate-300 ${linkCls}`}
                 rel="noopener"
                 target="_blank"
               >
@@ -386,7 +429,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
 
       <GradeSection sale={sale} grades={grades} kindOf={kindResolver(entry.sources)} />
 
-      {entry.factor_context && Object.keys(entry.factor_context).length ? (
+      {contextGroups.length ? (
         <section aria-labelledby="context" className="space-y-3">
           <div>
             <h2 id="context" className={h2}>
@@ -394,17 +437,17 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             </h2>
             <p className="text-[13px] text-slate-300">Cited figures shown for reference. They don&rsquo;t enter the grade.</p>
           </div>
-          {Object.entries(entry.factor_context).map(([fid, items]) => (
+          {contextGroups.map(([fid, items]) => (
             <div key={fid} className="space-y-1">
               <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? CONTEXT_LABELS[fid] ?? fid}</h3>
               <ul className="space-y-1.5 text-[13px] text-slate-200">
                 {items.map((c) => (
                   <li key={c.text} className="max-w-3xl">
                     {c.text}{" "}
-                    <a href={c.url} className="text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+                    <a href={c.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
-                    <span className="text-slate-300"> · {fmtDate(c.date)}</span>
+                    <span className="text-slate-300">{"\u00a0· "}<span className="whitespace-nowrap">{fmtDate(c.date)}</span></span>
                   </li>
                 ))}
               </ul>
@@ -429,14 +472,14 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         </div>
         <ol className="grid gap-3 md:grid-cols-3">
           <li className="rounded-xl border border-white/10 p-3">
-            <div className="text-sm font-medium text-white">T0 · at announcement</div>
+            <div className="text-sm font-medium text-white">T0{"\u00a0· "}at announcement</div>
             <div className="text-[13px] text-slate-300">{fmtDate(sale.announced_on)}</div>
             {entry.baseline?.length ? (
               <ul className="mt-1 space-y-1 text-[13px] text-slate-200">
                 {entry.baseline.map((b) => (
                   <li key={b.text}>
                     {b.text}{" "}
-                    <a href={b.url} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
+                    <a href={b.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
                   </li>
@@ -454,10 +497,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     {vals.map((v) => (
                       <li key={v.market_metric}>
                         {v.market_metric}: {v.value}{" "}
-                        <a href={v.source_uri} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
+                        <a href={v.source_uri} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                           source
-                        </a>{" "}
-                        <span className="text-slate-300">· recorded {fmtDate(v.recorded_on)}</span>
+                        </a>
+                        <span className="text-slate-300">{"\u00a0· "}recorded <span className="whitespace-nowrap">{fmtDate(v.recorded_on)}</span></span>
                       </li>
                     ))}
                   </ul>
@@ -479,7 +522,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             <div className="mt-3">{sourceList}</div>
           </div>
           <details className="md:hidden">
-            <summary className="cursor-pointer text-lg font-semibold text-white">Sources ({sources.length})</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center text-lg font-semibold text-white">Sources ({sources.length})</summary>
             <div className="mt-3">{sourceList}</div>
           </details>
         </section>
@@ -504,7 +547,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     <span className="sr-only"> (opens in a new tab)</span>
                   </span>
                   <span className="mt-1 block text-[13px] text-slate-300">
-                    {n.publisher} · {n.display_date} · A thought experiment on this deal, not the buyer&apos;s plan
+                    {n.publisher}{"\u00a0· "}{n.display_date}{"\u00a0· "}A thought experiment on this deal, not the buyer&apos;s plan
                   </span>
                 </a>
               </li>

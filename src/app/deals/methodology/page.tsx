@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { UnderwriteNote } from "@/components/deals/DotBar";
-import { RUBRIC, fmtDate } from "@/lib/deals";
+import { RUBRIC, RUBRIC_HISTORY, fmtDate } from "@/lib/deals";
+
+/** Same words as rubric-v1.1.json and rubric-v1.1.md (read from the rubric JSON so the three can't drift). */
+const SUPPLY_CLOSURES_RULE = (() => {
+  const c = RUBRIC.changelog?.find((x) => x.kind === "clarification" && x.line.startsWith("Supply: pipeline net of closures."));
+  if (!c) throw new Error("rubric-v1.1.json is missing the supply closures clarification");
+  return c.line;
+})();
 
 export const metadata: Metadata = {
   title: "Recent Deals methodology · Bungah Capital Intel",
-  description: "How Recent Deals grades US hotel sales: the inclusion rule, rubric v1 factors, weights and bands, the missing-factor rule and the no-look-ahead rule.",
+  description: "How Recent Deals grades US hotel sales: the inclusion rule, rubric factors, weights and bands, the missing-factor rule and the no-look-ahead rule.",
   alternates: { canonical: "/deals/methodology" },
 };
 
@@ -13,16 +20,16 @@ const SOURCES: Record<string, { source: string; asOf: string }> = {
   replacement_cost: {
     source:
       "HVS U.S. Hotel Development Cost Survey (free): median total development cost per key, including land, blended by keys across the HVS classes of the hotels in the deal; edition and classes stated",
-    asOf: "Latest edition published before the announcement",
+    asOf: "Latest edition published before the announcement; if only a price range was public, the first confirmed price, dated to its confirmation",
   },
   spread: {
     source:
-      "Cap rate on net operating income (NOI) for the trailing 12 months through the last quarter before the announcement (disclosed, or disclosed NOI divided by price); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
+      "Cap rate on net operating income (NOI) for a trailing 12 months ending at a month-end before the announcement (disclosed, disclosed NOI divided by price, or our calculation applying the company's own published NOI definition to its published hotel EBITDA, labelled as such); other bases are shown but not graded; 10-year yield from the U.S. Treasury daily par yield curve",
     asOf: "10-year yield at the close on the announcement date",
   },
   supply: {
     source:
-      "One public source (CBRE or PwC outlooks, other free publications, or our supply radars) giving the total pipeline, under construction plus planned, as a share of existing rooms; never combined across sources or stages; partial-stage figures are context only",
+      "One free public source giving the total pipeline, under construction plus planned, net of closures, and the existing rooms it is measured against; a visitor bureau, city or state that republishes pipeline totals is cited as the source; for downtown hotels the visitor bureau's downtown area can be the market; never combined across sources or stages; partial-stage figures are context only; if a source lists closures without a room count, supply isn't graded for that deal",
     asOf: "Published before the announcement",
   },
   demand: {
@@ -47,7 +54,7 @@ export default function DealsMethodologyPage() {
       <header className="space-y-3">
         <h1 className="t-h1">Recent Deals methodology</h1>
         <p className="max-w-3xl t-lead">
-          How we choose deals and grade them. This page was published before the first grade. Decision support, not a recommendation.
+          How we choose deals and grade them. Rubric v1 was published before the first grade; v1.1 on Nov 1, 2026. Decision support, not a recommendation.
         </p>
         <UnderwriteNote text={r.disclaimer} />
       </header>
@@ -75,8 +82,8 @@ export default function DealsMethodologyPage() {
           Rubric {r.rubric_version}
         </h2>
         <p className={p}>
-          Each factor is scored {r.scale.min} to {r.scale.max}. Public data only: no Trepp loan-level data, CoStar, STR or CBRE Horizons, and no paid
-          sources. Spreads are stated as a plain number of basis points.
+          Each factor is scored {r.scale.min} to {r.scale.max}. Public data only: no paid or subscription data. Spreads are stated as a plain number of
+          basis points.
         </p>
         <ul className="space-y-3 md:hidden">
           {r.factors.map((f) => (
@@ -127,7 +134,7 @@ export default function DealsMethodologyPage() {
                     <span className="w-4 shrink-0 tabular-nums text-white">{b.score}</span>
                     <span className="text-slate-200">
                       {b.text}
-                      <span className="text-xs text-slate-300"> · {b.set_by === "Hal" ? "top band" : "stepped down"}</span>
+                      <span className="text-xs text-slate-300">{"\u00a0· "}{b.set_by === "Hal" ? "top band" : "stepped down"}</span>
                     </span>
                   </li>
                 ))}
@@ -163,6 +170,10 @@ export default function DealsMethodologyPage() {
         <p className="max-w-3xl rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200">
           &ldquo;Underwritten at a [X]% discount (or premium) to replacement with a [N]bp spread; [k] of 5 factors graded.&rdquo;
         </p>
+        <p className={p}>
+          Each factor that isn&rsquo;t graded is named with its reason before the count, for example &ldquo;&hellip;; supply not graded (closures listed
+          without room counts); 3 of 5 factors graded.&rdquo;
+        </p>
         <p className={p}>We grade deals, never buyers. We don&rsquo;t total or rank grades by company.</p>
       </section>
 
@@ -172,11 +183,40 @@ export default function DealsMethodologyPage() {
         </h2>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
           <li>
-            Rubric {r.rubric_version}, {fmtDate(r.drafted_on)}: first version, approved and published before any deal was graded. Same day, before
-            any grade: named the cap-rate basis (trailing-12-month NOI), the 10-year timing (close on the announcement date), the demand measure
-            (trailing 12 vs prior 12 months), the replacement-cost basis (HVS median including land, blended by keys), the supply source rule (one
-            source, total pipeline) and the geography (50 states and DC).
+            Rubric v1, {fmtDate(RUBRIC_HISTORY[0].drafted_on)}: first version, approved and published before any deal was graded. Same day, before any
+            grade: named the cap-rate basis (trailing-12-month NOI), the 10-year timing (close on the announcement date), the demand measure (trailing 12
+            vs prior 12 months), the replacement-cost basis (HVS median including land, blended by keys), the supply source rule (one source, total
+            pipeline) and the geography (50 states and DC).
           </li>
+          {(r.changelog ?? [])
+            .filter((c) => c.version !== "v1")
+            .map((c) =>
+              c.kind === "clarification" ? (
+                <li key={`${c.version}-${c.kind}-${c.date}`}>
+                  Rubric {c.version} clarification, {fmtDate(c.date)}: {c.line.replace(/^Clarification: /, "")} Affected deals were re-graded as a new
+                  revision; earlier revisions are kept.
+                </li>
+              ) : (
+                <li key={c.version}>
+                  Rubric {c.version}, {fmtDate(c.date)}: {c.line} Every deal was re-graded; the v1 grade stays on each deal page as the original.
+                </li>
+              ),
+            )}
+        </ul>
+        <h3 id="what-changed" className="text-base font-semibold text-white">
+          What changed from v1
+        </h3>
+        <p className={p}>Same five factors, weights and 3-of-5 cutoff. The rules for what counts as an input changed:</p>
+        <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
+          <li>{SUPPLY_CLOSURES_RULE}</li>
+          <li>Supply market: for a downtown hotel, the downtown area defined by the city&rsquo;s visitors bureau counts as the market.</li>
+          <li>
+            Spread: a company&rsquo;s own published NOI definition may be applied to its reported hotel-level EBITDA, shown as our calculation using that
+            company&rsquo;s definition.
+          </li>
+          <li>Spread: a trailing-12-month period ending at a month-end before the announcement qualifies.</li>
+          <li>Replacement cost: if only a price range was public, we grade on the first confirmed price, dated to the confirmation.</li>
+          <li>Sources: industry-data totals that a public body republishes free can be graded, cited to that public body.</li>
         </ul>
         <p className={p}>{r.versioning} The original grade is never overwritten.</p>
       </section>

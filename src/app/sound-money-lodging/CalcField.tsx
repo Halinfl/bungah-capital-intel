@@ -27,7 +27,7 @@ export function CalcField({
           autoComplete="off"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white/25"
+          className="min-h-11 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100 outline-none focus:border-white/25"
         />
         {suffix ? <span className="shrink-0 text-xs text-slate-300">{suffix}</span> : null}
       </div>
