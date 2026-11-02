@@ -142,8 +142,9 @@ export default async function MarketDetailPage({
             <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-slate-300">
               {s.kind}
             </span>
+            {/* Change values are neutral grey: no red or green for direction (r6c). */}
             {s.magnitude ? (
-              <span className="text-xs font-semibold tabular-nums text-emerald-300">
+              <span className="text-xs font-semibold tabular-nums text-slate-200">
                 {glueText(scrubInternal(s.magnitude))}
               </span>
             ) : null}

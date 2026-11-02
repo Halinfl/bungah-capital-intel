@@ -107,3 +107,19 @@ export function stripSocialMarkdown(md: string): string {
     })
     .join("\n");
 }
+
+/** A source label without its social segments ("HHM Hotels on LinkedIn", a linkedin.com / x.com URL); render backstop. */
+export function withoutSocialLabel(label: string): string {
+  if (!SOCIAL_WORD.test(label) && !SOCIAL_URL_IN_TEXT.test(label)) return label;
+  const sep = label.includes("; ") ? "; " : " · ";
+  return label
+    .split(sep)
+    .filter((p) => !SOCIAL_WORD.test(p) && !SOCIAL_URL_IN_TEXT.test(p))
+    .join(sep)
+    .trim();
+}
+
+/** Links minus social posts; render backstop for every source-link list (pages and chat). */
+export function withoutSocialLinks<T extends { url: string }>(links: T[]): T[] {
+  return links.filter((l) => !isSocialUrl(l.url));
+}

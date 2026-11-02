@@ -2,12 +2,14 @@ import { splitUrls } from "@/lib/source-links";
 import { cleanSourceLabel } from "@/lib/public-text";
 import { isOwnSource } from "@/lib/rule-rows";
 import { glueText } from "@/lib/glue";
+import { withoutSocialLabel } from "@/lib/social-sources";
 
 /** Source label; any original URL inside it is clickable (new tab). Internal labels are stripped. */
 export function SourceChip({ label }: { label: string }) {
   // Our own site is never a source (r6b): no chip rather than a self-citation.
   if (isOwnSource(label)) return null;
-  const clean = cleanSourceLabel(label);
+  // Social posts are never sources (r6c): their segments are dropped at render.
+  const clean = withoutSocialLabel(cleanSourceLabel(label));
   if (!clean) return null;
   const parts = splitUrls(clean);
   // 2+ links: below 640px each is its own 44px block row and bare separators are hidden (globals.css .src-group).

@@ -2,6 +2,7 @@ import type { SourceLink } from "@/lib/source-links";
 import { scrubInternal } from "@/lib/public-text";
 import { withoutOwnLinks } from "@/lib/rule-rows";
 import { glueText } from "@/lib/glue";
+import { withoutSocialLinks } from "@/lib/social-sources";
 
 // Plain inline link; py-3.5 on 12px text gives a ~44px tap height without changing line layout.
 const linkCls = "src-link relative z-10 py-3.5 text-emerald-300 underline-offset-2 hover:underline focus-visible:underline";
@@ -35,15 +36,16 @@ export function SourceLinks({
   noPublicRead?: boolean;
   limit?: number;
 }) {
-  // Our own site is never a source (r6b).
-  links = withoutOwnLinks(links);
+  // Our own site is never a source (r6b); social posts are never sources (r6c), whoever passes the links.
+  links = withoutSocialLinks(withoutOwnLinks(links));
   if (!links.length) {
     return noPublicRead ? <span className="text-xs text-slate-300">no public read</span> : null;
   }
   const shown = limit ? links.slice(0, limit) : links;
   const rest = limit ? links.slice(limit) : [];
-  // 2+ links: below 640px each is its own 44px block row (globals.css .src-group); inline from 640px.
-  const group = links.length >= 2 ? "src-group" : undefined;
+  // A source list: below 640px every link (one or many) is its own 44px block row (globals.css .src-group);
+  // inline from 640px (r6c: a lone link was a 17px row in the chat "Sources (open original)" list).
+  const group = "src-group";
   return (
     <div className="relative z-10 text-xs leading-7">
       <ul className={group}>

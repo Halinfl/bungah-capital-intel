@@ -87,30 +87,47 @@ async function main() {
   // 2. Market page text, as src/app/markets/[slug]/page.tsx renders it (r6b): the rows publicRows keeps (no seed, no
   //    rule / methodology row, no row sourced only to our own synthesis), with scrubInternal / briefLine / cleanSourceLabel
   //    and source links minus our own; plus the market summary / nuance note. Every pattern counts, rule text included.
-  const { publicRows, isNoReadSignal } = await import("@/lib/format");
+  const { publicRows, citedOnly, isNoReadSignal } = await import("@/lib/format");
   const { withoutOwnLinks, isOwnSource } = await import("@/lib/rule-rows");
+  const { withoutSocial, withoutSocialLabel, withoutSocialLinks, isSocialUrl } = await import("@/lib/social-sources");
+  // r6c: social posts are never sources on a page either: no social link, host or "on LinkedIn" label is rendered.
+  const SOCIAL_TEXT = /\b(?:linkedin\.com|lnkd\.in|x\.com|twitter\.com|facebook\.com|instagram\.com|threads\.net|tiktok\.com)\b|\b(?:LinkedIn|Twitter|Facebook|Instagram|TikTok)\b/i;
+  const socialBad: string[] = [];
+  let socialLinksSeen = 0;
   let pageStrings = 0;
   const pageBad: string[] = [];
   const removedByPage = new Map<string, string[]>();
   const fullMarkets = (await retrieveGraphContext("markets")).markets as unknown as { slug: string; summary: string; nuanceNote: string | null; sourceLabel: string; signals: { kind: string; title: string; body: string; sourceLabel: string; magnitude: string | null; sourceUrls: unknown }[] }[];
   for (const mk of fullMarkets) {
     const allRaw = raw.filter((x) => (x as unknown as { marketId: string }).marketId && slugOf.get((x as unknown as { marketId: string }).marketId) === mk.slug) as unknown as typeof mk.signals;
-    const kept = publicRows(allRaw).filter((x) => !isNoReadSignal(x));
+    // As the page renders: withoutSocial(citedOnly) then publicRows (markets/[slug]/page.tsx).
+    const kept = publicRows(withoutSocial(citedOnly(allRaw))).filter((x) => !isNoReadSignal(x));
+    for (const x of allRaw) socialLinksSeen += parseSourceUrls(x.sourceUrls).filter((l) => isSocialUrl(l.url)).length;
     const removed = allRaw.filter((x) => isRuleRow(x) && !kept.includes(x));
     if (removed.length) removedByPage.set(mk.slug, removed.map((x) => `${x.kind}: ${x.title.slice(0, 60)} [${x.sourceLabel.slice(0, 50)}]`));
     const parts = [scrubInternal(mk.summary), scrubInternal(mk.nuanceNote), ...(isOwnSource(mk.sourceLabel) ? [] : [cleanSourceLabel(mk.sourceLabel)])];
-    for (const m of kept) parts.push(scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), ...(isOwnSource(m.sourceLabel) ? [] : [cleanSourceLabel(m.sourceLabel)]), ...withoutOwnLinks(parseSourceUrls(m.sourceUrls)).map((l) => scrubInternal(l.label)));
+    for (const m of kept) {
+      const links = withoutSocialLinks(withoutOwnLinks(parseSourceUrls(m.sourceUrls)));
+      parts.push(scrubInternal(m.title), briefLine(scrubInternal(m.title), m.body), scrubInternal(m.body), scrubInternal(m.magnitude), ...(isOwnSource(m.sourceLabel) ? [] : [withoutSocialLabel(cleanSourceLabel(m.sourceLabel))]), ...links.map((l) => scrubInternal(l.label)));
+      for (const l of withoutOwnLinks(parseSourceUrls(m.sourceUrls))) if (isSocialUrl(l.url)) socialBad.push(`${mk.slug}: social link survives withoutSocial — ${l.url}`);
+    }
+    if (mk.slug === "chicago" && kept.some((x) => /11\.6%/.test(`${x.title} ${x.body} ${x.magnitude ?? ""}`))) socialBad.push("chicago: the LinkedIn-only +11.6% card is still rendered");
     for (const p of parts) {
       pageStrings++;
       // Seed / illustrative snapshot labels are never rendered on a page (isSeedMarket); skip them here.
       if (/Illustrative seed/i.test(p)) continue;
       const l = findLeaks(p);
       if (l.length) pageBad.push(`${mk.slug}: ${l.join(", ")} — ${p.slice(0, 80)}`);
+      if (SOCIAL_TEXT.test(p)) socialBad.push(`${mk.slug}: social — ${p.slice(0, 100)}`);
     }
   }
   check(removedByPage.has("chicago") && removedByPage.has("las-vegas") && removedByPage.has("miami") && removedByPage.has("orlando"), `page filter: rule / own-source rows not found for the four pages: ${[...removedByPage.keys()].join(", ")}`);
   check(isOwnSource("Bungah Capital Intel talent synthesis (public construction/crew reporting)") && !isOwnSource("Texas Comptroller") && withoutOwnLinks([{ label: "Bungah Capital Intel (x)", url: "https://bungah.io" }, { label: "BLS", url: "https://bls.gov" }]).length === 1, "own-source helpers");
   check(pageBad.length === 0, `market-page text leaks: ${pageBad.slice(0, 5).join(" || ")}`);
+  check(socialLinksSeen > 0, `page social: the graph has social links to filter (${socialLinksSeen})`);
+  check(socialBad.length === 0, `market-page social sources: ${socialBad.slice(0, 6).join(" || ")}`);
+  check(withoutSocialLabel("HHM Hotels on LinkedIn (self-reported) · hhmhotels.com") === "hhmhotels.com" && withoutSocialLinks([{ url: "https://x.com/GrantCardone/status/1" }, { url: "https://sec.gov/a" }]).length === 1, "social render backstops (SourceChip / SourceNote / SourceLinks)");
+  console.log(`page social: ${socialLinksSeen} social links in the graph's market signals; 0 rendered`);
 
   // 3. Every market × questions, plus national.
   const QS = ["How is {m} doing?", "What's the RevPAR and occupancy read for {m}?", "What are the hotel tax collections in {m}?", "How many visitors does {m} get?", "What's the supply pipeline in {m}?", "{m} debt and deals", "Who are the operators in {m}?", "What events are coming up in {m}?", "{m} airport traffic", "Should I buy a hotel in {m}?", "Why is occupancy down in {m}?", "Why are rates up in {m}?", "Is there a staffing greenlight in {m}?", "What should I know before underwriting in {m}?"];

@@ -1,6 +1,7 @@
 import { cleanSourceLabel } from "@/lib/public-text";
 import { isOwnSource } from "@/lib/rule-rows";
 import { glueText } from "@/lib/glue";
+import { withoutSocialLabel } from "@/lib/social-sources";
 
 /**
  * Plain, muted source line for cards with no link — reads as "here is the source" rather than a broken link.
@@ -8,7 +9,7 @@ import { glueText } from "@/lib/glue";
  */
 export function SourceNote({ label, noPublicRead }: { label: string; noPublicRead?: boolean }) {
   if (isOwnSource(label)) return null;
-  const text = cleanSourceLabel(label)
+  const text = withoutSocialLabel(cleanSourceLabel(label))
     .replace(/https?:\/\/\S+/g, "")
     .replace(/\s{2,}/g, " ")
     .replace(/\s+([;,.])/g, "$1")
