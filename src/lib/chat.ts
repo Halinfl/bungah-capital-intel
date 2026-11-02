@@ -372,14 +372,15 @@ function tagRows(slug: string, s: SignalRow, own: string): string {
 }
 
 /** Citations grouped by area ("City of Dallas: …", "City of Arlington: …", "Other sources: …"), one publisher once. */
-export function areaCitations(slug: string, rows: SignalRow[]): string[] {
+export function areaCitations(slug: string, rows: SignalRow[], universe: SignalRow[] = rows): string[] {
+  const groupsOf = (list: SignalRow[]) => {
   const groups = new Map<string, string[]>();
   const add = (area: string, pub: string) => {
     const g = groups.get(area) ?? [];
     if (!g.includes(pub)) g.push(pub);
     groups.set(area, g);
   };
-  for (const s of rows) {
+  for (const s of list) {
     const links = parseSourceUrls(s.sourceUrls);
     const whole = signalArea(slug, s.title);
     if (!links.length) {
@@ -389,11 +390,20 @@ export function areaCitations(slug: string, rows: SignalRow[]): string[] {
     for (const l of links) {
       const host = (() => { try { return new URL(l.url).hostname; } catch { return ""; } })();
       const pub = /(^|\.)data\.texas\.gov$/.test(host) ? "Texas Comptroller of Public Accounts (data.texas.gov)" : publisherName(l.url);
-      add(whole ?? areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
+      // A link that is itself about one city ("…sales-tax-to-arlington…") goes under that city even inside a
+      // whole-metro signal (Eric r6b QA: the Arlington HOT citation sits under City of Arlington, like its row tag).
+      const own = areaFor(slug, "", `${l.label ?? ""} ${l.url}`);
+      add((own && /^City of /.test(own) ? own : null) ?? whole ?? areaFor(slug, s.kind, `${l.label ?? ""} ${l.url}`) ?? "Other sources", pub);
     }
   }
+  return groups;
+  };
+  const groups = groupsOf(rows);
   // Each publisher in one group only (Eric r6 QA): the area its rows cover, or Other sources when they span areas.
+  // Decided over the whole market (`universe`), so the tax answer and the detail view group a publisher the same way
+  // (Eric r6b QA: HVS and fortworthreport.org differed).
   const areasOf = new Map<string, Set<string>>();
+  for (const [area, pubs] of groupsOf(universe)) for (const p of pubs) areasOf.set(p, (areasOf.get(p) ?? new Set()).add(area));
   for (const [area, pubs] of groups) for (const p of pubs) areasOf.set(p, (areasOf.get(p) ?? new Set()).add(area));
   const single = new Map<string, string[]>();
   for (const [area, pubs] of groups)
@@ -485,6 +495,26 @@ export const TAX_AREA: Record<string, string> = {
   "washington-dc": "District of Columbia",
 };
 
+/**
+ * Related tax rows with their trailing "Caveats: …" moved into one Basis & caveats block (Eric r6b QA: Austin and San
+ * Antonio said "self-reported" inside a row). "Self-reported" is said once, in the block.
+ */
+function caveatsOut(rows: SignalRow[]): { rows: SignalRow[]; caveat: string } {
+  const parts: string[] = [];
+  const out = rows.map((s) => {
+    const m = s.body.match(/\s*\bCaveats:\s*([\s\S]*?)\s*(?:Decision support\.?)?\s*$/);
+    if (!m) return s;
+    parts.push(m[1]);
+    return { ...s, body: s.body.slice(0, m.index).trim() };
+  });
+  let caveat = dedupeClauses(parts.join(" ").replace(/\s+/g, " ").trim());
+  // Once: the first mention stays; any later "self-reported" clause goes.
+  let seen = false;
+  caveat = caveat.replace(/\bself-reported\b(?:\s+municipal HOT)?/gi, (m0) => (seen ? "" : ((seen = true), m0))).replace(/;\s*;/g, ";").replace(/\s{2,}/g, " ");
+  if (caveat) caveat = caveat.charAt(0).toUpperCase() + caveat.slice(1);
+  return { rows: out, caveat };
+}
+
 /** Hotel-tax answer for one market: the published series newest first, each row linked to its source. */
 export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const { other, tax } = splitTaxSeries(market.signals);
@@ -506,6 +536,7 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
     const s = relatedRow(s0);
     return own && hasAreaTags(market.slug) ? signalLine({ ...s, body: tagRows(market.slug, s, own) }) : signalLine(s);
   };
+  const relatedNoSeries = figures.length ? { rows: related, caveat: "" } : caveatsOut(related);
   const lines: string[] = figures.length
     ? [
         `**${own ?? market.name} — hotel-tax collections (newest first)**`,
@@ -520,13 +551,15 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
         `**${related.length ? own ?? market.name : market.name} — hotel-tax signals (newest first)**`,
         "",
         ...(related.length
-          ? related.map(signalLine)
+          ? relatedNoSeries.rows.map(signalLine)
           : ["_No published hotel-tax collection series loaded for this market yet._"]),
+        // Same block as Dallas / Houston (Eric r6b QA: Austin, San Antonio): the rows' "Caveats:" move here, said once.
+        ...(relatedNoSeries.caveat ? ["", `_Basis & caveats:_ ${relatedNoSeries.caveat}`] : []),
       ];
   return {
     content: dedupeBlank([...lines, "", footer()]),
     citations: hasAreaTags(market.slug)
-      ? areaCitations(market.slug, [...figures, ...related])
+      ? areaCitations(market.slug, [...figures, ...related], market.signals)
       : cites(...figures.map((s) => s.sourceLabel), ...related.map((s) => s.sourceLabel)),
     intent: "tax_collections",
     marketSlug: market.slug,

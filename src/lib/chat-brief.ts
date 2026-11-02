@@ -153,8 +153,10 @@ export function dedupeMarkdown(md: string): string {
   for (const b of blocks) {
     const t = b.trim();
     if (!t) continue;
-    const isProse = !/^(\||- |#)/.test(t) && t.length > 80;
-    if (isProse && out.some((q) => !/^(\||- |#)/.test(q) && nearDuplicate(t, q))) continue;
+    const prose = (x: string) => !/^(\||- |#)/.test(x) && x.length > 80;
+    // Prose is compared with earlier prose only: a short heading ("**City of San Antonio — hotel-tax signals**")
+    // never swallows the caveat block under it (r6c).
+    if (prose(t) && out.some((q) => prose(q) && nearDuplicate(t, q))) continue;
     if (out.includes(t)) continue;
     out.push(t);
   }

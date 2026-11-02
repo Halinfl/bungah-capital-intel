@@ -738,8 +738,9 @@ async function main() {
     check(cites.length > 0 && cites.every((c) => /^(City of Dallas|City of Arlington|Dallas market|DFW metro|Other sources): /.test(c)), `r5-3 citations not grouped by area: ${JSON.stringify(cites)}`);
     const cod = cites.find((c) => c.startsWith("City of Dallas: ")) ?? "";
     check(!/fortworthreport|Real Deal|tradersunion/.test(cod), `r5-3 outside sources under City of Dallas: ${cod}`);
-    // r6b (Eric r6 QA): each publisher in one group; fortworthreport.org covers more than one area → Other sources.
-    check(cites.filter((c) => /fortworthreport\.org/.test(c)).length === 1 && cites.some((c) => c.startsWith("Other sources: ") && /fortworthreport\.org/.test(c)), `r5-3/r6b fortworthreport.org group: ${JSON.stringify(cites)}`);
+    // r6b (Eric r6 QA): each publisher in one group. r6c (Eric r6b QA): the Arlington HOT row's citation (fortworthreport.org,
+    // an Arlington sales/HOT article) sits under City of Arlington, matching the row's "(City of Arlington)" tag.
+    check(cites.filter((c) => /fortworthreport\.org/.test(c)).length === 1 && cites.some((c) => c.startsWith("City of Arlington: ") && /fortworthreport\.org/.test(c)), `r5-3/r6c fortworthreport.org group: ${JSON.stringify(cites)}`);
     check(/Arlington June 2026 HOT: \$31M \(\+39%, all-time record\) · Jun 2026 \(City of Arlington\)/.test(t.content), "r5-3 Arlington $31M row not tagged City of Arlington");
     check(((t.content.match(/_Basis & caveats:_[^]*?(?=_Gaps:_|\n|$)/)?.[0] ?? "").match(/self-reported/gi) ?? []).length === 1, `r5-4 'self-reported' repeated in the caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]}`);
     check(/_Basis & caveats:_ Self-reported\. The reporting year is set by the filer and may follow the city FY \(Oct–Sep\)\./.test(t.content), `r5-4 caveat: ${t.content.match(/_Basis & caveats:_[^\n]*/)?.[0]?.slice(0, 160)}`);
@@ -779,7 +780,13 @@ async function main() {
       check(reads[0] === "FRED DFEDTARU / DFEDTARL: fed funds target range 3.75–4.00% (upper 4.00%, lower 3.75%)", `r6b FRED bullet: ${reads[0]}`);
       check((f.brief as { reads?: { source?: { url?: string } }[] } | null)?.reads?.[0]?.source?.url === "https://fred.stlouisfed.org/series/DFEDTARU", "r6b FRED bullet links the DFEDTARU series page");
       check(/^FOMC Oct 28, 2026: held the target range at 3\.75–4\.00% \(vote 10–2\)/.test(reads[1] ?? ""), `r6-1 decision read: ${reads[1]}`);
-      check(/^Market rate, not Fed policy: US 10-year Treasury \d+\.\d+% \(Oct 16, 2026 close\)$/.test(reads[2] ?? ""), `r6b 10-year one date: ${reads[2]}`);
+      // r6c (Eric r6b QA): the Sep 16 decision is a bullet again, with its vote; the 10-year is the latest FRED DGS10 print
+      // (4.98%, Oct 29, 2026; data layer) and its date is shown once, as the as-of tag; no bullet repeats its date.
+      check(/^FOMC Sep 16, 2026: raised the target range 0\.25 point to 3\.75–4\.00% \(vote 12–0\)$/.test(reads[2] ?? ""), `r6c Sep 16 bullet: ${reads[2]}`);
+      check(reads[3] === "Market rate, not Fed policy: US 10-year Treasury 4.98% (FRED DGS10)", `r6c 10-year: ${reads[3]}`);
+      const rr = (f.brief?.reads ?? []) as { text: string; asOf: string | null; source?: { url?: string } }[];
+      check(rr[3]?.asOf === "Oct 29, 2026" && rr[3]?.source?.url === "https://fred.stlouisfed.org/series/DGS10", `r6c 10-year as-of / link: ${rr[3]?.asOf} ${rr[3]?.source?.url}`);
+      check(rr.every((r) => !r.asOf || !String(r.text).includes(r.asOf)), `r6c a bullet shows its date twice: ${rr.map((r) => `${r.text} · ${r.asOf}`).join(" | ")}`);
       check(!/Debt & deals/.test(f.content) && ((f.brief as { sections?: { title: string }[] } | null)?.sections ?? []).every((x) => x.title === "Sources"), "r6b Fed card carries no Debt & deals section");
       check(!/We don't forecast/.test(f.content) || /^Will/.test(q), `r6b no-forecast line only on forecast questions (${q})`);
       const said = f.content.replace(/\bno forecast\b|We don't forecast Fed decisions\. The next FOMC meeting is [^.]*\./gi, "");
@@ -801,7 +808,7 @@ async function main() {
       check(isFedForecastQuestion(q), `r6b-6 not a forecast question: ${q}`);
       const t = await ask(q, null, null);
       check(t.content.startsWith(`${LINE}\n\n${FED_HEAD}`), `r6b-6 forecast opening (${q}): ${t.content.slice(0, 200)}`);
-      check((t.brief?.reads ?? []).length === 3, `r6b-6 full card after the line (${q}): ${(t.brief?.reads ?? []).length} reads`);
+      check((t.brief?.reads ?? []).length === 4, `r6b-6/r6c full card after the line (${q}): ${(t.brief?.reads ?? []).length} reads`);
       const said = t.content.replace(/\bno forecast\b|We don't forecast/gi, "");
       check(!FORECAST.test(said), `r6b-6 forecast wording (${q})`);
       const tc = await card(q, null, null, "all");
@@ -924,9 +931,34 @@ async function main() {
           }
         }
       }
+    // r6c-b (Eric r6b QA). Austin and San Antonio: the same Basis & caveats block as Dallas / Houston, 'self-reported' once, in it.
+    for (const city of ["Austin", "San Antonio"]) {
+      const tx = await card(`What are the hotel tax collections in ${city}?`, null, null, "all");
+      const block = tx.content.match(/_Basis & caveats:_[^\n]*/)?.[0] ?? "";
+      check(/^_Basis & caveats:_ Self-reported/.test(block) && (tx.content.match(/self-reported/gi) ?? []).length === 1 && !/Caveats:/.test(tx.content.replace(/_Basis & caveats:_/, "")), `r6c-b ${city} caveat block: ${block.slice(0, 120)}`);
+    }
+    // r6c-c (Eric r6b QA). Dallas: a publisher sits in the same group in the tax answer and in the detail view.
+    {
+      const groupOf = (c: string[]) => {
+        const g = new Map<string, string>();
+        for (const x of c) for (const p of x.slice(x.indexOf(": ") + 2).split(" · ")) g.set(p, x.slice(0, x.indexOf(": ")));
+        return g;
+      };
+      const tg = groupOf(((await card("What are the hotel tax collections in Dallas?", null, null, "all")) as { citations?: string[] }).citations ?? []);
+      const dg = groupOf(dc);
+      const diff = [...tg].filter(([p, a]) => dg.has(p) && dg.get(p) !== a).map(([p, a]) => `${p}: tax ${a} / detail ${dg.get(p)}`);
+      check(diff.length === 0 && tg.get("HVS") === dg.get("HVS") && tg.get("fortworthreport.org") === "City of Arlington" && dg.get("fortworthreport.org") === "City of Arlington", `r6c-c Dallas groups differ: ${diff.join(" | ")} (HVS ${tg.get("HVS")}/${dg.get("HVS")})`);
+    }
     // 4. The hidden list key no longer carries the label ("(registry)").
     const sl = (await import("node:fs")).readFileSync(new URL("../../src/components/SourceLinks.tsx", import.meta.url), "utf8");
     check(!/key=\{[^}]*\.label/.test(sl) && /key=\{`\$\{l\.url\}\|\$\{i\}`\}/.test(sl), "r6-s4 SourceLinks key still uses the label");
+    // r6c must-fixes 2 and 3 (Eric r6b QA): every source list is a 44px block-row group on mobile (one link too), social
+    // links never render, and change badges on market pages are neutral grey.
+    check(/const group = "src-group";/.test(sl) && /withoutSocialLinks\(withoutOwnLinks\(links\)\)/.test(sl), "r6c SourceLinks: always .src-group rows; social links dropped");
+    const mp = (await import("node:fs")).readFileSync(new URL("../../src/app/markets/[slug]/page.tsx", import.meta.url), "utf8");
+    check(!/tabular-nums text-emerald/.test(mp) && /tabular-nums text-slate-200/.test(mp) && /publicRows\(withoutSocial\(citedOnly\(market\.signals\)\)\)/.test(mp), "r6c market page: grey change badge; social + rule filter on signals");
+    const { withoutSocialLabel } = await import("@/lib/social-sources");
+    check(withoutSocialLabel("HHM Hotels on LinkedIn (self-reported)") === "" && withoutSocialLabel("SEC EDGAR · x.com/GrantCardone/status/1") === "SEC EDGAR", "r6c SourceChip / SourceNote social label backstop");
     console.log(`  r6-s ${headed} tax memos; Dallas detail citations ${JSON.stringify(dc).slice(0, 160)}`);
   }
 

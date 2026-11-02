@@ -109,12 +109,14 @@ export function stripSocialMarkdown(md: string): string {
 }
 
 /** A source label without its social segments ("HHM Hotels on LinkedIn", a linkedin.com / x.com URL); render backstop. */
+const SOCIAL_HOST_IN_TEXT = /(?:^|[\s(/])(?:www\.)?(?:linkedin\.com|lnkd\.in|x\.com|twitter\.com|facebook\.com|instagram\.com|threads\.net|tiktok\.com)\b/i;
 export function withoutSocialLabel(label: string): string {
-  if (!SOCIAL_WORD.test(label) && !SOCIAL_URL_IN_TEXT.test(label)) return label;
+  const social = (p: string) => SOCIAL_WORD.test(p) || SOCIAL_URL_IN_TEXT.test(p) || SOCIAL_HOST_IN_TEXT.test(p);
+  if (!social(label)) return label;
   const sep = label.includes("; ") ? "; " : " · ";
   return label
     .split(sep)
-    .filter((p) => !SOCIAL_WORD.test(p) && !SOCIAL_URL_IN_TEXT.test(p))
+    .filter((p) => !social(p))
     .join(sep)
     .trim();
 }
