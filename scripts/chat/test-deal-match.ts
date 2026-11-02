@@ -96,6 +96,9 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   const sm = readFileSync(join(__dirname, "../../src/lib/stack-memo.ts"), "utf8");
   check(!/11\.6%/.test(t1) && !/No greenlight/.test(t1) && /World Cup-displaced meetings overstates debt yield/.test(t1) && (t1.match(/Debt test not yet cleared\./g) ?? []).length === 15, "tier1 JSON: no 11.6%, no 'No greenlight.', 15 'Debt test not yet cleared.'");
   check(/a PIP can come due in a Bitcoin drawdown \(house rule\)\./.test(sm), "stack-memo.ts: capex rule ends '(house rule)'");
+  const oldLine = "- The apartment claim that Bitcoin covers capex and debt maturities does not carry over: the franchisor sets PIP timing, and a PIP can come due in a Bitcoin drawdown (claim dated 2026-09-11) · [X ↗](https://x.com/GrantCardone/status/2098437260072853935) {tag: self-reported}";
+  const md = stripSocialMarkdown(fixMemoCopy(`## Hotel\n\n- First row.\n${oldLine}\n- Last row.`));
+  check(/a PIP can come due in a Bitcoin drawdown \(house rule\)\./.test(md) && !/x\.com|apartment claim/.test(md), `saved memo: old X capex line renders as the house rule (${md.replace(/\n/g, " | ")})`);
 }
 
 // r7: the citations field lists each cited link once, matching the Sources section.
