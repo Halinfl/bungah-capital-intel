@@ -6,7 +6,7 @@ import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
 import citationsJson from "@/data/deals/citations.json";
-import { headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
+import { cardMetaParts, headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
@@ -125,6 +125,10 @@ export function gradesFor(saleId: string): GradeResult[] {
  */
 export function headlineFor(g: GradeResult): string {
   return g.rubric_version === RUBRIC.rubric_version ? headlineText(RUBRIC, g) : g.output_text;
+}
+/** Compact index-card line parts (grade · coverage · Not graded: …). */
+export function cardMetaFor(g: GradeResult) {
+  return cardMetaParts(RUBRIC, g);
 }
 /** "Earlier v1.1 grade 4.0 (supply scored 1; withdrawn Nov 1: room count unavailable)", or null. Reads appended revisions. */
 export function historyLineFor(current: GradeResult): string | null {

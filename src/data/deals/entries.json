@@ -256,7 +256,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-08-12"
         }
@@ -342,7 +342,7 @@
     "factor_context": {
       "spread": [
         {
-          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-09-17"
         }
@@ -442,7 +442,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Sep 17, 2026 close: 4.94%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-09-17"
         }
@@ -618,7 +618,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-01"
         }
@@ -697,7 +697,7 @@
     "factor_context": {
       "spread": [
         {
-          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 1, 2026 close: 5.24%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-01"
         }
@@ -852,7 +852,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Aug 12, 2026 close: 4.68%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-08-12"
         }
@@ -933,7 +933,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Oct 9, 2026 close: 5.24%. No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 9, 2026 close: 5.24%. No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-09"
         },
@@ -1031,7 +1031,7 @@
       ],
       "spread": [
         {
-          "text": "10-year Treasury par yield, Oct 23, 2026 close: 5.00% (prior trading day; Oct 25 was a Sunday). No gradeable cap rate, so no spread is computed.",
+          "text": "10-year Treasury par yield, Oct 23, 2026 close: 5.00% (prior trading day; Oct 25 was a Sunday). No qualifying cap rate, so no spread is computed.",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "date": "2026-10-23"
         }

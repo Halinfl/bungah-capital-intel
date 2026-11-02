@@ -9,7 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { FACTOR_SHORT_NAME, headlineText, revisionHistoryLine, shortReason, type GradeResult, type Rubric } from "../../src/lib/deals-grade";
+import { FACTOR_SHORT_NAME, cardMetaLine, headlineText, revisionHistoryLine, shortReason, type GradeResult, type Rubric } from "../../src/lib/deals-grade";
 
 const root = process.cwd();
 const read = (f: string) => JSON.parse(fs.readFileSync(path.join(root, "src/data/deals", f), "utf8"));
@@ -74,6 +74,34 @@ for (const [id, e] of Object.entries(expect)) {
   const line = g ? headlineText(rubric, g) : "";
   check(line === e.line, `${id}: line\n       ${line}`);
 }
+
+// Compact index-card line (r5): grade · coverage · Not graded: … (no reasons, count once).
+const cards: Record<string, string> = {
+  "the-wade-chicago-2026": "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
+  "four-seasons-scottsdale-troon-north-2026": "2.9 of 5 · 4 of 5 factors graded · Not graded: supply",
+  "embassy-suites-las-vegas-2026": "3.6 of 5 · 4 of 5 factors graded · Not graded: spread",
+  "hotel-zags-portland-2026": "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
+  "bellmoor-rehoboth-beach-2026": "4.5 of 5 · 4 of 5 factors graded · Not graded: supply",
+  "fairmont-scottsdale-princess-2026": "Insufficient · 2 of 5 factors graded · Not graded: replacement cost, spread, supply",
+  "midway-portfolio-chicago-2026": "Insufficient · 2 of 5 factors graded · Not graded: replacement cost, spread, supply",
+};
+for (const [id, want] of Object.entries(cards)) {
+  const got = cardMetaLine(rubric, latest.get(id)!);
+  check(got === want, `${id}: card line "${got}"`);
+}
+for (const g of latest.values()) {
+  const line = cardMetaLine(rubric, g);
+  check(line.split("factors graded").length === 2, `${g.sale_id}: card says "factors graded" once`);
+  if (g.factors_graded === g.factors_total) check(!line.includes("Not graded"), `${g.sale_id}: no "Not graded" when all graded`);
+}
+const allGraded = { ...latest.get("bellmoor-rehoboth-beach-2026")!, factors_graded: 5 };
+allGraded.factor_scores = allGraded.factor_scores.map((r) => ({ ...r, graded: true, score: r.score ?? 3 }));
+check(!cardMetaLine(rubric, allGraded).includes("Not graded"), "synthetic all-graded card omits Not graded");
+
+// entries.json context wording (r5)
+const entriesText = fs.readFileSync(path.join(root, "src/data/deals/entries.json"), "utf8");
+check(!/gradeable/i.test(entriesText), 'entries.json has no "gradeable"');
+check((entriesText.match(/No qualifying cap rate, so no spread is computed\./g) ?? []).length === 8, "entries.json: 8 'No qualifying cap rate' lines");
 
 const wade = latest.get("the-wade-chicago-2026")!;
 const hist = revisionHistoryLine(wade, grades.filter((g) => g.sale_id === wade.sale_id));

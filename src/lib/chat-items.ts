@@ -205,7 +205,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
   const brief = makeBrief({
     answer,
     reads,
-    coverage: coverageLine({ cites, notes: ["Company-reported figures from SEC filings; no licensed STR."] }),
+    coverage: coverageLine({ cites, notes: ["Company-reported figures from SEC filings; no licensed data."] }),
     window: { range: "all", filterable: false },
     sections,
   });
@@ -301,7 +301,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     makeBrief({
       answer,
       reads: reads.slice(0, n),
-      coverage: coverageLine({ cites, notes: [...ungraded, "Public sources only; no licensed STR."] }),
+      coverage: coverageLine({ cites, notes: [...ungraded, "Public sources only; no licensed data."] }),
       window: { range: "all", filterable: false },
       sections,
     });

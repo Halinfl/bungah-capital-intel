@@ -553,3 +553,27 @@ export function revisionHistoryLine(current: GradeResult, sameVersion: GradeResu
   }
   return `Earlier ${earlier.rubric_version} grade ${label}${notes.length ? ` (${notes.join("; ")})` : ""}`;
 }
+
+/** Factor names for the compact index-card line ("Not graded: spread, supply"). */
+const CARD_NAME: Record<FactorId, string> = { replacement_cost: "replacement cost", spread: "spread", supply: "supply", demand: "demand", debt_context: "debt context" };
+
+/**
+ * One short meta line for index cards, from the factor rows: "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
+ * or "Insufficient · 2 of 5 factors graded · Not graded: …". The "Not graded" part is omitted when every factor is graded.
+ * The full output line (with reasons) and the history line are deal-page only.
+ */
+export function cardMetaParts(
+  rubric: Pick<Rubric, "scale">,
+  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">,
+): { grade: string; coverage: string; notGraded: string | null } {
+  const missing = g.factor_scores.filter((r) => !r.graded).map((r) => CARD_NAME[r.factor]);
+  return {
+    grade: g.overall === null ? "Insufficient" : `${g.overall.toFixed(1)} of ${rubric.scale.max}`,
+    coverage: `${g.factors_graded} of ${g.factors_total} factors graded`,
+    notGraded: missing.length ? `Not graded: ${missing.join(", ")}` : null,
+  };
+}
+export function cardMetaLine(rubric: Pick<Rubric, "scale">, g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">): string {
+  const m = cardMetaParts(rubric, g);
+  return [m.grade, m.coverage, m.notGraded].filter(Boolean).join(" · ");
+}

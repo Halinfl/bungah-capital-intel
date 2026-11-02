@@ -75,6 +75,7 @@ import { matchProperty } from "./chat-property";
 import { dealBrief, dealLens, dealMarketSlug, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
 import type { ChatScope } from "./chat-scope";
 import { digestTickers } from "./chat-retrieve";
+import { MARKET_TOPIC, matchDealName } from "./chat-deal-match";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -356,6 +357,16 @@ export async function answerChat(
     const item = lens ? reitBrief(scope.id, lens, question) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
     if (item) return finalizeItem(item);
     return answerChat(name ? `${question} (${name})` : question, { range });
+  }
+  // Unscoped deal name ("Tell me about The Wade"): answer with the deal card, unless it's an advice question or a
+  // market-metric question that only mentions the deal.
+  if (!scope) {
+    const dealSlug = matchDealName(question);
+    const dl = dealSlug ? dealLens(question) : null;
+    if (dealSlug && !classifyAdviceRequest(question) && (dl || !MARKET_TOPIC.test(question))) {
+      const item = dealBrief(dealSlug, dl ?? "grade") ?? (dl ? null : dealBrief(dealSlug, "price"));
+      if (item) return finalizeItem(item);
+    }
   }
   const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
   const res = await answerChatIn(question, { marketSlug, range });
