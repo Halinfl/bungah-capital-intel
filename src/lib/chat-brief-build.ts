@@ -854,7 +854,7 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
         ...digests.flatMap((d, i) => parts[i].links.map((l) => ({ key: l.url, url: l.url, label: l.label, text: l.label, asOf: digestDate(d), period: parts[i].period }))),
         ...readList.map(readCite),
       ],
-      notes: ["Editor-authored digests of company-reported results; no licensed STR."],
+      notes: ["Editor-authored digests of company-reported results; no licensed data."],
       range: opts.range,
     }),
     window: { range: filterable ? (opts.range ?? "all") : "all", filterable },
@@ -979,7 +979,7 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
     reads,
     coverage: coverageLine({
       cites,
-      notes: [...(opts.notes ?? []), "Public sources only; no licensed STR."],
+      notes: [...(opts.notes ?? []), "Public sources only; no licensed data."],
     }),
     // Anchored on the owner's property schedule (a standing fact, not a dated series): no date chip.
     window: { range: "all", filterable: false },
