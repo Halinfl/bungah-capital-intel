@@ -61,7 +61,10 @@ for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scot
 }
 const wadeAdv = dealAdviceBrief("the-wade-chicago", DECLINE)!.brief;
 check(/^The Wade, Chicago, IL: 4\.8 of 5 · 3 of 5 factors graded/.test(wadeAdv.answer), "Wade advice answer leads with 4.8 of 5 · 3 of 5 factors graded");
-check(wadeAdv.reads.some((r) => r.text.startsWith("Price $25M for 520 keys")), "Wade advice: price $25M read");
+{
+  const pr = wadeAdv.reads.find((r) => r.text.startsWith("Price $25M for 520 keys"));
+  check(!!pr && /first confirmed Oct 25, 2026 \(announced Sep 17, 2026\)/.test(pr.text) && /vishal-thakkar/.test(pr.source.url ?? ""), `Wade advice: price read cites the Oct 25 confirmation (${pr?.text} · ${pr?.source.label})`);
+}
 
 // r6: LinkedIn / social posts are never sources (display-layer filter).
 check(isSocialUrl("https://www.linkedin.com/posts/x") && !isSocialUrl("https://www.costar.com/article/1"), "isSocialUrl: linkedin yes, costar no");

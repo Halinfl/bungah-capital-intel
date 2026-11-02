@@ -337,10 +337,15 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
     const keys = sale.keys ? `${sale.keys.toLocaleString("en-US")} keys` : "";
     const priceText =
       sale.price != null
-        ? `Price ${price}${keys ? ` for ${keys}${sale.price_per_key ? `, ${fmtPerKey(sale.price_per_key)}` : ""}` : ""}, announced ${dealDate(sale.announced_on)}`
+        ? `Price ${price}${keys ? ` for ${keys}${sale.price_per_key ? `, ${fmtPerKey(sale.price_per_key)}` : ""}` : ""}, ${sale.price_confirmed_on ? `first confirmed ${dealDate(sale.price_confirmed_on)} (announced ${dealDate(sale.announced_on)})` : `announced ${dealDate(sale.announced_on)}`}`
         : `Announced ${dealDate(sale.announced_on)}${keys ? `, ${keys}` : ""}; price: ${price.charAt(0).toLowerCase()}${price.slice(1)}`;
     cites.push(cite(mainUrl, main ? `${main.publisher}: ${main.title}` : "Sale filing", main?.date ?? sale.announced_on));
-    const r = read(priceText, main?.date ?? sale.announced_on, { kind: chipFor(mainUrl), label: main?.publisher ?? (publisherName(mainUrl) || "Sale filing"), url: mainUrl, title: main?.title });
+    // A price confirmed after announcement cites the report that confirmed it, not the announcement.
+    const confirmUrl = sale.price_confirmed_on && sale.close_report?.date === sale.price_confirmed_on ? sale.close_report.url : undefined;
+    if (confirmUrl) cites.push(cite(confirmUrl, `Price: ${publisherName(confirmUrl) || "press"}`, sale.price_confirmed_on ?? null));
+    const r = confirmUrl
+      ? read(priceText, sale.price_confirmed_on!, { kind: chipFor(confirmUrl), label: sale.close_report?.source?.split(",")[0] || publisherName(confirmUrl) || "Press", url: confirmUrl })
+      : read(priceText, main?.date ?? sale.announced_on, { kind: chipFor(mainUrl), label: main?.publisher ?? (publisherName(mainUrl) || "Sale filing"), url: mainUrl, title: main?.title });
     if (r) reads.push(r);
   }
   const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
