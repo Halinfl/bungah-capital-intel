@@ -14,6 +14,8 @@ export type FedPolicy = {
   upcomingMeetings?: { start: string; end: string; sep?: boolean; source: string; url: string; checkedAt: string }[];
   /** The 10-year Treasury (a market rate, not Fed policy): latest FRED DGS10 print with its as-of date (r6c). */
   tenYear?: { value: number; asOf: string; series: string; source: string; url: string; checkedAt: string; note?: string };
+  /** SOFR (an overnight funding rate, not Fed policy): latest FRED SOFR print with its as-of date (r6e). */
+  sofr?: { value: number; asOf: string; series: string; source: string; url: string; checkedAt: string; rangeSince?: { from: string; low: number; high: number }; note?: string };
 };
 
 export const FED_POLICY = data as unknown as FedPolicy;
@@ -114,4 +116,42 @@ export const isTenYearRow = (s: { kind?: string; title: string }) => /\b(10-year
 /** National rows with every stored 10-year row replaced by the one data-layer 10-year. */
 export function withDataLayerTenYear<T extends { kind?: string; title: string }>(rows: T[]): T[] {
   return [tenYearSignal<T>(), ...rows.filter((s) => !isTenYearRow(s))];
+}
+
+/**
+ * SOFR, from one place (r6e), the same way as the 10-year: the latest FRED SOFR print in src/data/fed-policy.json.
+ * Stored SOFR level rows (e.g. "SOFR 3.88% (Oct 16)") are replaced at load (display layer; the DB is unchanged), and
+ * the Stack memo line (new and saved memos) reads it from here. When FRED has both, SOFR and the 10-year share a date.
+ */
+export const SOFR = FED_POLICY.sofr!;
+/** "3.94%". */
+export const sofrPct = () => pct(SOFR.value);
+/** Memo line: "SOFR 3.94% (2026-10-29, FRED)". */
+export const sofrMemoText = () => `SOFR ${sofrPct()} (${SOFR.asOf}, FRED)`;
+
+/** The data-layer SOFR as a national graph row (display layer only). */
+export function sofrSignal<T>(): T {
+  const short = SHORT(SOFR.asOf);
+  const r = SOFR.rangeSince;
+  const range = r ? ` (range ${r.low.toFixed(2)}–${pct(r.high)} since ${SHORT(r.from)})` : "";
+  return {
+    id: `data-layer-${SOFR.series.toLowerCase()}-${SOFR.asOf}`,
+    marketId: null,
+    kind: "rates",
+    title: `SOFR ${sofrPct()}`,
+    body: `SOFR ${sofrPct()} on ${short}${range}. National rate read for the refinance test.`,
+    magnitude: sofrPct(),
+    asOf: SOFR.asOf,
+    sourceLabel: "FRED",
+    sourceUrls: [{ url: SOFR.url, label: `SOFR ${sofrPct()}, ${short} — FRED`, secondary: false }],
+    createdAt: new Date(`${SOFR.checkedAt}T12:00:00Z`),
+  } as unknown as T;
+}
+
+/** A stored SOFR level row ("SOFR 3.88% (Oct 16)"), not a loan spread ("SOFR+2.26%"): replaced by the data-layer read. */
+export const isSofrRow = (s: { kind?: string; title: string }) => /\bSOFR\s+\d+(\.\d+)?%/i.test(s.title) && (s.kind ?? "rates") === "rates";
+
+/** National rows with every stored 10-year and SOFR level row replaced by the data-layer reads (one date each). */
+export function withDataLayerRates<T extends { kind?: string; title: string }>(rows: T[]): T[] {
+  return [tenYearSignal<T>(), sofrSignal<T>(), ...rows.filter((s) => !isTenYearRow(s) && !isSofrRow(s))];
 }

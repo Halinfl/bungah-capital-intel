@@ -1,5 +1,5 @@
 {
-  "_note": "Fed policy data layer (code/JSON, not the DB). Public figures only, each with its citation and as-of date. Checked 2026-11-02 against FRED DFEDTARU/DFEDTARL and the federalreserve.gov FOMC statements below. Update when the FOMC next acts. The 10-year (tenYear) is the latest FRED DGS10 print, a market rate, kept here with its as-of date.",
+  "_note": "Fed policy data layer (code/JSON, not the DB). Public figures only, each with its citation and as-of date. Checked 2026-11-02 against FRED DFEDTARU/DFEDTARL and the federalreserve.gov FOMC statements below. Update when the FOMC next acts. The 10-year (tenYear) is the latest FRED DGS10 print, a market rate, kept here with its as-of date. SOFR (sofr) is the latest FRED SOFR print (New York Fed data), kept the same way; when FRED has both, the two carry the same date.",
   "checkedAt": "2026-11-02",
   "targetRange": {
     "lower": 3.75,
@@ -53,5 +53,19 @@
     "url": "https://fred.stlouisfed.org/series/DGS10",
     "checkedAt": "2026-11-02",
     "note": "Market rate, not Fed policy. Latest DGS10 print on fred.stlouisfed.org when checked (updated Oct 30, 2026; next release Nov 2, 2026)."
+  },
+  "sofr": {
+    "value": 3.94,
+    "asOf": "2026-10-29",
+    "series": "SOFR",
+    "source": "FRED, Federal Reserve Bank of St. Louis (SOFR, from the Federal Reserve Bank of New York)",
+    "url": "https://fred.stlouisfed.org/series/SOFR",
+    "checkedAt": "2026-11-02",
+    "rangeSince": {
+      "from": "2026-10-01",
+      "low": 3.87,
+      "high": 3.95
+    },
+    "note": "Overnight funding rate, not Fed policy. Latest SOFR print on fred.stlouisfed.org when checked (2026-11-02); same date as the DGS10 print."
   }
 }

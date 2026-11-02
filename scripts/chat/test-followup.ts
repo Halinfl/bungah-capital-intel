@@ -752,7 +752,8 @@ async function main() {
   {
     // r5-5. One date on the rates card.
     const so = await ask("Why is SOFR up?", null, null);
-    check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r5-5 SOFR: ${so.head}`);
+    // r6e: SOFR is the one data-layer read (latest FRED SOFR), one date.
+    check(/^SOFR \d+\.\d\d% \([A-Z][a-z]{2} \d{1,2}, 20\d\d, FRED\)\.$/.test(so.head), `r5-5/r6e SOFR: ${so.head}`);
     const ty = await ask("Where is the 10-year Treasury?", null, null);
     // r6d: the 10-year is the one data-layer read (latest FRED DGS10), one date.
     check(/^US 10-year Treasury \d+\.\d+% \([A-Z][a-z]{2} \d{1,2}, 20\d\d, FRED DGS10\)\.$/.test(ty.head), `r5-5/r6d 10-year: ${ty.head}`);
@@ -778,6 +779,37 @@ async function main() {
       check(saved === `- 10-year Treasury ${P} (${TEN_YEAR.asOf}, FRED DGS10) · [fred.stlouisfed.org ↗](${TEN_YEAR.url})`, `r6d saved Stack memo 10-year: ${saved}`);
       const sm = (await import("node:fs")).readFileSync(new URL("../../src/lib/stack-memo.ts", import.meta.url), "utf8");
       check(!/10-year Treasury \d+\.\d+%/.test(sm) && /tenYearMemoText\(\)/.test(sm), "r6d stack-memo.ts: no hardcoded 10-year value");
+      // r6e (Hal / Eric r6d): SOFR from one place too (src/data/fed-policy.json sofr, the latest FRED SOFR print checked
+      // Nov 2, 2026: 3.94% on Oct 29, 2026), stored SOFR rows replaced at load, and the same date as the 10-year (FRED has both).
+      const { SOFR, sofrPct } = await import("@/lib/fed-policy");
+      const SP = sofrPct(), SD = fedDate(SOFR.asOf);
+      check(SOFR.value === 3.94 && SOFR.asOf === "2026-10-29" && SP === "3.94%", `r6e SOFR data layer is the latest FRED print (3.94%, 2026-10-29): ${SP} ${SOFR.asOf}`);
+      check(SOFR.asOf === TEN_YEAR.asOf, `r6e SOFR and the 10-year carry the same date: ${SOFR.asOf} vs ${TEN_YEAR.asOf}`);
+      check(sofr.head === `SOFR ${SP} (${SD}, FRED).`, `r6e SOFR answer: ${sofr.head}`);
+      const bs = ((bare.brief?.reads ?? []) as { text: string; asOf: string | null }[]).find((r) => /SOFR/.test(r.text));
+      check(!!bs && bs.text === `SOFR ${SP}` && bs.asOf === SD, `r6e bare 10-year answer's SOFR read: ${bs?.text} · ${bs?.asOf}`);
+      check(sr?.asOf === SD, `r6e SOFR answer: SOFR and 10-year same date (${SD} / ${sr?.asOf})`);
+      const sofrs = (o: unknown) => [...JSON.stringify(o).matchAll(/\bSOFR (\d+\.\d+%)/g)].map((m) => m[1]);
+      for (const [name, o] of [["SOFR", sofr], ["bare", bare], ["Fed", fed], ["refi", refi], ["10-year", ty], ["SOFR (r5-5)", so]] as [string, unknown][])
+        check(sofrs(o).every((v) => v === SP) && !/SOFR 3\.88%|\(Oct 16\)|Oct 16, 2026/.test(JSON.stringify(o)), `r6e ${name}: stale SOFR ${JSON.stringify(sofrs(o))}`);
+      // No stored SOFR level row is newer than the data layer (so the data layer is the latest on file).
+      const zlib = await import("node:zlib"), fsm = await import("node:fs");
+      const fx = process.env.BUNGAH_GRAPH_FIXTURE;
+      if (fx && fsm.existsSync(`${fx}/Signal.jsonl.gz`)) {
+        const rows = zlib.gunzipSync(fsm.readFileSync(`${fx}/Signal.jsonl.gz`)).toString("utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as { title: string; kind: string; asOf: string | null });
+        const { isSofrRow } = await import("@/lib/fed-policy");
+        const stored = rows.filter((r) => isSofrRow(r)).map((r) => String(r.asOf ?? "").slice(0, 10));
+        check(stored.every((d) => d <= SOFR.asOf), `r6e a stored SOFR row is newer than the data layer: ${JSON.stringify(stored)}`);
+        check(!rows.some((r) => /SOFR\+/.test(r.title) && isSofrRow(r)), "r6e loan spreads (SOFR+x%) are never treated as SOFR rows");
+      }
+      const savedS = fixMemoCopy("- SOFR 3.88% (2026-10-16) · [fred.stlouisfed.org ↗](https://fred.stlouisfed.org/series/SOFR)");
+      check(savedS === `- SOFR ${SP} (${SOFR.asOf}, FRED) · [fred.stlouisfed.org ↗](${SOFR.url})`, `r6e saved Stack memo SOFR: ${savedS}`);
+      check(!/SOFR \d+\.\d+%/.test(sm) && /sofrMemoText\(\)/.test(sm), "r6e stack-memo.ts: no hardcoded SOFR value");
+      // r6e (Eric r6d): /hard-assets/methodology shows the shared DGS10 constant (2 decimals), not the stored par-curve print.
+      const { MACRO_TABLE } = await import("@/lib/sound-assets");
+      const t10 = MACRO_TABLE.find((r) => r.file === "ust_par_10y.csv");
+      check(!!t10 && String(t10.latest_observation.value) === TEN_YEAR.value.toFixed(2) && t10.latest_observation.date === TEN_YEAR.asOf && t10.series_url === TEN_YEAR.url, `r6e methodology 10-year row: ${t10?.series_id} ${t10?.latest_observation.value} (${t10?.latest_observation.date})`);
+      console.log(`  r6e SOFR ${SP} · ${SD}: answer "${sofr.head}" · bare SOFR read "${bs?.text} · ${bs?.asOf}"`);
       console.log(`  r6d 10-year ${P} · ${D}: SOFR "${sr?.text} · ${sr?.asOf}" · bare "${bare.head}" · Fed "${fr?.text} · ${fr?.asOf}" · refi "${refi.head}"`);
     }
     // r5-6. Lodging Econometrics rows keep their own titles (no two reads titled "Total pipeline").
@@ -824,7 +856,7 @@ async function main() {
       check(/federalreserve\.gov\/newsevents\/pressreleases\/monetary20261028a\.htm/.test(urls) && /fred\.stlouisfed\.org\/series\/DFEDTAR[UL]/.test(urls), "r6-1 FOMC / FRED links missing");
     }
     const so = await ask("Why is SOFR up?", null, null);
-    check(so.head === "SOFR 3.88% (Oct 16, 2026, FRED).", `r6-1 SOFR unchanged: ${so.head}`);
+    check(so.head === "SOFR 3.94% (Oct 29, 2026, FRED).", `r6-1/r6e SOFR (latest FRED print): ${so.head}`);
     // r6b-6. Fed forecast questions: no forecast, the next scheduled meeting (federalreserve.gov calendar: "December 8-9*",
     // checked Nov 2 2026), then the card.
     const { isFedForecastQuestion, fedForecastLine, nextFomcMeeting } = await import("@/lib/fed-policy");

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { HardAssetsTabs } from "@/components/sound-assets/HardAssetsTabs";
 import { ThesisBand } from "@/components/sound-assets/ThesisBand";
 import { DraftNote } from "@/components/sound-assets/DraftNote";
-import { BTC, MACRO, MACRO_DERIVED, SCORECARD, SOURCES, fmtDate } from "@/lib/sound-assets";
+import { BTC, MACRO, MACRO_DERIVED, MACRO_TABLE, SCORECARD, SOURCES, fmtDate } from "@/lib/sound-assets";
 
 export const revalidate = 86400;
 
@@ -106,7 +106,8 @@ export default function MethodologyPage() {
         <p className={p}>
           {MACRO.series.length} series are stored as static files with source, vintage and license note, each downloaded
           directly from the agency that publishes it: the Bureau of Labor Statistics, the Federal Reserve Board (H.6 and H.15
-          via its Data Download Program) and the U.S. Treasury. No agency endorses this site, its thesis or its conclusions.
+          via its Data Download Program) and the U.S. Treasury. The 10-year row shows the latest FRED DGS10 print, the same
+          figure the chat and the Fed card use. No agency endorses this site, its thesis or its conclusions.
         </p>
         <div className="overflow-x-auto rounded-xl border border-white/10">
           <table className="w-full border-collapse text-left text-sm">
@@ -120,7 +121,7 @@ export default function MethodologyPage() {
               </tr>
             </thead>
             <tbody>
-              {MACRO.series.map((s) => (
+              {MACRO_TABLE.map((s) => (
                 <tr key={s.file} className="border-b border-white/[0.08] align-top last:border-0">
                   <td className="px-3 py-2 text-slate-100">
                     <a href={s.series_url} target="_blank" rel="noopener noreferrer" className={a}>{s.series_id} ↗</a>

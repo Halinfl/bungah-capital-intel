@@ -5,6 +5,7 @@ import btcJson from "@/data/sound-assets/btc-protocol.json";
 import macroManifest from "@/data/sound-assets/primary/manifest.json";
 import macroDerived from "@/data/sound-assets/macro-derived.json";
 import publishStatus from "@/data/sound-assets/publish-status.json";
+import { TEN_YEAR } from "@/lib/fed-policy";
 
 export type Source = { title: string; publisher: string; url: string; accessed: string };
 export type Cell = {
@@ -45,6 +46,26 @@ export const REGISTER = registerJson as {
 export const BTC = btcJson;
 export const MACRO = macroManifest;
 export const MACRO_DERIVED = macroDerived;
+
+/**
+ * The methodology table's rows (r6e, Eric r6d should-fix): the 10-year row reads the shared FRED DGS10 constant
+ * (src/lib/fed-policy.ts, the value chat and the Fed card show), 2 decimals, instead of the stored Treasury par-curve
+ * file's last print. The par-curve file stays stored for history. Deal pages keep each deal's own-date close.
+ */
+export const MACRO_TABLE = MACRO.series.map((s) =>
+  s.file === "ust_par_10y.csv"
+    ? {
+        ...s,
+        series_id: `FRED ${TEN_YEAR.series}`,
+        name: "10-year Treasury constant maturity rate",
+        source: TEN_YEAR.source,
+        series_url: TEN_YEAR.url,
+        terms_url: "https://fred.stlouisfed.org/legal/",
+        vintage: `Checked ${TEN_YEAR.checkedAt}; latest observation ${TEN_YEAR.asOf}`,
+        latest_observation: { date: TEN_YEAR.asOf, value: TEN_YEAR.value.toFixed(2) as unknown as number },
+      }
+    : s,
+);
 
 export function cell(asset: string, criterion: string): Cell {
   const c = SCORECARD.cells.find((x) => x.asset === asset && x.criterion === criterion);

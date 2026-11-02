@@ -2,7 +2,7 @@ import tier1Data from "@/data/stack-memo-tier1.json";
 import { publisherName, scrubInternal } from "./public-text";
 import { parseSourceUrls } from "./source-links";
 import { sortTaxNewest, isTaxSeries } from "./tax-series";
-import { TEN_YEAR, tenYearMemoText } from "./fed-policy";
+import { SOFR, TEN_YEAR, sofrMemoText, tenYearMemoText } from "./fed-policy";
 
 /**
  * Sound Asset Lodging Stack memo — deterministic, no LLM.
@@ -295,7 +295,7 @@ export function buildStackMemo(opts: {
     ``,
     // The 10-year comes from the data layer (src/data/fed-policy.json, latest FRED DGS10), like the chat answers (r6d).
     `- ${tenYearMemoText()} · ${links([TEN_YEAR.url])}`,
-    `- SOFR 3.88% (2026-10-16) · ${links([RATE.sofr])}`,
+    `- ${sofrMemoText()} · ${links([SOFR.url])}`,
     `- Fed funds target 3.75–4.00% (since the 2026-09-16 FOMC) · ${links([RATE.fed])}`,
     `- National lodging CMBS delinquency 6.18% (Sep 2026) · ${links([RATE.dq])} {tag: national}`,
     `- National lodging CMBS special servicing 8.95% (Sep 2026; 8.74% in Aug; 9.91% a year earlier; published 2026-10-13) — national, not ${name} · ${links([RATE.ss])} {tag: national}`,

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
-import { withDataLayerTenYear } from "./fed-policy";
+import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
 import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
@@ -851,7 +851,7 @@ export async function retrieveGraphContext(
     m.signals = withoutLeaks(withoutRules(withoutSocial(citedOnly(m.signals))));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withDataLayerTenYear(withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  const nationalSignals = withDataLayerRates(withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
@@ -1254,7 +1254,7 @@ export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
   // The 10-year is the data-layer read (r6d), never a stored older row.
-  const rows = withDataLayerTenYear(withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  const rows = withDataLayerRates(withoutLeaks(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },

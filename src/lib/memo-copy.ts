@@ -2,12 +2,14 @@
  * Wording fixes for Stack memos saved before a copy change. Stored memos are not rewritten in the DB; they are
  * rewritten here at render, so saved and newly generated memos read the same.
  */
-import { TEN_YEAR, tenYearMemoText } from "./fed-policy";
+import { SOFR, TEN_YEAR, sofrMemoText, tenYearMemoText } from "./fed-policy";
 
 export const MEMO_COPY_FIXES: [RegExp, string][] = [
   // r6d: saved memos carry the 10-year of their day ("10-year Treasury 5.09% (2026-10-16 close) · …"); every 10-year
   // mention reads the one data-layer value (latest FRED DGS10), so the saved line renders with it.
   [/^- 10-year Treasury \d+\.\d+% \([^)\n]*\) · .*$/gm, `- ${tenYearMemoText()} · [fred.stlouisfed.org ↗](${TEN_YEAR.url})`],
+  // r6e: saved memos carry "- SOFR 3.88% (2026-10-16) · …"; render the one data-layer SOFR instead (no DB writes).
+  [/^- SOFR \d+\.\d+% \([^)\n]*\) · .*$/gm, `- ${sofrMemoText()} · [fred.stlouisfed.org ↗](${SOFR.url})`],
   // The +11.6% figure came only from a LinkedIn post (social posts are never sources): keep the point, drop the figure.
   [/A 2026 T12 carrying the \+11\.6% displaced-meeting lift \(CoStar, Sep 2026\) overstates debt yield\./g, "A 2026 T12 carrying World Cup-displaced meetings overstates debt yield."],
   [/\bNo greenlight\./g, "Debt test not yet cleared."],
