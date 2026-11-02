@@ -132,7 +132,7 @@ export default async function MarketDetailPage({
       <SignalCard
         key={`${prefix}-${i}`}
         primaryUrl={primary}
-        title={title}
+        title={glueText(title)}
         meta={
           <>
             <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-slate-300">
@@ -140,10 +140,10 @@ export default async function MarketDetailPage({
             </span>
             {s.magnitude ? (
               <span className="text-xs font-semibold tabular-nums text-emerald-300">
-                {scrubInternal(s.magnitude)}
+                {glueText(scrubInternal(s.magnitude))}
               </span>
             ) : null}
-            {s.asOf ? <span className="text-xs text-slate-300">as of {s.asOf}</span> : null}
+            {s.asOf ? <span className="text-xs text-slate-300">as of {glueText(s.asOf)}</span> : null}
           </>
         }
       >
@@ -300,12 +300,12 @@ export default async function MarketDetailPage({
             {market.assets.map((a) => (
               <div key={a.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="font-medium text-white">{a.name}</h3>
+                  <h3 className="font-medium text-white">{glueText(a.name)}</h3>
                   <span className="text-xs text-slate-300">
                     {a.keys ? `${a.keys.toLocaleString()} keys` : "keys n/a"}{"\u00a0· "}{a.assetClass}
                   </span>
                 </div>
-                {a.submarket ? <p className="mt-1 text-xs text-emerald-300/80">{a.submarket}</p> : null}
+                {a.submarket ? <p className="mt-1 text-xs text-emerald-300/80">{glueText(a.submarket)}</p> : null}
                 {a.notes ? <p className="mt-2 text-sm text-slate-300">{glueText(a.notes)}</p> : null}
                 <div className="mt-2">
                   <SourceChip label={a.sourceLabel} />
@@ -334,7 +334,7 @@ export default async function MarketDetailPage({
                   key={f.id}
                   primaryUrl={u && isOriginalUrl(u) ? u : null}
                   tone={severityClass(f.severity)}
-                  title={scrubInternal(f.title)}
+                  title={glueText(scrubInternal(f.title))}
                   meta={
                     <span className="text-xs uppercase tracking-wider">
                       {f.severity}{"\u00a0· "}{f.radar.name}

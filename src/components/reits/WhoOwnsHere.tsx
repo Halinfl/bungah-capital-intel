@@ -78,7 +78,7 @@ export function WhoOwnsHere({ data, short, marketName }: { data: MarketOwners; s
                   ) : (
                     <span className="text-slate-300">price not disclosed</span>
                   )}
-                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-emerald-300 hover:underline">
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 min-w-11 items-center justify-end text-emerald-300 hover:underline">
                     filing ↗
                   </a>
                 </span>
