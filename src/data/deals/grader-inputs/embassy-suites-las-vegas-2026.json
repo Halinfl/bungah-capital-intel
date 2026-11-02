@@ -69,14 +69,14 @@
   "versions": {
     "v1.1": {
       "_built_on": "2026-11-01",
-      "_note": "v1.1: supply graded from LVCVA's own bulletin (net of closures; single public-body source). Other factors as v1.",
+      "_note": "v1.1: supply graded from LVCVA's own bulletin (net of closures; single public-body source). Other factors as v1. Revision 2 (2026-11-01, QA): 11,471 and 7.63% labelled our calculation.",
       "factors": {
         "supply": {
           "as_of": "2026-05-21",
           "source_uri": "https://res.cloudinary.com/simpleview/image/upload/v1779405036/clients/lasvegas/ConstructionBulletin051526_86c37e79-6dc1-4879-a2dd-e05ad92d28ca.pdf",
           "source_label": "LVCVA Las Vegas Tourism Construction Bulletin, as of May 15, 2026 (posted May 21, 2026)",
           "pipeline_pct_of_rooms": 7.63,
-          "pipeline_definition": "LVCVA Construction Bulletin as of May 15, 2026: 7,604 net new rooms scheduled for 2026 to 2030 plus 3,867 in announced and proposed projects = 11,471, vs 150,300 rooms in inventory at Dec 31, 2025",
+          "pipeline_definition": "LVCVA Construction Bulletin as of May 15, 2026: 7,604 net new rooms scheduled for 2026 to 2030 plus 3,867 in announced and proposed projects; our calculation: 11,471 rooms vs 150,300 rooms in inventory at Dec 31, 2025",
           "single_source": true,
           "stage": "total_under_construction_plus_planned",
           "net_of_closures": true,
@@ -86,7 +86,8 @@
               "url": "https://www.lvcva.com/research/reports/post/las-vegas-tourism-construction-bulletin/",
               "date": "2026-05-21"
             }
-          ]
+          ],
+          "our_calculation": true
         }
       }
     }

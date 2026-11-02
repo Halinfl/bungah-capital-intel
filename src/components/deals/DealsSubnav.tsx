@@ -13,7 +13,7 @@ export function DealsSubnav({ active }: { active: "index" | "methodology" | "ent
           key={t.key}
           href={t.href}
           aria-current={active === t.key ? "page" : undefined}
-          className={`-mb-px border-b-2 px-3 py-2 ${active === t.key ? "border-slate-200 text-white" : "border-transparent text-slate-300 hover:text-white"}`}
+          className={`-mb-px inline-flex min-h-11 items-center border-b-2 px-3 py-2 ${active === t.key ? "border-slate-200 text-white" : "border-transparent text-slate-300 hover:text-white"}`}
         >
           {t.label}
         </Link>

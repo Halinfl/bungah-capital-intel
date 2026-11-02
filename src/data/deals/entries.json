@@ -400,7 +400,7 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm"
       },
       {
-        "kind": "press",
+        "kind": "report",
         "title": "Chicago Economic Impact 2025 (hotel tax revenue)",
         "publisher": "Choose Chicago",
         "date": "2026-06-25",
@@ -421,11 +421,12 @@
         "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv"
       },
       {
-        "kind": "press",
-        "title": "Source: Choose Chicago, Hotel Capacity Update, Aug 2026 (data: Build Central, LARC)",
+        "kind": "report",
+        "title": "Choose Chicago, Hotel Capacity Update, Aug 2026",
         "publisher": "Choose Chicago",
         "date": "2026-08-25",
-        "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf"
+        "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+        "cite_id": "choose-chicago-capacity-aug-2026"
       }
     ]
   },

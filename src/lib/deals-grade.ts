@@ -48,7 +48,8 @@ export type Rubric = {
 
 export type FactorId = "replacement_cost" | "spread" | "supply" | "demand" | "debt_context";
 
-export type AlsoSource = { label: string; url: string; date: string };
+/** `cite_id` points at src/data/deals/citations.json; pages render the citation (and any data credit) from there. */
+export type AlsoSource = { label: string; url: string; date: string; cite_id?: string };
 /**
  * Shared fields. `also_sources` lists every further public source behind the factor's numbers (e.g. the filing that
  * gives the price, or the Treasury file); each must be dated on or before the announcement. `label` is a short tag
@@ -79,8 +80,27 @@ export type FactorInput =
       /** v1.1: cap rate computed by applying the company's published NOI definition to its published hotel EBITDA. */
       noi_calc?: NoiCalc;
     })
-  | (Common & { pipeline_pct_of_rooms: number; pipeline_definition: string; single_source: boolean; stage: string; net_of_closures?: boolean })
-  | (Common & { tax_receipts_yoy_pct: number; period: string; measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd"; latest_month_end: string; fallback_reason?: string })
+  | (Common & {
+      pipeline_pct_of_rooms: number;
+      pipeline_definition: string;
+      single_source: boolean;
+      stage: string;
+      net_of_closures?: boolean;
+      /** The source lists closures but not their room count: the pipeline is graded gross and the entry says so. */
+      closures_unquantified?: string;
+      /** The share (and any total) is our arithmetic on the source's figures. */
+      our_calculation?: boolean;
+    })
+  | (Common & {
+      tax_receipts_yoy_pct: number;
+      period: string;
+      measure: "ttm_vs_prior_ttm" | "fytd_vs_prior_fytd";
+      latest_month_end: string;
+      fallback_reason?: string;
+      /** Name of the series as the source labels it (default "Lodging tax receipts"). */
+      measure_label?: string;
+      our_calculation?: boolean;
+    })
   | (Common & { category: string });
 
 export type NoiCalc = {
@@ -121,6 +141,8 @@ export type FactorResult = {
 export type GradeResult = {
   sale_id: string;
   rubric_version: string;
+  /** Revision within a rubric version (1 when absent). A later revision is appended, never written over the earlier one. */
+  revision?: number;
   graded_on: string;
   public_data_as_of: string;
   factor_scores: FactorResult[];
@@ -262,7 +284,7 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
       const calc = nc
         ? `, ${calcLabel}: hotel EBITDA ${usdK(nc.hotel_ebitda_usd)} less a ${nc.reserve_pct_of_revenue}% reserve on ${usdK(nc.total_revenue_usd)} revenue = NOI ${usdK(nc.hotel_ebitda_usd - (nc.reserve_pct_of_revenue / 100) * nc.total_revenue_usd)}, over ${usdK(nc.price_usd)}`
         : "";
-      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${humanDate(a.cap_rate_period_end)}${calc}) vs ${t.toFixed(2)}% 10-year (${humanDate(a.treasury_as_of)} close); ${bp}bp spread` };
+      return { value: bp, text: `${c.toFixed(2)}% cap rate (trailing 12 months to ${humanDate(a.cap_rate_period_end)}${calc}) vs ${t.toFixed(2)}% 10-year (${humanDate(a.treasury_as_of)} close); ${bp}bp spread${nc ? " (our calculation)" : ""}` };
     }
     case "supply": {
       const v = num("pipeline_pct_of_rooms");
@@ -273,10 +295,13 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
           return { error: "No single public source gives the total pipeline as a share of existing rooms; figures aren't combined across sources or stages." };
         if (a.stage !== f.source_rule.required_stage)
           return { error: "Only partial pipeline stages are public (not under construction plus planned); shown as context, not graded." };
-        if (f.source_rule.net_of_closures && a.net_of_closures !== true)
+        const unq = typeof a.closures_unquantified === "string" && a.closures_unquantified.length > 0;
+        if (f.source_rule.net_of_closures && a.net_of_closures !== true && !unq)
           return { error: "Pipeline share isn't stated net of closures; shown as context, not graded." };
       }
-      return { value: v, text: `Pipeline ${v}% of existing rooms${f.source_rule?.net_of_closures ? ", net of closures" : ""} (${a.pipeline_definition})` };
+      const calc = a.our_calculation ? " (our calculation)" : "";
+      const basis = !f.source_rule?.net_of_closures ? "" : a.net_of_closures === true ? ", net of closures" : `, gross: ${a.closures_unquantified}`;
+      return { value: v, text: `Pipeline ${v}% of existing rooms${calc}${basis} (${a.pipeline_definition})` };
     }
     case "demand": {
       const v = num("tax_receipts_yoy_pct");
@@ -292,7 +317,8 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
           return { error: "Latest month must be published by the announcement date." };
       }
       const label = a.measure === "fytd_vs_prior_fytd" ? "fiscal year to date vs prior" : "trailing 12 months vs prior 12";
-      return { value: v, text: `Lodging tax receipts ${v > 0 ? "+" : ""}${v}% (${label}, ${a.period})` };
+      const name = typeof a.measure_label === "string" && a.measure_label ? a.measure_label : "Lodging tax receipts";
+      return { value: v, text: `${name} ${v > 0 ? "+" : ""}${v}%${a.our_calculation ? " (our calculation)" : ""} (${label}, ${a.period})` };
     }
     case "debt_context": {
       const cat = a.category;
@@ -357,7 +383,8 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
       ? "Underwritten at replacement cost"
       : `Underwritten at ${article(Math.round(Math.abs(rep.value as number)))} ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
     : `Underwritten with ${rubric.output_template.ungraded_replacement}`;
-  const sprText = spr.graded ? `with a ${spr.value}bp spread` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
+  const sprCalc = spr.graded && /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
+  const sprText = spr.graded ? `with a ${spr.value}bp spread${sprCalc}` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
   const coverage = `${graded.length} of ${rows.length} factors graded`;
   const output_text = `${repText} ${spr.graded ? sprText : `; ${sprText}`}; ${coverage}${enough ? "" : `; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}`}.`.replace(" ;", ";");
 

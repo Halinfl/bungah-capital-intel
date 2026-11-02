@@ -10,6 +10,7 @@ import {
   fmtPerKey,
   fmtPrice,
   gradesFor,
+  gradeLabel,
   salePrice,
   sales,
   closeLabel,
@@ -49,6 +50,19 @@ function GradeRow({ sale }: { sale: Sale }) {
   );
 }
 
+/** Eric's spec: current and original grades both visible. */
+function VersionRow({ sale }: { sale: Sale }) {
+  const gs = gradesFor(sale.sale_id);
+  if (gs.length < 2) return null;
+  const cur = gs[0];
+  const orig = gs[gs.length - 1];
+  return (
+    <div className="text-[13px] text-slate-300">
+      Rubric {cur.rubric_version} (current) <span aria-hidden="true">|</span> Rubric {orig.rubric_version} (original): {gradeLabel(orig)}
+    </div>
+  );
+}
+
 function DealCard({ sale }: { sale: Sale }) {
   return (
     <Link
@@ -66,6 +80,7 @@ function DealCard({ sale }: { sale: Sale }) {
         Buyer {sale.buyer} · Seller {sale.seller}
       </div>
       <GradeRow sale={sale} />
+      <VersionRow sale={sale} />
       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
         <span>Announced {fmtDate(sale.announced_on)}</span>
         <Chip>{closeLabel(sale)}</Chip>
@@ -78,13 +93,13 @@ function logStatus(r: LogRow): React.ReactNode {
   const sale = sales().find((s) => r.log_id && s.log_id === r.log_id);
   if (sale && gradesFor(sale.sale_id).length)
     return (
-      <Link href={`/deals/${sale.slug}`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="inline-flex min-h-11 items-center underline decoration-white/30 underline-offset-2 hover:text-white">
         Graded
       </Link>
     );
   if (sale)
     return (
-      <Link href={`/deals/${sale.slug}`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+      <Link href={`/deals/${sale.slug}`} className="inline-flex min-h-11 items-center underline decoration-white/30 underline-offset-2 hover:text-white">
         Grading
       </Link>
     );
@@ -120,7 +135,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
             <tr key={r.log_id} className="border-b border-white/[0.06] align-top">
               <td className="whitespace-nowrap py-2 pr-3 tabular-nums">{fmtDate(r.announce_date)}</td>
               <td className="py-2 pr-3">
-                <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+                <a href={r.source_url} className="inline-flex min-h-11 items-center hover:text-white" rel="noopener" target="_blank">
                   {r.hotel}
                 </a>
               </td>
@@ -137,7 +152,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
         {rows.map((r) => (
           <li key={`${r.log_id}-m`} className="py-2 text-sm">
             <div className="text-slate-100">
-              <a href={r.source_url} className="hover:text-white" rel="noopener" target="_blank">
+              <a href={r.source_url} className="inline-flex min-h-11 items-center hover:text-white" rel="noopener" target="_blank">
                 {r.hotel}
               </a>{" "}
               <span className="text-slate-300">· {displayMarket(r.market)}</span>
@@ -166,10 +181,10 @@ export default function DealsIndexPage() {
           Graded autopsies of notable US hotel sales, on public data. Decision support, not a recommendation.
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          <Link href="/deals/methodology#inclusion-rule" className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href="/deals/methodology#inclusion-rule" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
             Inclusion rule
           </Link>
-          <Link href="/deals/methodology#rubric" className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+          <Link href="/deals/methodology#rubric" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
             Rubric {RUBRIC.rubric_version}
           </Link>
         </div>
@@ -192,7 +207,7 @@ export default function DealsIndexPage() {
         <LogTable rows={first} />
         {rest.length ? (
           <details className="group">
-            <summary className="cursor-pointer text-sm text-slate-200 hover:text-white">Show all ({log.length})</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center text-sm text-slate-200 hover:text-white">Show all ({log.length})</summary>
             <div className="mt-2">
               <LogTable rows={rest} />
             </div>

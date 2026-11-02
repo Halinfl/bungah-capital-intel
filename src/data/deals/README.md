@@ -14,3 +14,9 @@ Files in the repo, never DB tables (the prod DB is shared).
 | `entries.json` | (editorial) | Tape, financing tags, watches-for, related links, sources. `null` = not written yet; the page shows nothing rather than filler. |
 
 Test fixtures for the grader live OUTSIDE the repo and are refused by `--write`.
+
+## Revisions and citations (2026-11-01)
+
+- A corrected grade under the same rubric version is appended as a new revision (`grade.ts --revision N`); nothing in sale_grades.json is edited or deleted. Pages show the latest revision of each rubric version. Each revision gets an `event=revision` row in grade_log.csv.
+- citations.json holds public citation lines for report-type sources. The data credit is one field (`data_credit`); set it to "" to drop the parenthetical.
+- Source kind `report` is a public body's own research publication (Choose Chicago, LVCVA), listed after records and before press.

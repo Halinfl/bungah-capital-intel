@@ -47,7 +47,7 @@ export default function DealsMethodologyPage() {
       <header className="space-y-3">
         <h1 className="t-h1">Recent Deals methodology</h1>
         <p className="max-w-3xl t-lead">
-          How we choose deals and grade them. This page was published before the first grade. Decision support, not a recommendation.
+          How we choose deals and grade them. Rubric v1 was published before the first grade; v1.1 on Nov 1, 2026. Decision support, not a recommendation.
         </p>
         <UnderwriteNote text={r.disclaimer} />
       </header>
@@ -184,6 +184,21 @@ export default function DealsMethodologyPage() {
                 Rubric {c.version}, {fmtDate(c.date)}: {c.line} Every deal was re-graded; the v1 grade stays on each deal page as the original.
               </li>
             ))}
+        </ul>
+        <h3 id="what-changed" className="text-base font-semibold text-white">
+          What changed from v1
+        </h3>
+        <p className={p}>Same five factors, weights and 3-of-5 cutoff. The rules for what counts as an input changed:</p>
+        <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
+          <li>Supply: pipeline net of closures. Where a source lists closures without a room count, the figure is shown as gross and says so.</li>
+          <li>Supply market: for a downtown hotel, the downtown area defined by the city&rsquo;s visitors bureau counts as the market.</li>
+          <li>
+            Spread: a company&rsquo;s own published NOI definition may be applied to its reported hotel-level EBITDA, shown as our calculation using that
+            company&rsquo;s definition.
+          </li>
+          <li>Spread: a trailing-12-month period ending at a month-end before the announcement qualifies.</li>
+          <li>Replacement cost: if only a price range was public, we grade on the first confirmed price, dated to the confirmation.</li>
+          <li>Sources: industry-data totals that a public body republishes free can be graded, cited to that public body.</li>
         </ul>
         <p className={p}>{r.versioning} The original grade is never overwritten.</p>
       </section>

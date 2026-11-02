@@ -22,6 +22,9 @@ import {
   sales,
   closeLabel,
   fmtKeys,
+  citationText,
+  gradeLabel,
+  isReportUrl,
   type FactorResult,
   type GradeResult,
   type Sale,
@@ -43,8 +46,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const KIND_ORDER = { filing: 0, record: 1, press: 2 } as const;
-const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : "Press");
+const KIND_ORDER = { filing: 0, record: 1, report: 2, press: 3 } as const;
+const kindLabel = (k: Source["kind"]) => (k === "filing" ? "Filing" : k === "record" ? "Record" : k === "report" ? "Report" : "Press");
+/** At least 44px tall tap target for inline links and toggles (WCAG 2.5.5 / Eric's mobile spec). */
+const TAP = "inline-flex min-h-11 items-center";
+const linkCls = "underline decoration-white/30 underline-offset-2 hover:text-white";
 /** Short display name for the breadcrumb: the slug minus its market suffix, title-cased (grande-lakes-orlando → Grande Lakes). */
 const shortName = (s: Sale) => {
   const base = s.market_slug && s.slug.endsWith(`-${s.market_slug}`) ? s.slug.slice(0, -(s.market_slug.length + 1)) : s.slug;
@@ -64,7 +70,7 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
+function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | undefined; original?: GradeResult }) {
   return (
     <div className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4">
       {!g ? (
@@ -96,9 +102,21 @@ function GradeSummary({ sale, g }: { sale: Sale; g: GradeResult | undefined }) {
           <p className="text-sm text-slate-200">{g.output_text}</p>
         </>
       )}
-      <Link href="/deals/methodology#rubric" className="inline-block">
-        <Chip>Rubric {g?.rubric_version ?? RUBRIC.rubric_version}</Chip>
-      </Link>
+      <div className="flex flex-wrap items-center gap-x-1 text-sm" role="group" aria-label="Rubric versions">
+        <Link href="/deals/methodology#rubric" className={`${TAP} min-w-11 px-1`}>
+          <Chip>Rubric {g?.rubric_version ?? RUBRIC.rubric_version}{original ? " (current)" : ""}</Chip>
+        </Link>
+        {original ? (
+          <>
+            <span aria-hidden="true" className="text-slate-300">
+              |
+            </span>
+            <a href="#original-grade" className={`${TAP} px-1 text-slate-200 ${linkCls}`}>
+              Rubric {original.rubric_version} (original): {gradeLabel(original)}
+            </a>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -111,6 +129,7 @@ function kindResolver(sources: Source[]): KindOf {
   return (uri) => {
     const k = byUrl.get(uri);
     if (k) return k;
+    if (isReportUrl(uri)) return "report";
     const host = (() => {
       try {
         return new URL(uri).hostname;
@@ -130,7 +149,7 @@ function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
     <span className="inline-flex flex-col gap-1">
       <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
         <Chip>{kindLabel(kindOf(r.source_uri))}</Chip>
-        <a href={r.source_uri} className="underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+        <a href={r.source_uri} className={`${TAP} ${linkCls}`} rel="noopener" target="_blank">
           {r.as_of ? fmtDate(r.as_of) : "Source"}
           <span className="sr-only"> (opens source)</span>
         </a>
@@ -139,12 +158,12 @@ function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
         <a
           key={x.url + x.label}
           href={x.url}
-          title={x.label}
-          className="whitespace-normal text-[12px] text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+          title={citationText(x.cite_id, x.label)}
+          className={`${TAP} whitespace-normal text-[12px] text-slate-300 ${linkCls}`}
           rel="noopener"
           target="_blank"
         >
-          + {x.label}
+          + {x.cite_id ? `Source: ${citationText(x.cite_id, x.label)}` : x.label}
         </a>
       ))}
     </span>
@@ -210,7 +229,7 @@ function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf })
           return (
             <li key={`${r.factor}-m`}>
               <details className="group px-3 py-2.5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
                   <span className="min-w-0 text-sm text-slate-100">
                     {f.label} <span className="text-slate-300">{Math.round(f.weight * 100)}%</span>
                     {!r.graded && r.reason ? (
@@ -273,8 +292,10 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
         )}
       </div>
       {older.map((g) => (
-        <details key={g.rubric_version} className="text-sm text-slate-200">
-          <summary className="cursor-pointer hover:text-white">Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}</summary>
+        <details key={g.rubric_version} id="original-grade" className="scroll-mt-24 text-sm text-slate-200">
+          <summary className="flex min-h-11 cursor-pointer items-center hover:text-white">
+            Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}
+          </summary>
           <div className="mt-2 space-y-2">
             <p>{g.output_text}</p>
             <FactorTable rows={g.factor_scores} kindOf={kindOf} />
@@ -301,8 +322,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         <li key={s.url} className="flex flex-wrap items-start gap-2 text-sm">
           <Chip>{kindLabel(s.kind)}</Chip>
           <span className="min-w-0 flex-1">
-            <a href={s.url} className="text-slate-100 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
-              {s.title}
+            <a href={s.url} className={`${TAP} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
+              {citationText(s.cite_id, s.title)}
             </a>
             <span className="text-slate-300">
               {" "}
@@ -319,7 +340,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
       <DealsSubnav active="entry" />
       <header className="space-y-4">
         <nav aria-label="Breadcrumb" className="text-xs text-slate-300">
-          <Link href="/deals" className="hover:text-white">
+          <Link href="/deals" className={`${TAP} min-w-11 hover:text-white`}>
             Deals
           </Link>{" "}
           / <span aria-current="page">{shortName(sale)}</span>
@@ -331,7 +352,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
           </div>
           <div className="mt-1 text-sm">
             {sale.market_slug ? (
-              <Link href={`/markets/${sale.market_slug}`} className="text-slate-200 underline decoration-white/30 underline-offset-2 hover:text-white">
+              <Link href={`/markets/${sale.market_slug}`} className={`${TAP} text-slate-200 ${linkCls}`}>
                 {sale.market}
               </Link>
             ) : (
@@ -339,8 +360,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             )}
           </div>
         </div>
-        <GradeSummary sale={sale} g={grades[0]} />
-        <UnderwriteNote text={DISCLAIMER} />
+        <GradeSummary sale={sale} g={grades[0]} original={grades.length > 1 ? grades[grades.length - 1] : undefined} />
+        <UnderwriteNote text={`${DISCLAIMER} Decision support, not a recommendation.`} />
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
           <Fact label="Buyer">{sale.buyer}</Fact>
           <Fact label="Seller">{sale.seller}</Fact>
@@ -359,7 +380,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             {sale.status === "closed" && !sale.closed_on && sale.close_report ? (
               <a
                 href={sale.close_report.url}
-                className="block text-xs text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white"
+                className={`flex min-h-11 items-center text-xs text-slate-300 ${linkCls}`}
                 rel="noopener"
                 target="_blank"
               >
@@ -404,7 +425,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                 {items.map((c) => (
                   <li key={c.text} className="max-w-3xl">
                     {c.text}{" "}
-                    <a href={c.url} className="text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white" rel="noopener" target="_blank">
+                    <a href={c.url} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
                     <span className="text-slate-300"> · {fmtDate(c.date)}</span>
@@ -439,7 +460,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                 {entry.baseline.map((b) => (
                   <li key={b.text}>
                     {b.text}{" "}
-                    <a href={b.url} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
+                    <a href={b.url} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                       source
                     </a>
                   </li>
@@ -457,7 +478,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
                     {vals.map((v) => (
                       <li key={v.market_metric}>
                         {v.market_metric}: {v.value}{" "}
-                        <a href={v.source_uri} className="text-slate-300 underline decoration-white/30" rel="noopener" target="_blank">
+                        <a href={v.source_uri} className={`${TAP} min-w-11 text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
                           source
                         </a>{" "}
                         <span className="text-slate-300">· recorded {fmtDate(v.recorded_on)}</span>
@@ -482,7 +503,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             <div className="mt-3">{sourceList}</div>
           </div>
           <details className="md:hidden">
-            <summary className="cursor-pointer text-lg font-semibold text-white">Sources ({sources.length})</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center text-lg font-semibold text-white">Sources ({sources.length})</summary>
             <div className="mt-3">{sourceList}</div>
           </details>
         </section>
