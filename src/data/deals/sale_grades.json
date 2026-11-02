@@ -1888,110 +1888,6 @@
     "output_text": "Underwritten with replacement cost not graded; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 2 of 5 factors graded; insufficient public data."
   },
   {
-    "log_id": "DL-2026-005",
-    "sale_id": "the-wade-chicago-2026",
-    "rubric_version": "v1.1",
-    "graded_on": "2026-11-01",
-    "public_data_as_of": "2026-09-17",
-    "factor_scores": [
-      {
-        "factor": "replacement_cost",
-        "weight": 0.3,
-        "effective_weight": 0.4,
-        "score": 5,
-        "value": -89.7,
-        "input_text": "$48k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 90% below. First confirmed price, Oct 25, 2026; only a $20M to $25M range was public at announcement (price from press; no deed located yet)",
-        "band_text": "5 = 40% or more below replacement cost",
-        "as_of": "2026-07-13",
-        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
-        "graded": true,
-        "also_sources": [
-          {
-            "label": "$25M purchase closed (The Real Deal, Oct 25, 2026)",
-            "url": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
-            "date": "2026-10-25"
-          },
-          {
-            "label": "$20M to $25M range at announcement (The Real Deal, Sep 17, 2026)",
-            "url": "https://therealdeal.com/chicago/2026/09/17/ketu-amin-purchases-wade-hotel-in-downtown-chicago/",
-            "date": "2026-09-17"
-          }
-        ],
-        "label": "price from press; no deed located yet",
-        "reason": null
-      },
-      {
-        "factor": "spread",
-        "weight": 0.25,
-        "effective_weight": null,
-        "score": null,
-        "value": null,
-        "input_text": null,
-        "band_text": null,
-        "as_of": null,
-        "source_uri": null,
-        "graded": false,
-        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement."
-      },
-      {
-        "factor": "supply",
-        "weight": 0.15,
-        "effective_weight": 0.2,
-        "score": 1,
-        "value": 10.7,
-        "input_text": "Pipeline 10.7% of existing rooms, net of closures (Choose Chicago downtown (CBD) pipeline, August 2026: 819 rooms under construction plus 4,199 in planning = 5,018, none listed as closing, vs 46,901 CBD rooms at year-end 2025; The Wade is in the CBD)",
-        "band_text": "1 = 8% or more",
-        "as_of": "2026-08-25",
-        "source_uri": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
-        "graded": true,
-        "also_sources": [],
-        "label": null,
-        "reason": null
-      },
-      {
-        "factor": "demand",
-        "weight": 0.15,
-        "effective_weight": 0.2,
-        "score": 4,
-        "value": 2.87,
-        "input_text": "Lodging tax receipts +2.87% (trailing 12 months vs prior 12, City of Chicago hotel tax revenue, calendar 2025 vs 2024, the latest full year published; $161.1M vs $156.6M (printed +$4.5M))",
-        "band_text": "4 = flat to up under 5%",
-        "as_of": "2026-06-25",
-        "source_uri": "https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf",
-        "graded": true,
-        "also_sources": [
-          {
-            "label": "Choose Chicago economic impact page",
-            "url": "https://www.choosechicago.com/chicago-economic-impact-2025/",
-            "date": "2026-06-25"
-          }
-        ],
-        "label": null,
-        "reason": null
-      },
-      {
-        "factor": "debt_context",
-        "weight": 0.15,
-        "effective_weight": 0.2,
-        "score": 5,
-        "value": "clean_arms_length",
-        "input_text": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026.",
-        "band_text": "5 = Clean arm's-length sale with no distress",
-        "as_of": "2026-09-17",
-        "source_uri": "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
-        "graded": true,
-        "also_sources": [],
-        "label": null,
-        "reason": null
-      }
-    ],
-    "factors_graded": 4,
-    "factors_total": 5,
-    "overall": 4,
-    "overall_label": "4.0 of 5",
-    "output_text": "Underwritten at a 90% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded."
-  },
-  {
     "log_id": "DL-2026-006",
     "sale_id": "tideline-palm-beach-2026",
     "rubric_version": "v1.1",
@@ -2081,5 +1977,115 @@
     "overall": 3,
     "overall_label": "3.0 of 5",
     "output_text": "Underwritten at a 140% premium to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 3 of 5 factors graded."
+  },
+  {
+    "log_id": "DL-2026-005",
+    "sale_id": "the-wade-chicago-2026",
+    "rubric_version": "v1.1",
+    "graded_on": "2026-11-01",
+    "public_data_as_of": "2026-09-17",
+    "factor_scores": [
+      {
+        "factor": "replacement_cost",
+        "weight": 0.3,
+        "effective_weight": 0.4,
+        "score": 5,
+        "value": -89.7,
+        "input_text": "$48k per key vs $467k replacement cost per key (HVS 2026 full-service median including land, $467,244; single class); 90% below. First confirmed price, Oct 25, 2026; only a $20M to $25M range was public at announcement (price from press; no deed located yet)",
+        "band_text": "5 = 40% or more below replacement cost",
+        "as_of": "2026-07-13",
+        "source_uri": "https://www.hvs.com/Print/HVS-US-Hotel-Development-Cost-Survey-2026?id=10509",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "$25M purchase closed (The Real Deal, Oct 25, 2026)",
+            "url": "https://therealdeal.com/chicago/2026/10/25/rlj-lodging-trust-sells-midway-hotels-at-major-discount/",
+            "date": "2026-10-25"
+          },
+          {
+            "label": "$20M to $25M range at announcement (The Real Deal, Sep 17, 2026)",
+            "url": "https://therealdeal.com/chicago/2026/09/17/ketu-amin-purchases-wade-hotel-in-downtown-chicago/",
+            "date": "2026-09-17"
+          }
+        ],
+        "label": "price from press; no deed located yet",
+        "reason": null
+      },
+      {
+        "factor": "spread",
+        "weight": 0.25,
+        "effective_weight": null,
+        "score": null,
+        "value": null,
+        "input_text": null,
+        "band_text": null,
+        "as_of": null,
+        "source_uri": null,
+        "graded": false,
+        "reason": "No trailing-12-month cap rate or NOI disclosed at announcement."
+      },
+      {
+        "factor": "supply",
+        "weight": 0.15,
+        "effective_weight": 0.2,
+        "score": 1,
+        "value": 10.7,
+        "input_text": "Pipeline 10.7% of existing rooms, net of closures (Choose Chicago downtown (CBD) pipeline, Aug 2026: our sum of the listed projects, 819 rooms under construction plus 4,199 in planning = 5,018, none listed as closing, divided by YE2025 supply of 46,901 rooms (CBD daily room supply at year-end 2025, the latest actual); The Wade is in the CBD)",
+        "band_text": "1 = 8% or more",
+        "as_of": "2026-08-25",
+        "source_uri": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Source: Choose Chicago, Hotel Capacity Update, Aug 2026 (data: Build Central, LARC)",
+            "url": "https://cdn.choosechicago.com/uploads/2026/08/Hotel-Capacity-Update-August-2026.pdf",
+            "date": "2026-08-25"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "demand",
+        "weight": 0.15,
+        "effective_weight": 0.2,
+        "score": 4,
+        "value": 2.87,
+        "input_text": "Lodging tax receipts +2.87% (trailing 12 months vs prior 12, City of Chicago hotel tax revenue, calendar 2025 vs 2024, the latest full year published; $161.1M vs $156.6M (printed +$4.5M))",
+        "band_text": "4 = flat to up under 5%",
+        "as_of": "2026-06-25",
+        "source_uri": "https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf",
+        "graded": true,
+        "also_sources": [
+          {
+            "label": "Choose Chicago economic impact page",
+            "url": "https://www.choosechicago.com/chicago-economic-impact-2025/",
+            "date": "2026-06-25"
+          }
+        ],
+        "label": null,
+        "reason": null
+      },
+      {
+        "factor": "debt_context",
+        "weight": 0.15,
+        "effective_weight": 0.2,
+        "score": 5,
+        "value": "clean_arms_length",
+        "input_text": "Arm's-length REIT sale of a non-core hotel under PK's stated divestiture program; no loan event, special servicing or receivership reported for this hotel, and no buyer-seller relationship stated by Sep 17, 2026.",
+        "band_text": "5 = Clean arm's-length sale with no distress",
+        "as_of": "2026-09-17",
+        "source_uri": "https://finance.yahoo.com/real-estate/articles/ketu-amin-continues-downtown-chicago-203352143.html",
+        "graded": true,
+        "also_sources": [],
+        "label": null,
+        "reason": null
+      }
+    ],
+    "factors_graded": 4,
+    "factors_total": 5,
+    "overall": 4,
+    "overall_label": "4.0 of 5",
+    "output_text": "Underwritten at a 90% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded."
   }
 ]

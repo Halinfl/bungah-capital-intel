@@ -10,3 +10,4 @@ logged_on,log_id,sale_id,event,from_rubric,to_rubric,from_overall,to_overall,fac
 2026-11-01,DL-2026-011,embassy-suites-philadelphia-airport-2026,regrade,v1,v1.1,4.3 of 5,4.3 of 5,none,Rubric v1.1 approved by Hal 2026-11-01; v1 grade kept as the original.
 2026-11-01,DL-2026-012,hotel-zags-portland-2026,regrade,v1,v1.1,Insufficient public data,4.8 of 5,demand ungraded->4,Rubric v1.1 approved by Hal 2026-11-01; v1 grade kept as the original.
 2026-11-01,DL-2026-013,midway-portfolio-chicago-2026,regrade,v1,v1.1,Insufficient public data,Insufficient public data,none,Rubric v1.1 approved by Hal 2026-11-01; v1 grade kept as the original.
+2026-11-01,DL-2026-005,the-wade-chicago-2026,correction,v1.1,v1.1,4.0 of 5,4.0 of 5,none (supply 1 unchanged; 10.7%),"Pre-publication copy correction after legal review: supply denominator labelled YE2025 supply (46,901); pipeline 5,018 confirmed visually; citation text set. v1.1 grade regenerated before any production release."
