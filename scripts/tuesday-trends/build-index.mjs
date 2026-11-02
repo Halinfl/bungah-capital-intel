@@ -9,7 +9,7 @@
  * home "This Tuesday" card, market pages and Radars; every issue gets a static page at /tuesday-trends/<date>.
  *
  * A new weekly capture only has to commit its summary JSON (and a lists/<version>/ folder when the list changes);
- * the next build picks it up. Fails loudly on a malformed or duplicate summary so a bad export never deploys.
+ * the next build picks it up. REIT panel summaries ("panel" set) are skipped. Fails loudly on a malformed or duplicate summary so a bad export never deploys.
  * Usage: node scripts/tuesday-trends/build-index.mjs [--check]   (--check: exit 1 if the committed index is stale)
  */
 import fs from "node:fs";
@@ -36,6 +36,13 @@ for (const f of files) {
     j = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"));
   } catch (e) {
     fail(`${f} is not valid JSON (${e.message})`);
+  }
+  // REIT property panel summaries (summary-<date>-reit-panel-*.json, "panel": "reit") are not Tuesday Trends market issues:
+  // the REIT pages read src/data/reits/panel-summary.json (scripts/reits/export_panel_summary.py). Skip one that lands here
+  // (e.g. a summary-<date>*.json glob copy) instead of failing the build on its missing lists/<reit-panel-...>/ folder.
+  if (j.panel) {
+    console.warn(`tuesday-trends index: skipping ${f} (panel "${j.panel}" summary, not a market issue)`);
+    continue;
   }
   const d = j.capture_date;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d ?? "")) fail(`${f}: capture_date missing or not YYYY-MM-DD`);
