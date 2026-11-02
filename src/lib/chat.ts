@@ -31,6 +31,10 @@ export type ChatAnswer = {
   mode?: "llm" | "deterministic";
   /** Short-answer view (answer line, key reads, coverage, collapsed detail). */
   brief?: ChatBrief;
+  /** Chips shown under a one-line prompt (e.g. "Which two markets should I compare?"); each runs a real question. */
+  followUps?: { label: string; question: string; range?: "90d" | "12m" | "all" }[];
+  /** A one-line prompt with chips: shown as is (no footer). */
+  prompt?: boolean;
 };
 
 export type MarketRow = Prisma.MarketGetPayload<{
@@ -129,7 +133,7 @@ const MATCH_GENERIC_WORDS = new Set([
   "concord", "cary", "research", "triangle", "paul", "columbia", "anderson", "carmel", "warren", "conway",
   "orange", "county", "disney", "corridor", "valley", "mountain", "colorado", "florida", "virginia", "kansas",
   "salt", "louis", "news", "newport", "cambridge", "newton", "arlington", "paradise", "woodlands", "georgetown",
-  "vancouver", "bloomington", "wilmington", "petersburg", "lakewood", "jersey", "pigeon", "forge", "historic",
+  "vancouver", "bloomington", "wilmington", "petersburg", "worth", "lakewood", "jersey", "pigeon", "forge", "historic",
   "outer", "banks", "dare", "wine", "country", "grand", "canyon", "class", "urban", "metro", "oh", "or", "sc", "va",
 ]);
 
@@ -874,17 +878,15 @@ export async function answerFromGraph(
         mode: "deterministic",
       };
     }
+    // One market named (or none): ask which two, with chips for real pairs (no default pair is answered).
     return {
-      content: [
-        "**Compare markets**",
-        "",
-        "Name two seeded markets to compare (e.g. Nashville vs Austin, Miami vs Charleston). We do not default to Orlando vs Las Vegas.",
-        "",
-        footer(),
-      ].join("\n"),
+      content: COMPARE_PROMPT,
       citations: [],
       intent,
+      ...(unique[0] ? { marketSlug: unique[0].slug } : {}),
       mode: "deterministic",
+      prompt: true,
+      followUps: compareChips(ctx.markets, unique[0] ?? null),
     };
   }
 
@@ -1094,6 +1096,37 @@ export async function sourcesForAnswer(
 /* ------------------------------------------------------------------ */
 
 /** Shared decision-support footer for answers composed outside this file. */
+/** First-turn compare with fewer than two markets named. */
+export const COMPARE_PROMPT = "Which two markets should I compare?";
+/** Peer pairs offered when no market is named (each kept only if both markets have enough cited rows). */
+const COMPARE_PAIRS: [string, string][] = [["miami", "orlando"], ["dallas", "houston"], ["san-diego", "los-angeles"], ["chicago", "boston"], ["nashville", "atlanta"]];
+/** A market with at least this many cited rows can be offered as a compare chip. */
+const COMPARE_MIN_ROWS = 10;
+
+/**
+ * Market chips for the compare prompt: with one market named, it paired with the covered markets that have the
+ * most cited rows; otherwise peer pairs. Only markets with enough cited rows are offered. Each chip asks a two-market question the compare answer handles.
+ */
+export function compareChips(markets: MarketRow[], anchor: MarketRow | null): { label: string; question: string }[] {
+  const ok = (m: MarketRow | undefined): m is MarketRow => Boolean(m && m.signals.length >= COMPARE_MIN_ROWS);
+  const by = new Map(markets.map((m) => [m.slug, m]));
+  const name = (m: MarketRow) => MARKET_SHORT[m.slug] ?? m.name.split(/[–—/(,]| MSA\b/)[0].trim();
+  const chip = (a: MarketRow, b: MarketRow) => ({ label: `${name(a)} vs ${name(b)}`, question: `Compare ${name(a)} vs ${name(b)}` });
+  if (anchor) {
+    return markets
+      .filter((m) => m.id !== anchor.id && ok(m))
+      .sort((x, y) => y.signals.length - x.signals.length || x.name.localeCompare(y.name))
+      .slice(0, 3)
+      .map((m) => chip(anchor, m));
+  }
+  return COMPARE_PAIRS.map(([a, b]) => [by.get(a), by.get(b)] as const)
+    .filter((p): p is readonly [MarketRow, MarketRow] => ok(p[0]) && ok(p[1]))
+    .slice(0, 3)
+    .map(([a, b]) => chip(a, b));
+}
+/** Display names where the MSA name's first part is not what people say. */
+const MARKET_SHORT: Record<string, string> = { "new-york-city": "New York", "san-francisco-bay": "San Francisco", honolulu: "Honolulu", "washington-dc": "Washington DC", "las-vegas": "Las Vegas" };
+
 export function decisionSupportFooter(): string {
   return footer();
 }

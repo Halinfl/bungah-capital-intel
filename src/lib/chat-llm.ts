@@ -200,7 +200,8 @@ function cleanLegacy(content: string): string {
  * With a brief, the stored text is the brief's own markdown (same facts, same order).
  */
 function finalize(answer: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
-  const content = answer.brief ? briefMarkdown(answer.brief) : cleanLegacy(answer.content);
+  // A one-line prompt with chips ("Which two markets should I compare?") is shown as is, without the footer.
+  const content = answer.brief ? briefMarkdown(answer.brief) : answer.prompt ? answer.content : cleanLegacy(answer.content);
   // Under a date window the answer's citations are exactly the windowed brief's citations.
   const windowed = answer.brief?.window && answer.brief.window.range !== "all";
   return {

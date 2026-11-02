@@ -434,6 +434,43 @@ function fresherThanSnapshot(m: MarketRow, perf: Fact[]): Fact | undefined {
   return best && ymd(best.key) - ymd(p.end) >= 90 * 86_400_000 ? best : undefined;
 }
 
+/**
+ * "Why is occupancy down?" on a drivers card: the question states a direction for occupancy, RevPAR or ADR. The
+ * cited print that would lead the performance card for that metric (longest recent period, never a single week)
+ * is checked against it, and the card opens with that real figure, saying "actually" when the data contradicts
+ * the question ("Occupancy is actually up 3.2% (County YTD through Sep 12 2026, roadgenius.com)."). No cited
+ * signed change for the metric, or no clear direction in the question: null (nothing is said, nothing made up).
+ */
+const PREMISE_METRICS: { name: string; q: RegExp; f: RegExp }[] = [
+  { name: "Occupancy", q: /\b(occupanc\w*|occ)\b/i, f: /\b(?:OCC|occupancy)\b[^;|,]{0,25}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%|pts?\b|pp\b|points?\b)/i },
+  { name: "RevPAR", q: /\brevpar\b/i, f: /\bRevPAR\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
+  { name: "ADR", q: /\b(adr|average daily rates?|room rates?)\b/i, f: /\b(?:ADR|average daily rate)\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
+];
+const SAYS_DOWN = /\b(down|fall(s|ing|en)?|fell|drop(s|ped|ping)?|declin\w*|decreas\w*|lower|weak\w*|slump\w*|soft(er|ening)?|slow(ing|er)?|shrink\w*|plung\w*|tank\w*)\b/i;
+const SAYS_UP = /\b(up|ris(e|es|ing)|rose|grow(s|ing|n)?|grew|increas\w*|higher|strong(er)?|climb\w*|surg\w*|jump\w*|gain\w*|soar\w*)\b/i;
+
+export function premiseCheck(facts: Fact[], question: string): { line: string; fact: Fact } | null {
+  const down = SAYS_DOWN.test(question);
+  const up = SAYS_UP.test(question);
+  if (down === up) return null;
+  const metric = PREMISE_METRICS.find((x) => x.q.test(question));
+  if (!metric) return null;
+  const fact = longestFirst(facts.filter((f) => PERF_FACT(f) && !isSpot(f) && metric.f.test(f.text)))[0];
+  const g = fact?.text.match(metric.f);
+  if (!fact || !g) return null;
+  const [, sign, n, unit] = g;
+  const dataUp = sign === "+";
+  if (Number(n) === 0) return null;
+  const amount = unit === "%" ? `${n}%` : `${n} points`;
+  const text = cleanFactText(fact.text);
+  const colon = text.search(/:\s/);
+  const label = colon > 0 && colon <= 60 ? text.slice(0, colon) : fact.period?.label ?? (fact.asOf ? fmtAsOf(fact.asOf) : null);
+  const where = [label, flatSource(fact.source.label)].filter(Boolean).join(", ");
+  const said = dataUp ? "up" : "down";
+  const line = dataUp === up ? `${metric.name} is ${said} ${amount} (${where}).` : `${metric.name} is actually ${said} ${amount} (${where}).`;
+  return { line, fact };
+}
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -505,6 +542,12 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = `${short}: no dated, cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited rows we have are below.`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     }
+  }
+  // A "why is X down/up" question on the drivers card: the real figure for X first (see premiseCheck).
+  const premise = lens === "demand" && intent !== "revpar_metrics" && opts.question ? premiseCheck(facts, opts.question) : null;
+  if (premise) {
+    answer = `${premise.line} ${answer}`;
+    reads = [premise.fact, ...reads.filter((f) => f.text !== premise.fact.text && !sameFact(f, premise.fact))].slice(0, Math.max(1, 3 - (opts.extraReads?.length ?? 0)));
   }
   const readList = [...reads.map(toRead), ...(opts.extraReads ?? [])].slice(0, 3);
 

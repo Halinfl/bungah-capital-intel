@@ -14,8 +14,13 @@ import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
 export type StarterProp = { q: string; range?: DateRange };
 type AskSource = "typed" | "starter" | "reask" | "link" | "tt-swipe" | "chip";
-/** The answer on screen, sent with the next question so a follow-up keeps its market and never gets the same card. */
-type PrevAnswer = { question: string; intent: string | null; marketSlug: string | null; answerHash: string };
+/**
+ * The answer on screen, sent with the next question so a follow-up keeps its market and never gets the same card.
+ * `seen`: fingerprints of the answers already shown in this thread (newest first, at most SEEN_MAX), so a card
+ * shown earlier (not just directly above) is never shown again.
+ */
+type PrevAnswer = { question: string; intent: string | null; marketSlug: string | null; answerHash: string; seen?: string[] };
+const SEEN_MAX = 10;
 /** "Other angle" chips under a no-repeat reply: each runs a real question. */
 type FollowUpChip = { label: string; question: string; range?: DateRange };
 const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
@@ -103,6 +108,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   const autoSubmittedKey = useRef<string | null>(null);
   /** Last answer on screen (its question, intent, market and card hash); null on a fresh thread. */
   const lastAnswer = useRef<PrevAnswer | null>(null);
+  /** Fingerprints of every answer shown in this thread, newest first (capped at SEEN_MAX). */
+  const seenHashes = useRef<string[]>([]);
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -120,6 +127,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
     inFlight.current = null;
     sending.current = false;
     lastAnswer.current = null;
+    seenHashes.current = [];
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
@@ -162,7 +170,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       if (range === "all") setInput("");
 
       setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
-      const prev = lastAnswer.current;
+      const prev = lastAnswer.current ? { ...lastAnswer.current, seen: seenHashes.current.slice(0, SEEN_MAX) } : null;
 
       const seq = ++requestSeq.current;
       inFlight.current?.abort();
@@ -236,7 +244,10 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       inFlight.current = null;
       sending.current = false;
       // Failed or rate-limited replies leave the previous answer as the follow-up context.
-      if (nextPrev) lastAnswer.current = nextPrev;
+      if (nextPrev) {
+        lastAnswer.current = nextPrev;
+        seenHashes.current = [nextPrev.answerHash, ...seenHashes.current.filter((h) => h !== nextPrev!.answerHash)].slice(0, SEEN_MAX);
+      }
       // The final answer is appended once and never rewritten.
       setMessages((m) => [...m, reply]);
       setBusy(false);

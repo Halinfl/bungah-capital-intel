@@ -116,7 +116,10 @@ const RULES: Rule[] = [
     weight: 7,
     test: (q) =>
       /\bdemand\b/.test(q) ||
-      /\bvisit(or|ation|s)\b/.test(q) ||
+      /\bvisit(ors?|ation|s)\b/.test(q) ||
+      // "Why is occupancy down?", "what's driving RevPAR?": the drivers card, not the performance card again.
+      /\bwhy\b/.test(q) ||
+      /\bdriv(ing|ers?|es|en)\b/.test(q) ||
       /\bleisure\b/.test(q) ||
       /\btouris[mt]\b/.test(q) ||
       /\battendance\b/.test(q) ||

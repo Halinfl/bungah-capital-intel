@@ -4,7 +4,8 @@
  * same thing gets the same cached answer instead of a rebuild.
  *
  * Key: v1 · deployment · data version · ET day · intent · item · window · hash(normalized question)
- *      [· prev:<market>:<card hash> for a follow-up that sent `prev`]
+ *      (item = the scope, or the routed market; intent = the routed intent). The thread's answer fingerprints
+ *      (prev.answerHash, prev.seen) are never part of the key: the no-repeat check runs after the lookup.
  * Layers:
  *   L1 per-instance memory (Fluid compute serves many requests per instance), up to 10 min, 500 entries.
  *   L2 Next Data Cache (unstable_cache → Vercel Data Cache, regional, shared by instances; preview and
@@ -86,9 +87,8 @@ export function answerKey(parts: {
   scope: ChatScope | null;
   marketSlug: string | null;
   range: DateRange;
-  /** Follow-up routing (chat-followup.ts): the carried intent, and the previous answer's market and card hash. */
+  /** Follow-up routing (chat-followup.ts): the carried intent. */
   intent?: ChatIntent | null;
-  prev?: { marketSlug: string | null; answerHash: string | null } | null;
 }): string {
   const deployment = process.env.VERCEL_DEPLOYMENT_ID ?? process.env.VERCEL_GIT_COMMIT_SHA ?? "local";
   const nq = normalizeQuestion(parts.question);
@@ -96,8 +96,6 @@ export function answerKey(parts: {
   const item = parts.scope ? scopeKey(parts.scope) : parts.marketSlug ? `market:${parts.marketSlug}` : "none";
   const qh = createHash("sha256").update(nq).digest("hex").slice(0, 16);
   const key = ["v1", deployment, parts.version, etDay(), intent, item, parts.range, qh];
-  // A follow-up never shares a key with the same words asked fresh (or after a different answer).
-  if (parts.prev) key.push(`prev:${parts.prev.marketSlug ?? "-"}:${parts.prev.answerHash ?? "-"}`);
   return key.join("|");
 }
 

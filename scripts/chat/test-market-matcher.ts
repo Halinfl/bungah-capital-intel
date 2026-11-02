@@ -39,6 +39,11 @@ const NO_MARKET = [
   "how are la quinta hotels doing?",
   "how many rooms are in the north region?",
   "how are resorts in the mountain west doing?",
+  // "worth" alone is not Dallas–Fort Worth (only "Fort Worth" / "DFW" as a phrase).
+  "Is it worth it?",
+  "Is a hotel worth buying right now?",
+  "what is a hotel worth per key?",
+  "is RevPAR growth worth the supply risk?",
 ];
 
 /** Questions that name a market (short name, alias or abbreviation): expected slug. */
@@ -69,6 +74,9 @@ const NAMED: [string, string][] = [
   ["How is San Antonio doing?", "san-antonio"],
   ["How is the Bay Area doing?", "san-francisco-bay"],
   ["How is Fort Worth doing?", "dallas"],
+  ["DFW hotel supply?", "dallas"],
+  ["Dallas–Fort Worth RevPAR", "dallas"],
+  ["Is Nashville worth it?", "nashville"],
   ["How is St. Louis doing?", "st-louis"],
   ["How is Grand Canyon doing?", "sedona-grand-canyon"],
   ["How is Pigeon Forge doing?", "gatlinburg-pigeon-forge"],

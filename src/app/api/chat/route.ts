@@ -9,7 +9,8 @@ import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
-import { applyNoRepeat, parsePrev, resolveFollowUp } from "@/lib/chat-followup";
+import { answerHash, applyNoRepeat, parsePrev, resolveFollowUp, type FollowUpChip } from "@/lib/chat-followup";
+import type { ChatIntent } from "@/lib/chat-intent";
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
@@ -50,6 +51,8 @@ type Built = {
   marketSlug: string | null;
   mode?: string;
   answeredWell: boolean;
+  /** Chips that come with the answer itself (the "which two markets?" prompt). */
+  followUps?: FollowUpChip[];
 };
 
 type LogInput = {
@@ -182,8 +185,8 @@ export async function POST(req: Request) {
 
     // answerChat returns the one final answer: seed wording and internal labels are already
     // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
-    const build = async (): Promise<Built> => {
-      const answer = await answerChat(question, { marketSlug, range, scope, intent: route.intent });
+    const build = (q: string, rng: typeof range, rt: { marketSlug: string | null; intent: typeof route.intent }) => async (): Promise<Built> => {
+      const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent });
       const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
       const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
       return {
@@ -192,23 +195,26 @@ export async function POST(req: Request) {
         citations,
         sources,
         intent: answer.intent,
-        marketSlug: answer.marketSlug ?? marketSlug,
+        marketSlug: answer.marketSlug ?? rt.marketSlug,
         mode: answer.mode,
         answeredWell: answer.answeredWell,
+        ...(answer.followUps?.length ? { followUps: answer.followUps } : {}),
       };
     };
 
     // Deterministic answers are shared (src/lib/chat-cache.ts). Model answers (spend-locked off) never are.
-    let answer: Built;
-    let cache: CacheStatus = "bypass";
-    if (!isLlmEnabled() && !(TEST_TOGGLES && req.headers.get("x-bungah-test") === "no-cache")) {
-      const key = answerKey({ version: await dataVersion(), question, scope, marketSlug, range, intent: route.intent, prev });
-      const r = await cachedAnswer(key, build);
-      answer = r.value;
-      cache = r.status;
-    } else {
-      answer = await build();
-    }
+    // The key is the question, item, routed market and intent, and window only: the thread's answer
+    // fingerprints (prev.answerHash / prev.seen) never enter it; the repeat check runs after the lookup.
+    const useCache = !isLlmEnabled() && !(TEST_TOGGLES && req.headers.get("x-bungah-test") === "no-cache");
+    const version = useCache ? await dataVersion() : "";
+    const cardFor = async (q: string, rng: typeof range, rt: { marketSlug: string | null; intent: typeof route.intent }): Promise<{ value: Built; status: CacheStatus }> => {
+      if (!useCache) return { value: await build(q, rng, rt)(), status: "bypass" };
+      const key = answerKey({ version, question: q, scope, marketSlug: rt.marketSlug, range: rng, intent: rt.intent });
+      return cachedAnswer(key, build(q, rng, rt));
+    };
+    const r0 = await cardFor(question, range, route);
+    let answer: Built = r0.value;
+    const cache: CacheStatus = r0.status;
 
     if (detail) {
       // Everything the card left off: the full sections plus every cited source behind the answer.
@@ -219,9 +225,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Never the same card twice in a row: a follow-up whose card matches the one on screen gets one line and
-    // chips for other angles (each a real question), never the card again.
-    const nr = await applyNoRepeat(answer, { prev, question, range });
+    // Never the same answer twice in a thread: a card matching any answer already shown (prev.answerHash or
+    // prev.seen) gets one line and chips for other angles, and a chip whose card was already shown is dropped.
+    // A chip's card is built the way the chip's own request will be (same scope, routed with this answer as prev).
+    const chipPrev = { question: question.slice(0, 300), intent: (answer.intent ?? null) as ChatIntent | null, marketSlug: answer.marketSlug, answerHash: null, seen: [] };
+    const hashOf = async (c: FollowUpChip) => {
+      const rt = await resolveFollowUp({ question: c.question, scope, marketSlug: askedMarket, prev: chipPrev });
+      return answerHash((await cardFor(c.question, c.range ?? "all", rt)).value);
+    };
+    const nr = await applyNoRepeat(answer, { prev, question, range, hashOf });
     answer = nr.answer;
     const { hash, repeat, followUps } = nr;
 
@@ -244,7 +256,7 @@ export async function POST(req: Request) {
         marketSlug: answer.marketSlug,
         // The card's fingerprint (the repeated card's on a no-repeat reply), sent back as prev.answerHash.
         answerHash: hash,
-        ...(followUps ? { followUps } : {}),
+        ...(followUps?.length ? { followUps } : answer.followUps?.length ? { followUps: answer.followUps } : {}),
         mode: answer.mode,
         modelUsed,
         isPrivate,
