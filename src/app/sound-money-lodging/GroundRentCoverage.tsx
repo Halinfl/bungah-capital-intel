@@ -55,8 +55,8 @@ export function GroundRentCoverage() {
         </p>
       )}
       <p className="mt-4 text-xs leading-relaxed text-slate-300">
-        Formulas: rent in year t = year-1 rent × (1 + escalator)^(t − 1) · NOI in year t = NOI ×
-        (1 + growth)^(t − 1) · coverage = NOI ÷ rent. CPI or fair-market resets are not modeled.
+        Formulas: rent in year t = year-1 rent × (1 + escalator)^(t − 1){"\u00a0·"} NOI in year t = NOI ×
+        (1 + growth)^(t − 1){"\u00a0·"} coverage = NOI ÷ rent. CPI or fair-market resets are not modeled.
         Coverage before debt service; your lender sizes on NOI after ground rent.
       </p>
     </div>

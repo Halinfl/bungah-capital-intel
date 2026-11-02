@@ -35,7 +35,7 @@ export function ThesisBand() {
         </li>
         <li>
           <span className="text-slate-400">4.</span> BTC has {years} years of history (genesis block{" "}
-          <a href={BTC.genesis.source} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white">
+          <a href={BTC.genesis.source} target="_blank" rel="noopener noreferrer" className="py-3.5 underline underline-offset-2 hover:text-white">
             January 3, 2009 ↗
           </a>
           ); statistical claims carry that caveat.
@@ -43,7 +43,7 @@ export function ThesisBand() {
         <li className="md:col-span-2">
           <span className="text-slate-400">5.</span> No sponsorships from bitcoin-industry companies; if that ever
           changes, the disclosure goes at the top of the page, not in fine print.{" "}
-          <Link href="/sponsorship-policy" className="underline underline-offset-2 hover:text-white">
+          <Link href="/sponsorship-policy" className="py-3.5 underline underline-offset-2 hover:text-white">
             Sponsorship policy
           </Link>
         </li>

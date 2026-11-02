@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import { fixMemoCopy } from "@/lib/memo-copy";
 import { stripSocialMarkdown } from "@/lib/social-sources";
 import { scrubInternal } from "@/lib/public-text";
+import { glueHtml } from "@/lib/glue";
 
 /**
  * Renders a Stack memo. A bullet with links becomes a whole-row link to its first source (stretched
@@ -21,7 +22,7 @@ export function StackMemoView({ text }: { text: string }) {
       i++;
       out.push(
         <details key={i} className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2">
-          <summary className="cursor-pointer text-xs font-medium text-slate-300">{first.slice(4)}</summary>
+          <summary className="-my-2 cursor-pointer py-3.5 text-xs font-medium text-slate-300">{first.slice(4)}</summary>
           <List lines={body.split("\n")} plain />
         </details>
       );
@@ -74,7 +75,7 @@ function List({ lines, plain = false }: { lines: string[]; plain?: boolean }) {
           }
           return (
             <li key={j} data-row-link={first[2]}
-              className="group relative rounded-md border border-white/[0.06] px-2 py-1.5 text-[13px] leading-snug text-slate-200 transition-colors hover:border-emerald-400/40 hover:bg-white/[0.04]">
+              className="group relative min-h-11 rounded-md border border-white/[0.06] px-2 py-1.5 text-[13px] leading-snug text-slate-200 transition-colors hover:border-emerald-400/40 hover:bg-white/[0.04]">
               <a href={first[2]} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${first[1]}`}
                 className="absolute inset-0 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-emerald-400/60" />
               <span dangerouslySetInnerHTML={{ __html: inline(body, true) }} />
@@ -94,7 +95,7 @@ function inline(s: string, raised = false): string {
   return esc(s)
     .replace(
       /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
-      `<a href='$2' target='_blank' rel='noopener noreferrer' class='text-emerald-300/90 underline-offset-2 hover:underline${z}'>$1</a>`
+      `<a href='$2' target='_blank' rel='noopener noreferrer' class='py-3.5 text-emerald-300/90 underline-offset-2 hover:underline${z}'>$1</a>`
     )
     .replace(/\{tag: ([^}]+)\}/g, (_m, t: string) => {
       const tone = /watch|negative leverage/i.test(t)
@@ -105,5 +106,7 @@ function inline(s: string, raised = false): string {
       return `<span class='ml-1 inline-block rounded border px-1 py-px text-xs uppercase tracking-wide ${tone}'>${t}</span>`;
     })
     .replace(/\*\*(.+?)\*\*/g, "<strong class='font-semibold text-white'>$1</strong>")
-    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-300'>$2</em>");
+    .replace(/(^|\s)\*(.+?)\*(?=\s|$)/g, "$1<em class='text-slate-300'>$2</em>")
+    // A "·" never starts a line and "City, ST" never splits (no-break spaces).
+    .replace(/[\s\S]*/, (h) => glueHtml(h));
 }

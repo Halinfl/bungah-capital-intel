@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { publisherName } from "../../src/lib/public-text";
 import { fixMemoCopy } from "../../src/lib/memo-copy";
+import { glueText, glueHtml } from "../../src/lib/glue";
 import { isOriginalUrl, parseSourceUrls } from "../../src/lib/source-links";
 
 let fail = 0;
@@ -85,6 +86,14 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   check(!!both && both.body.includes("Evo: managing Hotel Z") && both.magnitude === "2 rows" && !/linkedin/.test(JSON.stringify(both)), `stripSocial keeps a row a non-social link also backs (${both?.body})`);
   const ch = stripSocial({ title: "t", body: "Lead. A moved (PRWeb). | B adds hotels (self-reported). | C wins (BW).", magnitude: "3 changes", sourceLabel: "PRWeb · B on LinkedIn · BW", sourceUrls: [{ url: "https://prweb.com/a", label: "A moved — PRWeb" }, { url: "https://www.linkedin.com/posts/b_c", label: "B adds hotels — B on LinkedIn (self-reported)" }, { url: "https://businesswire.com/x", label: "C wins — BW" }] });
   check(!!ch && ch.magnitude === "2 changes" && !/B adds/.test(ch.body), `stripSocial: "3 changes" -> "${ch?.magnitude}", post-only change dropped`);
+}
+
+// r7d: line-break glue on market pages and Sound Asset Lodging: a "·" never starts a line, "City, ST" never splits.
+{
+  const g = glueText("CBD supply: 46,901 → 47,583 · Aug 2026 · Rancho Bernardo/San Diego, CA");
+  check(g === "CBD supply: 46,901 → 47,583\u00a0· Aug 2026\u00a0· Rancho Bernardo/San Diego,\u00a0CA", `glueText: ${JSON.stringify(g)}`);
+  const h = glueHtml("<a href='https://sec.gov/x'>SEC EDGAR</a> · <a href='https://y.com'>Y</a> Austin, TX");
+  check(h === "<a href='https://sec.gov/x'>SEC EDGAR</a>&nbsp;· <a href='https://y.com'>Y</a> Austin,&nbsp;TX", `glueHtml: ${h}`);
 }
 
 // r7c: memo copy. The LinkedIn-only +11.6% figure and "No greenlight." never reach a memo, saved or new.

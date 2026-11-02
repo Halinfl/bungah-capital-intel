@@ -51,7 +51,7 @@ const pillars = [
     bullets: [
       "PIP countdown + sats-funded CapEx runway",
       "Labor stress scenarios (housekeeping, F&B, desk)",
-      "Role-based talking points: Owner · Brand · GM",
+      "Role-based talking points: Owner\u00a0· Brand\u00a0· GM",
     ],
   },
 ] as const;
@@ -268,7 +268,7 @@ export default async function SoundMoneyLodgingPage({
             href="https://www.tftc.io/cre"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-100 underline underline-offset-2 hover:text-white"
+            className="-mx-1 px-1 py-3.5 text-slate-100 underline underline-offset-2 hover:text-white"
           >
             TFTC CRE guide
           </a>
@@ -284,7 +284,7 @@ export default async function SoundMoneyLodgingPage({
           <a href="#studio" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Generate a Stack memo
           </a>
-          <Link href="/markets" className="text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
+          <Link href="/markets" className="inline-flex min-h-11 items-center text-slate-200 underline decoration-white/30 underline-offset-4 hover:text-white">
             Browse markets
           </Link>
         </div>
@@ -299,8 +299,8 @@ export default async function SoundMoneyLodgingPage({
         </div>
         <p className="text-sm leading-relaxed text-slate-300">
           The context for each calculator is below:{" "}
-          <a href="#btc-sleeve" className="underline underline-offset-2 hover:text-white">financing a BTC sleeve</a> and{" "}
-          <a href="#land-split" className="underline underline-offset-2 hover:text-white">land / hotel split</a>.
+          <a href="#btc-sleeve" className="py-3.5 underline underline-offset-2 hover:text-white">financing a BTC sleeve</a> and{" "}
+          <a href="#land-split" className="py-3.5 underline underline-offset-2 hover:text-white">land / hotel split</a>.
         </p>
       </section>
 
@@ -351,7 +351,7 @@ export default async function SoundMoneyLodgingPage({
               </figure>
               <div className="space-y-3 p-5">
                 <p className="text-xs text-slate-300">
-                  {i === 0 ? "Worked example 1" : `Worked example ${i + 1}`} · {n.publisher} · {n.display_date}
+                  {i === 0 ? "Worked example 1" : `Worked example ${i + 1}`}{"\u00a0·"} {n.publisher}{"\u00a0·"} {n.display_date}
                 </p>
                 <h3 className="max-w-3xl text-base font-medium leading-snug text-white">{n.title}</h3>
                 <div className="max-w-3xl space-y-1 text-sm leading-relaxed text-slate-300">
@@ -438,8 +438,8 @@ export default async function SoundMoneyLodgingPage({
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
           Nightly yield, PIP clocks, fee stacks, labor, group books, debt walls, and brand politics
           underspecify when you only borrow office/industrial framing. Sound Asset Lodging reweights
-          treasury · capital · operations around{" "}
-          <span className="text-slate-300">STR · Occupancy · ADR · RevPAR</span>,{" "}
+          treasury{"\u00a0·"} capital{"\u00a0·"} operations around{" "}
+          <span className="text-slate-300">STR{"\u00a0·"} Occupancy{"\u00a0·"} ADR{"\u00a0·"} RevPAR</span>,{" "}
           <span className="text-slate-300">Bitcoin per key</span>, and runway through maturity gaps —
           leverage-first → balance-sheet-first.
         </p>
@@ -451,7 +451,7 @@ export default async function SoundMoneyLodgingPage({
           Fifth return driver
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">
-          Classic hotel returns: grow NOI · improve the asset · manage leverage · favorable cap rates.
+          Classic hotel returns: grow NOI{"\u00a0·"} improve the asset{"\u00a0·"} manage leverage{"\u00a0·"} favorable cap rates.
           <span className="text-slate-200"> Fifth — balance-sheet appreciation:</span> a strategic
           Bitcoin reserve that can compound <em>independently of RevPAR</em>, local property values,
           and refinancing conditions. Track{" "}
@@ -518,7 +518,7 @@ export default async function SoundMoneyLodgingPage({
         </div>
         <p className="text-sm leading-relaxed text-slate-300">
           Run the numbers in the{" "}
-          <a href="#sleeve-carry-check" className="underline underline-offset-2 hover:text-white">sleeve carry check</a>{" "}
+          <a href="#sleeve-carry-check" className="py-3.5 underline underline-offset-2 hover:text-white">sleeve carry check</a>{" "}
           above. Consult a lawyer and a CPA before structuring a sleeve.
         </p>
       </section>
@@ -593,7 +593,7 @@ export default async function SoundMoneyLodgingPage({
         <CardGrid cards={landSplit} />
         <p className="text-sm leading-relaxed text-slate-300">
           Run the numbers in the{" "}
-          <a href="#ground-rent-coverage" className="underline underline-offset-2 hover:text-white">ground rent coverage</a>{" "}
+          <a href="#ground-rent-coverage" className="py-3.5 underline underline-offset-2 hover:text-white">ground rent coverage</a>{" "}
           calculator above. Consult a lawyer and a CPA before splitting land from the hotel.
         </p>
       </section>
@@ -663,7 +663,7 @@ export default async function SoundMoneyLodgingPage({
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-medium text-white">{a.title}</h3>
               <span className="text-xs text-slate-300">
-                {a.market ? `${a.market.name} · ` : ""}
+                {a.market ? `${a.market.name}\u00a0· ` : ""}
                 {a.createdAt.toLocaleString("en-US", { timeZone: "America/New_York" })} ET
               </span>
             </div>
@@ -686,7 +686,7 @@ export default async function SoundMoneyLodgingPage({
           href="https://www.tftc.io/cre"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-slate-300 underline-offset-2 hover:text-slate-300 hover:underline"
+          className="py-3.5 text-slate-300 underline-offset-2 hover:text-slate-300 hover:underline"
         >
           tftc.io/cre
         </a>

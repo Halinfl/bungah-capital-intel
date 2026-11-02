@@ -1,5 +1,6 @@
 import { splitUrls } from "@/lib/source-links";
 import { cleanSourceLabel } from "@/lib/public-text";
+import { glueText } from "@/lib/glue";
 
 /** Source label; any original URL inside it is clickable (new tab). Internal labels are stripped. */
 export function SourceChip({ label }: { label: string }) {
@@ -19,12 +20,12 @@ export function SourceChip({ label }: { label: string }) {
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-300 underline-offset-2 hover:underline"
+              className="py-3.5 text-emerald-300 underline-offset-2 hover:underline"
             >
-              {p.text} ↗
+              {glueText(p.text)}{"\u00a0↗"}
             </a>
           ) : (
-            <span key={i}>{p.text}</span>
+            <span key={i}>{glueText(p.text)}</span>
           )
         )}
       </span>

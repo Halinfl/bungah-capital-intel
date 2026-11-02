@@ -9,6 +9,7 @@ import { StatCard } from "@/components/StatCard";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
 import { parseSourceUrls, URL_RE, isOriginalUrl } from "@/lib/source-links";
+import { glueText } from "@/lib/glue";
 import { SignalCard } from "@/components/SignalCard";
 import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
@@ -146,7 +147,7 @@ export default async function MarketDetailPage({
           </>
         }
       >
-        <p className="mt-1 line-clamp-2 text-sm text-slate-300">{briefLine(title, s.body)}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-slate-300">{glueText(briefLine(title, s.body))}</p>
         <div className="mt-2">
           {links.length ? (
             <SourceLinks links={links} limit={3} />
@@ -184,7 +185,7 @@ export default async function MarketDetailPage({
           <p className="mt-4 max-w-3xl text-slate-300">{coverageInProgressLine(market.name)}</p>
         ) : (
           <>
-            <p className="mt-4 max-w-3xl text-slate-300">{scrubInternal(market.summary)}</p>
+            <p className="mt-4 max-w-3xl text-slate-300">{glueText(scrubInternal(market.summary))}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -221,7 +222,7 @@ export default async function MarketDetailPage({
             <h2 className="text-sm font-semibold uppercase tracking-wider text-amber-200">
               Orlando&apos;s hotel areas differ: record visitors don&apos;t mean rooms are scarce
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-amber-50">{scrubInternal(market.nuanceNote)}</p>
+            <p className="mt-3 text-sm leading-relaxed text-amber-50">{glueText(scrubInternal(market.nuanceNote))}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -231,7 +232,7 @@ export default async function MarketDetailPage({
             <h2 className="text-sm font-semibold uppercase tracking-wider text-sky-200">
               Which part of {short}: visitors vs. scarce rooms
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-200">{scrubInternal(market.nuanceNote)}</p>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200">{glueText(scrubInternal(market.nuanceNote))}</p>
             <div className="mt-3">
               <SourceChip label={market.sourceLabel} />
             </div>
@@ -271,12 +272,12 @@ export default async function MarketDetailPage({
         <section className="space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Hotel-tax collections</h2>
-            <span className="text-xs text-slate-300">newest first · {taxSeries.length} periods</span>
+            <span className="text-xs text-slate-300">newest first{"\u00a0· "}{taxSeries.length} periods</span>
           </div>
           <div className="grid gap-3">{taxSeries.slice(0, TAX_SHOWN).map((s, i) => renderSignal(s, i, "tax"))}</div>
           {taxSeries.length > TAX_SHOWN ? (
             <details>
-              <summary className="cursor-pointer text-xs text-slate-300 hover:text-slate-200">
+              <summary className="cursor-pointer py-3.5 text-xs text-slate-300 hover:text-slate-200">
                 +{taxSeries.length - TAX_SHOWN} earlier periods
               </summary>
               <div className="mt-3 grid gap-3">
@@ -301,11 +302,11 @@ export default async function MarketDetailPage({
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="font-medium text-white">{a.name}</h3>
                   <span className="text-xs text-slate-300">
-                    {a.keys ? `${a.keys.toLocaleString()} keys` : "keys n/a"} · {a.assetClass}
+                    {a.keys ? `${a.keys.toLocaleString()} keys` : "keys n/a"}{"\u00a0· "}{a.assetClass}
                   </span>
                 </div>
                 {a.submarket ? <p className="mt-1 text-xs text-emerald-300/80">{a.submarket}</p> : null}
-                {a.notes ? <p className="mt-2 text-sm text-slate-300">{a.notes}</p> : null}
+                {a.notes ? <p className="mt-2 text-sm text-slate-300">{glueText(a.notes)}</p> : null}
                 <div className="mt-2">
                   <SourceChip label={a.sourceLabel} />
                 </div>
@@ -336,11 +337,11 @@ export default async function MarketDetailPage({
                   title={scrubInternal(f.title)}
                   meta={
                     <span className="text-xs uppercase tracking-wider">
-                      {f.severity} · {f.radar.name}
+                      {f.severity}{"\u00a0· "}{f.radar.name}
                     </span>
                   }
                 >
-                  <p className="mt-1 line-clamp-2 text-sm">{briefLine(f.title, f.summary, 180)}</p>
+                  <p className="mt-1 line-clamp-2 text-sm">{glueText(briefLine(f.title, f.summary, 180))}</p>
                   <div className="mt-2">
                     {u && isOriginalUrl(u) ? <SourceChip label={f.sourceLabel} /> : <SourceNote label={f.sourceLabel} />}
                   </div>
@@ -366,7 +367,7 @@ export default async function MarketDetailPage({
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/sound-money-lodging?market=${market.slug}#studio`}
-              className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
+              className="inline-flex min-h-11 items-center rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
             >
               Generate Stack memo
             </Link>

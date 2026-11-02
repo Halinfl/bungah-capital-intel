@@ -44,7 +44,7 @@ export function StackStudio({
         <select
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
-          className="w-full min-w-0 max-w-full rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white sm:w-auto"
+          className="w-full min-w-0 max-w-full min-h-11 rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white sm:w-auto"
         >
           {markets.map((m) => (
             <option key={m.slug} value={m.slug}>
@@ -58,7 +58,7 @@ export function StackStudio({
         <select
           value={purpose}
           onChange={(e) => setPurpose(e.target.value === "build" ? "build" : "acquisition")}
-          className="rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white"
+          className="min-h-11 rounded-lg border border-white/20 bg-[#2f333c] px-3 py-2 text-sm text-white"
         >
           <option value="acquisition">Acquisition / hold</option>
           <option value="build">Build or renovation</option>
@@ -68,7 +68,7 @@ export function StackStudio({
         type="button"
         onClick={generate}
         disabled={busy || !slug}
-        className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-50"
+        className="min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-50"
       >
         {busy ? "Generating…" : "Generate Stack memo"}
       </button>
