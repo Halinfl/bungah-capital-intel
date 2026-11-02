@@ -444,7 +444,7 @@ const SHORT_REASONS: { factor: FactorId | "*"; re: RegExp; text: string }[] = [
   { factor: "supply", re: /states no share of existing rooms/i, text: "no source states the pipeline as a share of existing rooms" },
   { factor: "supply", re: /isn't stated net of closures/i, text: "pipeline not stated net of closures" },
   { factor: "supply", re: /Only partial pipeline stages are public/i, text: "only partial pipeline stages are public" },
-  // spread (the cap-rate case prints the rubric's ungraded_spread wording in the line)
+  // spread (the cap-rate case prints the rubric's ungraded_spread wording, "spread not graded (...)", in the line)
   { factor: "spread", re: /cap rate or NOI/i, text: "no trailing-12-month cap rate or NOI disclosed" },
   { factor: "spread", re: /NOI was negative/i, text: "trailing NOI was negative" },
   { factor: "spread", re: /not a quarter-end/i, text: "cap rate period isn't a quarter-end" },

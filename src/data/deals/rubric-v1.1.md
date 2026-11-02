@@ -17,7 +17,7 @@ Note: Hal's brief of 2026-11-01 says the brief's earlier "4 criteria" was wrong;
 5. **Month-end TTM.** A trailing 12 months ending at any calendar month-end before the announcement qualifies (v1 required the last quarter-end).
 6. **Price range at announcement.** When only a price range was public at announcement, price per key is graded on the first confirmed price, and that factor is dated to the confirmation date (stated on the entry). All other factors stay anchored to the announcement date. Deed prices still beat press prices.
 
-Output line: every factor that isn't graded is named with its reason before the count (`output_template.ungraded_factor`: "{factor} not graded ({reason})"; spread keeps "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)"), e.g. "…; supply not graded (closures listed without room counts); 3 of 5 factors graded." Display only; no score changes.
+Output line: every factor that isn't graded is named with its reason before the count (`output_template.ungraded_factor`: "{factor} not graded ({reason})", one phrase for every factor; spread: "spread not graded (no trailing-12-month cap rate or NOI disclosed)"), e.g. "…; supply not graded (closures listed without room counts); 3 of 5 factors graded." Display only; no score changes.
 
 Unchanged: factors and weights (30/25/15/15/15), all bands, the missing-factor rule (fewer than 3 of 5 graded = "Insufficient public data"), the weighted-mean overall, Treasury timing (announcement-date close), the demand measure, the HVS replacement-cost basis, the inclusion rule (50 states + DC), and the no-look-ahead rule apart from item 6.
 

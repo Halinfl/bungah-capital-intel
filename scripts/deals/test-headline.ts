@@ -31,16 +31,17 @@ for (const g of latest.values()) {
   for (const r of g.factor_scores.filter((x) => !x.graded)) {
     const sr = shortReason(r.factor, r.reason);
     check(sr.matched, `${g.sale_id}: ${r.factor} reason has a short form ("${sr.text}")`);
-    const named = r.factor === "replacement_cost" ? "replacement cost not graded (" : r.factor === "spread" ? "spread not grade" : `${FACTOR_SHORT_NAME[r.factor]} not graded (`;
+    const named = `${FACTOR_SHORT_NAME[r.factor]} not graded (`;
     check(line.includes(named), `${g.sale_id}: line names ${r.factor}`);
   }
   check(line.includes(`${g.factors_graded} of ${g.factors_total} factors graded`), `${g.sale_id}: coverage in line`);
+  check(!/gradeable/i.test(line), `${g.sale_id}: one phrase ("not graded") for every ungraded factor`);
 }
 
 const expect: Record<string, { label: string; line: string }> = {
   "the-wade-chicago-2026": {
     label: "4.8 of 5",
-    line: "Underwritten at a 90% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded.",
+    line: "Underwritten at a 90% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded.",
   },
   "four-seasons-scottsdale-troon-north-2026": {
     label: "2.9 of 5",
@@ -48,7 +49,7 @@ const expect: Record<string, { label: string; line: string }> = {
   },
   "embassy-suites-las-vegas-2026": {
     label: "3.6 of 5",
-    line: "Underwritten at a 58% discount to replacement; spread not gradeable (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded.",
+    line: "Underwritten at a 58% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded.",
   },
   "hotel-zags-portland-2026": {
     label: "4.8 of 5",
@@ -60,11 +61,11 @@ const expect: Record<string, { label: string; line: string }> = {
   },
   "fairmont-scottsdale-princess-2026": {
     label: "Insufficient public data",
-    line: "Underwritten with replacement cost not graded (no price public at announcement); spread not gradeable (no trailing-12-month cap rate or NOI disclosed); supply not graded (only an under-construction share is public); 2 of 5 factors graded; insufficient public data.",
+    line: "Underwritten with replacement cost not graded (no price public at announcement); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (only an under-construction share is public); 2 of 5 factors graded; insufficient public data.",
   },
   "midway-portfolio-chicago-2026": {
     label: "Insufficient public data",
-    line: "Underwritten with replacement cost not graded (price includes a restaurant parcel with no public allocation); spread not gradeable (no trailing-12-month cap rate or NOI disclosed); supply not graded (no dated room count or pipeline share public); 2 of 5 factors graded; insufficient public data.",
+    line: "Underwritten with replacement cost not graded (price includes a restaurant parcel with no public allocation); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (no dated room count or pipeline share public); 2 of 5 factors graded; insufficient public data.",
   },
 };
 for (const [id, e] of Object.entries(expect)) {
@@ -90,6 +91,9 @@ check(md.includes(RULE), "rubric-v1.1.md carries the rule verbatim");
 // v1 rubric has no ungraded_factor: stored v1 lines stay as written.
 const v1 = read("rubric-v1.json") as Rubric;
 check(!v1.output_template.ungraded_factor, "rubric-v1.json unchanged (no ungraded_factor)");
+check(v1.output_template.ungraded_spread === "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)", "rubric-v1.json keeps its v1 spread wording");
+check(rubric.output_template.ungraded_spread === "spread not graded (no trailing-12-month cap rate or NOI disclosed)", "rubric-v1.1.json spread wording is \"not graded\"");
+check(!/not gradeable/i.test(JSON.stringify(rubric)) && !/not gradeable/i.test(md), "no \"not gradeable\" left in rubric-v1.1 json/md");
 
 console.log(fail ? `\n${fail} failed` : "\nall passed");
 process.exit(fail ? 1 : 0);

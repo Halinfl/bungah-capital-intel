@@ -103,7 +103,7 @@
       "label": "Implied cap rate vs 10-year Treasury spread",
       "weight": 0.25,
       "metric": "spread_bp",
-      "metric_definition": "Cap rate minus the 10-year Treasury par yield, in basis points. Cap rate basis: net operating income (NOI) for a trailing 12 months ending at a month-end before the announcement (for example, the last completed quarter), divided by the price, or a disclosed cap rate on that same basis. NOI as the company defines and discloses it (for example, Adjusted EBITDAre less FF&E reserve) counts. Where the company publishes hotel-level EBITDA for the trailing 12 months and, separately, its own definition of NOI, we apply that definition to the hotel EBITDA and label the result \"our calculation using <company>'s NOI definition\", with both sources cited. EBITDA alone is not NOI. Cap rates on other bases (forward or pro forma NOI) are recorded but not graded. 10-year: the Treasury daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). If no NOI or cap rate on a qualifying trailing-12-month basis was public, the factor is not gradeable. Stated as a plain number of basis points.",
+      "metric_definition": "Cap rate minus the 10-year Treasury par yield, in basis points. Cap rate basis: net operating income (NOI) for a trailing 12 months ending at a month-end before the announcement (for example, the last completed quarter), divided by the price, or a disclosed cap rate on that same basis. NOI as the company defines and discloses it (for example, Adjusted EBITDAre less FF&E reserve) counts. Where the company publishes hotel-level EBITDA for the trailing 12 months and, separately, its own definition of NOI, we apply that definition to the hotel EBITDA and label the result \"our calculation using <company>'s NOI definition\", with both sources cited. EBITDA alone is not NOI. Cap rates on other bases (forward or pro forma NOI) are recorded but not graded. 10-year: the Treasury daily par yield curve close on the announcement date (or the prior trading day if the announcement date isn't a trading day). If no NOI or cap rate on a qualifying trailing-12-month basis was public, the factor is not graded. Stated as a plain number of basis points.",
       "unit": "bp",
       "bands": [
         {
@@ -465,7 +465,7 @@
   "output_template": {
     "text": "Underwritten at a {abs_premium}% {discount|premium} to replacement with a {spread_bp}bp spread; {k} of 5 factors graded.",
     "ungraded_replacement": "replacement cost not graded",
-    "ungraded_spread": "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)",
+    "ungraded_spread": "spread not graded (no trailing-12-month cap rate or NOI disclosed)",
     "ungraded_factor": "{factor} not graded ({reason})"
   },
   "versioning": "A rubric change re-grades every entry and shows both versions.",
