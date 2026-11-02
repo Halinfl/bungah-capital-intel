@@ -32,24 +32,30 @@ function GradeRow({ sale }: { sale: Sale }) {
   if (!g) return <div className="text-[13px] text-slate-300">Not graded yet</div>;
   // One compact meta line (Eric r4): grade · coverage · Not graded: … The full output line stays on the deal page.
   const m = cardMetaFor(g);
+  // Inline flow (not flex-wrap) so a wrapped line never starts with a dangling "·".
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+    <p className="text-[13px] leading-6 text-slate-300">
       {g.overall !== null ? (
         <>
           <span className="text-base font-semibold tabular-nums text-white">
             {g.overall.toFixed(1)}
             <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
+          </span>{" "}
+          <span className="inline-flex align-middle">
+            <DotBar score={g.overall} />
           </span>
-          <DotBar score={g.overall} />
         </>
       ) : (
         <span className="font-semibold text-slate-100">{m.grade}</span>
-      )}
-      <span className="text-slate-300">
-        · {m.coverage}
-        {m.notGraded ? ` · ${m.notGraded}` : ""}
-      </span>
-    </div>
+      )}{" "}
+      · <span className="whitespace-nowrap">{m.coverage}</span>
+      {m.notGraded ? (
+        <>
+          {" "}
+          · <span className="whitespace-nowrap">Not graded:</span> {m.notGraded.replace(/^Not graded:\s*/, "")}
+        </>
+      ) : null}
+    </p>
   );
 }
 
