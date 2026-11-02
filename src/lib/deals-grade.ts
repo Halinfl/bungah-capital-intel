@@ -40,7 +40,8 @@ export type Rubric = {
   overall: { method: string; rounding: string; display: string };
   no_look_ahead_rule: { text: string; anchor: string };
   inclusion_rule: { text: string; tracked_reits: string[]; price_threshold_usd: number };
-  output_template: { text: string; ungraded_replacement: string; ungraded_spread: string };
+  /** `ungraded_factor` (v1.1): how each further ungraded factor is named in the output line, e.g. "{factor} not graded ({reason})". */
+  output_template: { text: string; ungraded_replacement: string; ungraded_spread: string; ungraded_factor?: string };
   versioning: string;
   disclaimer: string;
   changelog?: { version: string; date: string; line: string; kind?: "clarification"; approved_by?: string }[];
@@ -383,17 +384,11 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
   const wInt = graded.reduce((s, r) => s + Math.round(r.weight * 100), 0);
   const overall = enough ? round1(graded.reduce((s, r) => s + (r.score as number) * Math.round(r.weight * 100), 0) / wInt) : null;
 
-  const rep = rows.find((r) => r.factor === "replacement_cost")!;
-  const spr = rows.find((r) => r.factor === "spread")!;
-  const repText = rep.graded
-    ? (rep.value as number) === 0
-      ? "Underwritten at replacement cost"
-      : `Underwritten at ${article(Math.round(Math.abs(rep.value as number)))} ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
-    : `Underwritten with ${rubric.output_template.ungraded_replacement}`;
-  const sprCalc = spr.graded && /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
-  const sprText = spr.graded ? `with a ${spr.value}bp spread${sprCalc}` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
-  const coverage = `${graded.length} of ${rows.length} factors graded`;
-  const output_text = `${repText} ${spr.graded ? sprText : `; ${sprText}`}; ${coverage}${enough ? "" : `; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}`}.`.replace(" ;", ";");
+  // Rubrics with output_template.ungraded_factor (v1.1 on) name every ungraded factor with its reason; earlier rubrics keep
+  // the line they were published with, so v1 grades re-run byte-identical.
+  const output_text = rubric.output_template.ungraded_factor
+    ? headlineText(rubric, { factor_scores: rows, factors_graded: graded.length, factors_total: rows.length, overall })
+    : legacyOutputText(rubric, rows, graded.length, enough);
 
   const asOfDates = graded.map((r) => r.as_of as string).sort();
   return {
@@ -408,4 +403,153 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
     overall_label: enough ? `${overall!.toFixed(1)} of ${rubric.scale.max}` : rubric.missing_factor_rule.insufficient_label,
     output_text,
   };
+}
+
+/** The v1 output line (spread and replacement cost only), unchanged from the published v1 grader. */
+function legacyOutputText(rubric: Rubric, rows: FactorResult[], nGraded: number, enough: boolean): string {
+  const rep = rows.find((r) => r.factor === "replacement_cost")!;
+  const spr = rows.find((r) => r.factor === "spread")!;
+  const repText = rep.graded
+    ? (rep.value as number) === 0
+      ? "Underwritten at replacement cost"
+      : `Underwritten at ${article(Math.round(Math.abs(rep.value as number)))} ${Math.round(Math.abs(rep.value as number))}% ${(rep.value as number) < 0 ? "discount" : "premium"} to replacement`
+    : `Underwritten with ${rubric.output_template.ungraded_replacement}`;
+  const sprCalc = spr.graded && /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
+  const sprText = spr.graded ? `with a ${spr.value}bp spread${sprCalc}` : /cap rate or NOI/i.test(spr.reason ?? "") ? rubric.output_template.ungraded_spread : "spread not graded";
+  const coverage = `${nGraded} of ${rows.length} factors graded`;
+  return `${repText} ${spr.graded ? sprText : `; ${sprText}`}; ${coverage}${enough ? "" : `; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}`}.`.replace(" ;", ";");
+}
+
+/** Factor names as they read inside the output line. */
+export const FACTOR_SHORT_NAME: Record<FactorId, string> = {
+  replacement_cost: "replacement cost",
+  spread: "spread",
+  supply: "supply",
+  demand: "demand",
+  debt_context: "debt context",
+};
+
+/**
+ * Short reasons for the output line, matched against a factor's full (row-level) reason. Ordered; first match wins.
+ * Every reason in sale_grades.json must match one (scripts/deals/test-headline.ts checks), so the fallback below is a
+ * safety net, not a design path.
+ */
+const SHORT_REASONS: { factor: FactorId | "*"; re: RegExp; text: string }[] = [
+  // supply
+  { factor: "supply", re: /lists .+ but not their room count/i, text: "closures listed without room counts" },
+  { factor: "supply", re: /^Only an under-construction share is public/i, text: "only an under-construction share is public" },
+  { factor: "supply", re: /^No dated room count or (single-source )?pipeline share/i, text: "no dated room count or pipeline share public" },
+  { factor: "supply", re: /no (dated )?single public source gave/i, text: "no single public source gives the total pipeline share" },
+  { factor: "supply", re: /^No free source published/i, text: "no free source gives the total pipeline share" },
+  { factor: "supply", re: /states no share of existing rooms/i, text: "no source states the pipeline as a share of existing rooms" },
+  { factor: "supply", re: /isn't stated net of closures/i, text: "pipeline not stated net of closures" },
+  { factor: "supply", re: /Only partial pipeline stages are public/i, text: "only partial pipeline stages are public" },
+  // spread (the cap-rate case prints the rubric's ungraded_spread wording in the line)
+  { factor: "spread", re: /cap rate or NOI/i, text: "no trailing-12-month cap rate or NOI disclosed" },
+  { factor: "spread", re: /NOI was negative/i, text: "trailing NOI was negative" },
+  { factor: "spread", re: /not a quarter-end/i, text: "cap rate period isn't a quarter-end" },
+  { factor: "spread", re: /came after the announcement/i, text: "cap rate published after the announcement" },
+  // replacement cost
+  { factor: "replacement_cost", re: /price range was public/i, text: "only a price range was public at announcement" },
+  { factor: "replacement_cost", re: /^No price was public at announcement/i, text: "no price public at announcement" },
+  { factor: "replacement_cost", re: /restaurant parcel/i, text: "price includes a restaurant parcel with no public allocation" },
+  // demand
+  { factor: "demand", re: /formula-based allocation/i, text: "only a formula-based allocation of receipts is public" },
+  // grader-level reasons, any factor
+  { factor: "*", re: /^No public input yet/i, text: "no public input yet" },
+  { factor: "*", re: /^Public inputs are still being gathered/i, text: "inputs still being gathered" },
+  { factor: "*", re: /dated after the announcement/i, text: "input dated after the announcement" },
+  { factor: "*", re: /dated after the price was confirmed/i, text: "input dated after the price was confirmed" },
+  { factor: "*", re: /no publication date/i, text: "input undated" },
+  { factor: "*", re: /no source\.?$/i, text: "input has no source" },
+];
+
+/** Short reason for an ungraded factor, and whether it came from the table (true) or the fallback (false). */
+export function shortReason(factor: FactorId, reason: string | null): { text: string; matched: boolean } {
+  const r = reason ?? "";
+  for (const x of SHORT_REASONS) if ((x.factor === "*" || x.factor === factor) && x.re.test(r)) return { text: x.text, matched: true };
+  // Fallback: the reason's first clause, lower-cased.
+  const first = r.split(/[;.:]/)[0].trim();
+  return { text: first ? first.charAt(0).toLowerCase() + first.slice(1) : "no public input", matched: false };
+}
+
+const CAP_RATE_REASON = /cap rate or NOI/i;
+
+/**
+ * The grade's one-sentence output line, built from its factor rows. Every ungraded factor is named with its reason,
+ * in rubric order, before the coverage count. Used by gradeDeal() and by the pages (which render it from the stored
+ * factor rows, so older stored output_text strings stay as they were written).
+ */
+export function headlineText(
+  rubric: Pick<Rubric, "output_template" | "missing_factor_rule">,
+  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">,
+): string {
+  const rows = g.factor_scores;
+  const t = rubric.output_template;
+  const tmpl = t.ungraded_factor ?? "{factor} not graded ({reason})";
+  const named = (r: FactorResult) =>
+    tmpl.replace("{factor}", FACTOR_SHORT_NAME[r.factor]).replace("{reason}", shortReason(r.factor, r.reason).text);
+  const rep = rows.find((r) => r.factor === "replacement_cost");
+  const spr = rows.find((r) => r.factor === "spread");
+  let lead: string;
+  if (rep?.graded) {
+    const v = rep.value as number;
+    const n = Math.round(Math.abs(v));
+    lead = v === 0 ? "Underwritten at replacement cost" : `Underwritten at ${article(n)} ${n}% ${v < 0 ? "discount" : "premium"} to replacement`;
+  } else {
+    // "Underwritten with replacement cost not graded (<reason>)"
+    lead = `Underwritten with ${t.ungraded_replacement}${rep ? ` (${shortReason("replacement_cost", rep.reason).text})` : ""}`;
+  }
+  if (spr?.graded) {
+    const calc = /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
+    lead += ` with a ${spr.value}bp spread${calc}`;
+  }
+  const parts = [lead];
+  for (const r of rows) {
+    if (r.graded || r.factor === "replacement_cost") continue;
+    parts.push(r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+  }
+  parts.push(`${g.factors_graded} of ${g.factors_total} factors graded`);
+  if (g.overall === null) parts.push(rubric.missing_factor_rule.insufficient_label.toLowerCase());
+  return `${parts.join("; ")}.`;
+}
+
+/** Withdrawal reasons for the history line, keyed like SHORT_REASONS (falls back to the short reason). */
+const WITHDRAW_REASONS: { factor: FactorId | "*"; re: RegExp; text: string }[] = [
+  { factor: "supply", re: /lists .+ but not their room count/i, text: "room count unavailable" },
+];
+
+const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthDay = (iso: string) => {
+  const [, m, d] = iso.split("-").map(Number);
+  return `${MONTH_SHORT[m - 1]} ${d}`;
+};
+
+/**
+ * History line for a grade whose overall changed between revisions of the same rubric version, e.g.
+ * "Earlier v1.1 grade 4.0 (supply scored 1; withdrawn Nov 1: room count unavailable)". Revisions are append-only, so
+ * this reads the earlier stored revision; nothing is rewritten. Returns null when no earlier revision differs.
+ */
+export function revisionHistoryLine(current: GradeResult, sameVersion: GradeResult[]): string | null {
+  const rev = (g: GradeResult) => g.revision ?? 1;
+  const earlier = sameVersion
+    .filter((g) => g.rubric_version === current.rubric_version && rev(g) < rev(current) && g.overall !== current.overall)
+    .sort((a, b) => rev(b) - rev(a))[0];
+  if (!earlier) return null;
+  const label = earlier.overall === null ? "Insufficient public data" : earlier.overall.toFixed(1);
+  const notes: string[] = [];
+  for (const now of current.factor_scores) {
+    const was = earlier.factor_scores.find((r) => r.factor === now.factor);
+    if (!was) continue;
+    const name = FACTOR_SHORT_NAME[now.factor];
+    if (was.graded && !now.graded) {
+      const w = WITHDRAW_REASONS.find((x) => (x.factor === "*" || x.factor === now.factor) && x.re.test(now.reason ?? ""));
+      notes.push(`${name} scored ${was.score}; withdrawn ${monthDay(current.graded_on)}: ${w ? w.text : shortReason(now.factor, now.reason).text}`);
+    } else if (!was.graded && now.graded) {
+      notes.push(`${name} not graded then; graded ${now.score} from ${monthDay(current.graded_on)}`);
+    } else if (was.graded && now.graded && was.score !== now.score) {
+      notes.push(`${name} scored ${was.score}; ${now.score} from ${monthDay(current.graded_on)}`);
+    }
+  }
+  return `Earlier ${earlier.rubric_version} grade ${label}${notes.length ? ` (${notes.join("; ")})` : ""}`;
 }

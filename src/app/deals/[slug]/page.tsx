@@ -24,6 +24,8 @@ import {
   fmtKeys,
   citationText,
   gradeLabel,
+  headlineFor,
+  historyLineFor,
   isReportUrl,
   type FactorResult,
   type GradeResult,
@@ -99,7 +101,8 @@ function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | unde
               <span className="text-base font-semibold text-white">{RUBRIC.missing_factor_rule.insufficient_label}</span>
             )}
           </div>
-          <p className="text-sm text-slate-200">{g.output_text}</p>
+          <p className="text-sm text-slate-200">{headlineFor(g)}</p>
+          {historyLineFor(g) ? <p className="text-[13px] text-slate-300">{historyLineFor(g)}</p> : null}
         </>
       )}
       <div className="flex flex-col items-start text-sm sm:flex-row sm:items-center sm:gap-x-1" role="group" aria-label="Rubric versions">
@@ -314,6 +317,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
   const entry = entryFor(sale.sale_id);
   const landed = anniversariesFor(sale.sale_id);
   const furtherReading = fieldNotesForSale(sale.sale_id);
+  // Context groups with no cited line are dropped (no empty headings).
+  const contextGroups = Object.entries(entry.factor_context ?? {}).filter(([, items]) => items.length > 0);
   const sources = [...entry.sources].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.date.localeCompare(b.date));
 
   const sourceList = (
@@ -410,7 +415,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
 
       <GradeSection sale={sale} grades={grades} kindOf={kindResolver(entry.sources)} />
 
-      {entry.factor_context && Object.keys(entry.factor_context).length ? (
+      {contextGroups.length ? (
         <section aria-labelledby="context" className="space-y-3">
           <div>
             <h2 id="context" className={h2}>
@@ -418,7 +423,7 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             </h2>
             <p className="text-[13px] text-slate-300">Cited figures shown for reference. They don&rsquo;t enter the grade.</p>
           </div>
-          {Object.entries(entry.factor_context).map(([fid, items]) => (
+          {contextGroups.map(([fid, items]) => (
             <div key={fid} className="space-y-1">
               <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? CONTEXT_LABELS[fid] ?? fid}</h3>
               <ul className="space-y-1.5 text-[13px] text-slate-200">

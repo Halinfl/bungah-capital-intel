@@ -5,7 +5,7 @@
  */
 import { reitByTicker, fmtQuarter, fmtRange, fmtDay } from "@/lib/reits";
 import type { Reit, Cited, Guidance, Transaction } from "@/lib/reits-shared";
-import { saleBySlug, gradesFor, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
+import { saleBySlug, gradesFor, headlineFor, entryFor, fmtPrice, fmtPerKey, fmtDate as dealDate, factorMeta, type Sale } from "@/lib/deals";
 import {
   makeBrief,
   coverageLine,
@@ -266,7 +266,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     }
   } else {
     if (!grade || grade.overall == null) return null;
-    answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${grade.output_text}`;
+    answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);

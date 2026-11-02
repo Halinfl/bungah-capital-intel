@@ -11,6 +11,7 @@ import {
   fmtPrice,
   gradesFor,
   gradeLabel,
+  headlineFor,
   salePrice,
   sales,
   closeLabel,
@@ -29,23 +30,30 @@ export const metadata: Metadata = {
 function GradeRow({ sale }: { sale: Sale }) {
   const g = gradesFor(sale.sale_id)[0];
   if (!g) return <div className="text-[13px] text-slate-300">Not graded yet</div>;
+  const headline = <p className="text-[13px] text-slate-300">{headlineFor(g)}</p>;
   if (g.overall === null)
     return (
-      <div className="text-[13px] text-slate-200">
-        {RUBRIC.missing_factor_rule.insufficient_label}
-        <span className="text-slate-300"> · {g.factors_graded} of {g.factors_total} factors graded</span>
+      <div className="space-y-1">
+        <div className="text-[13px] text-slate-200">
+          {RUBRIC.missing_factor_rule.insufficient_label}
+          <span className="text-slate-300"> · {g.factors_graded} of {g.factors_total} factors graded</span>
+        </div>
+        {headline}
       </div>
     );
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
-      <span className="text-base font-semibold tabular-nums text-white">
-        {g.overall.toFixed(1)}
-        <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
-      </span>
-      <DotBar score={g.overall} />
-      <span className="text-slate-300">
-        {g.factors_graded} of {g.factors_total} factors graded
-      </span>
+    <div className="space-y-1">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+        <span className="text-base font-semibold tabular-nums text-white">
+          {g.overall.toFixed(1)}
+          <span className="text-xs font-normal text-slate-300"> of {RUBRIC.scale.max}</span>
+        </span>
+        <DotBar score={g.overall} />
+        <span className="text-slate-300">
+          {g.factors_graded} of {g.factors_total} factors graded
+        </span>
+      </div>
+      {headline}
     </div>
   );
 }

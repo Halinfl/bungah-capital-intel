@@ -6,7 +6,7 @@ import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
 import citationsJson from "@/data/deals/citations.json";
-import type { FactorResult, GradeResult, Rubric } from "@/lib/deals-grade";
+import { headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
@@ -117,6 +117,18 @@ export function gradesFor(saleId: string): GradeResult[] {
     if (!cur || (g.revision ?? 1) > (cur.revision ?? 1)) latest.set(g.rubric_version, g);
   }
   return [...latest.values()].sort((a, b) => b.rubric_version.localeCompare(a.rubric_version));
+}
+/**
+ * The grade's output line as shown on the pages. Grades under the current rubric are rendered in code from their factor
+ * rows (every ungraded factor named with its reason); grades under earlier rubrics show the line stored when they were
+ * graded. sale_grades.json is never rewritten.
+ */
+export function headlineFor(g: GradeResult): string {
+  return g.rubric_version === RUBRIC.rubric_version ? headlineText(RUBRIC, g) : g.output_text;
+}
+/** "Earlier v1.1 grade 4.0 (supply scored 1; withdrawn Nov 1: room count unavailable)", or null. Reads appended revisions. */
+export function historyLineFor(current: GradeResult): string | null {
+  return revisionHistoryLine(current, GRADES.filter((x) => x.sale_id === current.sale_id));
 }
 /** "4.0 of 5" or "Insufficient public data". */
 export const gradeLabel = (g: GradeResult) => (g.overall === null ? RUBRIC.missing_factor_rule.insufficient_label : `${g.overall.toFixed(1)} of ${RUBRIC.scale.max}`);

@@ -10,12 +10,14 @@
 Note: Hal's brief of 2026-11-01 says the brief's earlier "4 criteria" was wrong; v1.1 keeps the 5 factors as shipped. The earlier unapproved debt-context proposal printed by `grade-all.ts` as "v1.1-proposed" is **not** part of this v1.1; debt context is unchanged from v1.
 
 ## What changed vs v1 (Hal, 2026-11-01)
-1. **Supply, net of closures.** The pipeline share counts rooms under construction plus planned, minus announced closures, over existing rooms, from one source. Supply: pipeline net of closures. If a source lists closures without a room count, supply isn't graded for that deal. (Clarification, Hal 2026-11-01.)
+1. **Supply, net of closures.** The pipeline share counts rooms under construction plus planned, minus announced closures, over existing rooms, from one source. Supply: pipeline net of closures. If a source lists closures without a room count, supply isn't graded for that deal. (Clarification, Hal 2026-11-01.) The supply band definition (`metric_definition` in the JSON, shown in the methodology Bands section) ends with the same two sentences.
 2. **Downtown market.** For a downtown hotel, a downtown area defined by the city's convention and visitors bureau (CVB) counts as the market (e.g. Choose Chicago's CBD).
 3. **Public-body republication.** Vendor pipeline totals (CoStar/STR) that a public body (CVB, city, state) republishes for free can be graded, cited to that public body. Public pages name only the public body. Still one source, never stitched.
 4. **Company NOI definition.** A company's own published NOI definition may be applied to its published hotel-level EBITDA. Shown as "our calculation using <company>'s NOI definition", with the EBITDA source and the definition source both cited and dated on or before announcement.
 5. **Month-end TTM.** A trailing 12 months ending at any calendar month-end before the announcement qualifies (v1 required the last quarter-end).
 6. **Price range at announcement.** When only a price range was public at announcement, price per key is graded on the first confirmed price, and that factor is dated to the confirmation date (stated on the entry). All other factors stay anchored to the announcement date. Deed prices still beat press prices.
+
+Output line: every factor that isn't graded is named with its reason before the count (`output_template.ungraded_factor`: "{factor} not graded ({reason})"; spread keeps "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)"), e.g. "…; supply not graded (closures listed without room counts); 3 of 5 factors graded." Display only; no score changes.
 
 Unchanged: factors and weights (30/25/15/15/15), all bands, the missing-factor rule (fewer than 3 of 5 graded = "Insufficient public data"), the weighted-mean overall, Treasury timing (announcement-date close), the demand measure, the HVS replacement-cost basis, the inclusion rule (50 states + DC), and the no-look-ahead rule apart from item 6.
 

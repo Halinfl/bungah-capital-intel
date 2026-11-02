@@ -170,6 +170,10 @@ export default function DealsMethodologyPage() {
         <p className="max-w-3xl rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200">
           &ldquo;Underwritten at a [X]% discount (or premium) to replacement with a [N]bp spread; [k] of 5 factors graded.&rdquo;
         </p>
+        <p className={p}>
+          Each factor that isn&rsquo;t graded is named with its reason before the count, for example &ldquo;&hellip;; supply not graded (closures listed
+          without room counts); 3 of 5 factors graded.&rdquo;
+        </p>
         <p className={p}>We grade deals, never buyers. We don&rsquo;t total or rank grades by company.</p>
       </section>
 

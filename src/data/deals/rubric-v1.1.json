@@ -201,7 +201,7 @@
       "label": "Supply backdrop",
       "weight": 0.15,
       "metric": "pipeline_pct_of_rooms",
-      "metric_definition": "Total market hotel pipeline, under construction plus planned, net of announced closures, as a percent of the market's existing rooms, taken from a single public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. The market is the metro area; for a downtown hotel, a downtown area defined by the city's convention and visitors bureau counts as the market. Pipeline totals compiled by a data vendor count when a public body (a convention and visitors bureau, city or state) republishes them for free; they are cited to that public body. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is not graded, with a reason. Partial-stage figures may appear only as cited, ungraded context. If a source lists closures without a room count, supply isn't graded for that deal (clarification, Hal 2026-11-01).",
+      "metric_definition": "Total market hotel pipeline, under construction plus planned, net of announced closures, as a percent of the market's existing rooms, taken from a single public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. The market is the metro area; for a downtown hotel, a downtown area defined by the city's convention and visitors bureau counts as the market. Pipeline totals compiled by a data vendor count when a public body (a convention and visitors bureau, city or state) republishes them for free; they are cited to that public body. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is not graded, with a reason. Partial-stage figures may appear only as cited, ungraded context. Supply: pipeline net of closures. If a source lists closures without a room count, supply isn't graded for that deal.",
       "unit": "percent",
       "bands": [
         {
@@ -465,7 +465,8 @@
   "output_template": {
     "text": "Underwritten at a {abs_premium}% {discount|premium} to replacement with a {spread_bp}bp spread; {k} of 5 factors graded.",
     "ungraded_replacement": "replacement cost not graded",
-    "ungraded_spread": "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)"
+    "ungraded_spread": "spread not gradeable (no trailing-12-month cap rate or NOI disclosed)",
+    "ungraded_factor": "{factor} not graded ({reason})"
   },
   "versioning": "A rubric change re-grades every entry and shows both versions.",
   "disclaimer": "Public-data underwrite. The buyer's information set was larger.",
