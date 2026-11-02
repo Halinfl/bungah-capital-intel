@@ -40,7 +40,7 @@
   "versions": {
     "v1.1": {
       "_built_on": "2026-11-01",
-      "_note": "v1.1: supply graded on Choose Chicago's CBD area (downtown hotel). Price per key graded on the first confirmed price ($25M, Oct 25, 2026), dated to that confirmation. Other factors as v1. Supply copy corrected 2026-11-01 (legal review): denominator labelled YE2025 supply; citation text set; pipeline total confirmed visually. Revision 3 (2026-11-01, QA): closures listed without a room count, so the pipeline is labelled gross; derived figures labelled our calculation; citation credit moved to citations.json.",
+      "_note": "v1.1: supply graded on Choose Chicago's CBD area (downtown hotel). Price per key graded on the first confirmed price ($25M, Oct 25, 2026), dated to that confirmation. Other factors as v1. Supply copy corrected 2026-11-01 (legal review): denominator labelled YE2025 supply; citation text set; pipeline total confirmed visually. Revision 3 (2026-11-01, QA): closures listed without a room count, so the pipeline is labelled gross; derived figures labelled our calculation; citation credit moved to citations.json. Revision 4 (2026-11-01, Hal): closures listed without a room count, so supply is not graded under the v1.1 clarification; graded on the remaining factors.",
       "factors": {
         "replacement_cost": {
           "as_of": "2026-07-13",
@@ -82,7 +82,7 @@
           "single_source": true,
           "stage": "total_under_construction_plus_planned",
           "net_of_closures": false,
-          "note": "Pipeline total is our sum of the project rows in the PDF's pipeline table (an embedded image; no total is printed). The PDF's Updates box says 'Sonder properties (8) removed from inventory' with no room count, so the pipeline is gross. The band (8% or more) would change only if closures netted from the pipeline exceeded 1,265 rooms (5,018 - 8% x 46,901). Denominator is the YE2025 Daily Room Supply, the latest actual; YE2026 and YE2027 are projections and aren't used. Checked visually 2026-11-01.",
+          "note": "PDF Updates box: 'Sonder properties (8) removed from inventory', with no room count anywhere in the PDF, so net supply can't be computed and supply is not graded (v1.1 clarification, Hal 2026-11-01). For the record only (not graded): the listed projects sum to 5,018 rooms (819 under construction plus 4,199 in planning; our sum of the pipeline table, an embedded image with no printed total) vs YE2025 Daily Room Supply of 46,901. Checked visually 2026-11-01.",
           "also_sources": [
             {
               "label": "Choose Chicago, Hotel Capacity Update, Aug 2026",
@@ -91,8 +91,7 @@
               "cite_id": "choose-chicago-capacity-aug-2026"
             }
           ],
-          "closures_unquantified": "the source lists 8 Sonder properties removed from inventory but not their room count, so closures aren't netted",
-          "our_calculation": true
+          "closures_listed_without_room_count": "8 Sonder properties removed from inventory"
         }
       }
     }

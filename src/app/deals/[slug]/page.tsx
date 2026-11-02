@@ -102,13 +102,13 @@ function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | unde
           <p className="text-sm text-slate-200">{g.output_text}</p>
         </>
       )}
-      <div className="flex flex-wrap items-center gap-x-1 text-sm" role="group" aria-label="Rubric versions">
+      <div className="flex flex-col items-start text-sm sm:flex-row sm:items-center sm:gap-x-1" role="group" aria-label="Rubric versions">
         <Link href="/deals/methodology#rubric" className={`${TAP} min-w-11 px-1`}>
           <Chip>Rubric {g?.rubric_version ?? RUBRIC.rubric_version}{original ? " (current)" : ""}</Chip>
         </Link>
         {original ? (
           <>
-            <span aria-hidden="true" className="text-slate-300">
+            <span aria-hidden="true" className="hidden text-slate-300 sm:inline">
               |
             </span>
             <a href="#original-grade" className={`${TAP} px-1 text-slate-200 ${linkCls}`}>
@@ -163,7 +163,7 @@ function SourceLinkCell({ r, kindOf }: { r: FactorResult; kindOf: KindOf }) {
           rel="noopener"
           target="_blank"
         >
-          + {x.cite_id ? `Source: ${citationText(x.cite_id, x.label)}` : x.label}
+          + {x.cite_id ? citationText(x.cite_id, x.label) : x.label}
         </a>
       ))}
     </span>

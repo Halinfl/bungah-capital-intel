@@ -201,7 +201,7 @@
       "label": "Supply backdrop",
       "weight": 0.15,
       "metric": "pipeline_pct_of_rooms",
-      "metric_definition": "Total market hotel pipeline, under construction plus planned, net of announced closures, as a percent of the market's existing rooms, taken from a single public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. The market is the metro area; for a downtown hotel, a downtown area defined by the city's convention and visitors bureau counts as the market. Pipeline totals compiled by a data vendor count when a public body (a convention and visitors bureau, city or state) republishes them for free; they are cited to that public body. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is not graded, with a reason. Partial-stage figures may appear only as cited, ungraded context.",
+      "metric_definition": "Total market hotel pipeline, under construction plus planned, net of announced closures, as a percent of the market's existing rooms, taken from a single public source that publishes that total share (or both its numerator and denominator) and was published before the announcement date. The market is the metro area; for a downtown hotel, a downtown area defined by the city's convention and visitors bureau counts as the market. Pipeline totals compiled by a data vendor count when a public body (a convention and visitors bureau, city or state) republishes them for free; they are cited to that public body. Figures are never stitched together across publishers or pipeline stages. If no single public source gives the total, the factor is not graded, with a reason. Partial-stage figures may appear only as cited, ungraded context. If a source lists closures without a room count, supply isn't graded for that deal (clarification, Hal 2026-11-01).",
       "unit": "percent",
       "bands": [
         {
@@ -285,7 +285,9 @@
         "context_rule": "Partial-stage figures from public press releases, CoStar's included, may appear only as cited, ungraded context.",
         "net_of_closures": true,
         "market": "metro area; for downtown hotels, a CVB-defined downtown area counts",
-        "public_body_republication": "Vendor pipeline totals republished free by a public body (CVB, city, state) qualify, cited to the public body."
+        "public_body_republication": "Vendor pipeline totals republished free by a public body (CVB, city, state) qualify, cited to the public body.",
+        "closures_without_room_count": "not_graded",
+        "closures_without_room_count_rule": "Supply: pipeline net of closures. If a source lists closures without a room count, supply isn't graded for that deal. No gross fallback. Clarification approved by Hal 2026-11-01."
       }
     },
     {
@@ -529,6 +531,13 @@
       "version": "v1.1",
       "date": "2026-11-01",
       "line": "Same 5 factors, weights, bands and 3-of-5 cutoff; supply is net of closures, a visitor bureau's downtown area can be the market for downtown hotels, and free public-body republications of pipeline totals qualify; a company's published NOI definition can be applied to its hotel EBITDA; a trailing 12 months ending at a month-end before the announcement qualifies; when only a price range was public at announcement, price per key uses the first confirmed price, dated to its confirmation."
+    },
+    {
+      "version": "v1.1",
+      "date": "2026-11-01",
+      "kind": "clarification",
+      "approved_by": "Hal",
+      "line": "Supply: pipeline net of closures. If a source lists closures without a room count, supply isn't graded for that deal."
     }
   ],
   "amendments_note": "The earlier unapproved debt-context proposal labelled \"v1.1-proposed\" in grade-all.ts is not part of this v1.1; debt_context is unchanged from v1."

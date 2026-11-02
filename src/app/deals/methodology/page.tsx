@@ -3,6 +3,13 @@ import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { UnderwriteNote } from "@/components/deals/DotBar";
 import { RUBRIC, RUBRIC_HISTORY, fmtDate } from "@/lib/deals";
 
+/** Same words as rubric-v1.1.json and rubric-v1.1.md (read from the rubric JSON so the three can't drift). */
+const SUPPLY_CLOSURES_RULE = (() => {
+  const c = RUBRIC.changelog?.find((x) => x.kind === "clarification" && x.line.startsWith("Supply: pipeline net of closures."));
+  if (!c) throw new Error("rubric-v1.1.json is missing the supply closures clarification");
+  return c.line;
+})();
+
 export const metadata: Metadata = {
   title: "Recent Deals methodology · Bungah Capital Intel",
   description: "How Recent Deals grades US hotel sales: the inclusion rule, rubric factors, weights and bands, the missing-factor rule and the no-look-ahead rule.",
@@ -22,7 +29,7 @@ const SOURCES: Record<string, { source: string; asOf: string }> = {
   },
   supply: {
     source:
-      "One free public source giving the total pipeline, under construction plus planned, net of closures, and the existing rooms it is measured against; a visitor bureau, city or state that republishes pipeline totals is cited as the source; for downtown hotels the visitor bureau's downtown area can be the market; never combined across sources or stages; partial-stage figures are context only",
+      "One free public source giving the total pipeline, under construction plus planned, net of closures, and the existing rooms it is measured against; a visitor bureau, city or state that republishes pipeline totals is cited as the source; for downtown hotels the visitor bureau's downtown area can be the market; never combined across sources or stages; partial-stage figures are context only; if a source lists closures without a room count, supply isn't graded for that deal",
     asOf: "Published before the announcement",
   },
   demand: {
@@ -179,18 +186,25 @@ export default function DealsMethodologyPage() {
           </li>
           {(r.changelog ?? [])
             .filter((c) => c.version !== "v1")
-            .map((c) => (
-              <li key={c.version}>
-                Rubric {c.version}, {fmtDate(c.date)}: {c.line} Every deal was re-graded; the v1 grade stays on each deal page as the original.
-              </li>
-            ))}
+            .map((c) =>
+              c.kind === "clarification" ? (
+                <li key={`${c.version}-${c.kind}-${c.date}`}>
+                  Rubric {c.version} clarification, {fmtDate(c.date)}: {c.line.replace(/^Clarification: /, "")} Affected deals were re-graded as a new
+                  revision; earlier revisions are kept.
+                </li>
+              ) : (
+                <li key={c.version}>
+                  Rubric {c.version}, {fmtDate(c.date)}: {c.line} Every deal was re-graded; the v1 grade stays on each deal page as the original.
+                </li>
+              ),
+            )}
         </ul>
         <h3 id="what-changed" className="text-base font-semibold text-white">
           What changed from v1
         </h3>
         <p className={p}>Same five factors, weights and 3-of-5 cutoff. The rules for what counts as an input changed:</p>
         <ul className="max-w-3xl list-disc space-y-1 pl-5 text-[15px] text-slate-200">
-          <li>Supply: pipeline net of closures. Where a source lists closures without a room count, the figure is shown as gross and says so.</li>
+          <li>{SUPPLY_CLOSURES_RULE}</li>
           <li>Supply market: for a downtown hotel, the downtown area defined by the city&rsquo;s visitors bureau counts as the market.</li>
           <li>
             Spread: a company&rsquo;s own published NOI definition may be applied to its reported hotel-level EBITDA, shown as our calculation using that

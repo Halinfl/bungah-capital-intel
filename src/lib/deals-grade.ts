@@ -28,7 +28,7 @@ export type RubricFactor = {
     price_range_rule?: string;
   };
   measure_rule?: { primary: string; fallback: string };
-  source_rule?: { single_source_required: boolean; required_stage: string; net_of_closures?: boolean };
+  source_rule?: { single_source_required: boolean; required_stage: string; net_of_closures?: boolean; closures_without_room_count?: "not_graded" };
 };
 export type Rubric = {
   rubric_version: string;
@@ -43,7 +43,7 @@ export type Rubric = {
   output_template: { text: string; ungraded_replacement: string; ungraded_spread: string };
   versioning: string;
   disclaimer: string;
-  changelog?: { version: string; date: string; line: string }[];
+  changelog?: { version: string; date: string; line: string; kind?: "clarification"; approved_by?: string }[];
 };
 
 export type FactorId = "replacement_cost" | "spread" | "supply" | "demand" | "debt_context";
@@ -86,8 +86,12 @@ export type FactorInput =
       single_source: boolean;
       stage: string;
       net_of_closures?: boolean;
-      /** The source lists closures but not their room count: the pipeline is graded gross and the entry says so. */
-      closures_unquantified?: string;
+      /**
+       * The source lists closures but not their room count (plain-words description, e.g. "8 Sonder properties removed
+       * from inventory"). Under a rubric with closures_without_room_count = "not_graded" (v1.1 clarification, Hal
+       * 2026-11-01) supply is not graded: net supply can't be computed.
+       */
+      closures_listed_without_room_count?: string;
       /** The share (and any total) is our arithmetic on the source's figures. */
       our_calculation?: boolean;
     })
@@ -295,12 +299,15 @@ function measure(f: RubricFactor, inp: FactorInput, anchor: string): { value: nu
           return { error: "No single public source gives the total pipeline as a share of existing rooms; figures aren't combined across sources or stages." };
         if (a.stage !== f.source_rule.required_stage)
           return { error: "Only partial pipeline stages are public (not under construction plus planned); shown as context, not graded." };
-        const unq = typeof a.closures_unquantified === "string" && a.closures_unquantified.length > 0;
-        if (f.source_rule.net_of_closures && a.net_of_closures !== true && !unq)
+        const listed = typeof a.closures_listed_without_room_count === "string" ? a.closures_listed_without_room_count : "";
+        // v1.1 clarification (Hal, 2026-11-01): closures listed without a room count = supply not graded (no gross fallback).
+        if (f.source_rule.net_of_closures && f.source_rule.closures_without_room_count === "not_graded" && listed)
+          return { error: `The source lists ${listed} but not their room count, so net supply can't be computed.` };
+        if (f.source_rule.net_of_closures && a.net_of_closures !== true)
           return { error: "Pipeline share isn't stated net of closures; shown as context, not graded." };
       }
       const calc = a.our_calculation ? " (our calculation)" : "";
-      const basis = !f.source_rule?.net_of_closures ? "" : a.net_of_closures === true ? ", net of closures" : `, gross: ${a.closures_unquantified}`;
+      const basis = f.source_rule?.net_of_closures ? ", net of closures" : "";
       return { value: v, text: `Pipeline ${v}% of existing rooms${calc}${basis} (${a.pipeline_definition})` };
     }
     case "demand": {
@@ -356,7 +363,7 @@ export function gradeDeal(rubric: Rubric, inputs: DealInputs, gradedOn: string):
       };
     }
     const m = measure(f, inp, anchor);
-    if ("error" in m) return { ...base, as_of: c.as_of, source_uri: c.source_uri, graded: false, reason: m.error };
+    if ("error" in m) return { ...base, as_of: c.as_of, source_uri: c.source_uri, also_sources: c.also_sources ?? [], graded: false, reason: m.error };
     const score =
       f.id === "debt_context"
         ? f.bands.find((b) => b.category === m.value)!.score

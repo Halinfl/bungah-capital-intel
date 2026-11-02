@@ -20,3 +20,4 @@ Test fixtures for the grader live OUTSIDE the repo and are refused by `--write`.
 - A corrected grade under the same rubric version is appended as a new revision (`grade.ts --revision N`); nothing in sale_grades.json is edited or deleted. Pages show the latest revision of each rubric version. Each revision gets an `event=revision` row in grade_log.csv.
 - citations.json holds public citation lines for report-type sources. The data credit is one field (`data_credit`); set it to "" to drop the parenthetical.
 - Source kind `report` is a public body's own research publication (Choose Chicago, LVCVA), listed after records and before press.
+- Supply closures (v1.1 clarification, Hal 2026-11-01): if the source lists closures but not their room count, set `closures_listed_without_room_count`; supply is not graded (no gross fallback).

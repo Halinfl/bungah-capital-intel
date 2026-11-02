@@ -57,8 +57,14 @@ function VersionRow({ sale }: { sale: Sale }) {
   const cur = gs[0];
   const orig = gs[gs.length - 1];
   return (
-    <div className="text-[13px] text-slate-300">
-      Rubric {cur.rubric_version} (current) <span aria-hidden="true">|</span> Rubric {orig.rubric_version} (original): {gradeLabel(orig)}
+    <div className="flex flex-col text-[13px] text-slate-300 sm:flex-row sm:gap-x-1">
+      <span className="whitespace-nowrap">Rubric {cur.rubric_version} (current)</span>
+      <span aria-hidden="true" className="hidden sm:inline">
+        |
+      </span>
+      <span>
+        Rubric {orig.rubric_version} (original): {gradeLabel(orig)}
+      </span>
     </div>
   );
 }
