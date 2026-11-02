@@ -11,6 +11,7 @@
     "test:leaks": "tsx scripts/chat/test-public-leaks.ts",
     "test:deals-headline": "tsx scripts/deals/test-headline.ts",
     "test:deal-match": "tsx scripts/chat/test-deal-match.ts",
+    "test:chat-label": "tsx scripts/chat/test-chat-label.ts",
     "postbuild": "node scripts/check-ic-frame.mjs",
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",
