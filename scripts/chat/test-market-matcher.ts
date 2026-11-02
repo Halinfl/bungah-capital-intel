@@ -38,6 +38,13 @@ const NO_MARKET = [
   "what is the national debt wall?",
   "how are la quinta hotels doing?",
   "how many rooms are in the north region?",
+  // QA r2 (Nov 1 2026): rates / worth / national chip questions name no market.
+  "Why are rates up?",
+  "Is it worth building a hotel?",
+  "Where are interest rates now?",
+  "What's the national RevPAR and ADR picture?",
+  "What's the national RevPAR and occupancy picture?",
+  "What's the national hotel labor and staffing picture?",
   "how are resorts in the mountain west doing?",
   // "worth" alone is not Dallas–Fort Worth (only "Fort Worth" / "DFW" as a phrase).
   "Is it worth it?",
@@ -88,6 +95,12 @@ const NAMED: [string, string][] = [
   ["How is Honolulu doing?", "honolulu"],
   ["how are hotels on the Las Vegas Strip doing?", "las-vegas"],
   ["What's the RevPAR and occupancy read for Nashville?", "nashville"],
+  // QA r2: "worth" is not Fort Worth; the Dallas card is labelled Dallas–Fort Worth and its chips resolve back.
+  ["Is it worth building a hotel in Nashville?", "nashville"],
+  ["Is it worth buying a hotel in Austin?", "austin"],
+  ["How is Fort Worth doing?", "dallas"],
+  ["What's the hotel supply pipeline in Dallas–Fort Worth?", "dallas"],
+  ["Why are rates up in Nashville?", "nashville"],
 ];
 
 /** Comparison questions: the matched + secondary markets, as a set. */
@@ -97,6 +110,10 @@ const COMPARE: [string, string[]][] = [
   ["Miami vs Fort Lauderdale vs West Palm Beach", ["miami", "fort-lauderdale", "palm-beach"]],
   ["How do NYC and Boston compare?", ["new-york-city", "boston"]],
   ["LA vs SF supply", ["los-angeles", "san-francisco-bay"]],
+  // QA r2: the one-market compare's peer chips (same supply tier, nearest region).
+  ["Compare Nashville vs Charlotte", ["nashville", "charlotte"]],
+  ["Compare Nashville vs Atlanta", ["nashville", "atlanta"]],
+  ["Compare Nashville vs Austin", ["nashville", "austin"]],
 ];
 
 const TEMPLATES = [

@@ -18,7 +18,7 @@
  * Pure helpers here; the route does the graph reads.
  */
 import { createHash } from "node:crypto";
-import { CHAT_INTENTS, classifyIntent, type ChatIntent } from "./chat-intent";
+import { CHAT_INTENTS, classifyIntent, isBareRates, type ChatIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import type { ChatScope } from "./chat-scope";
 
@@ -90,19 +90,30 @@ function headlineWindow(head: string): string {
 }
 
 /**
+ * The card's own headline: the premise check it opens with ("Occupancy is actually up …", "Mixed: …") is framing
+ * about the question, like the decline line, so it is removed.
+ */
+export function cardHeadline(answer: string, premise?: string | null): string {
+  if (!premise) return answer;
+  const i = answer.indexOf(premise);
+  return i < 0 ? answer : `${answer.slice(0, i)}${answer.slice(i + premise.length)}`.replace(/\s{2,}/g, " ").trim();
+}
+
+/**
  * Fingerprint of what a reader sees as "the answer": the card's headline (as a bag of words, so the same figures
  * in another order still count), its market, and the data window the headline describes. Key reads, the coverage
- * line, the date filter, collapsed sections and the buy/sell decline line are left out, so "Last 90 days" of the
+ * line, the date filter, collapsed sections, the buy/sell decline line and the premise check are left out, so "Last 90 days" of the
  * same headline, or the same card with only the decline added, is the same answer. Without a summary card, the
  * answer text itself (decline and footer lines removed). Equal hash = the same answer.
  */
 export function answerHash(a: CardLike | string): string {
   const x = typeof a === "string" ? { content: a } : a;
-  const b = x.brief as { answer?: string } | null | undefined;
+  const b = x.brief as { answer?: string; premise?: string } | null | undefined;
   const words = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}$%.+\-−]+/gu, " ").trim().split(/\s+/).filter(Boolean).sort();
   const market = (typeof a === "string" ? null : a.marketSlug) ?? "";
-  const basis = b && typeof b.answer === "string"
-    ? JSON.stringify({ m: market, h: words(b.answer), w: headlineWindow(b.answer) })
+  const head = b && typeof b.answer === "string" ? cardHeadline(b.answer, b.premise) : null;
+  const basis = head !== null
+    ? JSON.stringify({ m: market, h: words(head), w: headlineWindow(head) })
     : JSON.stringify({ m: market, c: x.content.replace(DECLINE_LINES, "").replace(/\n{2,}/g, "\n").trim() });
   return createHash("sha256").update(basis).digest("hex").slice(0, 16);
 }
@@ -129,8 +140,15 @@ export function followUpIntent(question: string, prev: Prev | null, hasMarket: b
   return null;
 }
 
-/** The one-line reply when a follow-up would return the card already on screen. */
+/** The one-line reply when a follow-up would return the card directly above (the last answer). */
 export const NO_REPEAT_LINE = "That's the same answer as above. Nothing more specific is on file for that.";
+/** The one-line reply when the matching answer was shown earlier in the thread, not directly above. */
+export const NO_REPEAT_EARLIER_LINE = "That's the same answer as earlier in this chat. Nothing more specific is on file for that.";
+
+/** Which note: "as above" when the match is the last answer (prev.answerHash), else "earlier in this chat". */
+export function noRepeatLine(hash: string, prev: Prev | null | undefined): string {
+  return prev?.answerHash === hash ? NO_REPEAT_LINE : NO_REPEAT_EARLIER_LINE;
+}
 
 const LENS_OF: Partial<Record<ChatIntent, "perf" | "supply" | "demand" | "debt" | "labor">> = {
   revpar_metrics: "perf",
@@ -147,25 +165,39 @@ const LENS_OF: Partial<Record<ChatIntent, "perf" | "supply" | "demand" | "debt" 
  * routes to a different topic than the card on screen, then the same topic for the last 90 days when it wasn't
  * already. applyNoRepeat drops any whose card was already shown and keeps up to 3.
  */
-export function followUpChips(opts: { intent: ChatIntent | null | undefined; market: string | null; question: string; range: DateRange }): FollowUpChip[] {
+export function followUpChips(opts: { intent: ChatIntent | null | undefined; market: string | null; question: string; range: DateRange; peers?: string[] }): FollowUpChip[] {
   const lens = (opts.intent && LENS_OF[opts.intent]) || "perf";
   const m = opts.market;
+  // Best first; the performance angle comes last for a market (its card is usually the one already shown).
   const angles: { lens: string; chip: FollowUpChip }[] = m
     ? [
         { lens: "supply", chip: { label: `Supply pipeline in ${m}`, question: `What's the hotel supply pipeline in ${m}?` } },
         { lens: "demand", chip: { label: `Demand drivers in ${m}`, question: `What's driving hotel demand in ${m}?` } },
         { lens: "debt", chip: { label: `Debt and refinancing in ${m}`, question: `What's the hotel debt and refinancing picture in ${m}?` } },
         { lens: "labor", chip: { label: `Labor and staffing in ${m}`, question: `What's the hotel labor and staffing picture in ${m}?` } },
+        { lens: "perf", chip: { label: `RevPAR and occupancy in ${m}`, question: `What's the RevPAR and occupancy read for ${m}?` } },
       ]
     : [
         { lens: "supply", chip: { label: "Heaviest supply pipelines", question: "Which covered markets have the heaviest supply pipeline?" } },
         { lens: "debt", chip: { label: "National debt and refinancing", question: "What's the national hotel debt and refinancing picture?" } },
+        { lens: "perf", chip: { label: "National RevPAR and occupancy", question: "What's the national RevPAR and occupancy picture?" } },
+        { lens: "labor", chip: { label: "National labor and staffing", question: "What's the national hotel labor and staffing picture?" } },
       ];
   const chips = angles.filter((a) => a.lens !== lens).map((a) => a.chip);
   // The same topic, last 90 days only, asked in plain words (not "12-month …" under a 90-day tag).
   const same = m ? (lens === "perf" ? `What's the RevPAR and occupancy read for ${m}?` : angles.find((a) => a.lens === lens)?.chip.question) : undefined;
   const q90 = (same ?? opts.question).trim();
   if (opts.range !== "90d" && q90) chips.push({ label: "Last 90 days", question: q90, range: "90d" });
+  // Backfill for a market thread whose own angles were all shown already: a peer compare (same supply tier, nearest
+  // region), then national reads, so a note always has at least 2 chips (applyNoRepeat drops any already shown).
+  if (m) {
+    for (const p of (opts.peers ?? []).slice(0, 2)) chips.push({ label: `Compare with ${p}`, question: `Compare ${m} vs ${p}` });
+    chips.push(
+      { label: "National RevPAR and occupancy", question: "What's the national RevPAR and occupancy picture?" },
+      { label: "Heaviest supply pipelines", question: "Which covered markets have the heaviest supply pipeline?" },
+      { label: "National debt and refinancing", question: "What's the national hotel debt and refinancing picture?" }
+    );
+  }
   return chips;
 }
 
@@ -193,6 +225,12 @@ export async function resolveFollowUp(x: { question: string; scope: ChatScope | 
   if (scope?.kind === "reit") return { marketSlug, intent: null, inherited: false };
   const own = classifyIntent(question);
   const mayInherit = !scope && !marketSlug && Boolean(prev?.marketSlug);
+  // Bare "rates" after a national answer: interest rates after a rates / debt card, room rates after a national
+  // performance card (no clarifying prompt then). After a market's card, the market is inherited below (room rates).
+  if (isBareRates(question) && !scope && !marketSlug && !prev?.marketSlug && prev?.intent) {
+    if (prev.intent === "rates" || prev.intent === "debt_overlay") return { marketSlug, intent: "rates", inherited: false };
+    if (prev.intent === "revpar_metrics") return { marketSlug, intent: "revpar_metrics", inherited: false };
+  }
   if (!mayInherit && own !== "compare_markets" && !(own === "unknown" && prev?.intent)) return { marketSlug, intent: null, inherited: false };
 
   const { retrieveGraphContext, namedCoveredMarkets, isCoveredMarketPhrase, isSupplyRankingQuestion } = await import("./chat");
@@ -217,6 +255,15 @@ export async function resolveFollowUp(x: { question: string; scope: ChatScope | 
   return { marketSlug, intent: followUpIntent(question, prev, hasMarket, Math.max(named, ctx.matched ? 1 : 0)), inherited };
 }
 
+/** Compare peers for a market (chat.ts comparePeers: same supply tier, nearest region), as compare-chip names. */
+export async function peerNames(slug: string | null | undefined): Promise<string[]> {
+  if (!slug) return [];
+  const { retrieveGraphContext, comparePeers, compareName } = await import("./chat");
+  const markets = (await retrieveGraphContext("markets")).markets;
+  const m = markets.find((r) => r.slug === slug);
+  return m ? comparePeers(markets, m).map(compareName) : [];
+}
+
 /** Short display name for a market slug ("nashville" → "Nashville"), from the graph; null if unknown. */
 export async function marketShortName(slug: string | null | undefined): Promise<string | null> {
   if (!slug) return null;
@@ -239,7 +286,7 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
   const hash = answerHash(answer);
   const shown = shownHashes(x.prev);
   if (!shown.has(hash)) return { answer, hash, repeat: false };
-  const candidates = followUpChips({ intent: answer.intent as ChatIntent | undefined, market: await marketShortName(answer.marketSlug), question: x.question, range: x.range });
+  const candidates = followUpChips({ intent: answer.intent as ChatIntent | undefined, market: await marketShortName(answer.marketSlug), question: x.question, range: x.range, peers: await peerNames(answer.marketSlug) });
   const taken = new Set<string>([...shown, hash]);
   const followUps: FollowUpChip[] = [];
   for (const c of candidates) {
@@ -252,7 +299,7 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
     followUps.push(c);
   }
   return {
-    answer: { ...answer, content: NO_REPEAT_LINE, brief: null, citations: [], sources: [], answeredWell: false },
+    answer: { ...answer, content: noRepeatLine(hash, x.prev), brief: null, citations: [], sources: [], answeredWell: false },
     hash,
     repeat: true,
     followUps,

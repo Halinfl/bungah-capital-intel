@@ -29,6 +29,11 @@ export type ChatBrief = {
   /** Fixed decline for buy/sell or staff-cut requests, shown above the answer. */
   decline?: string;
   answer: string;
+  /**
+   * The premise check the answer opens with ("Mixed: occupancy is down 0.2% … but up 3.2% …"), when there is one.
+   * Framing about the question, not the card: left out of the repeat fingerprint (chat-followup.ts answerHash).
+   */
+  premise?: string;
   reads: BriefRead[];
   coverage: string;
   /** First sentence of the coverage line ("Based on 4 cited sources, Jan–Sep 2026."). */
@@ -1291,6 +1296,7 @@ export function makeBrief(
     ...(b.window ? { window: b.window } : {}),
     decline: b.decline ? scrubInternal(b.decline) : undefined,
     answer: balanceParens(scrubInternal(b.answer)),
+    ...(b.premise ? { premise: balanceParens(scrubInternal(b.premise)) } : {}),
     reads: b.reads.slice(0, 3).map((r) => ({
       ...r,
       text: balanceParens(scrubInternal(r.text)),

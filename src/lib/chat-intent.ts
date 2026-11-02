@@ -31,6 +31,21 @@ export type ChatIntent = (typeof CHAT_INTENTS)[number];
 
 type Rule = { intent: ChatIntent; weight: number; test: (q: string) => boolean };
 
+/**
+ * "Rates" (Eric QA r2, Nov 1 2026). Interest wording (Fed, SOFR, Treasury, interest, mortgage…) → the rates card;
+ * room-rate wording (room / hotel / nightly rates, ADR, average daily rate) → the RevPAR / ADR card; bare "rates"
+ * → room rates when a market is in play, else a clarifying prompt (chat-llm.ts) offering both.
+ */
+export const INTEREST_RATE_WORDS = /\b10[- ]?(year|yr)\b|\b10y\b|\btreasur(y|ies)\b|\byield curve\b|\bsofr\b|\bfed funds\b|\binterest\b|\bbond yields?\b|\bfomc\b|\bfed\b|\bfederal reserve\b|\bmortgages?\b|\brate (cut|hike)s?\b|\bcentral bank\b/i;
+export const ROOM_RATE_WORDS = /\b(room|hotel|nightly|daily|average daily|lodging) rates?\b|\badr\b/i;
+/** Other "rate(s)" that are neither (cap rates, tax rates, occupancy rate, exchange rates…). */
+const OTHER_RATE_WORDS = /\b(cap|capitali[sz]ation|tax|occupancy|occ|exchange|vacancy|delinquency|default|growth|wage|hourly|tariff|conversion|special[- ]servicing)\s+rates?\b|\brate of\b/i;
+/** "Why are rates up?": "rates" with neither interest nor room-rate wording (nor another kind of rate). */
+export function isBareRates(question: string): boolean {
+  const q = question.toLowerCase();
+  return /\brates\b/.test(q) && !INTEREST_RATE_WORDS.test(q) && !ROOM_RATE_WORDS.test(q) && !OTHER_RATE_WORDS.test(q);
+}
+
 const RULES: Rule[] = [
   {
     intent: "tax_collections",
@@ -95,7 +110,10 @@ const RULES: Rule[] = [
     intent: "rates",
     weight: 8.5,
     test: (q) =>
-      /\b10[- ]?(year|yr)\b|\b10y\b|\btreasur(y|ies)\b|\byield curve\b|\bsofr\b|\bfed funds\b|\binterest rates?\b|\bbond yields?\b|\bfomc\b/.test(q),
+      /\b10[- ]?(year|yr)\b|\b10y\b|\btreasur(y|ies)\b|\byield curve\b|\bsofr\b|\bfed funds\b|\binterest rates?\b|\bbond yields?\b|\bfomc\b/.test(q) ||
+      // "Is the Fed cutting?", "mortgage rates", "why are rates up, is it interest?"
+      /\bfed\b|\bfederal reserve\b|\bmortgages?\b|\brate (cut|hike)s?\b|\bcentral bank\b/.test(q) ||
+      (/\binterest\b/.test(q) && /\brates?\b|\bcost of (debt|capital)\b/.test(q)),
   },
   {
     intent: "supply_pipeline",
@@ -118,8 +136,8 @@ const RULES: Rule[] = [
       /\bdemand\b/.test(q) ||
       /\bvisit(ors?|ation|s)\b/.test(q) ||
       // "Why is occupancy down?", "what's driving RevPAR?": the drivers card, not the performance card again.
-      /\bwhy\b/.test(q) ||
-      /\bdriv(ing|ers?|es|en)\b/.test(q) ||
+      // A "why" about rates (room rates / ADR, or bare "rates") is not a demand question: its own card answers it.
+      ((/\bwhy\b/.test(q) || /\bdriv(ing|ers?|es|en)\b/.test(q)) && !ROOM_RATE_WORDS.test(q) && !isBareRates(q)) ||
       /\bleisure\b/.test(q) ||
       /\btouris[mt]\b/.test(q) ||
       /\battendance\b/.test(q) ||
@@ -136,6 +154,9 @@ const RULES: Rule[] = [
       /\b(cbd|downtown|midtown|uptown|the strip|central business district)\b.{0,40}\b(doing|now|today|lately|this year|right now)\b/.test(q) ||
       /\brevpar\b/.test(q) ||
       /\badr\b/.test(q) ||
+      ROOM_RATE_WORDS.test(q) ||
+      // Bare "rates" ("why are rates up in Nashville?"): room rates; with no market, chat-llm.ts asks which.
+      isBareRates(q) ||
       /\boccupanc(?:y|ies)?\b|\bocc\b/.test(q) ||
       /\bmetrics?\b/.test(q) ||
       /\bkpi\b/.test(q) ||

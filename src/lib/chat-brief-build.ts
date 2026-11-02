@@ -1,7 +1,7 @@
 /**
  * Brief builders per answer path (deterministic; see chat-brief.ts for the format and rules).
  */
-import type { ChatIntent } from "./chat-intent";
+import { isBareRates, ROOM_RATE_WORDS, type ChatIntent } from "./chat-intent";
 import type { MarketRow } from "./chat";
 import type { DigestHit } from "./chat-retrieve";
 import type { UncoveredPlace } from "./chat-coverage";
@@ -58,6 +58,8 @@ export function lensFor(intent: ChatIntent | undefined): Lens {
 }
 
 export function shortName(m: { name: string }): string {
+  // The Dallas market is the Dallas–Fort Worth metro: "Fort Worth" / "DFW" questions land on it, so say both.
+  if (/^Dallas\s*[–—-]\s*Fort Worth\b/.test(m.name)) return "Dallas–Fort Worth";
   return m.name.split(/[–—]/)[0].replace(/\s+MSA$/, "").trim();
 }
 
@@ -345,6 +347,8 @@ function isSpot(f: Fact): boolean {
 const PERF_FACT = (f: Fact) => f.readable && PERF_RE.test(f.text) && f.topic !== "Labor & talent" && !/\b(tax|TDT|TOT|HOT|collections?)\b/i.test(f.text) && f.kind !== "tax";
 /** A RevPAR figure that carries its change ("RevPAR $95 (+6.3%)", "RevPAR +6%"). */
 const REVPAR_MOVE = /\bRevPAR\b[^.;|]{0,40}?[+\-−]\s?~?\d+(\.\d+)?\s?%/;
+/** An ADR figure ("ADR $186 (+1.2%)", "ADR −4.1% to $158.12"). */
+const ADR_FIGURE = /\b(ADR|average daily rate)\b[^.;|]{0,30}?\d/i;
 const OCC_RATE = /\b(OCC|occupancy|ADR|average daily rate)\b[^.;|]{0,30}?\d/i;
 
 /**
@@ -435,40 +439,90 @@ function fresherThanSnapshot(m: MarketRow, perf: Fact[]): Fact | undefined {
 }
 
 /**
- * "Why is occupancy down?" on a drivers card: the question states a direction for occupancy, RevPAR or ADR. The
- * cited print that would lead the performance card for that metric (longest recent period, never a single week)
- * is checked against it, and the card opens with that real figure, saying "actually" when the data contradicts
- * the question ("Occupancy is actually up 3.2% (County YTD through Sep 12 2026, roadgenius.com)."). No cited
- * signed change for the metric, or no clear direction in the question: null (nothing is said, nothing made up).
+ * "Why is occupancy down?": the question states a direction for occupancy, RevPAR or ADR (room rates). Every cited
+ * signed change for that metric is checked against it: the current month-or-longer prints (as on the performance
+ * card's lead) plus every print the performance card itself shows (its headline and key reads, so the card a reader
+ * may already have on screen is always counted, e.g. the RevPAR card's "C&W Q2 2026 … OCC 71.7% (−0.2%)").
+ *   - all cited figures point the same way and agree with the question: "Occupancy is up 3.2% year to date …";
+ *   - all point the same way and contradict it: "Occupancy is actually up 3.2% …" ("actually" only here);
+ *   - they disagree with each other: "Mixed: occupancy is down 0.2% in Q2 2026 (Cushman & Wakefield) but up 3.2%
+ *     year to date through Sep 12 2026 (county data, roadgenius.com)." (the question's direction first).
+ * Each figure keeps its own period and source. No cited signed change for the metric, or no clear direction in the
+ * question: null (nothing is said, nothing made up).
  */
-const PREMISE_METRICS: { name: string; q: RegExp; f: RegExp }[] = [
-  { name: "Occupancy", q: /\b(occupanc\w*|occ)\b/i, f: /\b(?:OCC|occupancy)\b[^;|,]{0,25}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%|pts?\b|pp\b|points?\b)/i },
-  { name: "RevPAR", q: /\brevpar\b/i, f: /\bRevPAR\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
-  { name: "ADR", q: /\b(adr|average daily rates?|room rates?)\b/i, f: /\b(?:ADR|average daily rate)\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
+const PREMISE_METRICS: { name: string; lower: string; q: RegExp; f: RegExp }[] = [
+  { name: "Occupancy", lower: "occupancy", q: /\b(occupanc\w*|occ)\b/i, f: /\b(?:OCC|occupancy)\b[^;|,]{0,25}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%|pts?\b|pp\b|points?\b)/i },
+  { name: "RevPAR", lower: "RevPAR", q: /\brevpar\b/i, f: /\bRevPAR\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
+  { name: "ADR", lower: "ADR", q: /\b(adr|average daily rates?|(room|hotel|nightly) rates?|rates)\b/i, f: /\b(?:ADR|average daily rate)\b[^;|,]{0,30}?([+\-−])\s?(\d+(?:\.\d+)?)\s?(%)/i },
 ];
 const SAYS_DOWN = /\b(down|fall(s|ing|en)?|fell|drop(s|ped|ping)?|declin\w*|decreas\w*|lower|weak\w*|slump\w*|soft(er|ening)?|slow(ing|er)?|shrink\w*|plung\w*|tank\w*)\b/i;
 const SAYS_UP = /\b(up|ris(e|es|ing)|rose|grow(s|ing|n)?|grew|increas\w*|higher|strong(er)?|climb\w*|surg\w*|jump\w*|gain\w*|soar\w*)\b/i;
 
-export function premiseCheck(facts: Fact[], question: string): { line: string; fact: Fact } | null {
+/** A question about interest rates (Fed, SOFR, Treasury, mortgage…): "rates" there is never ADR. */
+const INTEREST_WORDS = /\b(interest|fed|federal reserve|fomc|sofr|treasur(y|ies)|10[- ]?(year|yr)|mortgage|bond|yields?|cap rates?|tax rates?)\b/i;
+
+/** "in Q2 2026 (Cushman & Wakefield)", "year to date through Sep 12 2026 (county data, roadgenius.com)". */
+function premiseWhen(f: Fact): string {
+  const text = cleanFactText(f.text);
+  const colon = text.search(/:\s/);
+  const label: string = (colon > 0 && colon <= 60 ? text.slice(0, colon) : f.period?.label ?? (f.asOf ? fmtAsOf(f.asOf) : null)) ?? "";
+  const src = flatSource(f.source.label);
+  const county = /\bcounty\b/i.test(label);
+  const ytd = label.match(/\bYTD through ([A-Z][a-z]{2,8}\.? \d{1,2},? 20\d\d)/);
+  const q = label.match(/\bQ([1-4]) (20\d\d)\b/);
+  const wk = label.match(/\b(?:wk|week) ending (20\d\d-\d\d-\d\d|[A-Z][a-z]{2,8}\.? \d{1,2},? 20\d\d)/i);
+  const yr = label.match(/^(?:YE |FY |CY )?(20\d\d)\b/);
+  const when = ytd ? `year to date through ${ytd[1]}` : q ? `in Q${q[1]} ${q[2]}` : wk ? `in the week ending ${wk[1]}` : yr && !/\b(Q[1-4]|YTD|T12|month|week|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.test(label) ? `in ${yr[1]}` : null;
+  if (!when) return `(${[label, src].filter(Boolean).join(", ")})`;
+  return `${when} (${[county ? "county data" : null, src].filter(Boolean).join(", ")})`;
+}
+
+export type PremiseFigure = { text: string; up: boolean; n: string };
+export function premiseCheck(facts: Fact[], question: string, shown: Fact[] = []): { line: string; facts: Fact[]; figures: PremiseFigure[] } | null {
   const down = SAYS_DOWN.test(question);
   const up = SAYS_UP.test(question);
   if (down === up) return null;
-  const metric = PREMISE_METRICS.find((x) => x.q.test(question));
+  const metric = PREMISE_METRICS.find((x) => x.q.test(question) && !(x.name === "ADR" && !/\b(adr|average daily|room rates?|hotel rates?|nightly rates?)\b/i.test(question) && INTEREST_WORDS.test(question)));
   if (!metric) return null;
-  const fact = longestFirst(facts.filter((f) => PERF_FACT(f) && !isSpot(f) && metric.f.test(f.text)))[0];
-  const g = fact?.text.match(metric.f);
-  if (!fact || !g) return null;
-  const [, sign, n, unit] = g;
-  const dataUp = sign === "+";
-  if (Number(n) === 0) return null;
-  const amount = unit === "%" ? `${n}%` : `${n} points`;
-  const text = cleanFactText(fact.text);
-  const colon = text.search(/:\s/);
-  const label = colon > 0 && colon <= 60 ? text.slice(0, colon) : fact.period?.label ?? (fact.asOf ? fmtAsOf(fact.asOf) : null);
-  const where = [label, flatSource(fact.source.label)].filter(Boolean).join(", ");
-  const said = dataUp ? "up" : "down";
-  const line = dataUp === up ? `${metric.name} is ${said} ${amount} (${where}).` : `${metric.name} is actually ${said} ${amount} (${where}).`;
-  return { line, fact };
+  const signed = (f: Fact) => {
+    const g = f.text.match(metric.f);
+    return g && Number(g[2]) !== 0 ? { f, up: g[1] === "+", n: g[2], unit: g[3] } : null;
+  };
+  // The current prints (as the performance lead picks them) plus every print the performance card shows.
+  const current = longestFirst(facts.filter((f) => PERF_FACT(f) && !isSpot(f) && metric.f.test(f.text)));
+  const pool: Fact[] = [];
+  for (const f of [...current, ...shown.filter((x) => metric.f.test(x.text))]) if (!pool.some((y) => y.text === f.text)) pool.push(f);
+  const cands = pool.map(signed).filter((x): x is NonNullable<ReturnType<typeof signed>> => Boolean(x));
+  if (!cands.length) return null;
+  // Best figure per direction: month-or-longer before single weeks, then the longest recent period.
+  const best = (list: typeof cands) => {
+    const long = list.filter((c) => !isSpot(c.f));
+    const ranked = longestFirst((long.length ? long : list).map((c) => c.f));
+    const top = ranked[0] ?? (long.length ? long : list)[0].f;
+    return list.find((c) => c.f === top)!;
+  };
+  const amount = (c: (typeof cands)[number]) => (c.unit === "%" ? `${c.n}%` : `${c.n} points`);
+  const figures = cands.map((c) => ({ text: c.f.text, up: c.up, n: c.n }));
+  const ups = cands.filter((c) => c.up);
+  const downs = cands.filter((c) => !c.up);
+  if (ups.length && downs.length) {
+    const first = best(up ? ups : downs);
+    const second = best(up ? downs : ups);
+    const line = `Mixed: ${metric.lower} is ${first.up ? "up" : "down"} ${amount(first)} ${premiseWhen(first.f)} but ${second.up ? "up" : "down"} ${amount(second)} ${premiseWhen(second.f)}.`;
+    return { line, facts: [first.f, second.f], figures };
+  }
+  const c = best(cands);
+  const said = c.up ? "up" : "down";
+  const line = `${metric.name} is ${c.up === up ? "" : "actually "}${said} ${amount(c)} ${premiseWhen(c.f)}.`;
+  return { line, facts: [c.f], figures };
+}
+
+/** The figures the performance card shows for a market (its headline print and key reads), for premiseCheck. */
+function perfCardFacts(m: MarketRow, facts: Fact[]): Fact[] {
+  const perf = facts.filter(PERF_FACT);
+  const move = longestFirst(perf.filter((f) => REVPAR_MOVE.test(f.text) && !isSpot(f)))[0];
+  const head = move ?? (metricsLine(m) ? fresherThanSnapshot(m, perf) : undefined) ?? longestFirst(perf.filter((f) => !isSpot(f)))[0];
+  return [...(head ? [head] : []), ...perfReads(facts, 3, new Set(head ? [head.text] : []))];
 }
 
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
@@ -492,11 +546,17 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // "Occupancy and rate" (no RevPAR asked): the snapshot OCC / ADR, else the longest-period OCC / ADR print.
     const n = 3 - (opts.extraReads?.length ?? 0);
     const asksRevpar = !opts.question || /\brevpar\b/i.test(opts.question);
+    // "Why are rates up in Nashville?" / "room rates" / "ADR": the longest recent print that carries ADR leads.
+    const asksAdr = Boolean(opts.question) && !asksRevpar && !/\b(occupanc\w*|occ)\b/i.test(opts.question!) && (ROOM_RATE_WORDS.test(opts.question!) || isBareRates(opts.question!));
     const perf = facts.filter(PERF_FACT);
     const move = longestFirst(perf.filter((f) => REVPAR_MOVE.test(f.text) && !isSpot(f)))[0];
     const occRate = longestFirst(perf.filter((f) => OCC_RATE.test(f.text) && !isSpot(f)))[0];
     const anyRevpar = longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text) && !isSpot(f)))[0] ?? longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text)))[0];
-    if (asksRevpar && move) {
+    const adrHead = asksAdr ? longestFirst(perf.filter((f) => ADR_FIGURE.test(f.text) && !isSpot(f)))[0] : undefined;
+    if (adrHead) {
+      answer = headLine(short, "demand", adrHead);
+      reads = perfReads(facts, n, new Set([adrHead.text]));
+    } else if (asksRevpar && move) {
       answer = headLine(short, "demand", { ...move, text: revparFirstText(move.text) });
       reads = perfReads(facts, n, new Set([move.text]));
     } else if (metrics && fresherThanSnapshot(m, perf)) {
@@ -543,11 +603,13 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     }
   }
-  // A "why is X down/up" question on the drivers card: the real figure for X first (see premiseCheck).
-  const premise = lens === "demand" && intent !== "revpar_metrics" && opts.question ? premiseCheck(facts, opts.question) : null;
+  // A "why is X down/up" question (drivers card, or the RevPAR / ADR card for room-rate questions): the cited
+  // figures for X first, "actually" only when they all contradict the question, "Mixed:" when they disagree.
+  const premise = lens === "demand" && opts.question && !opts.decline ? premiseCheck(facts, opts.question, perfCardFacts(m, facts)) : null;
   if (premise) {
     answer = `${premise.line} ${answer}`;
-    reads = [premise.fact, ...reads.filter((f) => f.text !== premise.fact.text && !sameFact(f, premise.fact))].slice(0, Math.max(1, 3 - (opts.extraReads?.length ?? 0)));
+    const pf = premise.facts;
+    reads = [...pf, ...reads.filter((f) => !pf.some((p) => f.text === p.text || sameFact(f, p)))].slice(0, Math.max(pf.length, 3 - (opts.extraReads?.length ?? 0)));
   }
   const readList = [...reads.map(toRead), ...(opts.extraReads ?? [])].slice(0, 3);
 
@@ -581,6 +643,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   return makeBrief({
     decline: opts.decline,
     answer,
+    ...(premise ? { premise: premise.line } : {}),
     reads: readList,
     coverage: coverageLine({ cites, notes, range, seedNote, seedCount }),
     window: { range, filterable: true },

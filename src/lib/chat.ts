@@ -1104,25 +1104,64 @@ const COMPARE_PAIRS: [string, string][] = [["miami", "orlando"], ["dallas", "hou
 const COMPARE_MIN_ROWS = 10;
 
 /**
- * Market chips for the compare prompt: with one market named, it paired with the covered markets that have the
- * most cited rows; otherwise peer pairs. Only markets with enough cited rows are offered. Each chip asks a two-market question the compare answer handles.
+ * Supply tier of a market: its cited room inventory (Market.roomsK), banded. Small < 20k rooms, mid 20–60k
+ * (Nashville, Austin, Charlotte, Atlanta), large ≥ 60k (Orlando, Las Vegas, New York, Los Angeles).
+ */
+export function supplyTier(m: Pick<MarketRow, "roomsK">): 0 | 1 | 2 | null {
+  const k = m.roomsK;
+  if (k == null || !Number.isFinite(k)) return null;
+  return k < 20 ? 0 : k < 60 ? 1 : 2;
+}
+/** Broad region families from the market's region label ("Texas / South", "Florida / Southeast" → south). */
+const REGION_FAMILY: [string, RegExp][] = [
+  ["south", /\b(southeast|south|texas|florida|gulf|carolinas|appalachia)\b/i],
+  ["west", /\b(west|california|pacific|nevada|southwest|mountain|arizona|hawaii)\b/i],
+  ["northeast", /\b(northeast|mid-atlantic)\b/i],
+  ["midwest", /\b(midwest|ozarks)\b/i],
+];
+function regionFamilies(region: string): Set<string> {
+  return new Set(REGION_FAMILY.filter(([, re]) => re.test(region)).map(([f]) => f));
+}
+
+/**
+ * Peers for a one-market compare ("Compare Nashville"): covered markets in the same supply tier, closest region
+ * first (the same region label, then the same broad region), then the closest room count, then by name. Never
+ * ranked by how many cited rows a market has. Nashville (Southeast, 28k rooms) → Charlotte, Atlanta, Austin.
+ */
+export function comparePeers(markets: MarketRow[], anchor: MarketRow, n = 3): MarketRow[] {
+  const tier = supplyTier(anchor);
+  const fam = regionFamilies(anchor.region);
+  const regionScore = (m: MarketRow) => (m.region === anchor.region ? 2 : [...regionFamilies(m.region)].some((f) => fam.has(f)) ? 1 : 0);
+  return markets
+    .filter((m) => m.id !== anchor.id && m.signals.length > 0 && (tier == null || supplyTier(m) === tier))
+    .sort(
+      (x, y) =>
+        regionScore(y) - regionScore(x) ||
+        Math.abs((x.roomsK ?? 0) - (anchor.roomsK ?? 0)) - Math.abs((y.roomsK ?? 0) - (anchor.roomsK ?? 0)) ||
+        x.name.localeCompare(y.name)
+    )
+    .slice(0, n);
+}
+
+/**
+ * Market chips for the compare prompt: with one market named, its peers (same supply tier, nearest region; see
+ * comparePeers), one tap each; otherwise peer pairs (each kept only if both markets have enough cited rows). Each
+ * chip asks a two-market question the compare answer handles.
  */
 export function compareChips(markets: MarketRow[], anchor: MarketRow | null): { label: string; question: string }[] {
   const ok = (m: MarketRow | undefined): m is MarketRow => Boolean(m && m.signals.length >= COMPARE_MIN_ROWS);
   const by = new Map(markets.map((m) => [m.slug, m]));
-  const name = (m: MarketRow) => MARKET_SHORT[m.slug] ?? m.name.split(/[–—/(,]| MSA\b/)[0].trim();
+  const name = compareName;
   const chip = (a: MarketRow, b: MarketRow) => ({ label: `${name(a)} vs ${name(b)}`, question: `Compare ${name(a)} vs ${name(b)}` });
-  if (anchor) {
-    return markets
-      .filter((m) => m.id !== anchor.id && ok(m))
-      .sort((x, y) => y.signals.length - x.signals.length || x.name.localeCompare(y.name))
-      .slice(0, 3)
-      .map((m) => chip(anchor, m));
-  }
+  if (anchor) return comparePeers(markets, anchor).map((m) => chip(anchor, m));
   return COMPARE_PAIRS.map(([a, b]) => [by.get(a), by.get(b)] as const)
     .filter((p): p is readonly [MarketRow, MarketRow] => ok(p[0]) && ok(p[1]))
     .slice(0, 3)
     .map(([a, b]) => chip(a, b));
+}
+/** A market's name in a compare chip ("Nashville", "New York"). */
+export function compareName(m: Pick<MarketRow, "slug" | "name">): string {
+  return MARKET_SHORT[m.slug] ?? m.name.split(/[–—/(,]| MSA\b/)[0].trim();
 }
 /** Display names where the MSA name's first part is not what people say. */
 const MARKET_SHORT: Record<string, string> = { "new-york-city": "New York", "san-francisco-bay": "San Francisco", honolulu: "Honolulu", "washington-dc": "Washington DC", "las-vegas": "Las Vegas" };

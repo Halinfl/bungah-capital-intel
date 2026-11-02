@@ -32,6 +32,7 @@ import {
   type GraphContext,
 } from "./chat";
 import { adviceDeclineLines, classifyAdviceRequest, type AdviceKind } from "./chat-advice";
+import { isBareRates } from "./chat-intent";
 import { detectUncoveredPlaces, uncoveredMarketLines, withoutPlaces, type UncoveredPlace } from "./chat-coverage";
 import { scrubSeedLines } from "./format";
 import { scrubInternal } from "./public-text";
@@ -316,6 +317,13 @@ function adviceAnswer(
   } as ChatAnswer & { brief?: ChatBrief };
 }
 
+/** Bare "rates" with nothing to go on (chat-intent.ts isBareRates). */
+export const RATES_PROMPT = "Do you mean hotel room rates or interest rates?";
+export const RATES_CHIPS: { label: string; question: string }[] = [
+  { label: "Room rates (ADR)", question: "What's the national RevPAR and ADR picture?" },
+  { label: "Interest rates", question: "Where are interest rates now?" },
+];
+
 /**
  * Primary chat entry. Order:
  *   1. Advice guard (buy / sell / should-I-invest, staff cuts) — classified before anything else.
@@ -472,6 +480,24 @@ async function answerChatIn(
     }
     return finalize({ ...a, content: [...coverageNote, a.content].join("\n") }, a.answeredWell);
   };
+
+  // "Why are rates up?" with no market, no item and no thread context: room rates or interest rates? Ask, with
+  // one chip for each (each a real question). With a market in play, bare "rates" is room rates (RevPAR / ADR card).
+  if (!opts.intent && !opts.marketSlug && !ctx.matched && isBareRates(question) && !matchProperty(question)) {
+    return finalize(
+      {
+        content: RATES_PROMPT,
+        citations: [],
+        sources: [],
+        intent: "unknown",
+        marketSlug: null,
+        mode: "deterministic",
+        prompt: true,
+        followUps: RATES_CHIPS,
+      },
+      false
+    );
+  }
 
   // A named hotel from the REIT property schedules: owner, what's on file, submarket context.
   const prop = matchProperty(question);

@@ -18,6 +18,9 @@ const BUY_SELL: RegExp[] = [
   // "is X a buy / a good investment / worth buying"
   /\bis\s+.{1,60}\s+a\s+(good\s+|smart\s+|strong\s+)?(buy(?![- ]side)|sell(?![- ]side)|investment|bet)\b/,
   /\bworth\s+(buying|investing|selling|owning)\b/,
+  // "is it worth building a hotel in Nashville?", "worth developing / acquiring / purchasing"
+  /\bworth\s+(building|developing|constructing|acquiring|purchasing|bidding\s+on)\b/,
+  /\bworth\s+(a|the)\s+(build|purchase|acquisition|investment|bet)\b/,
   /\bgood\s+(time|moment)\s+to\s+(buy|sell|invest|acquire)\b/,
   /\b(price\s+target|target\s+price)\b/,
   /\b(should|would)\s+(i|we|you)\s+(invest|be\s+investing)\b/,
