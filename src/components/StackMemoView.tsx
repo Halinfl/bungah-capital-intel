@@ -76,14 +76,35 @@ function List({ lines, plain = false }: { lines: string[]; plain?: boolean }) {
           return (
             <li key={j} data-row-link={first[2]}
               className="group relative min-h-11 rounded-md border border-white/[0.06] px-2 py-1.5 text-[13px] leading-snug text-slate-200 transition-colors hover:border-emerald-400/40 hover:bg-white/[0.04]">
+              {/* Whole-row link from 640px; below that the row's own source links are the tap targets. */}
               <a href={first[2]} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${first[1]}`}
-                className="absolute inset-0 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-emerald-400/60" />
-              <span dangerouslySetInnerHTML={{ __html: inline(body, true) }} />
+                className="absolute inset-0 rounded-md outline-none focus-visible:ring-1 focus-visible:ring-emerald-400/60 max-sm:hidden" />
+              <span dangerouslySetInnerHTML={{ __html: rowHtml(body) }} />
             </li>
           );
         })}
     </ul>
   );
+}
+
+// Trailing source-link group: " · [A](u) · [B](u)" (+ optional {tag: …}) at the end of a row.
+const TAIL = /^([\s\S]*?)((?:\s+·\s+\[[^\]]+\]\(https?:\/\/[^)\s]+\))+)((?:\s*\{tag: [^}]+\})*)\s*$/;
+
+/**
+ * Row body HTML. With 2+ trailing source links, they become a source-link group: inline with "·" from
+ * 640px, one 44px block row per link below it (globals.css .src-group), so no link's padding covers another.
+ */
+export function rowHtml(body: string): string {
+  const m = body.match(TAIL);
+  const links = m ? [...m[2].matchAll(LINK)] : [];
+  if (!m || links.length < 2) return inline(body, true);
+  const items = links
+    .map(
+      (l) =>
+        `<span class='src-item'><span class='src-sep'>&nbsp;· </span>${inline(l[0], true).replace("class='", "class='src-link ")}</span>`
+    )
+    .join("");
+  return `${inline(m[1], true)}<span class='src-group'>${items}</span>${m[3] ? inline(m[3], true) : ""}`;
 }
 
 function esc(s: string): string {

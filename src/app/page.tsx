@@ -243,7 +243,7 @@ export default async function HomePage() {
                         <Link href={`/markets/${r.slug}`} className={`${HIT_AREA} font-medium text-white hover:underline`}>
                           {r.name}
                         </Link>
-                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300">
+                        <div className={`${r.links.length >= 2 ? "src-group " : ""}mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-slate-300`}>
                           {r.period ? <span>{r.period}</span> : null}
                           {r.links.map((l) => (
                             <a
@@ -251,7 +251,7 @@ export default async function HomePage() {
                               href={l.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`${r.links.length === 1 ? HIT_AREA : ""} text-emerald-300 underline-offset-2 hover:underline`}
+                              className={`${r.links.length === 1 ? HIT_AREA : "src-link"} text-emerald-300 underline-offset-2 hover:underline`}
                             >
                               {l.label} ↗
                             </a>

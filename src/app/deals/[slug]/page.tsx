@@ -331,16 +331,16 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
   const sources = [...entry.sources].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.date.localeCompare(b.date));
 
   const sourceList = (
-    <ul className="space-y-2">
+    <ul className={`${sources.length >= 2 ? "src-group " : ""}space-y-2`}>
       {sources.map((s) => (
         <li key={s.url} className="flex flex-wrap items-start gap-2 text-sm">
           <Chip>{kindLabel(s.kind)}</Chip>
           <span className="min-w-0 flex-1">
-            <a href={s.url} className={`${TAP_INLINE} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
+            <a href={s.url} className={`src-link ${TAP_INLINE} text-slate-100 ${linkCls}`} rel="noopener" target="_blank">
               {citationText(s.cite_id, s.title)}
             </a>
-            <span className="text-slate-300">
-              {"\u00a0· "}
+            <span className="src-meta text-slate-300">
+              <span className="src-sep">{"\u00a0· "}</span>
               {s.publisher}
               {"\u00a0· "}
               <span className="whitespace-nowrap">{fmtDate(s.date)}</span>

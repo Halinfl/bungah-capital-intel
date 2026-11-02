@@ -10,6 +10,7 @@ import { join } from "node:path";
 import { publisherName } from "../../src/lib/public-text";
 import { fixMemoCopy } from "../../src/lib/memo-copy";
 import { glueText, glueHtml } from "../../src/lib/glue";
+import { rowHtml } from "../../src/components/StackMemoView";
 import { isOriginalUrl, parseSourceUrls } from "../../src/lib/source-links";
 
 let fail = 0;
@@ -94,6 +95,16 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
   check(g === "CBD supply: 46,901 → 47,583\u00a0· Aug 2026\u00a0· Rancho Bernardo/San Diego,\u00a0CA", `glueText: ${JSON.stringify(g)}`);
   const h = glueHtml("<a href='https://sec.gov/x'>SEC EDGAR</a> · <a href='https://y.com'>Y</a> Austin, TX");
   check(h === "<a href='https://sec.gov/x'>SEC EDGAR</a>&nbsp;· <a href='https://y.com'>Y</a> Austin,&nbsp;TX", `glueHtml: ${h}`);
+}
+
+// r7e: source-link groups (2+ links after a data row) stack as 44px block rows below 640px, no "·".
+{
+  const two = rowHtml("LAS YTD (Aug 2026 report) · [Harry Reid International Airport ↗](https://a.example/x.pdf) · [Las Vegas Review-Journal ↗](https://rj.example/y) {tag: self-reported}");
+  check(/<span class='src-group'>/.test(two) && (two.match(/class='src-link /g) ?? []).length === 2 && (two.match(/class='src-sep'/g) ?? []).length === 2 && /self-reported/.test(two), "rowHtml: 2 trailing links -> one src-group, 2 src-link rows, separators hideable");
+  const one = rowHtml("One read · [SEC ↗](https://sec.example/a)");
+  check(!/src-group/.test(one) && /&nbsp;· <a /.test(one), "rowHtml: a single trailing link stays inline");
+  const css = readFileSync(join(__dirname, "../../src/app/globals.css"), "utf8");
+  check(/@media \(max-width: 639\.98px\)[\s\S]*\.src-group \.src-link \{[^}]*min-height: 44px[^}]*padding: 0/.test(css) && /\.src-group \.src-sep \{\s*display: none/.test(css), "globals.css: .src-group rows are block, >=44px, no padding overlap, separators hidden below 640px");
 }
 
 // r7c: memo copy. The LinkedIn-only +11.6% figure and "No greenlight." never reach a memo, saved or new.

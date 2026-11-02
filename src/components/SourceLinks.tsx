@@ -3,11 +3,11 @@ import { scrubInternal } from "@/lib/public-text";
 import { glueText } from "@/lib/glue";
 
 // Plain inline link; py-3.5 on 12px text gives a ~44px tap height without changing line layout.
-const linkCls = "relative z-10 py-3.5 text-emerald-300 underline-offset-2 hover:underline focus-visible:underline";
+const linkCls = "src-link relative z-10 py-3.5 text-emerald-300 underline-offset-2 hover:underline focus-visible:underline";
 
 function Item({ l }: { l: SourceLink }) {
   return (
-    <li className="relative z-10 mr-3 inline">
+    <li className="src-item relative z-10 mr-3 inline">
       <a href={l.url} target="_blank" rel="noopener noreferrer" className={linkCls} title={l.url}>
         {glueText(scrubInternal(l.label))}{"\u00a0↗"}
       </a>
@@ -39,9 +39,11 @@ export function SourceLinks({
   }
   const shown = limit ? links.slice(0, limit) : links;
   const rest = limit ? links.slice(limit) : [];
+  // 2+ links: below 640px each is its own 44px block row (globals.css .src-group); inline from 640px.
+  const group = links.length >= 2 ? "src-group" : undefined;
   return (
     <div className="relative z-10 text-xs leading-7">
-      <ul>
+      <ul className={group}>
         {shown.map((l) => (
           <Item key={`${l.url}|${l.label}`} l={l} />
         ))}
@@ -52,7 +54,7 @@ export function SourceLinks({
           <summary className="cursor-pointer select-none py-3.5 text-slate-300 hover:text-slate-300">
             +{rest.length} more source{rest.length === 1 ? "" : "s"}
           </summary>
-          <ul>
+          <ul className={group}>
             {rest.map((l) => (
               <Item key={`${l.url}|${l.label}`} l={l} />
             ))}
