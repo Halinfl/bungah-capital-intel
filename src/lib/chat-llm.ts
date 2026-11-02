@@ -326,7 +326,7 @@ function adviceAnswer(
  */
 export async function answerChat(
   question: string,
-  opts?: { marketSlug?: string | null; range?: DateRange; scope?: ChatScope | null }
+  opts?: { marketSlug?: string | null; range?: DateRange; scope?: ChatScope | null; intent?: ChatIntent | null }
 ): Promise<FinalAnswer> {
   const range = opts?.range ?? "all";
   const scope = opts?.scope ?? null;
@@ -336,7 +336,7 @@ export async function answerChat(
     const item = lens ? dealBrief(scope.id, lens) : null;
     if (item) return finalizeItem(item);
     // Not about the sale itself: answer for the sale's market.
-    return answerChat(question, { marketSlug: dealMarketSlug(scope.id) ?? opts?.marketSlug, range });
+    return answerChat(question, { marketSlug: dealMarketSlug(scope.id) ?? opts?.marketSlug, range, intent: opts?.intent });
   }
   if (scope?.kind === "reit") {
     const lens = reitLens(question);
@@ -358,12 +358,13 @@ export async function answerChat(
     return answerChat(name ? `${question} (${name})` : question, { range });
   }
   const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
-  const res = await answerChatIn(question, { marketSlug, range });
+  const intent = opts?.intent ?? null;
+  const res = await answerChatIn(question, { marketSlug, range, intent });
   if (range === "all") return res;
   if (!res.brief?.window?.filterable) {
     // Either an intent that can't filter by date (answered in full, no chip), or the window
     // removed everything the answer was built on (say so plainly, keep the chip).
-    const full = await answerChatIn(question, { marketSlug, range: "all" });
+    const full = await answerChatIn(question, { marketSlug, range: "all", intent });
     return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
   }
   if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
@@ -408,7 +409,7 @@ function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
 
 async function answerChatIn(
   question: string,
-  opts: { marketSlug?: string | null; range: DateRange }
+  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null }
 ): Promise<FinalAnswer> {
   const range = opts.range;
   const advice = classifyAdviceRequest(question);
@@ -428,7 +429,7 @@ async function answerChatIn(
     );
   }
   const [ctxAll, corpusAll] = await Promise.all([
-    retrieveGraphContext(question, opts?.marketSlug),
+    retrieveGraphContext(question, opts?.marketSlug, opts?.intent),
     retrieveAllowedCorpus(question),
   ]);
   // Load / sweep stamps (a date shared by many rows) are when rows were collected, never a data period.

@@ -645,9 +645,11 @@ function findMarketsByScore(q: string, markets: MarketRow[], minScore = 2): Mark
 
 export async function retrieveGraphContext(
   question: string,
-  preferredMarketSlug?: string | null
+  preferredMarketSlug?: string | null,
+  /** Follow-up routing (src/lib/chat-followup.ts): the intent the question continues, when its own wording can't say. */
+  intentOverride?: ChatIntent | null
 ): Promise<GraphContext> {
-  const intent = classifyIntent(question);
+  const intent = intentOverride ?? classifyIntent(question);
   const q = question.toLowerCase().trim();
   const slug = preferredMarketSlug?.trim().toLowerCase() || null;
 
@@ -798,9 +800,9 @@ export function serializeGraphPack(ctx: GraphContext): {
  */
 export async function answerFromGraph(
   question: string,
-  opts?: { marketSlug?: string | null }
+  opts?: { marketSlug?: string | null; intent?: ChatIntent | null }
 ): Promise<ChatAnswer> {
-  const ctx = await retrieveGraphContext(question, opts?.marketSlug);
+  const ctx = await retrieveGraphContext(question, opts?.marketSlug, opts?.intent);
   const q = question.toLowerCase().trim();
   const { matched, nationalSignals, radars, intent } = ctx;
 

@@ -9,11 +9,15 @@ import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
+import { applyNoRepeat, parsePrev, resolveFollowUp } from "@/lib/chat-followup";
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
-/** ChatQuestionLog.source values; "tt-swipe": asked from a Tuesday Trends swipe card (Chat opened with ?via=tt-swipe). */
-const SOURCES = new Set(["starter", "typed", "reask", "link", "tt-swipe"]);
+/**
+ * ChatQuestionLog.source values; "tt-swipe": asked from a Tuesday Trends swipe card (Chat opened with ?via=tt-swipe);
+ * "chip": an "other angle" chip under a no-repeat reply (src/lib/chat-followup.ts).
+ */
+const SOURCES = new Set(["starter", "typed", "reask", "link", "tt-swipe", "chip"]);
 
 /**
  * Preview deployments share the production database: they answer but never write threads
@@ -160,12 +164,18 @@ export async function POST(req: Request) {
 
     const question = String(body.question ?? "").slice(0, MAX_QUESTION);
     const scope = parseScope(body.scope);
-    const marketSlug =
+    const askedMarket =
       scope?.kind === "market"
         ? scope.id
         : typeof body.marketSlug === "string" && body.marketSlug.trim()
-          ? body.marketSlug.trim().toLowerCase()
+          ? body.marketSlug.trim().toLowerCase().slice(0, 81)
           : null;
+    // The answer on screen (src/lib/chat-followup.ts): validated and capped; anything malformed is dropped.
+    const prev = parsePrev(body.prev);
+    // A follow-up that names no market (and has no item chip) keeps the previous answer's market; a time
+    // comparison ("how does that compare to last year?") keeps its topic instead of asking for two markets.
+    const route = await resolveFollowUp({ question, scope, marketSlug: askedMarket, prev });
+    const marketSlug = route.marketSlug;
     const source = typeof body.source === "string" && SOURCES.has(body.source) ? body.source : "typed";
     // Date window for the re-ask chip (Last 90 days / Last 12 months / All); anything else is All.
     const range = parseRange(body.range);
@@ -173,7 +183,7 @@ export async function POST(req: Request) {
     // answerChat returns the one final answer: seed wording and internal labels are already
     // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
     const build = async (): Promise<Built> => {
-      const answer = await answerChat(question, { marketSlug, range, scope });
+      const answer = await answerChat(question, { marketSlug, range, scope, intent: route.intent });
       const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
       const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
       return {
@@ -192,7 +202,7 @@ export async function POST(req: Request) {
     let answer: Built;
     let cache: CacheStatus = "bypass";
     if (!isLlmEnabled() && !(TEST_TOGGLES && req.headers.get("x-bungah-test") === "no-cache")) {
-      const key = answerKey({ version: await dataVersion(), question, scope, marketSlug, range });
+      const key = answerKey({ version: await dataVersion(), question, scope, marketSlug, range, intent: route.intent, prev });
       const r = await cachedAnswer(key, build);
       answer = r.value;
       cache = r.status;
@@ -209,9 +219,16 @@ export async function POST(req: Request) {
       );
     }
 
+    // Never the same card twice in a row: a follow-up whose card matches the one on screen gets one line and
+    // chips for other angles (each a real question), never the card again.
+    const nr = await applyNoRepeat(answer, { prev, question, range });
+    answer = nr.answer;
+    const { hash, repeat, followUps } = nr;
+
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
-    after(() => persist({ question, answer, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail }));
+    const logged = answer;
+    after(() => persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail }));
 
     const modelUsed = toModelUsed(answer.mode);
     return NextResponse.json(
@@ -225,6 +242,9 @@ export async function POST(req: Request) {
         threadId: null,
         intent: answer.intent,
         marketSlug: answer.marketSlug,
+        // The card's fingerprint (the repeated card's on a no-repeat reply), sent back as prev.answerHash.
+        answerHash: hash,
+        ...(followUps ? { followUps } : {}),
         mode: answer.mode,
         modelUsed,
         isPrivate,
@@ -235,7 +255,9 @@ export async function POST(req: Request) {
           "Cache-Control": "no-store",
           "x-chat-cache": cache,
           "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
-          ...(TEST_TOGGLES ? { "x-chat-log-source": source } : {}),
+          ...(TEST_TOGGLES
+            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : ""].filter(Boolean).join("; ") }
+            : {}),
         },
       }
     );

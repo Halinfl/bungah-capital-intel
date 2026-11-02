@@ -4,6 +4,7 @@
  * same thing gets the same cached answer instead of a rebuild.
  *
  * Key: v1 · deployment · data version · ET day · intent · item · window · hash(normalized question)
+ *      [· prev:<market>:<card hash> for a follow-up that sent `prev`]
  * Layers:
  *   L1 per-instance memory (Fluid compute serves many requests per instance), up to 10 min, 500 entries.
  *   L2 Next Data Cache (unstable_cache → Vercel Data Cache, regional, shared by instances; preview and
@@ -18,7 +19,7 @@ import { createHash } from "node:crypto";
 import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 import { cachedQuery, DB_TAG, GRAPH_REFRESH_S } from "./db-safe";
-import { classifyIntent } from "./chat-intent";
+import { classifyIntent, type ChatIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import { scopeKey, type ChatScope } from "./chat-scope";
 
@@ -79,13 +80,25 @@ export function normalizeQuestion(q: string): string {
   return q.toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9$%.'&+-]+/g, " ").trim();
 }
 
-export function answerKey(parts: { version: string; question: string; scope: ChatScope | null; marketSlug: string | null; range: DateRange }): string {
+export function answerKey(parts: {
+  version: string;
+  question: string;
+  scope: ChatScope | null;
+  marketSlug: string | null;
+  range: DateRange;
+  /** Follow-up routing (chat-followup.ts): the carried intent, and the previous answer's market and card hash. */
+  intent?: ChatIntent | null;
+  prev?: { marketSlug: string | null; answerHash: string | null } | null;
+}): string {
   const deployment = process.env.VERCEL_DEPLOYMENT_ID ?? process.env.VERCEL_GIT_COMMIT_SHA ?? "local";
   const nq = normalizeQuestion(parts.question);
-  const intent = classifyIntent(nq);
+  const intent = parts.intent ?? classifyIntent(nq);
   const item = parts.scope ? scopeKey(parts.scope) : parts.marketSlug ? `market:${parts.marketSlug}` : "none";
   const qh = createHash("sha256").update(nq).digest("hex").slice(0, 16);
-  return ["v1", deployment, parts.version, etDay(), intent, item, parts.range, qh].join("|");
+  const key = ["v1", deployment, parts.version, etDay(), intent, item, parts.range, qh];
+  // A follow-up never shares a key with the same words asked fresh (or after a different answer).
+  if (parts.prev) key.push(`prev:${parts.prev.marketSlug ?? "-"}:${parts.prev.answerHash ?? "-"}`);
+  return key.join("|");
 }
 
 /**

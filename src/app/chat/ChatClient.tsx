@@ -13,7 +13,11 @@ import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 /** The item this chat is about ("Ask about this"), resolved on the server. */
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
 export type StarterProp = { q: string; range?: DateRange };
-type AskSource = "typed" | "starter" | "reask" | "link" | "tt-swipe";
+type AskSource = "typed" | "starter" | "reask" | "link" | "tt-swipe" | "chip";
+/** The answer on screen, sent with the next question so a follow-up keeps its market and never gets the same card. */
+type PrevAnswer = { question: string; intent: string | null; marketSlug: string | null; answerHash: string };
+/** "Other angle" chips under a no-repeat reply: each runs a real question. */
+type FollowUpChip = { label: string; question: string; range?: DateRange };
 const RATE_LIMIT_MESSAGE = "Sign in to keep asking";
 /** One plain line for every failure we can't describe better (5xx, edge error page, network drop, timeout). */
 const FAIL_MESSAGE = "Couldn't get an answer just now. Try again in a moment.";
@@ -51,6 +55,10 @@ type Msg = {
   /** A failed answer: shows FAIL_MESSAGE (or the server's own retryable copy) with a "Try again" button. */
   failed?: boolean;
   rateLimited?: boolean;
+  /** The previous answer this question was sent with (the section fetch sends the same, so it gets the same card). */
+  prev?: PrevAnswer | null;
+  /** No-repeat reply: other angles to try. */
+  followUps?: FollowUpChip[];
 };
 
 const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
@@ -93,6 +101,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
   const sending = useRef(false);
   const lastRetry = useRef(0);
   const autoSubmittedKey = useRef<string | null>(null);
+  /** Last answer on screen (its question, intent, market and card hash); null on a fresh thread. */
+  const lastAnswer = useRef<PrevAnswer | null>(null);
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +119,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
     inFlight.current?.abort();
     inFlight.current = null;
     sending.current = false;
+    lastAnswer.current = null;
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
@@ -119,7 +130,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
 
   // Section bodies for an answer already on screen (same question, item and window); not a new question.
   const loadSections = useCallback(
-    async (q: string, range: DateRange): Promise<BriefSection[]> => {
+    async (q: string, range: DateRange, prev: PrevAnswer | null | undefined): Promise<BriefSection[]> => {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -128,6 +139,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
           marketSlug: marketSlug || undefined,
           ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
           ...(range !== "all" ? { range } : {}),
+          ...(prev ? { prev } : {}),
           detail: true,
         }),
       });
@@ -150,6 +162,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       if (range === "all") setInput("");
 
       setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
+      const prev = lastAnswer.current;
 
       const seq = ++requestSeq.current;
       inFlight.current?.abort();
@@ -165,6 +178,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       }, SLOW_AFTER_MS);
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       let reply: Msg;
+      let nextPrev: PrevAnswer | null = null;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -174,6 +188,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
             marketSlug: marketSlug || undefined,
             ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
             ...(range !== "all" ? { range } : {}),
+            ...(prev ? { prev } : {}),
             source: tagged,
           }),
           signal: controller.signal,
@@ -184,7 +199,25 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
         } else {
           const data = await readJson(res);
           if (res.ok && data) {
-            reply = { role: "assistant", content: (data.content as string) ?? "", citations: (data.citations as string[]) ?? [], sources: (data.sources as Msg["sources"]) ?? [], brief: (data.brief as ChatBrief) ?? null, question: q, range };
+            reply = {
+              role: "assistant",
+              content: (data.content as string) ?? "",
+              citations: (data.citations as string[]) ?? [],
+              sources: (data.sources as Msg["sources"]) ?? [],
+              brief: (data.brief as ChatBrief) ?? null,
+              question: q,
+              range,
+              prev,
+              followUps: Array.isArray(data.followUps) ? (data.followUps as FollowUpChip[]).slice(0, 3) : undefined,
+            };
+            if (typeof data.answerHash === "string") {
+              nextPrev = {
+                question: q.slice(0, 300),
+                intent: typeof data.intent === "string" ? data.intent : null,
+                marketSlug: typeof data.marketSlug === "string" ? data.marketSlug : null,
+                answerHash: data.answerHash,
+              };
+            }
           } else {
             // 503 carries the route's own retryable copy; anything else (500, edge 504 page, empty body) gets one line.
             const own = res.status === 503 && typeof data?.error === "string" ? (data.error as string) : null;
@@ -202,6 +235,8 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
       if (seq !== requestSeq.current) return;
       inFlight.current = null;
       sending.current = false;
+      // Failed or rate-limited replies leave the previous answer as the follow-up context.
+      if (nextPrev) lastAnswer.current = nextPrev;
       // The final answer is appended once and never rewritten.
       setMessages((m) => [...m, reply]);
       setBusy(false);
@@ -290,7 +325,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                   <ChatBriefView
                     brief={m.brief}
                     onReask={m.question ? (r) => void send(m.question!, r, "reask") : undefined}
-                    loadSections={m.question ? () => loadSections(m.question!, m.range ?? "all") : undefined}
+                    loadSections={m.question ? () => loadSections(m.question!, m.range ?? "all", m.prev) : undefined}
                   />
                 ) : m.rateLimited ? (
                   <p className="text-sm text-slate-100">
@@ -319,6 +354,24 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
                         Try again
                       </button>
                     ) : null}
+                  </div>
+                ) : m.followUps?.length ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-100">{m.content}</p>
+                    <ul className="flex flex-wrap gap-2" aria-label="Other angles to weigh">
+                      {m.followUps.map((c) => (
+                        <li key={`${c.label}|${c.range ?? "all"}`}>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void send(c.question, c.range ?? "all", "chip")}
+                            className="min-h-11 rounded-full border border-white/45 bg-white/[0.03] px-4 py-2.5 text-left text-sm leading-snug text-slate-100 transition hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                          >
+                            {c.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ) : (
                   <MarkdownLite text={m.content} />
