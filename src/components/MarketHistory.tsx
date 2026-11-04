@@ -59,10 +59,10 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
                   <Link href={`/markets/${slug}#history`} className={linkCls}>{names[slug]}</Link>
                 </td>
                 <td className={`${c} text-right tabular-nums`}>
-                  {pax ? <>{pct(pax.yoy)}<span className="block text-xs text-slate-300 sm:hidden">{MON[pax.month - 1]} {pax.year}</span></> : "—"}
+                  {pax && pax.yoy != null ? <>{pct(pax.yoy)}<span className="block text-xs text-slate-300 sm:hidden">{MON[pax.month - 1]} {pax.year}</span></> : "—"}
                 </td>
                 <td className={`${c} text-right tabular-nums`}>
-                  {last ? <>{pct(jobsYoy)}<span className="block text-xs text-slate-300 sm:hidden">{last.year}</span></> : "—"}
+                  {last && jobsYoy != null ? <>{pct(jobsYoy)}<span className="block text-xs text-slate-300 sm:hidden">{last.year}</span></> : "—"}
                 </td>
                 <td className={`${c} ${wide} text-right tabular-nums`}>{pax ? `${MON[pax.month - 1]} ${pax.year}: ${n(pax.value)}` : "—"}</td>
                 <td className={`${c} ${wide} text-right tabular-nums`}>{last ? `${last.year}: ${n(last.employment)}` : "—"}</td>
@@ -77,6 +77,7 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
           </tbody>
         </table>
       </div>
+      <p className="text-xs text-slate-300">— = not reported, or the prior year was withheld by BLS.</p>
       <p className="text-xs text-slate-300 sm:hidden">
         Sources: <a href={PAX_META.sourceUrl} target="_blank" rel="noopener noreferrer" className={linkCls}>BTS&nbsp;↗</a> ·{" "}
         <a href="https://www.bls.gov/cew/" target="_blank" rel="noopener noreferrer" className={linkCls}>BLS QCEW&nbsp;↗</a>. Per-year source files are on each market&apos;s page.

@@ -79,6 +79,17 @@ function Airport({ slug }: { slug: string }) {
   );
 }
 
+/** Latest year in the series is 2025 unless BLS has not published or has withheld later years. */
+const LATEST_PUBLISHED = 2025;
+const METRO_LATEST = 2024;
+function yearLabel(y: number, metro: boolean) {
+  const top = metro ? METRO_LATEST : LATEST_PUBLISHED;
+  if (y >= LATEST_PUBLISHED) return String(y);
+  if (y >= top) return `${y} (latest published for metro areas)`;
+  const gap = y + 1 === top ? `${top}` : `${y + 1}–${top}`;
+  return `${y} (latest; BLS withheld ${gap})`;
+}
+
 function Lodging({ slug }: { slug: string }) {
   const h = marketHistory(slug);
   if (!h) {
@@ -100,12 +111,18 @@ function Lodging({ slug }: { slug: string }) {
       <summary className={summaryCls}>
         <span className="flex items-center gap-2 font-medium text-white"><Chevron />Lodging jobs &amp; wages</span>
         <span className="text-sm tabular-nums text-slate-300">
-          {last.year}: {n(last.employment)} jobs, {pct(ch(last.employment, prev?.employment))} YoY
+          {yearLabel(last.year, /^C/.test(last.sourceUrl.split("/").pop() ?? ""))}: {n(last.employment)} jobs, {pct(ch(last.employment, prev?.employment))} YoY
         </span>
       </summary>
       <div className="space-y-3 px-1 pb-3 pt-2">
         <p className="text-sm text-slate-300">{h.industry}, private sector, {h.area}. {HISTORY_META.note}</p>
-        <Table head={["Year", "Jobs", "YoY", "Wages", "Estab."]} rows={yrs} />
+        <Table caption="Latest years" head={["Year", "Jobs", "YoY", "Wages", "Estab."]} rows={yrs.slice(0, 3)} />
+        {yrs.length > 3 ? (
+          <details>
+            <summary className={`${summaryCls} text-sm text-emerald-300`}>Show yearly ({r[0].year}–{last.year})</summary>
+            <Table head={["Year", "Jobs", "YoY", "Wages", "Estab."]} rows={yrs} />
+          </details>
+        ) : null}
         <p className="text-xs text-slate-300">
           Per-year files:{" "}
           {[...r].reverse().map((x, i) => (
