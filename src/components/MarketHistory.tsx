@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { HISTORY_META, marketHistory, historySlugs } from "@/lib/market-history";
+import { PAX_META, airportSeries, latestPax } from "@/lib/airport-passengers";
+
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const n = (x: number) => x.toLocaleString("en-US");
 const usdM = (x: number) => `$${(x / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 })}M`;
@@ -76,7 +79,7 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
       <div>
         <h2 id="hist-idx-h" className="text-lg font-semibold text-white">Lodging history by market</h2>
         <p className="mt-1 max-w-3xl text-sm text-slate-300">
-          {HISTORY_META.metric}. {HISTORY_META.note} Source: {HISTORY_META.publisher}.
+          {HISTORY_META.metric}. {HISTORY_META.note} Source: {HISTORY_META.publisher}. Airport passengers: {PAX_META.publisher}, accessed {PAX_META.accessed}; {PAX_META.lag}
         </p>
       </div>
       <div className="overflow-x-auto">
@@ -87,6 +90,7 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
               <th className="py-2 pr-4">Years</th>
               <th className="py-2 pr-4 text-right">Latest jobs</th>
               <th className="py-2 pr-4 text-right">Change since first year</th>
+              <th className="py-2 pr-4 text-right">Airport passengers, latest month (YoY)</th>
               <th className="py-2">Source</th>
             </tr>
           </thead>
@@ -94,6 +98,8 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
             {items.map(({ slug, h }) => {
               const first = h.rows[0];
               const last = h.rows[h.rows.length - 1];
+              const ps = airportSeries(slug);
+              const pax = ps ? latestPax(ps) : null;
               return (
                 <tr key={slug} className="border-t border-white/10">
                   <td className="py-2 pr-4">
@@ -102,8 +108,10 @@ export function MarketsHistoryIndex({ names }: { names: Record<string, string> }
                   <td className="py-2 pr-4">{first.year}–{last.year}</td>
                   <td className="py-2 pr-4 text-right tabular-nums">{n(last.employment)}</td>
                   <td className="py-2 pr-4 text-right tabular-nums">{pct(last.employment, first.employment)}</td>
+                  <td className="py-2 pr-4 text-right tabular-nums">{pax ? `${MON[pax.month - 1]} ${pax.year}: ${n(pax.value)} (${pax.yoy == null ? "—" : `${pax.yoy > 0 ? "+" : pax.yoy < 0 ? "−" : ""}${Math.abs(pax.yoy * 100).toFixed(1)}%`})` : "—"}</td>
                   <td className="py-2">
                     <a href={last.sourceUrl} target="_blank" rel="noopener noreferrer" className={`inline-flex min-h-11 items-center ${linkCls}`}>BLS QCEW {last.year}&nbsp;↗</a>
+                    {pax ? <> · <a href={PAX_META.sourceUrl} target="_blank" rel="noopener noreferrer" className={`inline-flex min-h-11 items-center ${linkCls}`}>BTS&nbsp;↗</a></> : null}
                   </td>
                 </tr>
               );
