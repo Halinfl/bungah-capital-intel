@@ -12,6 +12,9 @@ export type Sale = {
   sale_id: string;
   log_id?: string;
   slug: string;
+  /** false = kept on file but hidden from every public page (index, detail, log, chat, counts). */
+  public?: boolean;
+  public_note?: string;
   property: string;
   market: string;
   market_slug: string | null;
@@ -90,7 +93,10 @@ export type LogRow = {
 export const RUBRIC = rubricJson as unknown as Rubric;
 export const RUBRIC_HISTORY = [rubricV1Json as unknown as Rubric, RUBRIC];
 export const DISCLAIMER = RUBRIC.disclaimer;
-const SALES = salesJson as Sale[];
+/** Public sales only. Hidden sales (public: false) stay in graded_sales.json with their note. */
+const SALES = (salesJson as Sale[]).filter((s) => s.public !== false);
+/** Log ids of hidden sales: their deal-log rows stay in the append-only log but are not shown. */
+const HIDDEN_LOG_IDS = new Set((salesJson as Sale[]).filter((s) => s.public === false && s.log_id).map((s) => s.log_id as string));
 const GRADES = gradesJson as unknown as GradeResult[];
 /** Labels for context sections that aren't rubric factors. */
 export const CONTEXT_LABELS: Record<string, string> = {
@@ -144,7 +150,7 @@ export function anniversariesFor(saleId: string): Anniversary[] {
 }
 /** Every qualifying deal seen (append-only log), newest announcement first. Excluded rows stay in the CSV, not on the page. */
 export function dealLog(): LogRow[] {
-  return [...(logJson as unknown as LogRow[])].filter((r) => !r.inclusion_basis.startsWith("excluded")).sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
+  return [...(logJson as unknown as LogRow[])].filter((r) => !r.inclusion_basis.startsWith("excluded") && !HIDDEN_LOG_IDS.has(r.log_id)).sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
 }
 
 export function fmtDate(iso: string): string {
