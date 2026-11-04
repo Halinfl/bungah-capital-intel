@@ -1,0 +1,3728 @@
+{
+ "metric": "Private-sector accommodation employment (annual average) and total wages",
+ "publisher": "U.S. Bureau of Labor Statistics, Quarterly Census of Employment and Wages",
+ "accessed": "2026-11-04",
+ "note": "Employment and wages at hotels and other lodging, a public proxy for lodging activity. Not occupancy, ADR or RevPAR. Each market uses one industry level across all years shown.",
+ "markets": {
+  "orlando": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3674)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 57718,
+     "wagesUsd": 1720824997,
+     "establishments": 551,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3674.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 58054,
+     "wagesUsd": 1767659153,
+     "establishments": 550,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3674.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 60561,
+     "wagesUsd": 1830416728,
+     "establishments": 558,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3674.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 62075,
+     "wagesUsd": 1972757684,
+     "establishments": 557,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3674.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 65858,
+     "wagesUsd": 2128701835,
+     "establishments": 594,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3674.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 42598,
+     "wagesUsd": 1438490103,
+     "establishments": 608,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3674.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 45440,
+     "wagesUsd": 1652886568,
+     "establishments": 652,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3674.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 62553,
+     "wagesUsd": 2631020134,
+     "establishments": 693,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3674.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 65804,
+     "wagesUsd": 2962529992,
+     "establishments": 709,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3674.csv"
+    }
+   ]
+  },
+  "las-vegas": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C2982)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 168853,
+     "wagesUsd": 6706360017,
+     "establishments": 325,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C2982.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 166351,
+     "wagesUsd": 6716372891,
+     "establishments": 324,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C2982.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 165451,
+     "wagesUsd": 6863177070,
+     "establishments": 326,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C2982.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 165003,
+     "wagesUsd": 6967631809,
+     "establishments": 339,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C2982.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 163371,
+     "wagesUsd": 7068232078,
+     "establishments": 338,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C2982.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 106148,
+     "wagesUsd": 4541472983,
+     "establishments": 341,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C2982.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 117019,
+     "wagesUsd": 5240319218,
+     "establishments": 338,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C2982.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 133936,
+     "wagesUsd": 6829675694,
+     "establishments": 332,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C2982.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 137319,
+     "wagesUsd": 7149338243,
+     "establishments": 326,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C2982.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 146242,
+     "wagesUsd": 7933296641,
+     "establishments": 325,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C2982.csv"
+    }
+   ]
+  },
+  "miami": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Miami-Dade County, FL",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 30873,
+     "wagesUsd": 1070875845,
+     "establishments": 534,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/12086.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 32059,
+     "wagesUsd": 1134229069,
+     "establishments": 557,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/12086.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 31602,
+     "wagesUsd": 1136533500,
+     "establishments": 561,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/12086.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 30896,
+     "wagesUsd": 1180101370,
+     "establishments": 563,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/12086.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 32548,
+     "wagesUsd": 1257801253,
+     "establishments": 592,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/12086.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 19275,
+     "wagesUsd": 786958029,
+     "establishments": 623,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/12086.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 21397,
+     "wagesUsd": 1001488119,
+     "establishments": 659,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/12086.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 25393,
+     "wagesUsd": 1308950417,
+     "establishments": 672,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/12086.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 28314,
+     "wagesUsd": 1507465038,
+     "establishments": 700,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/12086.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 29655,
+     "wagesUsd": 1605432334,
+     "establishments": 696,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/12086.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 29843,
+     "wagesUsd": 1697606343,
+     "establishments": 687,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/12086.csv"
+    }
+   ]
+  },
+  "chicago": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C1698)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 38901,
+     "wagesUsd": 1462975198,
+     "establishments": 927,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1698.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 39910,
+     "wagesUsd": 1471818434,
+     "establishments": 936,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1698.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 40487,
+     "wagesUsd": 1528086116,
+     "establishments": 914,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1698.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 41379,
+     "wagesUsd": 1611944592,
+     "establishments": 931,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1698.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 42179,
+     "wagesUsd": 1706985655,
+     "establishments": 951,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1698.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 23204,
+     "wagesUsd": 878065215,
+     "establishments": 952,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1698.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 23431,
+     "wagesUsd": 1035155091,
+     "establishments": 955,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1698.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 32210,
+     "wagesUsd": 1590533210,
+     "establishments": 964,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1698.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 35535,
+     "wagesUsd": 1810637949,
+     "establishments": 947,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1698.csv"
+    }
+   ]
+  },
+  "new-york-city": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3562)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 82107,
+     "wagesUsd": 4202042339,
+     "establishments": 1974,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3562.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 83098,
+     "wagesUsd": 4341372068,
+     "establishments": 2043,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3562.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 84687,
+     "wagesUsd": 4578792488,
+     "establishments": 2146,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3562.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 85216,
+     "wagesUsd": 4809427073,
+     "establishments": 2193,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3562.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 84994,
+     "wagesUsd": 4729128866,
+     "establishments": 2251,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3562.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 48854,
+     "wagesUsd": 2722917591,
+     "establishments": 2307,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3562.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 48789,
+     "wagesUsd": 2882869008,
+     "establishments": 2301,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3562.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 64744,
+     "wagesUsd": 4044762366,
+     "establishments": 2337,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3562.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 71248,
+     "wagesUsd": 4640871814,
+     "establishments": 2414,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3562.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 69150,
+     "wagesUsd": 4773225992,
+     "establishments": 2270,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3562.csv"
+    }
+   ]
+  },
+  "los-angeles": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3108)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 69779,
+     "wagesUsd": 2442692053,
+     "establishments": 1680,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3108.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 72377,
+     "wagesUsd": 2629796722,
+     "establishments": 1725,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3108.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 73908,
+     "wagesUsd": 2766443030,
+     "establishments": 1777,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3108.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 75750,
+     "wagesUsd": 2956946733,
+     "establishments": 1853,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3108.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 76607,
+     "wagesUsd": 3112114028,
+     "establishments": 1890,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3108.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 47740,
+     "wagesUsd": 1918640460,
+     "establishments": 1932,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3108.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 47776,
+     "wagesUsd": 2145633609,
+     "establishments": 1977,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3108.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 63874,
+     "wagesUsd": 3176915309,
+     "establishments": 2031,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3108.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 70556,
+     "wagesUsd": 3629348642,
+     "establishments": 2037,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3108.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 74263,
+     "wagesUsd": 4071924809,
+     "establishments": 2020,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3108.csv"
+    }
+   ]
+  },
+  "san-francisco-bay": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4186)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 32272,
+     "wagesUsd": 1325009770,
+     "establishments": 803,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4186.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 31914,
+     "wagesUsd": 1392636627,
+     "establishments": 797,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4186.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 31664,
+     "wagesUsd": 1394328320,
+     "establishments": 809,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4186.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 32374,
+     "wagesUsd": 1461301743,
+     "establishments": 836,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4186.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 36460,
+     "wagesUsd": 2314530997,
+     "establishments": 853,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4186.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 22062,
+     "wagesUsd": 4857166041,
+     "establishments": 848,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4186.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 18936,
+     "wagesUsd": 5436173287,
+     "establishments": 860,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4186.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 22626,
+     "wagesUsd": 1253093459,
+     "establishments": 870,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4186.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 25164,
+     "wagesUsd": 1454967195,
+     "establishments": 863,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4186.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 25375,
+     "wagesUsd": 1488500451,
+     "establishments": 863,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4186.csv"
+    }
+   ]
+  },
+  "seattle": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4266)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 16360,
+     "wagesUsd": 521989466,
+     "establishments": 529,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4266.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 16845,
+     "wagesUsd": 561337527,
+     "establishments": 544,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4266.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 17509,
+     "wagesUsd": 619535475,
+     "establishments": 557,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4266.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 18318,
+     "wagesUsd": 670974623,
+     "establishments": 570,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4266.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 19066,
+     "wagesUsd": 738803575,
+     "establishments": 572,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4266.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 11322,
+     "wagesUsd": 415246850,
+     "establishments": 567,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4266.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 10617,
+     "wagesUsd": 435432418,
+     "establishments": 566,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4266.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 13964,
+     "wagesUsd": 647098969,
+     "establishments": 551,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4266.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 16204,
+     "wagesUsd": 784844152,
+     "establishments": 528,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4266.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 16637,
+     "wagesUsd": 838998326,
+     "establishments": 522,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4266.csv"
+    }
+   ]
+  },
+  "boston": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1446)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 25018,
+     "wagesUsd": 962082330,
+     "establishments": 604,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1446.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 25290,
+     "wagesUsd": 989120333,
+     "establishments": 616,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1446.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 25737,
+     "wagesUsd": 1035232049,
+     "establishments": 624,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1446.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 26236,
+     "wagesUsd": 1078578111,
+     "establishments": 638,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1446.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 29175,
+     "wagesUsd": 1300853444,
+     "establishments": 657,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1446.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 18258,
+     "wagesUsd": 785802536,
+     "establishments": 660,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1446.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 17923,
+     "wagesUsd": 853429794,
+     "establishments": 652,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1446.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 23489,
+     "wagesUsd": 1260735413,
+     "establishments": 671,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1446.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 25488,
+     "wagesUsd": 1439807104,
+     "establishments": 662,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1446.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 26550,
+     "wagesUsd": 1556125959,
+     "establishments": 658,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1446.csv"
+    }
+   ]
+  },
+  "washington-dc": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C4790)",
+   "rows": [
+    {
+     "year": 2018,
+     "employment": 45155,
+     "wagesUsd": 1929859230,
+     "establishments": 773,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4790.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 45296,
+     "wagesUsd": 2014747506,
+     "establishments": 785,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4790.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 26910,
+     "wagesUsd": 1120768301,
+     "establishments": 799,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4790.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 24021,
+     "wagesUsd": 1144411488,
+     "establishments": 806,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4790.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 32736,
+     "wagesUsd": 1753694157,
+     "establishments": 856,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4790.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 36628,
+     "wagesUsd": 2029239288,
+     "establishments": 877,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4790.csv"
+    }
+   ]
+  },
+  "atlanta": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1206)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 23628,
+     "wagesUsd": 664590771,
+     "establishments": 938,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1206.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 23971,
+     "wagesUsd": 683231233,
+     "establishments": 948,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1206.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 25255,
+     "wagesUsd": 747197049,
+     "establishments": 928,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1206.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 25578,
+     "wagesUsd": 774583554,
+     "establishments": 955,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1206.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 26364,
+     "wagesUsd": 834875235,
+     "establishments": 996,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1206.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 18101,
+     "wagesUsd": 548418530,
+     "establishments": 1050,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1206.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 21356,
+     "wagesUsd": 838706611,
+     "establishments": 1222,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1206.csv"
+    }
+   ]
+  },
+  "dallas": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1910)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 31041,
+     "wagesUsd": 1023629467,
+     "establishments": 1140,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1910.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 31878,
+     "wagesUsd": 1057973646,
+     "establishments": 1171,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1910.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 32451,
+     "wagesUsd": 1081514594,
+     "establishments": 1222,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1910.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 33040,
+     "wagesUsd": 1090198282,
+     "establishments": 1273,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1910.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 34750,
+     "wagesUsd": 1202591534,
+     "establishments": 1326,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1910.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 24303,
+     "wagesUsd": 831153871,
+     "establishments": 1400,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1910.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 24724,
+     "wagesUsd": 1000315907,
+     "establishments": 1445,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1910.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 31030,
+     "wagesUsd": 1326599722,
+     "establishments": 1504,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1910.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 34632,
+     "wagesUsd": 1436904961,
+     "establishments": 1515,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1910.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 36349,
+     "wagesUsd": 1618303339,
+     "establishments": 1497,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1910.csv"
+    }
+   ]
+  },
+  "denver": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C1974)",
+   "rows": [
+    {
+     "year": 2016,
+     "employment": 16733,
+     "wagesUsd": 519102197,
+     "establishments": 384,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1974.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 17404,
+     "wagesUsd": 560468734,
+     "establishments": 399,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1974.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 17332,
+     "wagesUsd": 594323274,
+     "establishments": 413,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1974.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 18649,
+     "wagesUsd": 675570973,
+     "establishments": 432,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1974.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 11860,
+     "wagesUsd": 417006224,
+     "establishments": 448,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1974.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 12398,
+     "wagesUsd": 504545407,
+     "establishments": 468,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1974.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 15695,
+     "wagesUsd": 704113169,
+     "establishments": 494,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1974.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 16820,
+     "wagesUsd": 790408832,
+     "establishments": 503,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1974.csv"
+    }
+   ]
+  },
+  "phoenix": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3806)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 25316,
+     "wagesUsd": 846573482,
+     "establishments": 501,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3806.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 25267,
+     "wagesUsd": 866793390,
+     "establishments": 475,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3806.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 25632,
+     "wagesUsd": 864922235,
+     "establishments": 476,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3806.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 26463,
+     "wagesUsd": 928359985,
+     "establishments": 510,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3806.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 26031,
+     "wagesUsd": 909388756,
+     "establishments": 527,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3806.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 18850,
+     "wagesUsd": 648995253,
+     "establishments": 539,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3806.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 19001,
+     "wagesUsd": 773665221,
+     "establishments": 566,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3806.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 23520,
+     "wagesUsd": 1044185426,
+     "establishments": 609,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3806.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 25874,
+     "wagesUsd": 1189519021,
+     "establishments": 611,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3806.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 27486,
+     "wagesUsd": 1300910726,
+     "establishments": 625,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3806.csv"
+    }
+   ]
+  },
+  "san-diego": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4174)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 29894,
+     "wagesUsd": 968410468,
+     "establishments": 551,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4174.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 31094,
+     "wagesUsd": 1040064031,
+     "establishments": 561,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4174.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 30658,
+     "wagesUsd": 1092660885,
+     "establishments": 557,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4174.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 30756,
+     "wagesUsd": 1111247450,
+     "establishments": 571,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4174.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 32134,
+     "wagesUsd": 1209772065,
+     "establishments": 572,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4174.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 19761,
+     "wagesUsd": 731712213,
+     "establishments": 581,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4174.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 20378,
+     "wagesUsd": 849251581,
+     "establishments": 568,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4174.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 27415,
+     "wagesUsd": 1272265978,
+     "establishments": 569,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4174.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 29377,
+     "wagesUsd": 1413499291,
+     "establishments": 595,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4174.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 30190,
+     "wagesUsd": 1525612375,
+     "establishments": 601,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4174.csv"
+    }
+   ]
+  },
+  "honolulu": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4652)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 17026,
+     "wagesUsd": 816990223,
+     "establishments": 133,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4652.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 17896,
+     "wagesUsd": 882723645,
+     "establishments": 138,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4652.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 18642,
+     "wagesUsd": 952550791,
+     "establishments": 146,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4652.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 18925,
+     "wagesUsd": 966684728,
+     "establishments": 154,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4652.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 19097,
+     "wagesUsd": 1045481517,
+     "establishments": 160,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4652.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 8860,
+     "wagesUsd": 493168607,
+     "establishments": 159,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4652.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 10909,
+     "wagesUsd": 599819611,
+     "establishments": 156,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4652.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 15679,
+     "wagesUsd": 966248041,
+     "establishments": 169,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4652.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 17142,
+     "wagesUsd": 1114869872,
+     "establishments": 174,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4652.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 17786,
+     "wagesUsd": 1186334400,
+     "establishments": 188,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4652.csv"
+    }
+   ]
+  },
+  "new-orleans": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3538)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 14228,
+     "wagesUsd": 456004117,
+     "establishments": 340,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3538.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 14853,
+     "wagesUsd": 484029177,
+     "establishments": 375,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3538.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 14997,
+     "wagesUsd": 492333183,
+     "establishments": 387,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3538.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 10748,
+     "wagesUsd": 445150476,
+     "establishments": 437,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3538.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 11540,
+     "wagesUsd": 498682311,
+     "establishments": 420,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3538.csv"
+    }
+   ]
+  },
+  "nashville": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C3498)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 12391,
+     "wagesUsd": 356280478,
+     "establishments": 337,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3498.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 12413,
+     "wagesUsd": 373765582,
+     "establishments": 359,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3498.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 13039,
+     "wagesUsd": 402066669,
+     "establishments": 382,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3498.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 13921,
+     "wagesUsd": 457546818,
+     "establishments": 404,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3498.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 15307,
+     "wagesUsd": 522565386,
+     "establishments": 446,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3498.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 9760,
+     "wagesUsd": 326269482,
+     "establishments": 464,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3498.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 10186,
+     "wagesUsd": 394469839,
+     "establishments": 483,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3498.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 13837,
+     "wagesUsd": 605365940,
+     "establishments": 510,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3498.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 14598,
+     "wagesUsd": 670445657,
+     "establishments": 521,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3498.csv"
+    }
+   ]
+  },
+  "austin": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1242)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 12079,
+     "wagesUsd": 361543301,
+     "establishments": 372,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1242.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 12518,
+     "wagesUsd": 387462465,
+     "establishments": 378,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1242.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 13180,
+     "wagesUsd": 427235701,
+     "establishments": 399,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1242.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 13988,
+     "wagesUsd": 467656083,
+     "establishments": 435,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1242.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 15055,
+     "wagesUsd": 517760552,
+     "establishments": 466,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1242.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 10253,
+     "wagesUsd": 342529811,
+     "establishments": 485,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1242.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 11856,
+     "wagesUsd": 430685969,
+     "establishments": 499,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1242.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 15100,
+     "wagesUsd": 633496126,
+     "establishments": 535,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1242.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 16715,
+     "wagesUsd": 729892272,
+     "establishments": 534,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1242.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 17526,
+     "wagesUsd": 796066690,
+     "establishments": 558,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1242.csv"
+    }
+   ]
+  },
+  "san-antonio": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4170)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 15264,
+     "wagesUsd": 410514358,
+     "establishments": 539,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4170.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 15383,
+     "wagesUsd": 414634347,
+     "establishments": 538,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4170.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 15792,
+     "wagesUsd": 433592874,
+     "establishments": 556,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4170.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 15732,
+     "wagesUsd": 453317211,
+     "establishments": 560,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4170.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 15960,
+     "wagesUsd": 468358922,
+     "establishments": 577,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4170.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 10445,
+     "wagesUsd": 299514763,
+     "establishments": 580,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4170.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 11278,
+     "wagesUsd": 357494307,
+     "establishments": 583,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4170.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 14320,
+     "wagesUsd": 517764375,
+     "establishments": 594,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4170.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 14475,
+     "wagesUsd": 554203768,
+     "establishments": 595,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4170.csv"
+    }
+   ]
+  },
+  "tampa": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4530)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 16150,
+     "wagesUsd": 403936382,
+     "establishments": 601,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4530.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 16431,
+     "wagesUsd": 413781064,
+     "establishments": 579,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4530.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 16837,
+     "wagesUsd": 430314718,
+     "establishments": 575,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4530.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 17709,
+     "wagesUsd": 471868319,
+     "establishments": 575,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4530.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 17725,
+     "wagesUsd": 524198411,
+     "establishments": 595,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4530.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 12896,
+     "wagesUsd": 375776434,
+     "establishments": 605,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4530.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 13150,
+     "wagesUsd": 443140853,
+     "establishments": 617,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4530.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 14810,
+     "wagesUsd": 533647807,
+     "establishments": 631,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4530.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 15981,
+     "wagesUsd": 614746510,
+     "establishments": 670,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4530.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 16838,
+     "wagesUsd": 695904551,
+     "establishments": 710,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4530.csv"
+    }
+   ]
+  },
+  "jacksonville": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C2726)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 10107,
+     "wagesUsd": 272450975,
+     "establishments": 313,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C2726.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 10139,
+     "wagesUsd": 277210479,
+     "establishments": 298,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C2726.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 9652,
+     "wagesUsd": 264530085,
+     "establishments": 299,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C2726.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 9495,
+     "wagesUsd": 273149704,
+     "establishments": 302,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C2726.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 9431,
+     "wagesUsd": 275581708,
+     "establishments": 308,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C2726.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 6789,
+     "wagesUsd": 198996248,
+     "establishments": 315,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C2726.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 6898,
+     "wagesUsd": 229596427,
+     "establishments": 337,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C2726.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7820,
+     "wagesUsd": 285439782,
+     "establishments": 367,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C2726.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 8354,
+     "wagesUsd": 325611175,
+     "establishments": 364,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C2726.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 8825,
+     "wagesUsd": 347332291,
+     "establishments": 361,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C2726.csv"
+    }
+   ]
+  },
+  "raleigh": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3958)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 4334,
+     "wagesUsd": 94432754,
+     "establishments": 188,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3958.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 4579,
+     "wagesUsd": 100583936,
+     "establishments": 186,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3958.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 4832,
+     "wagesUsd": 110855420,
+     "establishments": 189,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3958.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 4966,
+     "wagesUsd": 113104161,
+     "establishments": 198,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3958.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 5043,
+     "wagesUsd": 120763615,
+     "establishments": 202,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3958.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 3523,
+     "wagesUsd": 89247314,
+     "establishments": 212,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3958.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 3910,
+     "wagesUsd": 108716711,
+     "establishments": 223,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3958.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 4641,
+     "wagesUsd": 139301232,
+     "establishments": 237,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3958.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 4907,
+     "wagesUsd": 154558351,
+     "establishments": 250,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3958.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 4923,
+     "wagesUsd": 155495072,
+     "establishments": 262,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3958.csv"
+    }
+   ]
+  },
+  "philadelphia": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3798)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 18643,
+     "wagesUsd": 578722454,
+     "establishments": 572,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3798.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 18802,
+     "wagesUsd": 587304297,
+     "establishments": 575,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3798.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 19134,
+     "wagesUsd": 607727005,
+     "establishments": 589,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3798.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 19026,
+     "wagesUsd": 621302379,
+     "establishments": 606,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3798.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 19159,
+     "wagesUsd": 646219462,
+     "establishments": 609,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3798.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 11756,
+     "wagesUsd": 394919903,
+     "establishments": 634,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3798.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 13542,
+     "wagesUsd": 503293839,
+     "establishments": 626,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3798.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 16958,
+     "wagesUsd": 686376928,
+     "establishments": 631,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3798.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 18370,
+     "wagesUsd": 772930163,
+     "establishments": 631,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3798.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 18931,
+     "wagesUsd": 824700633,
+     "establishments": 643,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3798.csv"
+    }
+   ]
+  },
+  "detroit": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1982)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 17781,
+     "wagesUsd": 579040687,
+     "establishments": 409,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1982.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 17973,
+     "wagesUsd": 571049404,
+     "establishments": 436,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1982.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 18524,
+     "wagesUsd": 594884017,
+     "establishments": 456,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1982.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 19028,
+     "wagesUsd": 618249551,
+     "establishments": 490,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1982.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 19602,
+     "wagesUsd": 644446645,
+     "establishments": 536,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1982.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 11688,
+     "wagesUsd": 371935505,
+     "establishments": 541,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1982.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 12856,
+     "wagesUsd": 463306490,
+     "establishments": 538,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1982.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 14588,
+     "wagesUsd": 548029040,
+     "establishments": 556,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1982.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 14924,
+     "wagesUsd": 587474317,
+     "establishments": 579,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1982.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 15139,
+     "wagesUsd": 631486737,
+     "establishments": 527,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1982.csv"
+    }
+   ]
+  },
+  "minneapolis": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3346)",
+   "rows": [
+    {
+     "year": 2018,
+     "employment": 15021,
+     "wagesUsd": 429082162,
+     "establishments": 465,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3346.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 15131,
+     "wagesUsd": 452107955,
+     "establishments": 464,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3346.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 8796,
+     "wagesUsd": 263514396,
+     "establishments": 484,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3346.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 9034,
+     "wagesUsd": 286490151,
+     "establishments": 491,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3346.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 11284,
+     "wagesUsd": 407395245,
+     "establishments": 491,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3346.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 12807,
+     "wagesUsd": 477049929,
+     "establishments": 495,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3346.csv"
+    }
+   ]
+  },
+  "portland-or": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3890)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 10066,
+     "wagesUsd": 258676972,
+     "establishments": 369,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3890.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 10191,
+     "wagesUsd": 267030529,
+     "establishments": 374,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3890.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 10412,
+     "wagesUsd": 291109491,
+     "establishments": 386,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3890.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 11294,
+     "wagesUsd": 348141928,
+     "establishments": 398,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3890.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 6843,
+     "wagesUsd": 213271991,
+     "establishments": 419,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3890.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 6787,
+     "wagesUsd": 229268850,
+     "establishments": 422,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3890.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 8623,
+     "wagesUsd": 323950156,
+     "establishments": 438,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3890.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 9979,
+     "wagesUsd": 400271051,
+     "establishments": 443,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3890.csv"
+    }
+   ]
+  },
+  "salt-lake-city": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4162)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 7735,
+     "wagesUsd": 204079606,
+     "establishments": 187,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4162.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 7804,
+     "wagesUsd": 207993622,
+     "establishments": 198,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4162.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 8060,
+     "wagesUsd": 217871125,
+     "establishments": 209,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4162.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 8290,
+     "wagesUsd": 230928873,
+     "establishments": 214,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4162.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 8639,
+     "wagesUsd": 246661666,
+     "establishments": 221,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4162.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 6354,
+     "wagesUsd": 186698090,
+     "establishments": 224,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4162.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 6677,
+     "wagesUsd": 214945495,
+     "establishments": 234,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4162.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7794,
+     "wagesUsd": 286562540,
+     "establishments": 228,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4162.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 7756,
+     "wagesUsd": 297805544,
+     "establishments": 238,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4162.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 8241,
+     "wagesUsd": 319895681,
+     "establishments": 246,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4162.csv"
+    }
+   ]
+  },
+  "kansas-city": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C2814)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 8996,
+     "wagesUsd": 228729804,
+     "establishments": 269,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C2814.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 9215,
+     "wagesUsd": 238343563,
+     "establishments": 275,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C2814.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 9367,
+     "wagesUsd": 246911214,
+     "establishments": 283,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C2814.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 9630,
+     "wagesUsd": 267107479,
+     "establishments": 295,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C2814.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 9796,
+     "wagesUsd": 271678921,
+     "establishments": 307,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C2814.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 6777,
+     "wagesUsd": 213508065,
+     "establishments": 322,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C2814.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 8649,
+     "wagesUsd": 315560949,
+     "establishments": 327,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C2814.csv"
+    }
+   ]
+  },
+  "st-louis": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C4118)",
+   "rows": [
+    {
+     "year": 2017,
+     "employment": 14342,
+     "wagesUsd": 387634986,
+     "establishments": 373,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4118.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 14631,
+     "wagesUsd": 413944267,
+     "establishments": 379,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4118.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 14524,
+     "wagesUsd": 410017186,
+     "establishments": 378,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4118.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 9201,
+     "wagesUsd": 272567619,
+     "establishments": 378,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4118.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 9360,
+     "wagesUsd": 299606325,
+     "establishments": 375,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4118.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 11691,
+     "wagesUsd": 421414925,
+     "establishments": 384,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4118.csv"
+    }
+   ]
+  },
+  "indianapolis": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C2690)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 8506,
+     "wagesUsd": 201261055,
+     "establishments": 340,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C2690.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 8517,
+     "wagesUsd": 212845135,
+     "establishments": 352,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C2690.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 8361,
+     "wagesUsd": 216199985,
+     "establishments": 354,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C2690.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 5668,
+     "wagesUsd": 162417432,
+     "establishments": 383,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C2690.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7318,
+     "wagesUsd": 256306552,
+     "establishments": 383,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C2690.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 7715,
+     "wagesUsd": 287745515,
+     "establishments": 385,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C2690.csv"
+    }
+   ]
+  },
+  "columbus-oh": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1814)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 7779,
+     "wagesUsd": 183841650,
+     "establishments": 319,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1814.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 7697,
+     "wagesUsd": 188538608,
+     "establishments": 328,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1814.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 7916,
+     "wagesUsd": 202306551,
+     "establishments": 336,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1814.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 8231,
+     "wagesUsd": 219708427,
+     "establishments": 347,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1814.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 8278,
+     "wagesUsd": 228607860,
+     "establishments": 360,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1814.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 5464,
+     "wagesUsd": 150660227,
+     "establishments": 366,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1814.csv"
+    }
+   ]
+  },
+  "cleveland": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1746)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 6736,
+     "wagesUsd": 160927426,
+     "establishments": 208,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1746.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 7234,
+     "wagesUsd": 178865576,
+     "establishments": 213,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1746.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 7398,
+     "wagesUsd": 184144388,
+     "establishments": 214,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1746.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 7501,
+     "wagesUsd": 193086215,
+     "establishments": 220,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1746.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 7433,
+     "wagesUsd": 199697313,
+     "establishments": 226,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1746.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 4760,
+     "wagesUsd": 130788267,
+     "establishments": 237,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1746.csv"
+    }
+   ]
+  },
+  "pittsburgh": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3830)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 9082,
+     "wagesUsd": 240703966,
+     "establishments": 304,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3830.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 9300,
+     "wagesUsd": 251044993,
+     "establishments": 315,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3830.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 9401,
+     "wagesUsd": 258786604,
+     "establishments": 317,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3830.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 9300,
+     "wagesUsd": 268437041,
+     "establishments": 321,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3830.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 9321,
+     "wagesUsd": 278296645,
+     "establishments": 318,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3830.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 5589,
+     "wagesUsd": 168685938,
+     "establishments": 324,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3830.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 5823,
+     "wagesUsd": 188791272,
+     "establishments": 319,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3830.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7135,
+     "wagesUsd": 246711098,
+     "establishments": 329,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3830.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 9091,
+     "wagesUsd": 351885565,
+     "establishments": 333,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3830.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 9392,
+     "wagesUsd": 381074731,
+     "establishments": 338,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3830.csv"
+    }
+   ]
+  },
+  "cincinnati": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1714)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 6395,
+     "wagesUsd": 148358879,
+     "establishments": 295,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1714.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 6562,
+     "wagesUsd": 156996604,
+     "establishments": 297,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1714.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 7043,
+     "wagesUsd": 176504996,
+     "establishments": 296,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1714.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 7014,
+     "wagesUsd": 180818877,
+     "establishments": 302,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1714.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 4692,
+     "wagesUsd": 121220593,
+     "establishments": 313,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1714.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 7469,
+     "wagesUsd": 239265376,
+     "establishments": 344,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1714.csv"
+    }
+   ]
+  },
+  "baltimore": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1258)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 9039,
+     "wagesUsd": 259805863,
+     "establishments": 289,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1258.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 9153,
+     "wagesUsd": 265904112,
+     "establishments": 297,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1258.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 9315,
+     "wagesUsd": 277410137,
+     "establishments": 305,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1258.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 9398,
+     "wagesUsd": 290300417,
+     "establishments": 312,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1258.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 11962,
+     "wagesUsd": 433179084,
+     "establishments": 317,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1258.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 7504,
+     "wagesUsd": 278447980,
+     "establishments": 320,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1258.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 7619,
+     "wagesUsd": 311878320,
+     "establishments": 316,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1258.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 8835,
+     "wagesUsd": 368376589,
+     "establishments": 319,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1258.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 9643,
+     "wagesUsd": 408950322,
+     "establishments": 331,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1258.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 10081,
+     "wagesUsd": 436878887,
+     "establishments": 333,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1258.csv"
+    }
+   ]
+  },
+  "virginia-beach-norfolk": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C4726)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 10741,
+     "wagesUsd": 229918725,
+     "establishments": 412,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4726.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 11288,
+     "wagesUsd": 253532487,
+     "establishments": 412,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4726.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 11355,
+     "wagesUsd": 258259504,
+     "establishments": 404,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4726.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 11144,
+     "wagesUsd": 264806391,
+     "establishments": 400,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4726.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 7820,
+     "wagesUsd": 196181738,
+     "establishments": 404,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4726.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 9957,
+     "wagesUsd": 315374777,
+     "establishments": 438,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4726.csv"
+    }
+   ]
+  },
+  "charleston-sc": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C1670)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 7106,
+     "wagesUsd": 179824547,
+     "establishments": 193,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C1670.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 7539,
+     "wagesUsd": 191731126,
+     "establishments": 201,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C1670.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 7890,
+     "wagesUsd": 207856541,
+     "establishments": 212,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C1670.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 8023,
+     "wagesUsd": 220895529,
+     "establishments": 216,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C1670.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 8416,
+     "wagesUsd": 244075688,
+     "establishments": 231,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C1670.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 6074,
+     "wagesUsd": 182309026,
+     "establishments": 239,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C1670.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 7075,
+     "wagesUsd": 240747320,
+     "establishments": 243,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C1670.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7902,
+     "wagesUsd": 303242736,
+     "establishments": 252,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C1670.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 8061,
+     "wagesUsd": 330577295,
+     "establishments": 262,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C1670.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 8134,
+     "wagesUsd": 341757212,
+     "establishments": 268,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C1670.csv"
+    }
+   ]
+  },
+  "savannah": {
+   "industry": "Traveler accommodation (NAICS 7211)",
+   "area": "Metro area (BLS area code C4234)",
+   "rows": [
+    {
+     "year": 2017,
+     "employment": 4439,
+     "wagesUsd": 101233212,
+     "establishments": 193,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4234.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 4427,
+     "wagesUsd": 105203984,
+     "establishments": 201,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4234.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 4546,
+     "wagesUsd": 112463538,
+     "establishments": 206,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4234.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 3457,
+     "wagesUsd": 80749391,
+     "establishments": 213,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4234.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 3741,
+     "wagesUsd": 99678889,
+     "establishments": 225,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4234.csv"
+    }
+   ]
+  },
+  "myrtle-beach": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3482)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 9364,
+     "wagesUsd": 205204060,
+     "establishments": 257,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3482.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 9629,
+     "wagesUsd": 224200753,
+     "establishments": 261,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3482.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 9695,
+     "wagesUsd": 240966024,
+     "establishments": 261,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3482.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 9403,
+     "wagesUsd": 239554775,
+     "establishments": 253,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3482.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 9422,
+     "wagesUsd": 253067868,
+     "establishments": 249,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3482.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 7281,
+     "wagesUsd": 206043937,
+     "establishments": 250,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3482.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 7581,
+     "wagesUsd": 252054020,
+     "establishments": 253,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3482.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 8142,
+     "wagesUsd": 301821729,
+     "establishments": 260,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3482.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 6850,
+     "wagesUsd": 273228481,
+     "establishments": 250,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3482.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 6510,
+     "wagesUsd": 272535643,
+     "establishments": 219,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3482.csv"
+    }
+   ]
+  },
+  "florida-keys": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Monroe County, FL",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 6430,
+     "wagesUsd": 222546067,
+     "establishments": 202,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/12087.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 6631,
+     "wagesUsd": 231499042,
+     "establishments": 192,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/12087.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 6716,
+     "wagesUsd": 246821511,
+     "establishments": 179,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/12087.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 6176,
+     "wagesUsd": 239466695,
+     "establishments": 187,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/12087.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 6807,
+     "wagesUsd": 263645270,
+     "establishments": 195,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/12087.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 5201,
+     "wagesUsd": 208816664,
+     "establishments": 193,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/12087.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 6137,
+     "wagesUsd": 282609376,
+     "establishments": 199,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/12087.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 7780,
+     "wagesUsd": 403789695,
+     "establishments": 195,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/12087.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 8420,
+     "wagesUsd": 423971193,
+     "establishments": 203,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/12087.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 8927,
+     "wagesUsd": 454027540,
+     "establishments": 205,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/12087.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 8827,
+     "wagesUsd": 468180822,
+     "establishments": 203,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/12087.csv"
+    }
+   ]
+  },
+  "palm-beach": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Palm Beach County, FL",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 10685,
+     "wagesUsd": 371208638,
+     "establishments": 176,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/12099.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 11121,
+     "wagesUsd": 383635327,
+     "establishments": 183,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/12099.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 11248,
+     "wagesUsd": 397137844,
+     "establishments": 179,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/12099.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 11247,
+     "wagesUsd": 434912347,
+     "establishments": 178,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/12099.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 11226,
+     "wagesUsd": 438012554,
+     "establishments": 187,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/12099.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 7485,
+     "wagesUsd": 301101055,
+     "establishments": 194,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/12099.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 8583,
+     "wagesUsd": 388610938,
+     "establishments": 213,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/12099.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 10595,
+     "wagesUsd": 518458531,
+     "establishments": 222,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/12099.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 11304,
+     "wagesUsd": 574106009,
+     "establishments": 226,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/12099.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 12147,
+     "wagesUsd": 629582692,
+     "establishments": 236,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/12099.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 12974,
+     "wagesUsd": 712374805,
+     "establishments": 240,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/12099.csv"
+    }
+   ]
+  },
+  "fort-lauderdale": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Broward County, FL",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 11643,
+     "wagesUsd": 383749450,
+     "establishments": 352,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/12011.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 11918,
+     "wagesUsd": 403455885,
+     "establishments": 346,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/12011.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 11553,
+     "wagesUsd": 394194675,
+     "establishments": 339,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/12011.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 11271,
+     "wagesUsd": 345520169,
+     "establishments": 345,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/12011.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 11125,
+     "wagesUsd": 344669451,
+     "establishments": 355,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/12011.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 7378,
+     "wagesUsd": 224358856,
+     "establishments": 356,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/12011.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 7865,
+     "wagesUsd": 287539238,
+     "establishments": 391,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/12011.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 9422,
+     "wagesUsd": 390042456,
+     "establishments": 391,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/12011.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 9609,
+     "wagesUsd": 416128161,
+     "establishments": 367,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/12011.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 10336,
+     "wagesUsd": 462616522,
+     "establishments": 358,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/12011.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 10687,
+     "wagesUsd": 498187167,
+     "establishments": 360,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/12011.csv"
+    }
+   ]
+  },
+  "anaheim-orange-county": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Orange County, CA",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 24617,
+     "wagesUsd": 855655387,
+     "establishments": 488,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/06059.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 25388,
+     "wagesUsd": 889863142,
+     "establishments": 495,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/06059.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 25647,
+     "wagesUsd": 928354058,
+     "establishments": 505,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/06059.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 25697,
+     "wagesUsd": 990095310,
+     "establishments": 523,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/06059.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 26321,
+     "wagesUsd": 1032049569,
+     "establishments": 548,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/06059.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 16350,
+     "wagesUsd": 664854314,
+     "establishments": 568,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/06059.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 16896,
+     "wagesUsd": 767144395,
+     "establishments": 592,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/06059.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 22892,
+     "wagesUsd": 1118780941,
+     "establishments": 605,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/06059.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 25509,
+     "wagesUsd": 1264459970,
+     "establishments": 600,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/06059.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 26554,
+     "wagesUsd": 1378094436,
+     "establishments": 610,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/06059.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 25047,
+     "wagesUsd": 1348375165,
+     "establishments": 632,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/06059.csv"
+    }
+   ]
+  },
+  "palm-springs": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Riverside\u2013San Bernardino\u2013Ontario metro (includes Palm Springs)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 16131,
+     "wagesUsd": 428551794,
+     "establishments": 556,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C4014.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 17245,
+     "wagesUsd": 475959625,
+     "establishments": 567,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C4014.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 18159,
+     "wagesUsd": 512510602,
+     "establishments": 581,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C4014.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 18302,
+     "wagesUsd": 543568996,
+     "establishments": 608,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C4014.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 18072,
+     "wagesUsd": 562863945,
+     "establishments": 621,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C4014.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 12638,
+     "wagesUsd": 393988892,
+     "establishments": 642,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C4014.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 12931,
+     "wagesUsd": 469023810,
+     "establishments": 660,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C4014.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 15651,
+     "wagesUsd": 615959011,
+     "establishments": 678,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C4014.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 16919,
+     "wagesUsd": 689627669,
+     "establishments": 691,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C4014.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 17638,
+     "wagesUsd": 737764824,
+     "establishments": 694,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C4014.csv"
+    }
+   ]
+  },
+  "reno-tahoe": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Metro area (BLS area code C3990)",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 15614,
+     "wagesUsd": 449464557,
+     "establishments": 110,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/C3990.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 15600,
+     "wagesUsd": 463463470,
+     "establishments": 111,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/C3990.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 15538,
+     "wagesUsd": 478256169,
+     "establishments": 107,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/C3990.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 15260,
+     "wagesUsd": 483406578,
+     "establishments": 105,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/C3990.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 15221,
+     "wagesUsd": 500006757,
+     "establishments": 103,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/C3990.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 10628,
+     "wagesUsd": 353345467,
+     "establishments": 104,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/C3990.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 10921,
+     "wagesUsd": 415557837,
+     "establishments": 107,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/C3990.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 11855,
+     "wagesUsd": 495771050,
+     "establishments": 102,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/C3990.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 12463,
+     "wagesUsd": 520411705,
+     "establishments": 105,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/C3990.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 12429,
+     "wagesUsd": 536899529,
+     "establishments": 122,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/C3990.csv"
+    }
+   ]
+  },
+  "aspen-vail": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Eagle County, CO",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 3196,
+     "wagesUsd": 130950722,
+     "establishments": 50,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/08037.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 3207,
+     "wagesUsd": 132127046,
+     "establishments": 53,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/08037.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 3183,
+     "wagesUsd": 138471544,
+     "establishments": 53,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/08037.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 3432,
+     "wagesUsd": 149206884,
+     "establishments": 52,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/08037.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 3380,
+     "wagesUsd": 156017709,
+     "establishments": 52,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/08037.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 2394,
+     "wagesUsd": 118926545,
+     "establishments": 55,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/08037.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 2586,
+     "wagesUsd": 130755395,
+     "establishments": 56,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/08037.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 2845,
+     "wagesUsd": 154752257,
+     "establishments": 57,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/08037.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 2713,
+     "wagesUsd": 157056602,
+     "establishments": 57,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/08037.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 2697,
+     "wagesUsd": 159493172,
+     "establishments": 59,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/08037.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 2722,
+     "wagesUsd": 164556242,
+     "establishments": 59,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/08037.csv"
+    }
+   ]
+  },
+  "gatlinburg-pigeon-forge": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Sevier County, TN",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 5469,
+     "wagesUsd": 143974393,
+     "establishments": 248,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/47155.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 5712,
+     "wagesUsd": 158298499,
+     "establishments": 257,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/47155.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 5604,
+     "wagesUsd": 159910872,
+     "establishments": 246,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/47155.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 5869,
+     "wagesUsd": 184154398,
+     "establishments": 243,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/47155.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 6215,
+     "wagesUsd": 202751973,
+     "establishments": 236,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/47155.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 5474,
+     "wagesUsd": 175328778,
+     "establishments": 243,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/47155.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 5734,
+     "wagesUsd": 204240397,
+     "establishments": 247,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/47155.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 5896,
+     "wagesUsd": 231728888,
+     "establishments": 243,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/47155.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 6098,
+     "wagesUsd": 248041896,
+     "establishments": 251,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/47155.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 6235,
+     "wagesUsd": 258949647,
+     "establishments": 254,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/47155.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 6076,
+     "wagesUsd": 252001046,
+     "establishments": 248,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/47155.csv"
+    }
+   ]
+  },
+  "branson": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Taney County, MO",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 4253,
+     "wagesUsd": 120058638,
+     "establishments": 149,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/29213.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 4273,
+     "wagesUsd": 113193629,
+     "establishments": 143,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/29213.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 4593,
+     "wagesUsd": 123729198,
+     "establishments": 146,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/29213.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 4756,
+     "wagesUsd": 132981660,
+     "establishments": 145,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/29213.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 4710,
+     "wagesUsd": 138714281,
+     "establishments": 142,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/29213.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 3435,
+     "wagesUsd": 109710445,
+     "establishments": 143,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/29213.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 4069,
+     "wagesUsd": 145918676,
+     "establishments": 140,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/29213.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 4275,
+     "wagesUsd": 170037774,
+     "establishments": 136,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/29213.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 4498,
+     "wagesUsd": 188386796,
+     "establishments": 135,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/29213.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 4394,
+     "wagesUsd": 192046068,
+     "establishments": 130,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/29213.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 4417,
+     "wagesUsd": 200127631,
+     "establishments": 133,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/29213.csv"
+    }
+   ]
+  },
+  "williamsburg-va": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "James City County, VA",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 557,
+     "wagesUsd": 16164773,
+     "establishments": 23,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/51095.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 1142,
+     "wagesUsd": 35480170,
+     "establishments": 27,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/51095.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 1100,
+     "wagesUsd": 32066777,
+     "establishments": 29,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/51095.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 1115,
+     "wagesUsd": 31140448,
+     "establishments": 29,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/51095.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 1159,
+     "wagesUsd": 36821191,
+     "establishments": 29,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/51095.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 752,
+     "wagesUsd": 28103723,
+     "establishments": 28,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/51095.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 771,
+     "wagesUsd": 30360106,
+     "establishments": 28,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/51095.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 922,
+     "wagesUsd": 38177154,
+     "establishments": 34,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/51095.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 978,
+     "wagesUsd": 39095077,
+     "establishments": 32,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/51095.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 1003,
+     "wagesUsd": 40793834,
+     "establishments": 33,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/51095.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 912,
+     "wagesUsd": 38043721,
+     "establishments": 28,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/51095.csv"
+    }
+   ]
+  },
+  "outer-banks": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Dare County, NC",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 1046,
+     "wagesUsd": 24688507,
+     "establishments": 71,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/37055.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 1056,
+     "wagesUsd": 25711524,
+     "establishments": 70,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/37055.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 1062,
+     "wagesUsd": 26013703,
+     "establishments": 70,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/37055.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 1040,
+     "wagesUsd": 27493113,
+     "establishments": 71,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/37055.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 1066,
+     "wagesUsd": 28779622,
+     "establishments": 72,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/37055.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 952,
+     "wagesUsd": 26550431,
+     "establishments": 72,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/37055.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 1073,
+     "wagesUsd": 33064328,
+     "establishments": 73,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/37055.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 1025,
+     "wagesUsd": 33612298,
+     "establishments": 73,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/37055.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 966,
+     "wagesUsd": 33209302,
+     "establishments": 69,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/37055.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 966,
+     "wagesUsd": 34715664,
+     "establishments": 70,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/37055.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 880,
+     "wagesUsd": 32836016,
+     "establishments": 67,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/37055.csv"
+    }
+   ]
+  },
+  "napa-sonoma": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Napa County, CA",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 4794,
+     "wagesUsd": 167639692,
+     "establishments": 91,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/06055.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 4701,
+     "wagesUsd": 173564820,
+     "establishments": 89,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/06055.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 4811,
+     "wagesUsd": 180925747,
+     "establishments": 91,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/06055.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 5004,
+     "wagesUsd": 199267522,
+     "establishments": 97,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/06055.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 5126,
+     "wagesUsd": 212643846,
+     "establishments": 99,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/06055.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 3119,
+     "wagesUsd": 131057887,
+     "establishments": 96,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/06055.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 3350,
+     "wagesUsd": 160531470,
+     "establishments": 97,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/06055.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 4384,
+     "wagesUsd": 233156057,
+     "establishments": 101,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/06055.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 4845,
+     "wagesUsd": 256372675,
+     "establishments": 103,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/06055.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 4882,
+     "wagesUsd": 261789565,
+     "establishments": 96,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/06055.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 5058,
+     "wagesUsd": 281827682,
+     "establishments": 96,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/06055.csv"
+    }
+   ]
+  },
+  "sedona-grand-canyon": {
+   "industry": "Accommodation (NAICS 721)",
+   "area": "Coconino County, AZ",
+   "rows": [
+    {
+     "year": 2015,
+     "employment": 4427,
+     "wagesUsd": 103860624,
+     "establishments": 149,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2015/a/area/04005.csv"
+    },
+    {
+     "year": 2016,
+     "employment": 4528,
+     "wagesUsd": 109775910,
+     "establishments": 141,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2016/a/area/04005.csv"
+    },
+    {
+     "year": 2017,
+     "employment": 4983,
+     "wagesUsd": 128231517,
+     "establishments": 150,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2017/a/area/04005.csv"
+    },
+    {
+     "year": 2018,
+     "employment": 5229,
+     "wagesUsd": 136041261,
+     "establishments": 159,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2018/a/area/04005.csv"
+    },
+    {
+     "year": 2019,
+     "employment": 5164,
+     "wagesUsd": 135967309,
+     "establishments": 160,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2019/a/area/04005.csv"
+    },
+    {
+     "year": 2020,
+     "employment": 3664,
+     "wagesUsd": 101596955,
+     "establishments": 160,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2020/a/area/04005.csv"
+    },
+    {
+     "year": 2021,
+     "employment": 4264,
+     "wagesUsd": 125021832,
+     "establishments": 163,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2021/a/area/04005.csv"
+    },
+    {
+     "year": 2022,
+     "employment": 4638,
+     "wagesUsd": 140385757,
+     "establishments": 161,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2022/a/area/04005.csv"
+    },
+    {
+     "year": 2023,
+     "employment": 4824,
+     "wagesUsd": 156558218,
+     "establishments": 167,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2023/a/area/04005.csv"
+    },
+    {
+     "year": 2024,
+     "employment": 5371,
+     "wagesUsd": 198820849,
+     "establishments": 165,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2024/a/area/04005.csv"
+    },
+    {
+     "year": 2025,
+     "employment": 5293,
+     "wagesUsd": 200862511,
+     "establishments": 160,
+     "sourceUrl": "https://data.bls.gov/cew/data/api/2025/a/area/04005.csv"
+    }
+   ]
+  }
+ }
+}

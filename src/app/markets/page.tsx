@@ -7,6 +7,8 @@ import { MarketsBrowser } from "@/components/MarketsBrowser";
 import { MarketsTabs } from "@/components/tuesday-trends/MarketsTabs";
 import { citedOnly, publicRows, hasPublicCoverage, isSeedMarket } from "@/lib/format";
 import { scrubInternal } from "@/lib/public-text";
+import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
+import { MarketsHistoryIndex } from "@/components/MarketHistory";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +71,13 @@ export default async function MarketsPage() {
         </p>
       </div>
 
+      <section aria-label="Tuesday Trends" className="max-w-2xl">
+        <ThisTuesdayCard />
+      </section>
+
       <MarketsBrowser markets={items} />
+
+      <MarketsHistoryIndex names={Object.fromEntries(markets.map((m) => [m.slug, m.name]))} />
 
       {comingCount > 0 ? (
         <p className="text-sm text-slate-300">

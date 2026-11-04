@@ -37,6 +37,7 @@ import { ttMarketBySiteSlug } from "@/lib/tuesday-trends";
 import { askAboutHref } from "@/lib/chat-scope";
 import { WhoOwnsHere } from "@/components/reits/WhoOwnsHere";
 import { marketOwners } from "@/lib/reits-market";
+import { MarketHistory } from "@/components/MarketHistory";
 
 export const dynamic = "force-dynamic";
 
@@ -198,6 +199,10 @@ export default async function MarketDetailPage({
         )}
       </div>
 
+      {ttRates ? <MarketRatesBlock market={ttRates} /> : null}
+
+      <MarketHistory slug={market.slug} />
+
       {thin ? null : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Visitors" value={fmtVisitorsM(market.visitorsM)} sourceLabel={market.sourceLabel} />
@@ -219,7 +224,6 @@ export default async function MarketDetailPage({
       </div>
       )}
 
-      {ttRates ? <MarketRatesBlock market={ttRates} /> : null}
 
       {thin ? null : market.nuanceNote ? (
         isOrlando ? (
