@@ -71,7 +71,8 @@ export default async function MarketsPage() {
         </p>
       </div>
 
-      <section aria-label="Tuesday Trends" className="max-w-2xl">
+      <section aria-labelledby="tt-card-h" className="max-w-2xl space-y-2">
+        <h2 id="tt-card-h" className="text-lg font-semibold text-white">This Tuesday&apos;s rates</h2>
         <ThisTuesdayCard />
       </section>
 

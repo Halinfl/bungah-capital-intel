@@ -37,8 +37,8 @@ import { ttMarketBySiteSlug } from "@/lib/tuesday-trends";
 import { askAboutHref } from "@/lib/chat-scope";
 import { WhoOwnsHere } from "@/components/reits/WhoOwnsHere";
 import { marketOwners } from "@/lib/reits-market";
-import { MarketHistory } from "@/components/MarketHistory";
-import { AirportPassengers } from "@/components/AirportPassengers";
+import { MarketHistoryBlock, hasAirportData } from "@/components/MarketHistoryBlock";
+import { MarketSectionChips } from "@/components/MarketSectionChips";
 
 export const dynamic = "force-dynamic";
 
@@ -128,7 +128,24 @@ export default async function MarketDetailPage({
   const ttRates = ttMarketBySiteSlug(market.slug);
   const owners = marketOwners(market.slug);
 
+  const airportHere = hasAirportData(market.slug);
   const renderSignal = (s: (typeof market.signals)[number], i: number, prefix = "sig") => {
+    if (s.kind === "airlift" && airportHere && prefix === "sig") {
+      const al = withoutOwnLinks(parseSourceUrls(s.sourceUrls));
+      return (
+        <SignalCard
+          key={`${prefix}-${i}`}
+          primaryUrl={null}
+          title={glueText(scrubInternal(s.title))}
+          meta={<span className="rounded bg-white/5 px-1.5 py-0.5 text-xs uppercase tracking-wider text-slate-300">{s.kind}</span>}
+        >
+          <a href="#history-airport" className="relative z-10 inline-flex min-h-11 items-center text-sm text-emerald-300 underline-offset-2 hover:underline">
+            Monthly passengers: History → Airport passengers
+          </a>
+          {al.length ? <div><SourceLinks links={al} limit={3} /></div> : null}
+        </SignalCard>
+      );
+    }
     const links = withoutOwnLinks(parseSourceUrls(s.sourceUrls));
     const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
     const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
@@ -200,11 +217,35 @@ export default async function MarketDetailPage({
         )}
       </div>
 
-      {ttRates ? <MarketRatesBlock market={ttRates} /> : null}
+      {ttRates ? <div id="rates" className="scroll-mt-36"><MarketRatesBlock market={ttRates} /></div> : null}
 
-      <MarketHistory slug={market.slug} />
+      <MarketSectionChips
+        items={[
+          ttRates ? { href: "#rates", label: "Rates" } : null,
+          { href: "#signals", label: "Signals" },
+          { href: "#history", label: "History" },
+          taxSeries.length ? { href: "#tax", label: "Tax" } : null,
+          owners ? { href: "#owners", label: "Owners" } : null,
+        ]}
+      />
 
-      <AirportPassengers slug={market.slug} />
+      <section id="signals" className="scroll-mt-36 space-y-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-lg font-semibold text-white">Signals</h2>
+          <span className="text-xs text-slate-300">
+            {market.signals.length ? `${market.signals.length} cited` : "none yet"}
+          </span>
+        </div>
+        {market.signals.length ? (
+          <div className="grid gap-3">
+            {market.signals.map((s, i) => renderSignal(s, i))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
+            No cited market signals yet.
+          </div>
+        )}
+      </section>
 
       {thin ? null : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -262,26 +303,10 @@ export default async function MarketDetailPage({
         </section>
       )}
 
-      <section className="space-y-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-lg font-semibold text-white">Signals</h2>
-          <span className="text-xs text-slate-300">
-            {market.signals.length ? `${market.signals.length} cited` : "none yet"}
-          </span>
-        </div>
-        {market.signals.length ? (
-          <div className="grid gap-3">
-            {market.signals.map((s, i) => renderSignal(s, i))}
-          </div>
-        ) : (
-          <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] p-5 text-sm text-slate-300">
-            No cited market signals yet.
-          </div>
-        )}
-      </section>
+      <MarketHistoryBlock slug={market.slug} />
 
       {taxSeries.length ? (
-        <section className="space-y-4">
+        <section id="tax" className="scroll-mt-36 space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Hotel-tax collections</h2>
             <span className="text-xs text-slate-300">newest first{"\u00a0· "}{taxSeries.length} periods</span>
@@ -333,7 +358,7 @@ export default async function MarketDetailPage({
         )}
       </section>
 
-      {owners ? <WhoOwnsHere data={owners} short={short} marketName={market.name} /> : null}
+      {owners ? <div id="owners" className="scroll-mt-36"><WhoOwnsHere data={owners} short={short} marketName={market.name} /></div> : null}
 
       {market.findings.length ? (
         <section className="space-y-4">
@@ -394,7 +419,7 @@ export default async function MarketDetailPage({
             </Link>
             <Link
               href="/sound-money-lodging#studio"
-              className="text-sm text-slate-300 underline decoration-white/30 underline-offset-4 hover:text-white"
+              className="inline-flex min-h-11 items-center text-sm text-slate-300 underline decoration-white/30 underline-offset-4 hover:text-white"
             >
               Stack memos for markets with checked data
             </Link>
