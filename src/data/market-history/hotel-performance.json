@@ -1,0 +1,347 @@
+{
+ "metric": "Hotel occupancy, average daily rate (ADR) and RevPAR as published by a destination organization or public body",
+ "accessed": "2026-11-04",
+ "note": "Each figure is from the linked source for the period shown. Occupancy and ADR in a row always come from the same source and period. RevPAR marked 'our calculation' is occupancy × ADR from that same row; otherwise it is the source's own figure. Areas differ by market (city, CBD, county or metro) as labeled.",
+ "markets": {
+  "las-vegas": {
+   "area": "Las Vegas (LVCVA, all reported hotels and motels)",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 80.3,
+     "adr": 184,
+     "revpar": 147.75,
+     "revparCalc": true,
+     "source": "LVCVA Las Vegas FAQs (2025 data)",
+     "url": "https://www.lvcva.com/research/faqs/"
+    }
+   ]
+  },
+  "orlando": {
+   "area": "Orlando metro (Visit Orlando)",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 71.4,
+     "adr": 202.71,
+     "revpar": 144.73,
+     "revparCalc": true,
+     "source": "Visit Orlando Data & Trends, year-end 2025",
+     "url": "https://www.visitorlando.org/about/resources/data-trends/"
+    }
+   ]
+  },
+  "chicago": {
+   "area": "Chicago CBD (downtown)",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 69.2,
+     "adr": 243.1,
+     "revpar": 168.15,
+     "revparCalc": false,
+     "source": "Choose Chicago, Hotel Performance 2025 (STR data)",
+     "url": "https://cdn.choosechicago.com/uploads/2026/01/Hotel-Performance-2025.pdf"
+    }
+   ]
+  },
+  "honolulu": {
+   "area": "O‘ahu (island)",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 78.6,
+     "adr": 284.12,
+     "revpar": 223.33,
+     "revparCalc": false,
+     "source": "Hawai‘i Tourism Authority / DBEDT, Hawai‘i Hotel Performance Report, Dec 2025 (year-to-date table; STR data)",
+     "url": "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance/Hotel-performance-2025-12.pdf"
+    },
+    {
+     "period": "Jan–Sep 2026",
+     "occ": 79.7,
+     "adr": 281.14,
+     "revpar": 223.94,
+     "revparCalc": false,
+     "source": "Hawai‘i Tourism Authority / DBEDT, Hawai‘i Hotel Performance Report, Sep 2026 (STR data)",
+     "url": "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance/Hotel-performance-2026-09.pdf"
+    },
+    {
+     "period": "Sep 2026",
+     "occ": 75.9,
+     "adr": 265.31,
+     "revpar": 201.31,
+     "revparCalc": false,
+     "source": "Hawai‘i Tourism Authority / DBEDT, Hawai‘i Hotel Performance Report, Sep 2026 (STR data)",
+     "url": "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance/Hotel-performance-2026-09.pdf"
+    }
+   ]
+  },
+  "washington-dc": {
+   "area": "Washington, DC CBD",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 67.9,
+     "adr": 267,
+     "revpar": 181.29,
+     "revparCalc": true,
+     "source": "Destination DC, 2025 Annual Visitor Statistics (hotel chart, source STR)",
+     "url": "https://washington.org/sites/default/files/2026-08/Annual%20Visitor%20Statistics%202025.pdf",
+     "note": "ADR printed in whole dollars"
+    }
+   ]
+  },
+  "phoenix": {
+   "area": "Phoenix market (Visit Phoenix)",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 66.5,
+     "adr": 173.29,
+     "revpar": 115.27,
+     "revparCalc": false,
+     "source": "Visit Phoenix, FY25-26 Annual Report (source STR)",
+     "url": "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_ec37a28f-3d6e-4138-b9b2-24b8b6b0d425.pdf"
+    },
+    {
+     "period": "Jan–Jun 2026",
+     "occ": 72.3,
+     "adr": 201,
+     "revpar": 145,
+     "revparCalc": false,
+     "source": "Visit Phoenix, FY25-26 Annual Report (source STR)",
+     "url": "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_ec37a28f-3d6e-4138-b9b2-24b8b6b0d425.pdf"
+    }
+   ]
+  },
+  "nashville": {
+   "area": "Davidson County",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 67.0,
+     "adr": 199.2,
+     "revpar": 133.46,
+     "revparCalc": true,
+     "source": "Nashville Convention & Visitors Corp, Research & Hospitality Stats",
+     "url": "https://www.visitmusiccity.com/about/research"
+    }
+   ]
+  },
+  "philadelphia": {
+   "area": "Center City Philadelphia",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 66.2,
+     "adr": 215.0,
+     "revpar": 142.0,
+     "revparCalc": false,
+     "source": "Visit Philadelphia, 2025 Hotel Performance (sources CoStar, STR)",
+     "url": "https://www.visitphilly.com/wp-content/uploads/2026/06/Hotel-Performance-2025.pdf"
+    }
+   ]
+  },
+  "charleston-sc": {
+   "area": "Greater Charleston Area",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 70.1,
+     "adr": 188,
+     "revpar": 131.79,
+     "revparCalc": true,
+     "source": "College of Charleston Office of Tourism Analysis, 2025 Economic Impact (published by Explore Charleston)",
+     "url": "https://www.charlestoncvb.info/wp-content/uploads/2026/06/2025-Economic-Impact.pdf",
+     "note": "ADR printed in whole dollars; the source's 'annualized RevPAR' is per room per year and is not shown"
+    }
+   ]
+  },
+  "fort-lauderdale": {
+   "area": "Broward County",
+   "rows": [
+    {
+     "period": "FY2025 (county fiscal year)",
+     "occ": 71.3,
+     "adr": 184.1,
+     "revpar": 131.26,
+     "revparCalc": true,
+     "source": "Broward County, FY2025 Top Achievements: Economic Prosperity (Visit Lauderdale)",
+     "url": "https://www.browardcdn.org/api/public/content/bc45e75a13b2420585c963863c38bb23?v=82a03705"
+    }
+   ]
+  },
+  "new-york-city": {
+   "area": "New York City",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 84.1,
+     "adr": 333.71,
+     "revpar": 280.71,
+     "revparCalc": false,
+     "source": "Office of the New York State Comptroller, The Hotel Industry in New York City (July 2026; sources NYC Tourism + Conventions, CoStar)",
+     "url": "https://www.osc.ny.gov/files/reports/osdc/2026/pdf/nyc-hotel-industry-report-july-2026.pdf"
+    }
+   ]
+  },
+  "denver": {
+   "area": "Denver metro",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 66.2,
+     "adr": 150.89,
+     "revpar": 99.88,
+     "revparCalc": false,
+     "source": "Visit Denver, Colorado Convention Center & lodging statistics",
+     "url": "https://visitdenver.com/about-visit-denver/convention-stats/"
+    }
+   ]
+  },
+  "boston": {
+   "area": "Boston",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 77.3,
+     "adr": 301.97,
+     "revpar": 233.54,
+     "revparCalc": false,
+     "source": "Meet Boston, Hotel Statistics (source Pinnacle Advisory Group)",
+     "url": "https://www.meetboston.com/press-room/statistics-and-reports/hotel-openings-and-statistics/"
+    }
+   ]
+  },
+  "san-antonio": {
+   "area": "San Antonio metro",
+   "rows": [
+    {
+     "period": "FY2025, through Sep 2025",
+     "occ": 59.0,
+     "adr": 132.26,
+     "revpar": 78.19,
+     "revparCalc": false,
+     "source": "Visit San Antonio, FY25 Annual Report",
+     "url": "https://assets.simpleviewinc.com/sv-sanantonio/image/upload/v1/clients/sanantoniotx/VSA25_Executive_Annual_Report_FINAL_121025_f2ce5e46-9b80-4fdc-a2fb-4fc20eed0c59.pdf",
+     "note": "Occupancy printed as 59%"
+    }
+   ]
+  },
+  "napa-sonoma": {
+   "area": "Napa County",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 64.6,
+     "adr": 422.52,
+     "revpar": 272.94,
+     "revparCalc": false,
+     "source": "City of Napa, Napa TID marketing update, Feb 10, 2026 (Visit Napa Valley; STR, YTD Dec 2025)",
+     "url": "https://www.cityofnapa.org/DocumentCenter/View/15312/February-10-2026-Supplemental-Materials"
+    },
+    {
+     "period": "2025 · Sonoma County",
+     "occ": 60.1,
+     "adr": 210.65,
+     "revpar": 126.68,
+     "revparCalc": false,
+     "source": "City of Napa, Napa TID marketing update, Feb 10, 2026 (Visit Napa Valley; STR, YTD Dec 2025)",
+     "url": "https://www.cityofnapa.org/DocumentCenter/View/15312/February-10-2026-Supplemental-Materials"
+    }
+   ]
+  },
+  "san-francisco-bay": {
+   "area": "San Francisco County",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 67.2,
+     "adr": 243.33,
+     "revpar": 163.6,
+     "revparCalc": false,
+     "source": "City of Napa, Napa TID marketing update, Feb 10, 2026 (Visit Napa Valley competitive set; STR, YTD Dec 2025)",
+     "url": "https://www.cityofnapa.org/DocumentCenter/View/15312/February-10-2026-Supplemental-Materials"
+    }
+   ]
+  },
+  "los-angeles": {
+   "area": "City of Los Angeles TMD hotels",
+   "rows": [
+    {
+     "period": "Jan–Sep 2026",
+     "occ": 74.5,
+     "adr": 219.53,
+     "revpar": 163.52,
+     "revparCalc": false,
+     "source": "Discover Los Angeles, TMD Lodging Metrics through Q3 2026 (source STR)",
+     "url": "https://www.discoverlosangeles.com/tmd-lodging-metrics"
+    }
+   ]
+  },
+  "houston": {
+   "area": "Houston",
+   "rows": [
+    {
+     "period": "2025",
+     "occ": 59,
+     "adr": 120,
+     "revpar": 71,
+     "revparCalc": false,
+     "source": "Houston First, Hotel Occupancy Finished 2025 at 59%",
+     "url": "https://www.houstonfirst.com/news/hotel-occupancy-finished-2025-at-59",
+     "note": "Figures printed rounded"
+    },
+    {
+     "period": "Dec 2025",
+     "occ": 50,
+     "adr": 108,
+     "revpar": null,
+     "revparCalc": false,
+     "source": "Houston First, Hotel Occupancy Finished 2025 at 59%",
+     "url": "https://www.houstonfirst.com/news/hotel-occupancy-finished-2025-at-59",
+     "note": "RevPAR value not printed for the month"
+    }
+   ]
+  },
+  "florida-keys": {
+   "area": "Florida Keys (Monroe County)",
+   "rows": [
+    {
+     "period": "Dec 2025",
+     "occ": 75.8,
+     "adr": 413.59,
+     "revpar": 313.68,
+     "revparCalc": false,
+     "source": "Florida Keys & Key West, Monthly Summary Report, Dec 2025 (source STR)",
+     "url": "https://visitfloridakeys.com/sites/default/files/2026-02/Monthly%20Summary%20Report%201225.pdf"
+    },
+    {
+     "period": "Oct–Dec 2025 (fiscal YTD)",
+     "occ": 69.7,
+     "adr": 341,
+     "revpar": 238,
+     "revparCalc": false,
+     "source": "Florida Keys & Key West, Monthly Summary Report, Dec 2025 (source STR)",
+     "url": "https://visitfloridakeys.com/sites/default/files/2026-02/Monthly%20Summary%20Report%201225.pdf"
+    }
+   ]
+  },
+  "reno-tahoe": {
+   "area": "Washoe County",
+   "rows": [
+    {
+     "period": "Dec 2025",
+     "occ": 56.2,
+     "adr": 131.79,
+     "revpar": null,
+     "revparCalc": false,
+     "source": "Reno-Sparks Convention & Visitors Authority, Room Tax and Occupancy Statistics, Dec 2025",
+     "url": "https://www.rscva.com/wp-content/uploads/2026/01/6-Room-Tax-and-Occupancy-Statistics-December-2025.pdf",
+     "note": "Occupancy counts all occupied rooms incl. comp; rate is the cash average rate, so RevPAR is not computed"
+    }
+   ]
+  }
+ }
+}

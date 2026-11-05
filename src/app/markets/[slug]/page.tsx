@@ -39,6 +39,7 @@ import { WhoOwnsHere } from "@/components/reits/WhoOwnsHere";
 import { marketOwners } from "@/lib/reits-market";
 import { MarketHistoryBlock, hasAirportData } from "@/components/MarketHistoryBlock";
 import { MarketSectionChips } from "@/components/MarketSectionChips";
+import { HotelPerformanceBlock } from "@/components/HotelPerformanceBlock";
 
 export const dynamic = "force-dynamic";
 
@@ -216,6 +217,8 @@ export default async function MarketDetailPage({
           </>
         )}
       </div>
+
+      <HotelPerformanceBlock slug={market.slug} />
 
       {ttRates ? <div id="rates" className="scroll-mt-36"><MarketRatesBlock market={ttRates} /></div> : null}
 

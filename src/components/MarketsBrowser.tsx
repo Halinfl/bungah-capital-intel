@@ -18,6 +18,15 @@ type MarketItem = {
   sourceLabel: string;
   assetCount: number;
   signalCount: number;
+  hotel: {
+    period: string;
+    area: string;
+    occ: number;
+    adr: number;
+    revpar: number | null;
+    revparCalc: boolean;
+    sourceLabel: string;
+  } | null;
 };
 
 function fmtVisitorsM(n: number | null): string {
@@ -117,7 +126,23 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
               </span>
             </div>
             <p className="mt-3 text-sm text-slate-300">{m.summary}</p>
-            {m.occupancy == null && m.adr == null && m.visitorsM == null && m.roomsK == null ? null : (
+            {m.hotel ? (
+              <div className="mt-4">
+                <p className="text-xs text-slate-300">
+                  Hotels · {m.hotel.area} · {m.hotel.period}
+                </p>
+                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums text-slate-200">
+                  <span><span className="text-slate-300">OCC </span>{fmtPct(m.hotel.occ)}</span>
+                  <span><span className="text-slate-300">ADR </span>{fmtUsd(m.hotel.adr)}</span>
+                  <span>
+                    <span className="text-slate-300">RevPAR </span>
+                    {fmtUsd(m.hotel.revpar)}
+                    {m.hotel.revpar != null && m.hotel.revparCalc ? <span className="text-xs text-slate-300"> (our calculation)</span> : null}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            {m.visitorsM == null && m.roomsK == null && (m.hotel || (m.occupancy == null && m.adr == null)) ? null : (
             <div className="mt-4 flex flex-wrap gap-4 text-sm tabular-nums text-slate-200">
               <span>
                 <span className="text-slate-300">Visitors </span>
@@ -127,14 +152,18 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
                 <span className="text-slate-300">Rooms </span>
                 {fmtRoomsK(m.roomsK)}
               </span>
-              <span>
-                <span className="text-slate-300">OCC </span>
-                {fmtPct(m.occupancy)}
-              </span>
-              <span>
-                <span className="text-slate-300">ADR </span>
-                {fmtUsd(m.adr)}
-              </span>
+              {m.hotel ? null : (
+                <>
+                  <span>
+                    <span className="text-slate-300">OCC </span>
+                    {fmtPct(m.occupancy)}
+                  </span>
+                  <span>
+                    <span className="text-slate-300">ADR </span>
+                    {fmtUsd(m.adr)}
+                  </span>
+                </>
+              )}
               {m.midweekOcc != null ? (
                 <span>
                   <span className="text-slate-300">Midweek </span>
@@ -143,9 +172,10 @@ export function MarketsBrowser({ markets }: { markets: MarketItem[] }) {
               ) : null}
             </div>
             )}
-            {m.sourceLabel ? (
-              <div className="mt-3">
-                <SourceChip label={m.sourceLabel} />
+            {m.sourceLabel || m.hotel ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {m.sourceLabel ? <SourceChip label={m.sourceLabel} /> : null}
+                {m.hotel && m.hotel.sourceLabel !== m.sourceLabel ? <SourceChip label={m.hotel.sourceLabel} /> : null}
               </div>
             ) : null}
           </Link>

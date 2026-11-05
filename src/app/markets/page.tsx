@@ -9,6 +9,7 @@ import { citedOnly, publicRows, hasPublicCoverage, isSeedMarket } from "@/lib/fo
 import { scrubInternal } from "@/lib/public-text";
 import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
 import { MarketsHistoryIndex } from "@/components/MarketHistory";
+import { headlinePerf } from "@/lib/hotel-performance";
 
 export const dynamic = "force-dynamic";
 
@@ -35,11 +36,13 @@ export default async function MarketsPage() {
 
   // Seed / illustrative snapshots are never rendered. Only markets with real cited data are listed
   // (a cited snapshot, or enough cited signals); thin markets are counted in a "more coming" line.
-  const covered = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length));
+  // A market with a cited hotel-performance row (static JSON, free public source) is listed too.
+  const covered = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length) || headlinePerf(m.slug) != null);
   const comingCount = markets.length - covered.length;
   const items = covered.map((m) => {
     const seed = isSeedMarket(m);
     const signalCount = publicRows(m.signals).length;
+    const hp = headlinePerf(m.slug);
     return {
       id: m.id,
       slug: m.slug,
@@ -56,6 +59,9 @@ export default async function MarketsPage() {
       sourceLabel: seed ? "" : m.sourceLabel,
       assetCount: publicRows(m.assets).length,
       signalCount,
+      hotel: hp
+        ? { period: hp.period, area: hp.area, occ: hp.occ, adr: hp.adr, revpar: hp.revpar, revparCalc: hp.revparCalc, sourceLabel: `${hp.source}, ${hp.period} ${hp.url}` }
+        : null,
     };
   });
 
