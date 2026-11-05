@@ -40,6 +40,7 @@ import { marketOwners } from "@/lib/reits-market";
 import { MarketHistoryBlock, hasAirportData } from "@/components/MarketHistoryBlock";
 import { MarketSectionChips } from "@/components/MarketSectionChips";
 import { HotelPerformanceBlock } from "@/components/HotelPerformanceBlock";
+import { hotelPerf } from "@/lib/hotel-performance";
 
 export const dynamic = "force-dynamic";
 
@@ -207,7 +208,11 @@ export default async function MarketDetailPage({
           Destination dashboard
         </p>
         {thin ? (
-          <p className="mt-4 max-w-3xl text-slate-300">{coverageInProgressLine(market.name)}</p>
+          <p className="mt-4 max-w-3xl text-slate-300">
+            {hotelPerf(market.slug)
+              ? "Hotel figures below are cited to their sources; other sources for this market are still being checked."
+              : coverageInProgressLine(market.name)}
+          </p>
         ) : (
           <>
             <p className="mt-4 max-w-3xl text-slate-300">{glueText(scrubInternal(market.summary))}</p>
