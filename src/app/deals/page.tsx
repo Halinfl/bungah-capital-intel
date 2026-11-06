@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
-import { Chip, DotBar } from "@/components/deals/DotBar";
+import { BasisLine, Chip, DotBar } from "@/components/deals/DotBar";
 import {
   RUBRIC,
+  basisFor,
   basisLabel,
   dealLog,
   fmtDate,
@@ -50,11 +51,13 @@ const notGradedTail = (line: string) => {
 function GradeRow({ sale }: { sale: Sale }) {
   const g = gradesFor(sale.sale_id)[0];
   if (!g) return <div className="text-[13px] text-slate-300">Not graded yet</div>;
-  // One compact meta line (Eric r4): grade · coverage · Not graded: … The full output line stays on the deal page.
+  // Compact meta line, then the same mechanical basis sentence as the deal page. History stays on the deal page.
   const m = cardMetaFor(g);
+  const basis = basisFor(g);
   // Inline flow (not flex-wrap) so a wrapped line never starts with a dangling "·".
   return (
-    <p className="text-[13px] leading-6 text-slate-300">
+    <div className="space-y-1">
+      <p className="text-[13px] leading-6 text-slate-300">
       {g.overall !== null ? (
         <>
           <span className="text-base font-semibold tabular-nums text-white">
@@ -78,7 +81,9 @@ function GradeRow({ sale }: { sale: Sale }) {
           {notGradedTail(m.notGraded)}
         </>
       ) : null}
-    </p>
+      </p>
+      <BasisLine text={basis.text} verified={basis.verified} compact />
+    </div>
   );
 }
 
@@ -105,7 +110,7 @@ function DealCard({ sale }: { sale: Sale }) {
   return (
     <Link
       href={`/deals/${sale.slug}`}
-      className="block space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:border-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+      className="block min-h-11 space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:border-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
     >
       <div>
         <span className="font-semibold text-white">{sale.property}</span>

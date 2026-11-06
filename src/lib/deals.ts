@@ -6,7 +6,7 @@ import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
 import citationsJson from "@/data/deals/citations.json";
-import { cardMetaParts, headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
+import { cardMetaParts, headlineText, scoringBasisLine, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
@@ -131,6 +131,20 @@ export function gradesFor(saleId: string): GradeResult[] {
  */
 export function headlineFor(g: GradeResult): string {
   return g.rubric_version === RUBRIC.rubric_version ? headlineText(RUBRIC, g) : g.output_text;
+}
+/**
+ * Scoring-basis line under the grade. Current-rubric grades use the mechanical sentence when the stored
+ * factor rows support it, and "Basis not verified" when they do not. Earlier rubrics keep the stored sentence.
+ */
+export function basisFor(g: GradeResult): { text: string; verified: boolean } {
+  if (g.rubric_version !== RUBRIC.rubric_version) {
+    const text = g.output_text.trim();
+    if (!text || /\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(text)) {
+      return { text: "Basis not verified", verified: false };
+    }
+    return { text, verified: true };
+  }
+  return scoringBasisLine(RUBRIC, g);
 }
 /** Compact index-card line parts (grade · coverage · Not graded: …). */
 export function cardMetaFor(g: GradeResult) {
