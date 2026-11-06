@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { fieldNotesForSale } from "@/lib/field-notes";
 import { BasisLine, Chip, DotBar, UnderwriteNote } from "@/components/deals/DotBar";
+import { renderedGradeLine } from "@/lib/deals-grade";
 import {
   DISCLAIMER,
   RUBRIC,
@@ -384,7 +385,7 @@ function GradeSection({ sale, grades, kindOf, entry }: { sale: Sale; grades: Gra
             Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}
           </summary>
           <div className="mt-2 space-y-2">
-            <p>{g.output_text}</p>
+            <p>{renderedGradeLine(g.output_text)}</p>
             <FactorTable rows={g.factor_scores} kindOf={kindOf} />
           </div>
         </details>

@@ -33,9 +33,16 @@ for (const g of latest.values()) {
     const sr = shortReason(r.factor, r.reason);
     check(sr.matched, `${g.sale_id}: ${r.factor} reason has a short form ("${sr.text}")`);
     const named = `${FACTOR_SHORT_NAME[r.factor]} not graded (`;
-    check(line.includes(named), `${g.sale_id}: line names ${r.factor}`);
+    check(line.toLowerCase().includes(named), `${g.sale_id}: line names ${r.factor}`);
   }
-  check(line.includes(`${g.factors_graded} of ${g.factors_total} factors graded`), `${g.sale_id}: coverage in line`);
+  if (g.overall === null) {
+    check(line.startsWith(`Only ${g.factors_graded} of ${g.factors_total} factors could be graded; insufficient public data.`), `${g.sale_id}: insufficient opener`);
+    check(!/\d+ of \d+ factors graded/.test(line), `${g.sale_id}: no trailing coverage clause`);
+  } else {
+    check(line.includes(`${g.factors_graded} of ${g.factors_total} factors graded`), `${g.sale_id}: coverage in line`);
+    check(line.startsWith("Scored "), `${g.sale_id}: graded line starts with Scored`);
+  }
+  check(!/underwritten/i.test(line), `${g.sale_id}: no Underwritten in the basis line`);
   check(!/gradeable/i.test(line), `${g.sale_id}: one phrase ("not graded") for every ungraded factor`);
 }
 
@@ -62,11 +69,11 @@ const expect: Record<string, { label: string; line: string }> = {
   },
   "fairmont-scottsdale-princess-2026": {
     label: "Insufficient public data",
-    line: "Underwritten with replacement cost not graded (no price public at announcement); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (only an under-construction share is public); 2 of 5 factors graded; insufficient public data.",
+    line: "Only 2 of 5 factors could be graded; insufficient public data. Replacement cost not graded (no price public at announcement); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (only an under-construction share is public).",
   },
   "midway-portfolio-chicago-2026": {
     label: "Insufficient public data",
-    line: "Underwritten with replacement cost not graded (price includes a restaurant parcel with no public allocation); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (no dated room count or pipeline share public); 2 of 5 factors graded; insufficient public data.",
+    line: "Only 2 of 5 factors could be graded; insufficient public data. Replacement cost not graded (price includes a restaurant parcel with no public allocation); spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (no dated room count or pipeline share public).",
   },
 };
 for (const [id, e] of Object.entries(expect)) {
@@ -126,7 +133,7 @@ for (const g of latest.values()) {
   check(basis.verified && basis.text === line, `${g.sale_id}: basis verified and equals the mechanical line`);
   check(!/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(basis.text), `${g.sale_id}: basis is not a peer rank`);
   for (const r of g.factor_scores) {
-    if (!r.graded) check(basis.text.includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`), `${g.sale_id}: basis does not treat ${r.factor} as graded`);
+    if (!r.graded) check(basis.text.toLowerCase().includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`), `${g.sale_id}: basis does not treat ${r.factor} as graded`);
   }
 }
 const unverified = structuredClone(latest.get("the-wade-chicago-2026")!);

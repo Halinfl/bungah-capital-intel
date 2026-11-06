@@ -489,8 +489,17 @@ export function headlineText(
   const tmpl = t.ungraded_factor ?? "{factor} not graded ({reason})";
   const named = (r: FactorResult) =>
     tmpl.replace("{factor}", FACTOR_SHORT_NAME[r.factor]).replace("{reason}", shortReason(r.factor, r.reason).text);
+  const clause = (r: FactorResult) => (r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+  const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
   const rep = rows.find((r) => r.factor === "replacement_cost");
   const spr = rows.find((r) => r.factor === "spread");
+  // Fewer than 3 graded factors: lead with coverage, then the missing-data reasons. No trailing count.
+  if (g.overall === null) {
+    const missing = rows.filter((r) => !r.graded).map(clause);
+    if (missing.length) missing[0] = cap(missing[0]);
+    const reasons = missing.join("; ");
+    return `Only ${g.factors_graded} of ${g.factors_total} factors could be graded; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}.${reasons ? ` ${reasons}.` : ""}`;
+  }
   let lead: string;
   if (rep?.graded) {
     const v = rep.value as number;
@@ -498,21 +507,29 @@ export function headlineText(
     // HVS survey median arithmetic, not a property-specific underwriting.
     lead = v === 0 ? "Scored using an estimated replacement cost" : `Scored using an estimated ${n}% ${v < 0 ? "discount" : "premium"} to replacement cost`;
   } else {
-    // "Underwritten with replacement cost not graded (<reason>)"
-    lead = `Underwritten with ${t.ungraded_replacement}${rep ? ` (${shortReason("replacement_cost", rep.reason).text})` : ""}`;
+    lead = cap(rep ? clause(rep) : "replacement cost not graded");
   }
   if (spr?.graded) {
     const calc = /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
     lead += ` with a ${spr.value}bp spread${calc}`;
   }
+  if (/^Underwritten\b/i.test(lead)) lead = lead.replace(/^Underwritten at (?:a |an )?/i, "Scored using an estimated ").replace(/^Underwritten with /i, "Scored ");
   const parts = [lead];
   for (const r of rows) {
     if (r.graded || r.factor === "replacement_cost") continue;
-    parts.push(r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+    parts.push(clause(r));
   }
   parts.push(`${g.factors_graded} of ${g.factors_total} factors graded`);
-  if (g.overall === null) parts.push(rubric.missing_factor_rule.insufficient_label.toLowerCase());
   return `${parts.join("; ")}.`;
+}
+
+/** Display of a stored older-rubric sentence. The file text is unchanged; the page does not say Underwritten. */
+export function renderedGradeLine(text: string): string {
+  return text
+    .replace(/^Underwritten at (?:a |an )?(\d+)% (discount|premium) to replacement\b/i, "Scored using an estimated $1% $2 to replacement cost")
+    .replace(/^Underwritten at replacement cost\b/i, "Scored using an estimated replacement cost")
+    .replace(/^Underwritten with /i, "")
+    .replace(/\bUnderwritten\b/gi, "Scored");
 }
 
 /** Shown when the stored factor rows do not support the mechanical sentence. Never a guessed basis. */
@@ -547,7 +564,7 @@ export function scoringBasisLine(
   if (enough !== (g.overall !== null)) return flag;
   const text = headlineText(rubric, g);
   for (const r of rows) {
-    if (!r.graded && !text.includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`)) return flag;
+    if (!r.graded && !text.toLowerCase().includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`)) return flag;
   }
   if (/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b/i.test(text)) return flag;
   return { text, verified: true };
