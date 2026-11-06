@@ -495,7 +495,8 @@ export function headlineText(
   if (rep?.graded) {
     const v = rep.value as number;
     const n = Math.round(Math.abs(v));
-    lead = v === 0 ? "Underwritten at replacement cost" : `Underwritten at ${article(n)} ${n}% ${v < 0 ? "discount" : "premium"} to replacement`;
+    // HVS survey median arithmetic, not a property-specific underwriting.
+    lead = v === 0 ? "Scored using an estimated replacement cost" : `Scored using an estimated ${n}% ${v < 0 ? "discount" : "premium"} to replacement cost`;
   } else {
     // "Underwritten with replacement cost not graded (<reason>)"
     lead = `Underwritten with ${t.ungraded_replacement}${rep ? ` (${shortReason("replacement_cost", rep.reason).text})` : ""}`;

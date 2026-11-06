@@ -109,16 +109,16 @@ export const CONTEXT_LABELS: Record<string, string> = {
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
 
-/** Newest announcement first. Never sorted by grade. Hidden deals are already omitted from SALES. */
+/** Newest announcement first. Never sorted by grade. Hidden deals stay in the file only. */
 export function sales(): Sale[] {
-  return [...SALES].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+  return SALES.filter(isPublicDeal).sort((a, b) => b.announced_on.localeCompare(a.announced_on));
 }
-/** Same public list as sales(). */
+/** Same public list as sales(): pages, counts, and chat. */
 export function publicSales(): Sale[] {
   return sales();
 }
 export function saleBySlug(slug: string): Sale | undefined {
-  return SALES.find((s) => s.slug === slug);
+  return sales().find((s) => s.slug === slug);
 }
 /**
  * Grades for a sale, current rubric version first: the latest revision of each rubric version. Earlier revisions and
