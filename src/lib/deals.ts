@@ -37,10 +37,11 @@ export type Sale = {
   inclusion_basis: "reit" | "100m+" | "both";
   price_source_kind: "filing" | "press" | "record";
   source_uris: string[];
-  /** false withholds the deal from public /deals (list, log, and the detail route). */
+  /** false = kept on file but hidden from every public page (index, detail, log, chat, counts). */
   public?: boolean;
+  public_note?: string;
 };
-/** Public pages omit a deal marked public: false. Chat can still read the record. */
+/** Public surfaces omit a deal marked public: false. The record stays in graded_sales.json. */
 export function isPublicDeal(s: { public?: boolean }): boolean {
   return s.public !== false;
 }
@@ -105,16 +106,16 @@ export const CONTEXT_LABELS: Record<string, string> = {
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
 
-/** Newest announcement first. Never sorted by grade. Includes withheld deals. */
+/** Public deals, newest announcement first. Never sorted by grade. Withheld deals stay in the file only. */
 export function sales(): Sale[] {
-  return [...SALES].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+  return SALES.filter(isPublicDeal).sort((a, b) => b.announced_on.localeCompare(a.announced_on));
 }
-/** Deals the public site may list. */
+/** Same as sales(): the deals a public page, count, or chat card may use. */
 export function publicSales(): Sale[] {
-  return sales().filter(isPublicDeal);
+  return sales();
 }
 export function saleBySlug(slug: string): Sale | undefined {
-  return SALES.find((s) => s.slug === slug);
+  return sales().find((s) => s.slug === slug);
 }
 /**
  * Grades for a sale, current rubric version first: the latest revision of each rubric version. Earlier revisions and

@@ -25,7 +25,7 @@ const cases: [string, string | null][] = [
   ["What did the W Chicago Lakeshore sell for?", "the-wade-chicago"],
   ["Tell me about The Hotel Zags", "hotel-zags-portland-or"],
   ["What about Hotel Zags", "hotel-zags-portland-or"],
-  ["Fairmont Scottsdale Princess", "fairmont-scottsdale-princess"],
+  ["Fairmont Scottsdale Princess", null],
   ["Tell me about Embassy Suites Las Vegas", "embassy-suites-las-vegas"],
   ["Tell me about The Bellmoor", "bellmoor-rehoboth-beach"],
   ["Four Seasons Resort Scottsdale at Troon North price", "four-seasons-scottsdale-troon-north"],
@@ -55,12 +55,12 @@ check(/no licensed data/.test(JSON.stringify(item?.brief ?? {})), "coverage says
 
 // Advice about a named deal (r6): decline, then the deal's cited facts.
 const DECLINE = "**We don't give buy or sell recommendations.** Here's what the data shows.";
-for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scottsdale-princess", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
+for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
   const a = dealAdviceBrief(slug, DECLINE);
   const b = a?.brief;
   check(a?.intent === "advice_declined" && b?.decline === DECLINE, `${slug}: advice brief keeps the decline`);
   check(/(\d\.\d of 5|Insufficient public data) · \d of 5 factors graded/.test(b?.answer ?? ""), `${slug}: meta line in answer: ${(b?.answer ?? "").slice(0, 110)}`);
-  check(/Underwritten /.test(b?.answer ?? ""), `${slug}: grade line in answer`);
+  check(/Scored using an estimated |Underwritten with /.test(b?.answer ?? ""), `${slug}: grade line in answer`);
   check((b?.answer.match(/factors graded/g) ?? []).length === 1, `${slug}: count stated once`);
   check((b?.reads ?? []).some((r) => /^(Price |Announced )/.test(r.text) && !!r.source.url), `${slug}: cited price read`);
   check((b?.span?.sources ?? 0) >= 1 && b!.sections.some((x) => x.id === "sources" && x.count >= 1), `${slug}: sources section (${b?.span?.sources})`);
@@ -122,7 +122,7 @@ check(stripSocial({ title: "t", body: "Only row (CoStar, via LinkedIn)", sourceL
 }
 
 // r7: the citations field lists each cited link once, matching the Sources section.
-for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "fairmont-scottsdale-princess", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
+for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "midway-portfolio-chicago", "embassy-suites-las-vegas"]) {
   const a = dealAdviceBrief(slug, DECLINE)!;
   const src = a.brief.sections.find((x) => x.id === "sources");
   check(!!src && a.citations.length === src.count, `${slug}: citations ${a.citations.length} = Sources ${src?.count}`);

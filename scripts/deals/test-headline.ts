@@ -42,23 +42,23 @@ for (const g of latest.values()) {
 const expect: Record<string, { label: string; line: string }> = {
   "the-wade-chicago-2026": {
     label: "4.8 of 5",
-    line: "Underwritten at a 90% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded.",
+    line: "Scored using an estimated 90% discount to replacement cost; spread not graded (no trailing-12-month cap rate or NOI disclosed); supply not graded (closures listed without room counts); 3 of 5 factors graded.",
   },
   "four-seasons-scottsdale-troon-north-2026": {
     label: "2.9 of 5",
-    line: "Underwritten at a 10% premium to replacement with a 149bp spread (our calculation); supply not graded (only an under-construction share is public); 4 of 5 factors graded.",
+    line: "Scored using an estimated 10% premium to replacement cost with a 149bp spread (our calculation); supply not graded (only an under-construction share is public); 4 of 5 factors graded.",
   },
   "embassy-suites-las-vegas-2026": {
     label: "3.6 of 5",
-    line: "Underwritten at a 58% discount to replacement; spread not graded (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded.",
+    line: "Scored using an estimated 58% discount to replacement cost; spread not graded (no trailing-12-month cap rate or NOI disclosed); 4 of 5 factors graded.",
   },
   "hotel-zags-portland-2026": {
     label: "4.8 of 5",
-    line: "Underwritten at an 88% discount to replacement; spread not graded (trailing NOI was negative); supply not graded (no dated room count or pipeline share public); 3 of 5 factors graded.",
+    line: "Scored using an estimated 88% discount to replacement cost; spread not graded (trailing NOI was negative); supply not graded (no dated room count or pipeline share public); 3 of 5 factors graded.",
   },
   "bellmoor-rehoboth-beach-2026": {
     label: "4.5 of 5",
-    line: "Underwritten at a 76% discount to replacement with a 338bp spread; supply not graded (no dated room count or pipeline share public); 4 of 5 factors graded.",
+    line: "Scored using an estimated 76% discount to replacement cost with a 338bp spread; supply not graded (no dated room count or pipeline share public); 4 of 5 factors graded.",
   },
   "fairmont-scottsdale-princess-2026": {
     label: "Insufficient public data",
@@ -135,8 +135,9 @@ rc.input_text = null;
 const flagged = scoringBasisLine(rubric, unverified);
 check(!flagged.verified && flagged.text === BASIS_UNVERIFIED, `missing input flags the basis ("${flagged.text}")`);
 
-const fairmont = saleBySlug("fairmont-scottsdale-princess");
-check(!!fairmont && fairmont.public === false && !isPublicDeal(fairmont), "Fairmont record stays public: false");
+const fairmontRaw = (read("graded_sales.json") as { sale_id: string; public?: boolean; slug: string }[]).find((s) => s.sale_id === "fairmont-scottsdale-princess-2026");
+check(fairmontRaw?.public === false && fairmontRaw.slug === "fairmont-scottsdale-princess", "Fairmont record stays on file with public: false");
+check(saleBySlug("fairmont-scottsdale-princess") === undefined && !isPublicDeal(fairmontRaw ?? {}), "Fairmont is hidden from detail lookup and chat");
 check(!publicSales().some((s) => s.slug === "fairmont-scottsdale-princess"), "Fairmont is off the public deals list");
 check(!dealLog().some((r) => r.log_id === "DL-2026-009"), "Fairmont is off the public deal log");
 check(publicSales().length === 10 && dealLog().length === 10, `public deals ${publicSales().length}, log ${dealLog().length}`);
