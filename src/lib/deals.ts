@@ -37,7 +37,13 @@ export type Sale = {
   inclusion_basis: "reit" | "100m+" | "both";
   price_source_kind: "filing" | "press" | "record";
   source_uris: string[];
+  /** false withholds the deal from public /deals (list, log, and the detail route). */
+  public?: boolean;
 };
+/** Public pages omit a deal marked public: false. Chat can still read the record. */
+export function isPublicDeal(s: { public?: boolean }): boolean {
+  return s.public !== false;
+}
 /** "report": a public body's own research publication (e.g. a visitors bureau PDF). */
 export type Source = { kind: "filing" | "record" | "report" | "press"; title: string; publisher: string; date: string; url: string; cite_id?: string };
 
@@ -99,9 +105,13 @@ export const CONTEXT_LABELS: Record<string, string> = {
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
 
-/** Newest announcement first. Never sorted by grade. */
+/** Newest announcement first. Never sorted by grade. Includes withheld deals. */
 export function sales(): Sale[] {
   return [...SALES].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+}
+/** Deals the public site may list. */
+export function publicSales(): Sale[] {
+  return sales().filter(isPublicDeal);
 }
 export function saleBySlug(slug: string): Sale | undefined {
   return SALES.find((s) => s.slug === slug);
@@ -156,9 +166,12 @@ export function entryFor(saleId: string): Entry {
 export function anniversariesFor(saleId: string): Anniversary[] {
   return ANNIVERSARIES.filter((a) => a.sale_id === saleId);
 }
-/** Every qualifying deal seen (append-only log), newest announcement first. Excluded rows stay in the CSV, not on the page. */
+const WITHHELD_LOG_IDS = new Set(SALES.filter((s) => !isPublicDeal(s)).map((s) => s.log_id).filter((id): id is string => !!id));
+/** Every qualifying deal the public site may list, newest announcement first. Excluded and withheld rows stay in the CSV. */
 export function dealLog(): LogRow[] {
-  return [...(logJson as unknown as LogRow[])].filter((r) => !r.inclusion_basis.startsWith("excluded")).sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
+  return [...(logJson as unknown as LogRow[])]
+    .filter((r) => !r.inclusion_basis.startsWith("excluded") && !WITHHELD_LOG_IDS.has(r.log_id))
+    .sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
 }
 
 export function fmtDate(iso: string): string {

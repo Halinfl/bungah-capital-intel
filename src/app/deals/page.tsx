@@ -14,7 +14,7 @@ import {
   gradeLabel,
   cardMetaFor,
   salePrice,
-  sales,
+  publicSales,
   closeLabel,
   displayMarket,
   fmtKeys,
@@ -141,7 +141,7 @@ function DealCard({ sale }: { sale: Sale }) {
 }
 
 function logStatus(r: LogRow): React.ReactNode {
-  const sale = sales().find((s) => r.log_id && s.log_id === r.log_id);
+  const sale = publicSales().find((s) => r.log_id && s.log_id === r.log_id);
   if (sale && gradesFor(sale.sale_id).length)
     return (
       <Link href={`/deals/${sale.slug}`} className="-mx-1 px-1 py-3.5 underline decoration-white/30 underline-offset-2 hover:text-white">
@@ -160,7 +160,7 @@ function logStatus(r: LogRow): React.ReactNode {
 /** Disclosed price, or the partial figure exactly as recorded, or Unpriced. Never estimated. */
 function logPrice(r: LogRow): string {
   if (r.price_usd) return fmtPrice(Number(r.price_usd));
-  const sale = sales().find((s) => s.log_id === r.log_id);
+  const sale = publicSales().find((s) => s.log_id === r.log_id);
   if (sale?.price_display) return sale.price_display;
   if (r.inclusion_basis.startsWith("included") && r.disclosed_metric) return r.disclosed_metric;
   return "Unpriced";
@@ -229,7 +229,7 @@ function LogTable({ rows }: { rows: LogRow[] }) {
 }
 
 export default function DealsIndexPage() {
-  const all = sales();
+  const all = publicSales();
   const log = dealLog();
   const first = log.slice(0, 10);
   const rest = log.slice(10);

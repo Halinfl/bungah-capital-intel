@@ -12,7 +12,7 @@ import { SourceChip } from "@/components/SourceChip";
 import { StackMemoView } from "@/components/StackMemoView";
 import { STACK_MEMO_KIND } from "@/lib/stack-memo";
 import { FIELD_NOTES } from "@/lib/field-notes";
-import { sales } from "@/lib/deals";
+import { publicSales } from "@/lib/deals";
 
 export const dynamic = "force-dynamic";
 
@@ -171,7 +171,7 @@ const beforeYouSign = [
 
 /** Field note sale_id -> Recent Deals slug, only for sales that exist in the deals data. */
 const DEAL_SLUG_FOR_SALE: Record<string, string> = Object.fromEntries(
-  sales().filter((s) => FIELD_NOTES.some((n) => n.sale_id === s.sale_id)).map((s) => [s.sale_id, s.slug]),
+  publicSales().filter((s) => FIELD_NOTES.some((n) => n.sale_id === s.sale_id)).map((s) => [s.sale_id, s.slug]),
 );
 
 function CardGrid({ cards, cols = "sm:grid-cols-2 lg:grid-cols-3" }: { cards: SourceCard[]; cols?: string }) {

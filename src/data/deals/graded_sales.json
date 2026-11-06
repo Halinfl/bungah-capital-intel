@@ -174,6 +174,7 @@
   },
   {
     "sale_id": "fairmont-scottsdale-princess-2026",
+    "public": false,
     "log_id": "DL-2026-009",
     "slug": "fairmont-scottsdale-princess",
     "property": "Fairmont Scottsdale Princess",
