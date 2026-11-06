@@ -19,8 +19,9 @@ import {
   salePrice,
   CONTEXT_LABELS,
   horizons,
+  isPublicDeal,
   saleBySlug,
-  sales,
+  publicSales,
   closeLabel,
   fmtKeys,
   citationText,
@@ -35,13 +36,13 @@ import {
 } from "@/lib/deals";
 
 export function generateStaticParams() {
-  return sales().map((s) => ({ slug: s.slug }));
+  return publicSales().map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const s = saleBySlug(slug);
-  if (!s) return {};
+  if (!s || !isPublicDeal(s)) return {};
   return {
     title: `${s.property} · Recent Deals · Bungah Capital Intel`,
     description: `${s.property}, ${s.market}: ${salePrice(s)}, ${fmtKeys(s.keys)}, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
@@ -395,7 +396,7 @@ function GradeSection({ sale, grades, kindOf, entry }: { sale: Sale; grades: Gra
 export default async function DealEntryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const sale = saleBySlug(slug);
-  if (!sale) notFound();
+  if (!sale || !isPublicDeal(sale)) notFound();
   const grades = gradesFor(sale.sale_id);
   const entry = entryFor(sale.sale_id);
   const landed = anniversariesFor(sale.sale_id);

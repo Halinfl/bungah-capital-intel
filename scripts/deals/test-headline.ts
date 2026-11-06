@@ -10,6 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { BASIS_UNVERIFIED, FACTOR_SHORT_NAME, cardMetaLine, headlineText, revisionHistoryLine, scoringBasisLine, shortReason, type GradeResult, type Rubric } from "../../src/lib/deals-grade";
+import { dealLog, isPublicDeal, publicSales, saleBySlug } from "../../src/lib/deals";
 
 const root = process.cwd();
 const read = (f: string) => JSON.parse(fs.readFileSync(path.join(root, "src/data/deals", f), "utf8"));
@@ -133,6 +134,12 @@ const rc = unverified.factor_scores.find((r) => r.factor === "replacement_cost")
 rc.input_text = null;
 const flagged = scoringBasisLine(rubric, unverified);
 check(!flagged.verified && flagged.text === BASIS_UNVERIFIED, `missing input flags the basis ("${flagged.text}")`);
+
+const fairmont = saleBySlug("fairmont-scottsdale-princess");
+check(!!fairmont && fairmont.public === false && !isPublicDeal(fairmont), "Fairmont record stays public: false");
+check(!publicSales().some((s) => s.slug === "fairmont-scottsdale-princess"), "Fairmont is off the public deals list");
+check(!dealLog().some((r) => r.log_id === "DL-2026-009"), "Fairmont is off the public deal log");
+check(publicSales().length === 10 && dealLog().length === 10, `public deals ${publicSales().length}, log ${dealLog().length}`);
 
 const wade = latest.get("the-wade-chicago-2026")!;
 const hist = revisionHistoryLine(wade, grades.filter((g) => g.sale_id === wade.sale_id));

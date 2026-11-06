@@ -41,6 +41,10 @@ export type Sale = {
   price_source_kind: "filing" | "press" | "record";
   source_uris: string[];
 };
+/** Public pages omit a deal marked public: false, including chat and counts. */
+export function isPublicDeal(s: { public?: boolean }): boolean {
+  return s.public !== false;
+}
 /** "report": a public body's own research publication (e.g. a visitors bureau PDF). */
 export type Source = { kind: "filing" | "record" | "report" | "press"; title: string; publisher: string; date: string; url: string; cite_id?: string };
 
@@ -105,9 +109,13 @@ export const CONTEXT_LABELS: Record<string, string> = {
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
 
-/** Newest announcement first. Never sorted by grade. */
+/** Newest announcement first. Never sorted by grade. Hidden deals are already omitted from SALES. */
 export function sales(): Sale[] {
   return [...SALES].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+}
+/** Same public list as sales(). */
+export function publicSales(): Sale[] {
+  return sales();
 }
 export function saleBySlug(slug: string): Sale | undefined {
   return SALES.find((s) => s.slug === slug);
@@ -162,9 +170,11 @@ export function entryFor(saleId: string): Entry {
 export function anniversariesFor(saleId: string): Anniversary[] {
   return ANNIVERSARIES.filter((a) => a.sale_id === saleId);
 }
-/** Every qualifying deal seen (append-only log), newest announcement first. Excluded rows stay in the CSV, not on the page. */
+/** Every qualifying deal the public site may list, newest announcement first. Excluded and hidden rows stay in the CSV. */
 export function dealLog(): LogRow[] {
-  return [...(logJson as unknown as LogRow[])].filter((r) => !r.inclusion_basis.startsWith("excluded") && !HIDDEN_LOG_IDS.has(r.log_id)).sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
+  return [...(logJson as unknown as LogRow[])]
+    .filter((r) => !r.inclusion_basis.startsWith("excluded") && !HIDDEN_LOG_IDS.has(r.log_id))
+    .sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
 }
 
 export function fmtDate(iso: string): string {
