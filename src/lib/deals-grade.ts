@@ -514,6 +514,44 @@ export function headlineText(
   return `${parts.join("; ")}.`;
 }
 
+/** Shown when the stored factor rows do not support the mechanical sentence. Never a guessed basis. */
+export const BASIS_UNVERIFIED = "Basis not verified";
+
+/**
+ * The one plain line under a grade: the mechanical output sentence, but only when every rubric factor row
+ * on the grade supports it (graded rows have a score and input; skipped rows match a known reason, and the
+ * sentence names them as not graded). No peer ranking. Returns the flag when that check fails.
+ */
+export function scoringBasisLine(
+  rubric: Pick<Rubric, "output_template" | "missing_factor_rule" | "factors">,
+  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">,
+): { text: string; verified: boolean } {
+  const flag = { text: BASIS_UNVERIFIED, verified: false as const };
+  const ids = rubric.factors.map((f) => f.id);
+  const rows = g.factor_scores;
+  if (rows.length !== ids.length || ids.some((id) => rows.filter((r) => r.factor === id).length !== 1)) return flag;
+  let gradedN = 0;
+  for (const r of rows) {
+    if (r.graded) {
+      gradedN += 1;
+      if (typeof r.score !== "number" || !Number.isFinite(r.score)) return flag;
+      if (r.value === null || r.value === undefined || r.value === "") return flag;
+      if (!r.input_text?.trim()) return flag;
+    } else if (r.score !== null || !shortReason(r.factor, r.reason).matched) {
+      return flag;
+    }
+  }
+  if (gradedN !== g.factors_graded || rows.length !== g.factors_total) return flag;
+  const enough = gradedN >= rubric.missing_factor_rule.min_factors_graded;
+  if (enough !== (g.overall !== null)) return flag;
+  const text = headlineText(rubric, g);
+  for (const r of rows) {
+    if (!r.graded && !text.includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`)) return flag;
+  }
+  if (/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(text)) return flag;
+  return { text, verified: true };
+}
+
 /** Withdrawal reasons for the history line, keyed like SHORT_REASONS (falls back to the short reason). */
 const WITHDRAW_REASONS: { factor: FactorId | "*"; re: RegExp; text: string }[] = [
   { factor: "supply", re: /lists .+ but not their room count/i, text: "room count unavailable" },
@@ -560,7 +598,8 @@ const CARD_NAME: Record<FactorId, string> = { replacement_cost: "replacement cos
 /**
  * One short meta line for index cards, from the factor rows: "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
  * or "Insufficient · 2 of 5 factors graded · Not graded: …". The "Not graded" part is omitted when every factor is graded.
- * The full output line (with reasons) and the history line are deal-page only.
+ * The full output line (with reasons) is also the scoring-basis line under the grade, on the index and the deal page.
+ * The history line stays on the deal page.
  */
 export function cardMetaParts(
   rubric: Pick<Rubric, "scale">,

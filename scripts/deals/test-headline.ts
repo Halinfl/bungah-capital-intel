@@ -9,7 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { FACTOR_SHORT_NAME, cardMetaLine, headlineText, revisionHistoryLine, shortReason, type GradeResult, type Rubric } from "../../src/lib/deals-grade";
+import { BASIS_UNVERIFIED, FACTOR_SHORT_NAME, cardMetaLine, headlineText, revisionHistoryLine, scoringBasisLine, shortReason, type GradeResult, type Rubric } from "../../src/lib/deals-grade";
 
 const root = process.cwd();
 const read = (f: string) => JSON.parse(fs.readFileSync(path.join(root, "src/data/deals", f), "utf8"));
@@ -102,6 +102,37 @@ check(!cardMetaLine(rubric, allGraded).includes("Not graded"), "synthetic all-gr
 const entriesText = fs.readFileSync(path.join(root, "src/data/deals/entries.json"), "utf8");
 check(!/gradeable/i.test(entriesText), 'entries.json has no "gradeable"');
 check((entriesText.match(/No qualifying cap rate, so no spread is computed\./g) ?? []).length === 8, "entries.json: 8 'No qualifying cap rate' lines");
+
+// Scoring basis is the mechanical sentence when the stored rows support it. Same line on cards and deal pages.
+const FROZEN_OVERALL: Record<string, number | null> = {
+  "bellmoor-rehoboth-beach-2026": 4.5,
+  "embassy-suites-dulles-airport-2026": 4.3,
+  "embassy-suites-las-vegas-2026": 3.6,
+  "embassy-suites-philadelphia-airport-2026": 4.3,
+  "fairmont-scottsdale-princess-2026": null,
+  "four-seasons-scottsdale-troon-north-2026": 2.9,
+  "grande-lakes-orlando-2026": 3.2,
+  "hotel-zags-portland-2026": 4.8,
+  "midway-portfolio-chicago-2026": null,
+  "the-wade-chicago-2026": 4.8,
+  "tideline-palm-beach-2026": 3,
+};
+check(latest.size === Object.keys(FROZEN_OVERALL).length, `graded deal count unchanged (${latest.size})`);
+for (const g of latest.values()) {
+  check(g.overall === FROZEN_OVERALL[g.sale_id], `${g.sale_id}: overall unchanged (${g.overall})`);
+  const basis = scoringBasisLine(rubric, g);
+  const line = headlineText(rubric, g);
+  check(basis.verified && basis.text === line, `${g.sale_id}: basis verified and equals the mechanical line`);
+  check(!/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(basis.text), `${g.sale_id}: basis is not a peer rank`);
+  for (const r of g.factor_scores) {
+    if (!r.graded) check(basis.text.includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`), `${g.sale_id}: basis does not treat ${r.factor} as graded`);
+  }
+}
+const unverified = structuredClone(latest.get("the-wade-chicago-2026")!);
+const rc = unverified.factor_scores.find((r) => r.factor === "replacement_cost")!;
+rc.input_text = null;
+const flagged = scoringBasisLine(rubric, unverified);
+check(!flagged.verified && flagged.text === BASIS_UNVERIFIED, `missing input flags the basis ("${flagged.text}")`);
 
 const wade = latest.get("the-wade-chicago-2026")!;
 const hist = revisionHistoryLine(wade, grades.filter((g) => g.sale_id === wade.sale_id));
