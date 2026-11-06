@@ -9,6 +9,7 @@ import { ChatBriefView, type BriefSection, type ChatBrief, type DateRange } from
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
+import { chatLabel } from "@/lib/chat-label";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
@@ -73,7 +74,7 @@ function marketLabel(slug: string): string {
   return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeProp; starters?: StarterProp[] }) {
+export function ChatClient({ scope = null, starters = [], signedIn = false }: { scope?: ChatScopeProp; starters?: StarterProp[]; signedIn?: boolean }) {
   const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -275,7 +276,7 @@ export function ChatClient({ scope = null, starters = [] }: { scope?: ChatScopeP
         {announce}
       </p>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-300">
-        <span>Private · Cited · Decision support</span>
+        <span>{chatLabel(signedIn)}</span>
         {marketSlug && !scope ? (
           <>
             <span aria-hidden>·</span>

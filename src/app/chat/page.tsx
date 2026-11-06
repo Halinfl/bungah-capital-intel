@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
 import { ChatClient, type ChatScopeProp } from "./ChatClient";
 import { parseScope } from "@/lib/chat-scope";
 import { marketLabel, startersFor } from "@/lib/chat-starters";
@@ -38,6 +39,8 @@ export default async function ChatPage({ searchParams }: { searchParams: Promise
   const about = typeof sp.about === "string" ? sp.about : undefined;
   const scope = scopeProp(about);
   // Only build-time-verified starters (scripts/chat/verify-starters.ts); a legacy ?market= link shows none.
+  // Server-side auth: the first HTML carries the right chat label (no flash of "Private" when signed out).
+  const { userId } = await auth();
   const starters = scope ? startersFor(scope) : typeof sp.market === "string" ? [] : startersFor(null);
   return (
     <div className="space-y-6">
@@ -51,7 +54,7 @@ export default async function ChatPage({ searchParams }: { searchParams: Promise
           the number and the so-what first, then the sources.
         </p>
       </div>
-      <ChatClient key={scope ? `${scope.kind}:${scope.id}` : "general"} scope={scope} starters={starters} />
+      <ChatClient key={scope ? `${scope.kind}:${scope.id}` : "general"} scope={scope} starters={starters} signedIn={Boolean(userId)} />
     </div>
   );
 }

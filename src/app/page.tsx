@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { withoutSocial } from "@/lib/social-sources";
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
+import { chatLabel } from "@/lib/chat-label";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
@@ -59,6 +61,9 @@ const primaryBtn =
   "inline-flex items-center justify-center rounded-lg bg-slate-100 px-5 py-3 text-base font-medium text-slate-900 hover:bg-white";
 
 export default async function HomePage() {
+  // Server-side auth: the chat label is right in the first HTML (no flash of "Private" when signed out).
+  const { userId } = await auth();
+  const signedIn = Boolean(userId);
   const marketsQ = await cachedQuery(["home-markets"], () =>
     prisma.market.findMany({
       orderBy: { name: "asc" },
@@ -271,7 +276,7 @@ export default async function HomePage() {
             </figure>
           ) : null}
           <p className="text-sm text-slate-300">
-            Private · Cited · Decision support ·{" "}
+            {chatLabel(signedIn)} ·{" "}
             <Link href="/trust" className="text-slate-100 underline decoration-white/30 underline-offset-4 hover:decoration-white">
               Read the Trust Contract
             </Link>
