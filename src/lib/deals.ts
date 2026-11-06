@@ -133,7 +133,7 @@ export function headlineFor(g: GradeResult): string {
 export function basisFor(g: GradeResult): { text: string; verified: boolean } {
   if (g.rubric_version !== RUBRIC.rubric_version) {
     const text = g.output_text.trim();
-    if (!text || /\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(text)) {
+    if (!text || /\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b/i.test(text)) {
       return { text: "Basis not verified", verified: false };
     }
     return { text, verified: true };

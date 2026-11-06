@@ -548,7 +548,7 @@ export function scoringBasisLine(
   for (const r of rows) {
     if (!r.graded && !text.includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`)) return flag;
   }
-  if (/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b|below Treasuries/i.test(text)) return flag;
+  if (/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b/i.test(text)) return flag;
   return { text, verified: true };
 }
 
