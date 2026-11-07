@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { DealsSubnav } from "@/components/deals/DealsSubnav";
 import { fieldNotesForSale } from "@/lib/field-notes";
-import { Chip, DotBar, UnderwriteNote } from "@/components/deals/DotBar";
+import { BasisLine, Chip, DotBar, UnderwriteNote } from "@/components/deals/DotBar";
+import { renderedGradeLine } from "@/lib/deals-grade";
 import {
   DISCLAIMER,
   RUBRIC,
   anniversariesFor,
+  basisFor,
   entryFor,
   factorMeta,
   fmtDate,
@@ -18,15 +20,16 @@ import {
   salePrice,
   CONTEXT_LABELS,
   horizons,
+  isPublicDeal,
   saleBySlug,
-  sales,
+  publicSales,
   closeLabel,
   fmtKeys,
   citationText,
   gradeLabel,
-  headlineFor,
   historyLineFor,
   isReportUrl,
+  type Entry,
   type FactorResult,
   type GradeResult,
   type Sale,
@@ -34,13 +37,13 @@ import {
 } from "@/lib/deals";
 
 export function generateStaticParams() {
-  return sales().map((s) => ({ slug: s.slug }));
+  return publicSales().map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const s = saleBySlug(slug);
-  if (!s) return {};
+  if (!s || !isPublicDeal(s)) return {};
   return {
     title: `${s.property} · Recent Deals · Bungah Capital Intel`,
     description: `${s.property}, ${s.market}: ${salePrice(s)}, ${fmtKeys(s.keys)}, announced ${fmtDate(s.announced_on)}. Public-data deal autopsy.`,
@@ -79,6 +82,7 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
 }
 
 function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | undefined; original?: GradeResult }) {
+  const basis = g ? basisFor(g) : null;
   return (
     <div className="space-y-2 rounded-xl border border-white/10 bg-white/[0.03] p-4">
       {!g ? (
@@ -107,7 +111,7 @@ function GradeSummary({ sale, g, original }: { sale: Sale; g: GradeResult | unde
               <span className="text-base font-semibold text-white">{RUBRIC.missing_factor_rule.insufficient_label}</span>
             )}
           </div>
-          <p className="text-sm text-slate-200">{headlineFor(g)}</p>
+          {basis ? <BasisLine text={basis.text} verified={basis.verified} /> : null}
           {historyLineFor(g) ? <p className="text-[13px] text-slate-300">{historyLineFor(g)}</p> : null}
         </>
       )}
@@ -266,22 +270,94 @@ function FactorTable({ rows, kindOf }: { rows: FactorResult[]; kindOf: KindOf })
   );
 }
 
-function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResult[]; kindOf: KindOf }) {
+/** Existing figures, grouped by the question they answer. Scores and inputs are unchanged. */
+const QUESTION_GROUPS: { id: string; title: string; factors: string[]; context: string[] }[] = [
+  { id: "price-basis", title: "Price and basis", factors: ["replacement_cost"], context: ["replacement_cost"] },
+  { id: "operating", title: "Operating performance", factors: ["spread", "demand"], context: ["spread", "demand", "access"] },
+  { id: "financing", title: "Financing and material risks", factors: ["supply", "debt_context"], context: ["supply", "debt_context"] },
+];
+
+function rowsFor(ids: string[], rows: FactorResult[]): FactorResult[] {
+  return ids.flatMap((id) => {
+    const row = rows.find((r) => r.factor === id);
+    return row ? [row] : [];
+  });
+}
+
+function CitedContext({ ids, context }: { ids: string[]; context: Entry["factor_context"] }) {
+  const groups = ids
+    .map((id) => ({ id, items: context?.[id] ?? [] }))
+    .filter((g) => g.items.length > 0);
+  if (!groups.length) return null;
+  return (
+    <div className="space-y-3">
+      <p className="text-[13px] text-slate-300">Cited figures shown for reference. They don&rsquo;t enter the grade.</p>
+      {groups.map(({ id, items }) => (
+        <div key={id} className="space-y-1">
+          <h4 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === id)?.label ?? CONTEXT_LABELS[id] ?? id}</h4>
+          <ul className="space-y-1.5 text-[13px] text-slate-200">
+            {items.map((c) => (
+              <li key={c.text} className="max-w-3xl">
+                {c.text}{" "}
+                <a href={c.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
+                  source
+                </a>
+                <span className="text-slate-300">
+                  {"\u00a0· "}
+                  <span className="whitespace-nowrap">{fmtDate(c.date)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GradeSection({ sale, grades, kindOf, entry }: { sale: Sale; grades: GradeResult[]; kindOf: KindOf; entry: Entry }) {
   const [current, ...older] = grades;
   const rows = current ? current.factor_scores : blankRows();
   const ungraded = !!current && rows.some((r) => !r.graded);
+  const usedContext = new Set(QUESTION_GROUPS.flatMap((g) => g.context));
+  const leftover = Object.keys(entry.factor_context ?? {}).filter((id) => !usedContext.has(id));
   return (
-    <section aria-labelledby="grade" className="space-y-3">
+    <section aria-labelledby="grade" className="space-y-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="grade" className={h2}>
           Grade at announcement
         </h2>
-        <span className="text-[13px] text-slate-300">
-          As of {fmtDate(sale.announced_on)}
-          {sale.price_confirmed_on && current?.rubric_version !== "v1" ? `; price per key as of ${fmtDate(sale.price_confirmed_on)} (first confirmed price)` : ""}
-        </span>
+        <span className="text-[13px] text-slate-300">As of {fmtDate(sale.announced_on)}</span>
       </div>
-      <FactorTable rows={rows} kindOf={kindOf} />
+      {QUESTION_GROUPS.map((group) => (
+        <div key={group.id} className="space-y-3">
+          <h3 id={group.id} className="text-base font-medium text-white">
+            {group.title}
+          </h3>
+          {group.id === "price-basis" && sale.price_confirmed_on && current?.rubric_version !== "v1" ? (
+            <p className="text-[13px] text-slate-300">Price per key as of {fmtDate(sale.price_confirmed_on)} (first confirmed price).</p>
+          ) : null}
+          <FactorTable rows={rowsFor(group.factors, rows)} kindOf={kindOf} />
+          <CitedContext ids={group.context} context={entry.factor_context} />
+          {group.id === "financing" && entry.financing_tags.length ? (
+            <div className="space-y-1">
+              <h4 className="text-[13px] font-medium uppercase tracking-wider text-slate-300">Financing</h4>
+              <div className="flex flex-wrap gap-2">
+                {entry.financing_tags.map((t) => (
+                  <Chip key={t}>{t}</Chip>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {group.id === "financing" && entry.watches_for ? (
+            <div className="rounded-xl border border-white/20 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-300">Watches for</div>
+              <p className="mt-1 text-[15px] text-slate-100">{entry.watches_for}</p>
+            </div>
+          ) : null}
+        </div>
+      ))}
+      {leftover.length ? <CitedContext ids={leftover} context={entry.factor_context} /> : null}
       {ungraded ? <p className="text-[13px] text-slate-300">Weights of ungraded factors are spread across graded ones.</p> : null}
       <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 text-sm">
         <span className="font-medium text-white">Overall</span>
@@ -309,7 +385,7 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
             Rubric {g.rubric_version} (original), graded {fmtDate(g.graded_on)}: {g.overall_label}
           </summary>
           <div className="mt-2 space-y-2">
-            <p>{g.output_text}</p>
+            <p>{renderedGradeLine(g.output_text)}</p>
             <FactorTable rows={g.factor_scores} kindOf={kindOf} />
           </div>
         </details>
@@ -321,13 +397,11 @@ function GradeSection({ sale, grades, kindOf }: { sale: Sale; grades: GradeResul
 export default async function DealEntryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const sale = saleBySlug(slug);
-  if (!sale) notFound();
+  if (!sale || !isPublicDeal(sale)) notFound();
   const grades = gradesFor(sale.sale_id);
   const entry = entryFor(sale.sale_id);
   const landed = anniversariesFor(sale.sale_id);
   const furtherReading = fieldNotesForSale(sale.sale_id);
-  // Context groups with no cited line are dropped (no empty headings).
-  const contextGroups = Object.entries(entry.factor_context ?? {}).filter(([, items]) => items.length > 0);
   const sources = [...entry.sources].sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.date.localeCompare(b.date));
 
   const sourceList = (
@@ -382,8 +456,6 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
         <GradeSummary sale={sale} g={grades[0]} original={grades.length > 1 ? grades[grades.length - 1] : undefined} />
         <UnderwriteNote text={`${DISCLAIMER} Decision support, not a recommendation.`} />
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4">
-          <Fact label="Buyer">{sale.buyer}</Fact>
-          <Fact label="Seller">{sale.seller}</Fact>
           <Fact label="Price">
             {salePrice(sale)}
             {sale.price_qualifier ? <span className="block text-xs text-slate-300">{sale.price_qualifier}</span> : null}
@@ -393,6 +465,8 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             {sale.keys?.toLocaleString("en-US") ?? "Not disclosed"}
             {sale.keys_detail ? <span className="block text-xs text-slate-300">{sale.keys_detail}</span> : null}
           </Fact>
+          <Fact label="Buyer">{sale.buyer}</Fact>
+          <Fact label="Seller">{sale.seller}</Fact>
           <Fact label="Announced">{fmtDate(sale.announced_on)}</Fact>
           <Fact label="Status">
             {closeLabel(sale)}
@@ -417,51 +491,10 @@ export default async function DealEntryPage({ params }: { params: Promise<{ slug
             The tape
           </h2>
           <p className="max-w-3xl text-[15px] leading-relaxed text-slate-200">{entry.tape}</p>
-          {entry.financing_tags.length ? (
-            <div className="flex flex-wrap gap-2">
-              {entry.financing_tags.map((t) => (
-                <Chip key={t}>{t}</Chip>
-              ))}
-            </div>
-          ) : null}
         </section>
       ) : null}
 
-      <GradeSection sale={sale} grades={grades} kindOf={kindResolver(entry.sources)} />
-
-      {contextGroups.length ? (
-        <section aria-labelledby="context" className="space-y-3">
-          <div>
-            <h2 id="context" className={h2}>
-              Context, not scored
-            </h2>
-            <p className="text-[13px] text-slate-300">Cited figures shown for reference. They don&rsquo;t enter the grade.</p>
-          </div>
-          {contextGroups.map(([fid, items]) => (
-            <div key={fid} className="space-y-1">
-              <h3 className="text-sm font-medium text-white">{RUBRIC.factors.find((f) => f.id === fid)?.label ?? CONTEXT_LABELS[fid] ?? fid}</h3>
-              <ul className="space-y-1.5 text-[13px] text-slate-200">
-                {items.map((c) => (
-                  <li key={c.text} className="max-w-3xl">
-                    {c.text}{" "}
-                    <a href={c.url} className={`${TAP_INLINE} text-slate-300 ${linkCls}`} rel="noopener" target="_blank">
-                      source
-                    </a>
-                    <span className="text-slate-300">{"\u00a0· "}<span className="whitespace-nowrap">{fmtDate(c.date)}</span></span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-      ) : null}
-
-      {entry.watches_for ? (
-        <section aria-label="Watches for" className="rounded-xl border border-white/20 p-4">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-300">Watches for</div>
-          <p className="mt-1 text-[15px] text-slate-100">{entry.watches_for}</p>
-        </section>
-      ) : null}
+      <GradeSection sale={sale} grades={grades} kindOf={kindResolver(entry.sources)} entry={entry} />
 
       <section aria-labelledby="after" className="space-y-3">
         <div>

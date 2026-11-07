@@ -35,6 +35,18 @@ export function Chip({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * One plain line under the grade: the mechanical scoring basis, or "Basis not verified".
+ * 13px on cards, 14px on the deal page. slate-200 on #2f333c is about 10:1.
+ */
+export function BasisLine({ text, verified, compact = false }: { text: string; verified: boolean; compact?: boolean }) {
+  return (
+    <p data-scoring-basis={verified ? "verified" : "flagged"} className={compact ? "text-[13px] leading-5 text-slate-200" : "text-sm text-slate-200"}>
+      {text}
+    </p>
+  );
+}
+
 /** The mandatory disclosure, in the tight band style of the Sound Assets disclosure. */
 export function UnderwriteNote({ text }: { text: string }) {
   return <p className="rounded-md border border-white/15 bg-white/[0.03] px-3 py-2 text-[13px] text-slate-200">{text}</p>;

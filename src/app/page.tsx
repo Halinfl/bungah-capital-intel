@@ -13,7 +13,7 @@ import { REITS_UNIVERSE, reits } from "@/lib/reits";
 import { SUPERSEDED_RADAR_SLUGS } from "@/lib/radars-preview";
 import { TT_CAPTURE_DATE, ttMarkets } from "@/lib/tuesday-trends";
 import { SCORECARD } from "@/lib/sound-assets";
-import { sales } from "@/lib/deals";
+import { publicSales } from "@/lib/deals";
 import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
 
 /**
@@ -119,7 +119,7 @@ export default async function HomePage() {
 
   const reitCount = reits().length;
   const ttMarketCount = ttMarkets().length;
-  const dealCount = sales().length;
+  const dealCount = publicSales().length;
 
   // "What's inside": the nav, in nav order. Kicker is a live stat or a plain label; no placeholders.
   const inside = [

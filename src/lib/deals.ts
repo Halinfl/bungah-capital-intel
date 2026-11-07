@@ -6,7 +6,7 @@ import anniversariesJson from "@/data/deals/sale_anniversaries.json";
 import entriesJson from "@/data/deals/entries.json";
 import logJson from "@/data/deals/deal_log.json";
 import citationsJson from "@/data/deals/citations.json";
-import { cardMetaParts, headlineText, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
+import { cardMetaParts, headlineText, scoringBasisLine, revisionHistoryLine, type FactorResult, type GradeResult, type Rubric } from "@/lib/deals-grade";
 
 export type Sale = {
   sale_id: string;
@@ -41,6 +41,10 @@ export type Sale = {
   price_source_kind: "filing" | "press" | "record";
   source_uris: string[];
 };
+/** Public pages omit a deal marked public: false, including chat and counts. */
+export function isPublicDeal(s: { public?: boolean }): boolean {
+  return s.public !== false;
+}
 /** "report": a public body's own research publication (e.g. a visitors bureau PDF). */
 export type Source = { kind: "filing" | "record" | "report" | "press"; title: string; publisher: string; date: string; url: string; cite_id?: string };
 
@@ -105,12 +109,16 @@ export const CONTEXT_LABELS: Record<string, string> = {
 const ANNIVERSARIES = anniversariesJson as Anniversary[];
 const ENTRIES = entriesJson as Record<string, Entry>;
 
-/** Newest announcement first. Never sorted by grade. */
+/** Newest announcement first. Never sorted by grade. Hidden deals stay in the file only. */
 export function sales(): Sale[] {
-  return [...SALES].sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+  return SALES.filter(isPublicDeal).sort((a, b) => b.announced_on.localeCompare(a.announced_on));
+}
+/** Same public list as sales(): pages, counts, and chat. */
+export function publicSales(): Sale[] {
+  return sales();
 }
 export function saleBySlug(slug: string): Sale | undefined {
-  return SALES.find((s) => s.slug === slug);
+  return sales().find((s) => s.slug === slug);
 }
 /**
  * Grades for a sale, current rubric version first: the latest revision of each rubric version. Earlier revisions and
@@ -132,6 +140,20 @@ export function gradesFor(saleId: string): GradeResult[] {
 export function headlineFor(g: GradeResult): string {
   return g.rubric_version === RUBRIC.rubric_version ? headlineText(RUBRIC, g) : g.output_text;
 }
+/**
+ * Scoring-basis line under the grade. Current-rubric grades use the mechanical sentence when the stored
+ * factor rows support it, and "Basis not verified" when they do not. Earlier rubrics keep the stored sentence.
+ */
+export function basisFor(g: GradeResult): { text: string; verified: boolean } {
+  if (g.rubric_version !== RUBRIC.rubric_version) {
+    const text = g.output_text.trim();
+    if (!text || /\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b/i.test(text)) {
+      return { text: "Basis not verified", verified: false };
+    }
+    return { text, verified: true };
+  }
+  return scoringBasisLine(RUBRIC, g);
+}
 /** Compact index-card line parts (grade · coverage · Not graded: …). */
 export function cardMetaFor(g: GradeResult) {
   return cardMetaParts(RUBRIC, g);
@@ -148,9 +170,11 @@ export function entryFor(saleId: string): Entry {
 export function anniversariesFor(saleId: string): Anniversary[] {
   return ANNIVERSARIES.filter((a) => a.sale_id === saleId);
 }
-/** Every qualifying deal seen (append-only log), newest announcement first. Excluded rows stay in the CSV, not on the page. */
+/** Every qualifying deal the public site may list, newest announcement first. Excluded and hidden rows stay in the CSV. */
 export function dealLog(): LogRow[] {
-  return [...(logJson as unknown as LogRow[])].filter((r) => !r.inclusion_basis.startsWith("excluded") && !HIDDEN_LOG_IDS.has(r.log_id)).sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
+  return [...(logJson as unknown as LogRow[])]
+    .filter((r) => !r.inclusion_basis.startsWith("excluded") && !HIDDEN_LOG_IDS.has(r.log_id))
+    .sort((a, b) => b.announce_date.localeCompare(a.announce_date) || b.log_id.localeCompare(a.log_id));
 }
 
 export function fmtDate(iso: string): string {

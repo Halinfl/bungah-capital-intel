@@ -168,7 +168,7 @@ export default function DealsMethodologyPage() {
         </h2>
         <p className={p}>Every grade ends in one mechanical sentence built from the inputs, for example:</p>
         <p className="max-w-3xl rounded-md border border-white/10 px-3 py-2 text-sm text-slate-200">
-          &ldquo;Underwritten at a [X]% discount (or premium) to replacement with a [N]bp spread; [k] of 5 factors graded.&rdquo;
+          &ldquo;Scored using an estimated [X]% discount (or premium) to replacement cost with a [N]bp spread; [k] of 5 factors graded.&rdquo;
         </p>
         <p className={p}>
           Each factor that isn&rsquo;t graded is named with its reason before the count, for example &ldquo;&hellip;; supply not graded (closures listed

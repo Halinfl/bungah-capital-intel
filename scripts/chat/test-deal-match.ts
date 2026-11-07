@@ -61,7 +61,7 @@ for (const slug of ["the-wade-chicago", "hotel-zags-portland-or", "midway-portfo
   const b = a?.brief;
   check(a?.intent === "advice_declined" && b?.decline === DECLINE, `${slug}: advice brief keeps the decline`);
   check(/(\d\.\d of 5|Insufficient public data) · \d of 5 factors graded/.test(b?.answer ?? ""), `${slug}: meta line in answer: ${(b?.answer ?? "").slice(0, 110)}`);
-  check(/Underwritten /.test(b?.answer ?? ""), `${slug}: grade line in answer`);
+  check(/Scored using an estimated |Only \d+ of \d+ factors could be graded/.test(b?.answer ?? ""), `${slug}: grade line in answer`);
   check((b?.answer.match(/factors graded/g) ?? []).length === 1, `${slug}: count stated once`);
   check((b?.reads ?? []).some((r) => /^(Price |Announced )/.test(r.text) && !!r.source.url), `${slug}: cited price read`);
   check((b?.span?.sources ?? 0) >= 1 && b!.sections.some((x) => x.id === "sources" && x.count >= 1), `${slug}: sources section (${b?.span?.sources})`);

@@ -489,29 +489,85 @@ export function headlineText(
   const tmpl = t.ungraded_factor ?? "{factor} not graded ({reason})";
   const named = (r: FactorResult) =>
     tmpl.replace("{factor}", FACTOR_SHORT_NAME[r.factor]).replace("{reason}", shortReason(r.factor, r.reason).text);
+  const clause = (r: FactorResult) => (r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+  const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
   const rep = rows.find((r) => r.factor === "replacement_cost");
   const spr = rows.find((r) => r.factor === "spread");
+  // Fewer than 3 graded factors: lead with coverage, then the missing-data reasons. No trailing count.
+  if (g.overall === null) {
+    const missing = rows.filter((r) => !r.graded).map(clause);
+    if (missing.length) missing[0] = cap(missing[0]);
+    const reasons = missing.join("; ");
+    return `Only ${g.factors_graded} of ${g.factors_total} factors could be graded; ${rubric.missing_factor_rule.insufficient_label.toLowerCase()}.${reasons ? ` ${reasons}.` : ""}`;
+  }
   let lead: string;
   if (rep?.graded) {
     const v = rep.value as number;
     const n = Math.round(Math.abs(v));
-    lead = v === 0 ? "Underwritten at replacement cost" : `Underwritten at ${article(n)} ${n}% ${v < 0 ? "discount" : "premium"} to replacement`;
+    // HVS survey median arithmetic, not a property-specific underwriting.
+    lead = v === 0 ? "Scored using an estimated replacement cost" : `Scored using an estimated ${n}% ${v < 0 ? "discount" : "premium"} to replacement cost`;
   } else {
-    // "Underwritten with replacement cost not graded (<reason>)"
-    lead = `Underwritten with ${t.ungraded_replacement}${rep ? ` (${shortReason("replacement_cost", rep.reason).text})` : ""}`;
+    lead = cap(rep ? clause(rep) : "replacement cost not graded");
   }
   if (spr?.graded) {
     const calc = /bp spread \(our calculation\)$/.test(spr.input_text ?? "") ? " (our calculation)" : "";
     lead += ` with a ${spr.value}bp spread${calc}`;
   }
+  if (/^Underwritten\b/i.test(lead)) lead = lead.replace(/^Underwritten at (?:a |an )?/i, "Scored using an estimated ").replace(/^Underwritten with /i, "Scored ");
   const parts = [lead];
   for (const r of rows) {
     if (r.graded || r.factor === "replacement_cost") continue;
-    parts.push(r.factor === "spread" && CAP_RATE_REASON.test(r.reason ?? "") ? t.ungraded_spread : named(r));
+    parts.push(clause(r));
   }
   parts.push(`${g.factors_graded} of ${g.factors_total} factors graded`);
-  if (g.overall === null) parts.push(rubric.missing_factor_rule.insufficient_label.toLowerCase());
   return `${parts.join("; ")}.`;
+}
+
+/** Display of a stored older-rubric sentence. The file text is unchanged; the page does not say Underwritten. */
+export function renderedGradeLine(text: string): string {
+  return text
+    .replace(/^Underwritten at (?:a |an )?(\d+)% (discount|premium) to replacement\b/i, "Scored using an estimated $1% $2 to replacement cost")
+    .replace(/^Underwritten at replacement cost\b/i, "Scored using an estimated replacement cost")
+    .replace(/^Underwritten with /i, "")
+    .replace(/\bUnderwritten\b/gi, "Scored");
+}
+
+/** Shown when the stored factor rows do not support the mechanical sentence. Never a guessed basis. */
+export const BASIS_UNVERIFIED = "Basis not verified";
+
+/**
+ * The one plain line under a grade: the mechanical output sentence, but only when every rubric factor row
+ * on the grade supports it (graded rows have a score and input; skipped rows match a known reason, and the
+ * sentence names them as not graded). No peer ranking. Returns the flag when that check fails.
+ */
+export function scoringBasisLine(
+  rubric: Pick<Rubric, "output_template" | "missing_factor_rule" | "factors">,
+  g: Pick<GradeResult, "factor_scores" | "factors_graded" | "factors_total" | "overall">,
+): { text: string; verified: boolean } {
+  const flag = { text: BASIS_UNVERIFIED, verified: false as const };
+  const ids = rubric.factors.map((f) => f.id);
+  const rows = g.factor_scores;
+  if (rows.length !== ids.length || ids.some((id) => rows.filter((r) => r.factor === id).length !== 1)) return flag;
+  let gradedN = 0;
+  for (const r of rows) {
+    if (r.graded) {
+      gradedN += 1;
+      if (typeof r.score !== "number" || !Number.isFinite(r.score)) return flag;
+      if (r.value === null || r.value === undefined || r.value === "") return flag;
+      if (!r.input_text?.trim()) return flag;
+    } else if (r.score !== null || !shortReason(r.factor, r.reason).matched) {
+      return flag;
+    }
+  }
+  if (gradedN !== g.factors_graded || rows.length !== g.factors_total) return flag;
+  const enough = gradedN >= rubric.missing_factor_rule.min_factors_graded;
+  if (enough !== (g.overall !== null)) return flag;
+  const text = headlineText(rubric, g);
+  for (const r of rows) {
+    if (!r.graded && !text.toLowerCase().includes(`${FACTOR_SHORT_NAME[r.factor]} not graded`)) return flag;
+  }
+  if (/\bpeer\b|\brank(?:ed|ing|s)?\b|\bpercentile\b/i.test(text)) return flag;
+  return { text, verified: true };
 }
 
 /** Withdrawal reasons for the history line, keyed like SHORT_REASONS (falls back to the short reason). */
@@ -560,7 +616,8 @@ const CARD_NAME: Record<FactorId, string> = { replacement_cost: "replacement cos
 /**
  * One short meta line for index cards, from the factor rows: "4.8 of 5 · 3 of 5 factors graded · Not graded: spread, supply",
  * or "Insufficient · 2 of 5 factors graded · Not graded: …". The "Not graded" part is omitted when every factor is graded.
- * The full output line (with reasons) and the history line are deal-page only.
+ * The full output line (with reasons) is also the scoring-basis line under the grade, on the index and the deal page.
+ * The history line stays on the deal page.
  */
 export function cardMetaParts(
   rubric: Pick<Rubric, "scale">,
