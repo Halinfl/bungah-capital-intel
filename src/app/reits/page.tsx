@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { ReitsTabs } from "@/components/reits/ReitsTabs";
 import { ReitsBrowser } from "@/components/reits/ReitsBrowser";
 import { EarningsStrip } from "@/components/reits/EarningsStrip";
+import { LatestCallsList } from "@/components/reits/LatestCallsList";
 import { Independence } from "@/components/reits/Independence";
 import { reitsTabs } from "@/lib/reits-tabs";
-import { REITS_AS_OF, nextCalls, reits, summarize } from "@/lib/reits";
+import { REITS_AS_OF, latestCalls, nextCalls, reits, summarize } from "@/lib/reits";
 
 export const metadata: Metadata = {
   title: "Hotel REITs · Bungah Capital Intel",
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function ReitsIndexPage() {
   const all = reits();
   const calls = nextCalls();
+  const latest = latestCalls();
   const missing = all.filter((r) => !r.nextCall).map((r) => r.ticker);
   return (
     <div className="space-y-8">
@@ -30,6 +32,8 @@ export default function ReitsIndexPage() {
       </div>
 
       <ReitsBrowser reits={all.map(summarize)} />
+
+      <LatestCallsList calls={latest.calls} notReported={latest.notReported} />
 
       <EarningsStrip calls={calls} missing={missing} />
     </div>

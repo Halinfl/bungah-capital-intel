@@ -7,6 +7,7 @@
 import snapshot from "@/data/reits/snapshot.json";
 import overlay from "@/data/reits/guidance-overlay.json";
 import panelSummary from "@/data/reits/panel-summary.json";
+import q3Calls from "@/data/reits/q3-2026-calls.json";
 import type { CapturedCell, Guidance, PanelCapture, Reit } from "@/lib/reits-shared";
 export * from "@/lib/reits-shared";
 
@@ -20,7 +21,8 @@ type Snapshot = {
   reits: Reit[];
 };
 
-const S = applyGuidanceOverlay(snapshot as unknown as Snapshot);
+const CALLS = q3Calls as unknown as CallsFile;
+const S = dropHeldCalls(applyGuidanceOverlay(snapshot as unknown as Snapshot));
 
 /**
  * Guidance corrections read from the cited SEC exhibits (src/data/reits/guidance-overlay.json): a missing
@@ -43,6 +45,66 @@ function applyGuidanceOverlay(s: Snapshot): Snapshot {
       ].sort((a, b) => a.date.localeCompare(b.date));
       return { ...r, guidance };
     }),
+  };
+}
+
+/**
+ * Q3 2026 earnings-call summaries (src/data/reits/q3-2026-calls.json): a few plain sentences per REIT, each
+ * citing the company results release, 10-Q or call transcript it came from. Hand-written; no paid data.
+ */
+export type CallSource = { label: string; url: string };
+export type CallItem = { label: string; text: string; cite: string[] };
+export type QuarterCall = {
+  ticker: string;
+  quarter: string;
+  /** ISO date of the call, or null when the company held no call (release only). */
+  callDate: string | null;
+  sources: Record<string, CallSource>;
+  headline: { text: string; cite: string[] };
+  items: CallItem[];
+  quote: { text: string; speaker: string; cite: string } | null;
+};
+type CallsFile = {
+  quarter: string;
+  asOf: string;
+  notReported: { ticker: string; note: string }[];
+  reits: Record<string, Omit<QuarterCall, "ticker" | "quarter">>;
+};
+
+/** Source-chip label for a list of source keys: "label url · label url". */
+export function callCiteLabel(c: QuarterCall, keys: string[]): string {
+  return keys
+    .map((k) => c.sources[k])
+    .filter(Boolean)
+    .map((s) => `${s.label} ${s.url}`)
+    .join(" · ");
+}
+
+export const LATEST_CALLS_QUARTER = CALLS.quarter;
+
+/** The latest quarter's call summary for one REIT, or null when none is on file. */
+export function latestCall(ticker: string): QuarterCall | null {
+  const t = ticker.toUpperCase();
+  const c = CALLS.reits[t];
+  return c ? { ticker: t, quarter: CALLS.quarter, ...c } : null;
+}
+
+/** Every REIT with a latest-quarter call summary, in call order, plus the REITs that have not reported. */
+export function latestCalls(): { calls: QuarterCall[]; notReported: { ticker: string; note: string }[] } {
+  const calls = Object.keys(CALLS.reits)
+    .map((t) => latestCall(t)!)
+    .sort((a, b) => (a.callDate ?? "9999").localeCompare(b.callDate ?? "9999") || a.ticker.localeCompare(b.ticker));
+  return { calls, notReported: CALLS.notReported };
+}
+
+/**
+ * The snapshot's "next call" is the Q3 2026 call. Once that call's summary is on file the call has been held,
+ * so it is no longer shown as upcoming (the next date shows as not announced until the company announces it).
+ */
+function dropHeldCalls(s: Snapshot): Snapshot {
+  return {
+    ...s,
+    reits: s.reits.map((r) => (r.nextCall && CALLS.reits[r.ticker] && r.nextCall.date <= CALLS.asOf ? { ...r, nextCall: null } : r)),
   };
 }
 

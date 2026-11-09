@@ -1,0 +1,765 @@
+{
+ "_note": "Q3 2026 earnings call summaries for /reits and /reits/[ticker]. Hand-written from the company results releases (8-K Ex. 99.1), 10-Qs and call transcripts; every item cites its sources by key. No industry-panel (paid) data.",
+ "quarter": "2026Q3",
+ "asOf": "2026-11-09",
+ "notReported": [
+  {
+   "ticker": "AHT",
+   "note": "Ashford Hospitality Trust had not announced a Q3 2026 results date or call as of Nov 6, 2026."
+  }
+ ],
+ "reits": {
+  "HST": {
+   "callDate": "2026-11-05",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 4, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000152/hst-ex991.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 5, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/hst/transcripts/726395-q3-2026/"
+    },
+    "10q": {
+     "label": "Q3 2026 Form 10-Q, filed Nov 6, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000156/hst-20260930.htm"
+    }
+   },
+   "headline": {
+    "text": "Q3 comparable RevPAR up 8.8%; 2026 RevPAR growth estimate raised to about 6.75%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable hotel RevPAR was $219.50, up 8.8%, and comparable Total RevPAR was $348.19, up 7.3%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Host raised its 2026 comparable hotel RevPAR growth estimate to about 6.75% and Total RevPAR growth to about 6.0%, and Adjusted EBITDAre to about $1,865 million, a $35 million increase.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "After the quarter, Host bought the leasehold interest in the 195-room 1 Hotel Brooklyn Bridge for $202 million and the 308-room Renaissance Dallas at Plano Legacy West for $172 million. It also amended and extended its $2.5 billion credit facility.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Phoenix comparable RevPAR fell 32.0% to $110.47 as occupancy dropped to 40.1% from 61.9%, while average rate rose to $275.17 from $262.62. The 10-Q attributes the Phoenix decline to renovation disruption at The Westin Kierland Resort & Spa, which is under renovation as part of Host's second Marriott Transformational Capital Program.",
+     "cite": [
+      "release",
+      "10q"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said 2027 total group revenue pace is 6% ahead of the same time last year.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Looking ahead, our 2027 total group revenue pace is also 6% ahead of the same time last year, driven by rate, room nights, and strong banquets contribution.",
+    "speaker": "Sourav Ghosh, EVP and CFO",
+    "cite": "call"
+   }
+  },
+  "APLE": {
+   "callDate": "2026-11-06",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 5, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1418121/000119312526449868/aple-ex99_1.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 6, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/aple/transcripts/726510-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 Comparable Hotels RevPAR up 7.3%; 2026 RevPAR growth guidance raised to 5.1%–6.1%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable Hotels RevPAR was approximately $134, up 7.3%, with ADR of approximately $171, up 4.3%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Apple raised 2026 Comparable Hotels RevPAR growth guidance to 5.1%–6.1%, up 235 basis points at the midpoint, and Adjusted EBITDAre guidance to $482–$493 million.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Apple did not repurchase shares in the quarter, and about $242.5 million remained on its authorization. Management said five hotels are under contract for sale for a combined gross price of about $72 million.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management tied the raise to year-to-date results and October performance; preliminary October Comparable Hotels RevPAR was up approximately 10%.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said it expects to be meaningfully more acquisitive than it has been recently.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "it would be reasonable to assume, and I think expected based on the opportunity set that we're looking at today, that we would be meaningfully more acquisitive than we have been recently.",
+    "speaker": "Justin Knight, CEO",
+    "cite": "call"
+   }
+  },
+  "BHR": {
+   "callDate": null,
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 4, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000165/bhr2026q3earningsrelease.htm"
+    },
+    "sale": {
+     "label": "8-K on the Four Seasons Resort Scottsdale sale, filed Nov 3, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1574085/000157408526000162/bhr-20261028.htm"
+    }
+   },
+   "headline": {
+    "text": "Q3 comparable RevPAR up 14.4%; results release only, no call held.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable RevPAR was $284, up 14.4%, on ADR of $419, up 8.6%, and occupancy of 67.9%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "The Q3 release gives no updated 2026 guidance, and Braemar held no conference call for the quarter.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Braemar closed the sale of Four Seasons Resort Scottsdale on Oct 28, 2026 for $372 million, which it puts at a 5.8% capitalization rate on trailing-12-month NOI including $23 million of anticipated capital expenditures. The quarter's net loss to common shareholders of $240.9 million mainly reflects a $480.0 million advisor termination fee.",
+     "cite": [
+      "release",
+      "sale"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "The company describes the Scottsdale sale as the final sale needed to complete its transition to self-management and pay the remaining fees owed to its external advisor.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "The company says it remains on track to become a self-managed REIT in mid-November.",
+     "cite": [
+      "release"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Comparable RevPAR surged 14.4%—our strongest growth since the post-pandemic recovery in 2022 and another near-record result for the quarter—and comparable Hotel EBITDA increased 20.7%",
+    "speaker": "Richard J. Stockton, President and CEO, in the results release",
+    "cite": "release"
+   }
+  },
+  "CLDT": {
+   "callDate": "2026-11-05",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 5, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1476045/000143774926035103/ex_1009430.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 5, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/cldt/transcripts/723813-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 RevPAR up more than 8% to $161; 2026 RevPAR growth guidance raised to 4.0%–4.5%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "RevPAR for the 39 comparable hotels rose more than 8% to $161, an all-time third-quarter high for the company. RevPAR at its four Silicon Valley hotels rose 23% to $174.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Chatham raised 2026 RevPAR growth guidance to 4.0%–4.5%, with Adjusted EBITDA of $104.2–$105.3 million and AFFO per share of $1.38–$1.40.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Chatham repurchased no shares in the quarter. Total debt was $408 million at a 5.9% average rate.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management credited corporate travel in Silicon Valley, saying the market has come back after years of investor questions about when it would.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "October RevPAR rose 8% to $170, an all-time October high, and management expects fourth-quarter RevPAR growth of approximately 3.5%–4%.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Of course, for us, for years, we were asked by investors and potential investors when Silicon Valley was going to come back to life, and we can affirmatively say it is.",
+    "speaker": "Jeff Fisher, Chairman, President and CEO",
+    "cite": "call"
+   }
+  },
+  "DRH": {
+   "callDate": "2026-11-04",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 3, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1298946/000129894626000047/exhibit9913q2026.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 4, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/drh/transcripts/721397-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 comparable RevPAR up 6.6%; 2026 RevPAR growth guidance raised to 4.75%–5.25%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable RevPAR was $226.01, up 6.6%, on ADR of $290.46, up 3.8%, and occupancy of 77.8%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "DiamondRock raised 2026 comparable RevPAR growth guidance to 4.75%–5.25% from 2.5%–4.0%, and Adjusted EBITDA guidance to $322–$327 million from $310–$320 million.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "DiamondRock bought The Bellmoor Inn & Spa (79 rooms, Rehoboth Beach) for $31.0 million on Oct 1, 2026. It repurchased no shares in the quarter, and $299.4 million remains on its $300 million program.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "The release attributes the raise to stronger-than-expected third-quarter results and improved fourth-quarter booking pace. On the call, management said about 70% of the RevPAR outperformance came from transient and 30% from short-term group pickup.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said group pace for the next four quarters is approximately in line with the prior year, with the first quarter of 2027 the largest opportunity for additional pickup.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "While overall pace for the next four quarters is approximately in line with the prior year, the first quarter of 2027 represents our largest opportunity for additional pickup.",
+    "speaker": "Briony Quinn, EVP, CFO and Treasurer",
+    "cite": "call"
+   }
+  },
+  "INN": {
+   "callDate": "2026-11-04",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 3, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1497645/000149764526000080/exhibit99109302026.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 4, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/inn/transcripts/726464-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 pro forma RevPAR up 7.2%; 2026 RevPAR growth guidance raised to 3.50%–4.50%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Pro forma RevPAR was $126.17, up 7.2%, on ADR of $167.95, up 5.3%, and occupancy of 75.1%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Summit raised 2026 pro forma RevPAR growth guidance to 3.50%–4.50%, up 150 basis points at the midpoint, and Adjusted EBITDAre guidance to $181–$186 million from $175–$182 million.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Summit sold the Courtyard and Residence Inn Dallas (Arlington South) for $19.0 million in July. Management said three hotels are held for sale.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management estimated the World Cup added 80 to 90 basis points to third-quarter RevPAR, and said September RevPAR grew more than 11%.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Preliminary October RevPAR grew approximately 5.5%, and fourth-quarter pace is up approximately 5% over last year.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Operating trends have continued to trend positively into the fourth quarter, as preliminary October RevPAR growth finished at approximately 5.5% in our pro forma portfolio, and fourth quarter pace is up approximately 5% over last year.",
+    "speaker": "Jon Stanner, President and CEO",
+    "cite": "call"
+   }
+  },
+  "PEB": {
+   "callDate": "2026-10-30",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Oct 29, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1474098/000147409826000074/a8kq3-2026erex991.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Oct 30, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/peb/transcripts/719964-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 Same-Property RevPAR up 8.3%; 2026 RevPAR growth outlook raised to 7.6%–8.0%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Same-Property RevPAR rose 8.3% to $256.66, on ADR of $318.52, up 7.0%, and occupancy of 80.6%. San Francisco RevPAR rose 14.5%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Pebblebrook raised its 2026 Same-Property RevPAR growth outlook to 7.6%–8.0%, up 280 basis points at the midpoint, and Adjusted EBITDAre to $363.3–$367.3 million.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Pebblebrook sold The Hotel Zags in Portland for $10.0 million on Oct 8 and recorded a $77.3 million non-cash impairment in the quarter tied to that sale and its review of other possible sales. It repurchased 1.2 million common shares for $20.9 million in the quarter.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management said one-time events added only about 40 basis points to the quarter's RevPAR growth.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said total group and transient revenue pace for 2027 is ahead by almost 5%.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Our portfolio-wide total group and transient revenue pace is currently ahead by almost 5% versus this year.",
+    "speaker": "Jon Bortz, Chairman and CEO",
+    "cite": "call"
+   }
+  },
+  "PK": {
+   "callDate": "2026-11-05",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 4, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000047/earningsreleaseex991-live.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 5, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/pk/transcripts/727868-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 comparable RevPAR up 8.4%; 2026 RevPAR growth guidance raised to 5.5%–6.0%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable RevPAR rose 8.4% to $201.02, on ADR of $263.19, up 5.0%, and occupancy of 76.4%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Park raised 2026 comparable RevPAR growth guidance to 5.5%–6.0% from 3.0%–4.5%, and Adjusted EBITDA guidance to $635–$645 million from $617–$637 million.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Park sold Hilton Short Hills in July for $12 million and The Wade, a 520-room hotel in Chicago, in October for about $19 million. In September it repaid the $1.275 billion CMBS loan on Hilton Hawaiian Village.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management said RevPAR growth accelerated from 9% in July to more than 13% in September despite weather disruptions in Hawaii in August and September.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Park expects fourth-quarter comparable RevPAR growth of 5.5%–7.5%.",
+     "cite": [
+      "release"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "RevPAR increased 8.4% year over year, with growth accelerating from 9% in July to more than 13% in September, despite weather-related disruptions in Hawaii during August and September.",
+    "speaker": "Tom Baltimore, Chairman and CEO",
+    "cite": "call"
+   }
+  },
+  "RHP": {
+   "callDate": "2026-11-03",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 3, 2026 (release dated Nov 2, 2026)",
+     "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926121676/tmb-ex99d1.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 3, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/rhp/transcripts/727833-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 same-store RevPAR up 7.9%; 2026 RevPAR growth guidance raised to 4.5%–5.5%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Same-store RevPAR rose 7.9% to $187.49 and Total RevPAR rose 8.0% to $477.82. Gaylord Opryland RevPAR rose 15.5%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Ryman raised 2026 same-store RevPAR and Total RevPAR growth guidance to 4.5%–5.5% each, from 3.5%–4.5%, and AFFO per share guidance to $9.16–$9.43.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Capital expenditure guidance was narrowed to $450–$500 million. Management described the period after the Grande Lakes Orlando acquisition as a digestion phase, and there were no sales.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "The release cuts Entertainment segment guidance by $3 million, which management tied to the retirement of the General Jackson Showboat.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Same-store group rooms revenue on the books for 2027 was 4.5% ahead of the same time last year at the end of September.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "As of the end of September, same-store group rooms revenue on the books for 2027 was 4.5% higher than the same time last year for 2026, 130 basis point improvement since the end of July.",
+    "speaker": "Mark Fioravanti, President and CEO",
+    "cite": "call"
+   }
+  },
+  "RLJ": {
+   "callDate": "2026-11-05",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 4, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1511337/000151133726000028/rljq32026exhibit991.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 5, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/rlj/transcripts/727870-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 comparable RevPAR up 9.7%; 2026 RevPAR growth guidance raised to 5.75%–6.25%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Comparable RevPAR rose 9.7% to $153.36, on ADR of $203.35, up 6.4%, and occupancy of 75.4%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "RLJ raised 2026 comparable RevPAR growth guidance to 5.75%–6.25%, up 200 basis points at the midpoint, and Adjusted EBITDA guidance to $352–$358 million.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "In October RLJ sold seven hotels near Chicago Midway Airport for $110.0 million, which it puts at 13.8x forecasted 2026 Hotel EBITDA, or 16.1x including required capital expenditures, and provided $20.0 million of seller financing.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management tied the raise to third-quarter outperformance, strong October results and an expectation that positive trends carry into the rest of the year.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "The comparable outlook excludes the seven Midway hotels and assumes no further acquisitions, dispositions or share repurchases.",
+     "cite": [
+      "release"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "we are raising our full-year guidance to reflect our third-quarter outperformance, the strong operating results seen in October, and our expectations that positive trends should carry into the remainder of the year.",
+    "speaker": "Leslie Hale, President and CEO",
+    "cite": "call"
+   }
+  },
+  "SHO": {
+   "callDate": "2026-11-06",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 6, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1295810/000129581026000005/sho-ex99_1.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 6, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/sho/transcripts/726513-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 RevPAR up 11.4%; 2026 RevPAR growth guidance raised to 9.5%–10.5%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "RevPAR rose 11.4% to $235.22, or 10.3% excluding Andaz Miami Beach, and Total RevPAR rose 10.5% to $394.97.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Sunstone raised 2026 RevPAR growth guidance to 9.5%–10.5% from 7.0%–9.0%, and Adjusted EBITDAre guidance to $254–$259 million.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "From the start of 2026 through Nov 5, Sunstone put $196.9 million into repurchases of its common and preferred stock, with $310.6 million of authorization remaining.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Excluding Andaz Miami Beach, hotel margin rose 50 basis points to 26.7%; the company says it would have risen about 200 basis points excluding the Hilton Key West renovation and one-time items.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said group pace for 2027 at its Wailea resort on Maui is up over 20%.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "This trend accelerated through the third quarter, with group pace for 2027 now up over 20%.",
+    "speaker": "Bryan Giglia, CEO, on Wailea",
+    "cite": "call"
+   }
+  },
+  "XHR": {
+   "callDate": "2026-11-03",
+   "sources": {
+    "release": {
+     "label": "Q3 2026 results release (8-K exhibit 99.1), filed Nov 3, 2026",
+     "url": "https://www.sec.gov/Archives/edgar/data/1616000/000162828026069069/ex991q32026xhrearningsrele.htm"
+    },
+    "call": {
+     "label": "Q3 2026 earnings call, Nov 3, 2026 (third-party transcript)",
+     "url": "https://stockanalysis.com/stocks/xhr/transcripts/720168-q3-2026/"
+    }
+   },
+   "headline": {
+    "text": "Q3 Same-Property RevPAR up 12.5%; 2026 RevPAR growth guidance raised to 7.75%–8.25%.",
+    "cite": [
+     "release"
+    ]
+   },
+   "items": [
+    {
+     "label": "Results",
+     "text": "Same-Property RevPAR rose 12.5% to $184.75, on ADR of $264.00, up 6.4%, and occupancy of 70.0%.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Guidance",
+     "text": "Xenia raised 2026 Same-Property RevPAR growth guidance to 7.75%–8.25%, up 250 basis points at the midpoint, and Adjusted EBITDAre guidance to $278–$284 million.",
+     "cite": [
+      "release",
+      "call"
+     ]
+    },
+    {
+     "label": "Deals and capital",
+     "text": "Xenia sold Kimpton RiverPlace in Portland in July for $11 million. It repurchased no shares in the quarter, and $97.5 million of authorization remains.",
+     "cite": [
+      "release"
+     ]
+    },
+    {
+     "label": "Why, per the company",
+     "text": "Management cited group room revenue up 16.2% and RevPAR gains in 21 of its 22 markets.",
+     "cite": [
+      "call"
+     ]
+    },
+    {
+     "label": "Outlook",
+     "text": "Management said 2027 group room revenue pace was down about 4% from the same time last year.",
+     "cite": [
+      "call"
+     ]
+    }
+   ],
+   "quote": {
+    "text": "Group room revenue pace for 2027 was down approximately 4% compared to the same time last year.",
+    "speaker": "Xenia management",
+    "cite": "call"
+   }
+  }
+ }
+}

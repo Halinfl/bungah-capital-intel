@@ -6,6 +6,7 @@ import { SignalCard } from "@/components/SignalCard";
 import { SourceChip } from "@/components/SourceChip";
 import { ReitsTabs } from "@/components/reits/ReitsTabs";
 import { CitedValue } from "@/components/reits/CitedValue";
+import { QuarterCallCard } from "@/components/reits/QuarterCallCard";
 import { Independence } from "@/components/reits/Independence";
 import { reitsTabs } from "@/lib/reits-tabs";
 import { askAboutHref } from "@/lib/chat-scope";
@@ -20,6 +21,7 @@ import {
   fmtPct,
   fmtQuarter,
   peerLabel,
+  latestCall,
   reitByTicker,
   reits,
   fmtDay,
@@ -149,6 +151,7 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
   const { ticker } = await params;
   const r = reitByTicker(ticker);
   if (!r) notFound();
+  const call = latestCall(r.ticker);
 
   const arc = r.quarters.filter((q) => q.adr || q.revpar || q.occupancy);
   const siteMarkets = r.markets.filter((m) => m.slug);
@@ -231,6 +234,9 @@ export default async function ReitPage({ params }: { params: Promise<{ ticker: s
           </p>
         )}
       </section>
+
+      {/* ---------- Latest earnings call (cited summary) ---------- */}
+      {call ? <QuarterCallCard call={call} /> : null}
 
       {/* ---------- Captured rates (weekly Google Hotels panel; absent until the first capture) ---------- */}
       {r.captured && REITS_PANEL ? (
