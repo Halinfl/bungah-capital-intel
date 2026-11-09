@@ -5,13 +5,20 @@ import { glueText } from "@/lib/glue";
 import { withoutSocialLabel } from "@/lib/social-sources";
 
 /** Source label; any original URL inside it is clickable (new tab). Internal labels are stripped. */
-export function SourceChip({ label }: { label: string }) {
+/**
+ * splitSeparators: a text part that starts with " · " before the next source label gets the separator in its own
+ * span, so the mobile one-row-per-link layout hides it (opt-in; used by the earnings-call summaries).
+ */
+export function SourceChip({ label, splitSeparators = false }: { label: string; splitSeparators?: boolean }) {
   // Our own site is never a source (r6b): no chip rather than a self-citation.
   if (isOwnSource(label)) return null;
   // Social posts are never sources (r6c): their segments are dropped at render.
   const clean = withoutSocialLabel(cleanSourceLabel(label));
   if (!clean) return null;
-  const parts = splitUrls(clean);
+  const parts = splitUrls(clean).flatMap((p) => {
+    const m = splitSeparators && !p.url ? p.text.match(/^(\s*[·;|]\s+)(\S[\s\S]*)$/) : null;
+    return m ? [{ text: m[1] }, { text: m[2] }] : [p];
+  });
   // 2+ links: below 640px each is its own 44px block row and bare separators are hidden (globals.css .src-group).
   const group = parts.filter((p) => p.url).length >= 2;
   return (

@@ -5,7 +5,7 @@ import { EarningsStrip } from "@/components/reits/EarningsStrip";
 import { LatestCallsList } from "@/components/reits/LatestCallsList";
 import { Independence } from "@/components/reits/Independence";
 import { reitsTabs } from "@/lib/reits-tabs";
-import { REITS_AS_OF, latestCalls, nextCalls, reits, summarize } from "@/lib/reits";
+import { LATEST_CALLS_QUARTER, REITS_AS_OF, latestCalls, nextCalls, reits, summarize } from "@/lib/reits";
 
 export const metadata: Metadata = {
   title: "Hotel REITs · Bungah Capital Intel",
@@ -13,6 +13,13 @@ export const metadata: Metadata = {
     "The 13 US-listed hotel REITs, one page each like a market: reported RevPAR, ADR, occupancy, portfolio by market and earnings calls, every figure linked to its SEC filing.",
   alternates: { canonical: "/reits" },
 };
+
+/** "2026Q3" -> "Q4 2026"; "2026Q4" -> "Q1 2027". */
+function nextQuarterLabel(q: string): string {
+  const y = Number(q.slice(0, 4));
+  const n = Number(q.slice(-1));
+  return n === 4 ? `Q1 ${y + 1}` : `Q${n + 1} ${y}`;
+}
 
 export default function ReitsIndexPage() {
   const all = reits();
@@ -35,7 +42,7 @@ export default function ReitsIndexPage() {
 
       <LatestCallsList calls={latest.calls} notReported={latest.notReported} />
 
-      <EarningsStrip calls={calls} missing={missing} />
+      <EarningsStrip calls={calls} missing={missing} missingLabel={`${nextQuarterLabel(LATEST_CALLS_QUARTER)} dates not announced yet`} />
     </div>
   );
 }

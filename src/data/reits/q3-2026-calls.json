@@ -5,7 +5,7 @@
  "notReported": [
   {
    "ticker": "AHT",
-   "note": "Ashford Hospitality Trust had not announced a Q3 2026 results date or call as of Nov 6, 2026."
+   "note": "Ashford Hospitality Trust had not announced a Q3 2026 results date or call as of Nov 9, 2026."
   }
  ],
  "reits": {
@@ -300,7 +300,7 @@
     },
     {
      "label": "Deals and capital",
-     "text": "DiamondRock bought The Bellmoor Inn & Spa (79 rooms, Rehoboth Beach) for $31.0 million on Oct 1, 2026. It repurchased no shares in the quarter, and $299.4 million remains on its $300 million program.",
+     "text": "DiamondRock bought The Bellmoor Inn & Spa (79 rooms, Rehoboth Beach) for $31.0 million on Oct 1, 2026. Year to date through Sept 30 it repurchased about 0.2 million shares for $1.9 million, and $299.4 million remains on its $300 million program.",
      "cite": [
       "release"
      ]
@@ -508,7 +508,7 @@
     }
    ],
    "quote": {
-    "text": "RevPAR increased 8.4% year over year, with growth accelerating from 9% in July to more than 13% in September, despite weather-related disruptions in Hawaii during August and September.",
+    "text": "RevPAR increased 8.4% year-over-year, with growth accelerating from 9% in July to more than 13% in September, despite weather-related disruptions in Hawaii during August and September.",
     "speaker": "Tom Baltimore, Chairman and CEO",
     "cite": "call"
    }
@@ -757,7 +757,7 @@
    ],
    "quote": {
     "text": "Group room revenue pace for 2027 was down approximately 4% compared to the same time last year.",
-    "speaker": "Xenia management",
+    "speaker": "Atish Shah, EVP and CFO",
     "cite": "call"
    }
   }

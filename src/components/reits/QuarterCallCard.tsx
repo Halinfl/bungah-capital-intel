@@ -23,7 +23,7 @@ export function QuarterCallCard({ call }: { call: QuarterCall }) {
             <dt className="text-[12px] font-medium uppercase tracking-wider text-slate-300">{i.label}</dt>
             <dd className="space-y-1.5">
               <p className="text-[15px] leading-relaxed text-slate-100">{i.text}</p>
-              <SourceChip label={callCiteLabel(call, i.cite)} />
+              <SourceChip splitSeparators label={callCiteLabel(call, i.cite)} />
             </dd>
           </div>
         ))}
@@ -33,11 +33,11 @@ export function QuarterCallCard({ call }: { call: QuarterCall }) {
               {call.quote.cite === "call" ? "From the call" : "From the release"}
             </dt>
             <dd className="space-y-1.5">
-              <blockquote className="border-l-2 border-emerald-300/60 pl-3 text-[15px] italic leading-relaxed text-slate-100">
+              <blockquote className="border-l-2 border-slate-400/60 pl-3 text-[15px] italic leading-relaxed text-slate-100">
                 “{/^[a-z]/.test(call.quote.text) ? "…" : ""}{call.quote.text}”
               </blockquote>
               <p className="text-[13px] text-slate-300">{call.quote.speaker}</p>
-              <SourceChip label={callCiteLabel(call, [call.quote.cite])} />
+              <SourceChip splitSeparators label={callCiteLabel(call, [call.quote.cite])} />
             </dd>
           </div>
         ) : null}

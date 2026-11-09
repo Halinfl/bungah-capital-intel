@@ -14,7 +14,7 @@ function minutes(c: Call): number {
  * Next earnings call for each REIT as a compact list grouped by day, soonest first. Only company-announced
  * dates are passed in; REITs without one are listed under "Not announced".
  */
-export function EarningsStrip({ calls, missing }: { calls: Call[]; missing: string[] }) {
+export function EarningsStrip({ calls, missing, missingLabel = "No date yet" }: { calls: Call[]; missing: string[]; missingLabel?: string }) {
   if (!calls.length && !missing.length) return null;
   const days = new Map<string, Call[]>();
   for (const c of [...calls].sort((a, b) => a.date.localeCompare(b.date) || minutes(a) - minutes(b) || a.ticker.localeCompare(b.ticker))) {
@@ -67,10 +67,10 @@ export function EarningsStrip({ calls, missing }: { calls: Call[]; missing: stri
         {missing.length ? (
           <div>
             <h3 className="border-b border-white/10 pb-1 text-[12px] font-medium uppercase tracking-wider text-slate-300">
-              No date yet
+              {missingLabel}
             </h3>
             <ul className="mt-1">
-              {missing.map((t) => (
+              {[...missing].sort((a, b) => a.localeCompare(b)).map((t) => (
                 <li key={t} className={row}>
                   <Link href={`/reits/${t.toLowerCase()}#earnings`} className={tick}>
                     {t}

@@ -29,7 +29,7 @@ export function LatestCallsList({ calls, notReported }: { calls: QuarterCall[]; 
               </span>
             </div>
             <p className="text-[14px] leading-relaxed text-slate-100">{c.headline.text}</p>
-            <SourceChip label={callCiteLabel(c, c.headline.cite)} />
+            <SourceChip splitSeparators label={callCiteLabel(c, c.headline.cite)} />
           </li>
         ))}
         {notReported.map((n) => (
