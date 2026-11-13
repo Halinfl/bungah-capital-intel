@@ -21,6 +21,8 @@ import { createHash } from "node:crypto";
 import { CHAT_INTENTS, classifyIntent, isBareRates, type ChatIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import type { ChatScope } from "./chat-scope";
+import { alternateCandidates, contextOf, parseCleared, segmentOf, UNSUPPORTED_LINE, whatChanged, type Alternate, type ChatContext, type ContextPart, type Opener } from "./chat-context";
+import { guardPublic } from "./public-text";
 
 export type Prev = {
   question: string | null;
@@ -29,6 +31,12 @@ export type Prev = {
   answerHash: string | null;
   /** Fingerprints of the answers already shown in this thread (newest first, ≤ SEEN_MAX); [] when absent or malformed. */
   seen?: string[];
+  /** Batch 1 (chat-context.ts): the date window of the answer above ("all" when absent). */
+  range?: DateRange | null;
+  /** Batch 1: the newest cited month of the answer above (its card's span.to, "Sep 2026"); data-change check only. */
+  dataTo?: string | null;
+  /** Batch 1: carry-over chip parts the visitor removed with ×; the route stops carrying them. */
+  cleared?: ContextPart[];
 };
 export type FollowUpChip = { label: string; question: string; range?: DateRange };
 
@@ -63,8 +71,25 @@ export function parsePrev(v: unknown): Prev | null {
   const hash = typeof o.answerHash === "string" ? o.answerHash.trim().toLowerCase() : "";
   const answerHash = HASH_RE.test(hash) ? hash : null;
   const seen = parseSeen(o.seen);
+  const range = o.range === "90d" || o.range === "12m" || o.range === "all" ? (o.range as DateRange) : null;
+  const dataTo = typeof o.dataTo === "string" && /^[A-Z][a-z]{2} 20\d\d$/.test(o.dataTo) ? o.dataTo : null;
+  const cleared = parseCleared(o.cleared);
   if (!question && !intent && !marketSlug && !answerHash && !seen.length) return null;
-  return { question, intent, marketSlug, answerHash, seen };
+  return { question, intent, marketSlug, answerHash, seen, range, dataTo, cleared };
+}
+
+/**
+ * The prev used for routing: parts the visitor removed from the carry-over chip are not carried
+ * (× on the market: no market inheritance; × on the topic: no topic carry-over). The original prev still
+ * feeds the "what changed" opener, so it can say what was dropped.
+ */
+export function routingPrev(prev: Prev | null): Prev | null {
+  if (!prev?.cleared?.length) return prev;
+  return {
+    ...prev,
+    marketSlug: prev.cleared.includes("market") ? null : prev.marketSlug,
+    intent: prev.cleared.includes("topic") ? null : prev.intent,
+  };
 }
 
 /** Every fingerprint already shown in the thread: prev.answerHash plus prev.seen. */
@@ -137,6 +162,8 @@ export function followUpIntent(question: string, prev: Prev | null, hasMarket: b
   if (own === "compare_markets" && namedMarkets < 2 && TIME_COMPARE.test(question)) return carried ?? "revpar_metrics";
   // No topic words of its own, but clearly about the answer above.
   if (own === "unknown" && carried && ANAPHORA.test(question)) return carried;
+  // Batch 1: a bare segment narrowing ("upscale only") keeps the topic on screen; the opener says what's on file.
+  if (own === "unknown" && carried && segmentOf(question)) return carried;
   return null;
 }
 
@@ -235,7 +262,8 @@ export type FollowUpRoute = {
  * a hotel, or asks for a cross-market ranking never inherits; an item chip (scope) always wins.
  */
 export async function resolveFollowUp(x: { question: string; scope: ChatScope | null; marketSlug: string | null; prev: Prev | null }): Promise<FollowUpRoute> {
-  const { question, scope, prev } = x;
+  const { question, scope } = x;
+  const prev = routingPrev(x.prev);
   let marketSlug = x.marketSlug;
   if (scope?.kind === "reit") return { marketSlug, intent: null, inherited: false };
   const own = classifyIntent(question);
@@ -322,4 +350,72 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
     repeat: true,
     followUps,
   };
+}
+
+/**
+ * Batch 1 (chat-context.ts), run by the route after the cache lookup and the repeat check: the carry-over chip's
+ * parts, the "what changed" opener and one next-best alternate whose card is not one already shown (`hashOf`
+ * builds a chip's card the way its own request will). Never part of the cache key, the fingerprint or the log.
+ */
+export async function followUpExtras(x: {
+  answer: { brief?: unknown; intent?: string; marketSlug: string | null };
+  prev: Prev | null;
+  question: string;
+  range: DateRange;
+  scope: ChatScope | null;
+  repeat: boolean;
+  hash: string;
+  hashOf: (chip: FollowUpChip) => Promise<string | null>;
+}): Promise<{ context: ChatContext; opener: Opener | null; alternate: Alternate | null; repeatLine: string | null }> {
+  const { answer, prev, question, range, scope } = x;
+  const brief = answer.brief as { answer?: string; reads?: { text?: string }[]; span?: { to?: string | null } } | null | undefined;
+  const curLabel = await marketShortName(answer.marketSlug);
+  const context = contextOf({ marketSlug: scope ? null : answer.marketSlug, marketLabel: curLabel, intent: answer.intent, range });
+  const pickAlternate = async (cands: Alternate[]): Promise<Alternate | null> => {
+    const taken = new Set<string>([...shownHashes(prev), x.hash]);
+    for (const c of cands) {
+      const h = await x.hashOf(c).catch(() => null);
+      if (h && !taken.has(h)) return guardPublic(c);
+    }
+    return null;
+  };
+  // A segment narrowing whose card is the one already shown: say what's on file instead of the bare repeat note
+  // (the card above covers all hotels), and offer the closest peer.
+  const seg = scope?.kind === "reit" || scope?.kind === "deal" ? null : segmentOf(question);
+  if (prev && x.repeat && seg && answer.marketSlug) {
+    const repeatLine = `${UNSUPPORTED_LINE} There's no ${seg}-only cut on file; the full cited card above covers all ${curLabel ?? "market"} hotels.`;
+    const alternate = await pickAlternate(alternateCandidates({ question, prevRange: prev.range ?? null, curRange: range, marketLabel: curLabel, peers: await peerNames(answer.marketSlug), unsupported: true }));
+    return { context, opener: null, alternate, repeatLine: guardPublic(repeatLine) };
+  }
+  if (!prev || x.repeat || !brief || typeof brief.answer !== "string") return { context, opener: null, alternate: null, repeatLine: null };
+  const opener = whatChanged({
+    hasPrev: true,
+    question,
+    cleared: prev.cleared ?? [],
+    prevMarket: prev.marketSlug,
+    prevMarketLabel: prev.marketSlug === answer.marketSlug ? curLabel : await marketShortName(prev.marketSlug),
+    curMarket: answer.marketSlug,
+    curMarketLabel: curLabel,
+    prevIntent: prev.intent,
+    curIntent: answer.intent,
+    prevRange: prev.range ?? null,
+    curRange: range,
+    prevDataTo: prev.dataTo ?? null,
+    curDataTo: brief.span?.to ?? null,
+    cardText: [brief.answer, ...(brief.reads ?? []).map((r) => r.text ?? "")].join(" "),
+    itemScoped: scope?.kind ?? null,
+  });
+  const alternate = opener
+    ? await pickAlternate(
+        alternateCandidates({
+          question,
+          prevRange: prev.range ?? null,
+          curRange: range,
+          marketLabel: curLabel,
+          peers: opener.kind === "unsupported" ? await peerNames(answer.marketSlug) : [],
+          unsupported: opener.kind === "unsupported",
+        })
+      )
+    : null;
+  return { context, opener: opener ? guardPublic(opener) : null, alternate, repeatLine: null };
 }

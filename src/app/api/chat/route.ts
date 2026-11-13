@@ -9,7 +9,7 @@ import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
-import { answerHash, applyNoRepeat, parsePrev, resolveFollowUp, type FollowUpChip } from "@/lib/chat-followup";
+import { answerHash, applyNoRepeat, followUpExtras, parsePrev, resolveFollowUp, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
 
 /** Questions longer than this are cut (bounds per-request work). */
@@ -238,6 +238,14 @@ export async function POST(req: Request) {
     answer = nr.answer;
     const { hash, repeat, followUps } = nr;
 
+    // Batch 1 (src/lib/chat-context.ts): the carry-over chip's parts, the "what changed" opener and one
+    // next-best alternate. Computed after the cache and the repeat check, so neither the cache key nor the
+    // fingerprint sees them, and the logged answer is unchanged (no context is stored; schema deferred).
+    const brief = answer.brief as (ChatBrief & { span?: { to: string | null } }) | null;
+    const { context, opener, alternate, repeatLine } = await followUpExtras({ answer, prev, question, range, scope, repeat, hash, hashOf });
+    // Only the bare repeat note is replaced; a decline or premise line on a repeat is kept as it is.
+    if (repeatLine && /^That's the same answer/.test(answer.content)) answer = { ...answer, content: repeatLine };
+
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     const logged = answer;
@@ -257,6 +265,12 @@ export async function POST(req: Request) {
         marketSlug: answer.marketSlug,
         // The card's fingerprint (the repeated card's on a no-repeat reply), sent back as prev.answerHash.
         answerHash: hash,
+        // Batch 1: carry-over chip parts, the opener line and the next-best alternate (absent when none).
+        context,
+        ...(opener ? { opener } : {}),
+        ...(alternate ? { alternate } : {}),
+        range,
+        ...(brief?.span?.to ? { dataTo: brief.span.to } : {}),
         ...(followUps?.length ? { followUps } : answer.followUps?.length ? { followUps: answer.followUps } : {}),
         mode: answer.mode,
         modelUsed,
@@ -269,7 +283,7 @@ export async function POST(req: Request) {
           "x-chat-cache": cache,
           "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
           ...(TEST_TOGGLES
-            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : ""].filter(Boolean).join("; ") }
+            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : ""].filter(Boolean).join("; ") }
             : {}),
         },
       }

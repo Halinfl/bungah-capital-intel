@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
+import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
 export type ChatScopeProp = { kind: "market" | "reit" | "deal"; id: string; label: string } | null;
@@ -20,7 +21,18 @@ type AskSource = "typed" | "starter" | "reask" | "link" | "tt-swipe" | "chip";
  * `seen`: fingerprints of the answers already shown in this thread (newest first, at most SEEN_MAX), so a card
  * shown earlier (not just directly above) is never shown again.
  */
-type PrevAnswer = { question: string; intent: string | null; marketSlug: string | null; answerHash: string; seen?: string[] };
+type PrevAnswer = {
+  question: string;
+  intent: string | null;
+  marketSlug: string | null;
+  answerHash: string;
+  seen?: string[];
+  /** Batch 1: the answer's date window and newest cited month (the opener's data-change check). */
+  range?: DateRange;
+  dataTo?: string;
+  /** Batch 1: carry-over chip parts removed with × since that answer. */
+  cleared?: ContextPart[];
+};
 const SEEN_MAX = 10;
 /** "Other angle" chips under a no-repeat reply: each runs a real question. */
 type FollowUpChip = { label: string; question: string; range?: DateRange };
@@ -65,6 +77,9 @@ type Msg = {
   prev?: PrevAnswer | null;
   /** No-repeat reply: other angles to try. */
   followUps?: FollowUpChip[];
+  /** Batch 1: what changed vs the answer before it, and one next-best alternate. */
+  opener?: Opener;
+  alternate?: Alternate;
 };
 
 const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
@@ -111,6 +126,10 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   const lastAnswer = useRef<PrevAnswer | null>(null);
   /** Fingerprints of every answer shown in this thread, newest first (capped at SEEN_MAX). */
   const seenHashes = useRef<string[]>([]);
+  /** Batch 1: what the next question carries over (chip above the input), and the parts removed with ×. */
+  const [carry, setCarry] = useState<ChatContext | null>(null);
+  const [cleared, setCleared] = useState<ContextPart[]>([]);
+  const clearedRef = useRef<ContextPart[]>([]);
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -129,6 +148,9 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     sending.current = false;
     lastAnswer.current = null;
     seenHashes.current = [];
+    setCarry(null);
+    setCleared([]);
+    clearedRef.current = [];
     setMessages([]);
     setInput(initialQuestion || "");
     setBusy(false);
@@ -168,10 +190,12 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       const { source: tagged, pending } = chatSourceFor<AskSource>(source, swipeTagPending.current);
       swipeTagPending.current = pending;
       // A re-ask from the date chip keeps whatever is being typed.
-      if (range === "all") setInput("");
+      if (range === "all" || source === "typed") setInput("");
 
       setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
-      const prev = lastAnswer.current ? { ...lastAnswer.current, seen: seenHashes.current.slice(0, SEEN_MAX) } : null;
+      const prev = lastAnswer.current
+        ? { ...lastAnswer.current, seen: seenHashes.current.slice(0, SEEN_MAX), ...(clearedRef.current.length ? { cleared: clearedRef.current } : {}) }
+        : null;
 
       const seq = ++requestSeq.current;
       inFlight.current?.abort();
@@ -188,6 +212,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       let reply: Msg;
       let nextPrev: PrevAnswer | null = null;
+      let nextContext: ChatContext | null = null;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -218,13 +243,18 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               range,
               prev,
               followUps: Array.isArray(data.followUps) ? (data.followUps as FollowUpChip[]).slice(0, 3) : undefined,
+              opener: data.opener && typeof (data.opener as Opener).text === "string" ? (data.opener as Opener) : undefined,
+              alternate: data.alternate && typeof (data.alternate as Alternate).question === "string" ? (data.alternate as Alternate) : undefined,
             };
+            if (data.context && typeof data.context === "object") nextContext = data.context as ChatContext;
             if (typeof data.answerHash === "string") {
               nextPrev = {
                 question: q.slice(0, 300),
                 intent: typeof data.intent === "string" ? data.intent : null,
                 marketSlug: typeof data.marketSlug === "string" ? data.marketSlug : null,
                 answerHash: data.answerHash,
+                range,
+                ...(typeof data.dataTo === "string" ? { dataTo: data.dataTo } : {}),
               };
             }
           } else {
@@ -248,6 +278,10 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       if (nextPrev) {
         lastAnswer.current = nextPrev;
         seenHashes.current = [nextPrev.answerHash, ...seenHashes.current.filter((h) => h !== nextPrev!.answerHash)].slice(0, SEEN_MAX);
+        // A new answer resets the chip to its own context; earlier × choices were already applied.
+        setCarry(nextContext);
+        setCleared([]);
+        clearedRef.current = [];
       }
       // The final answer is appended once and never rewritten.
       setMessages((m) => [...m, reply]);
@@ -264,6 +298,25 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     autoSubmittedKey.current = initialQuestionKey;
     void send(initialQuestion, "all", "link");
   }, [initialQuestion, initialQuestionKey, marketSlug, send]);
+
+  /** Batch 1: remove one part of the carry-over chip; the next question stops carrying it. */
+  const dropPart = useCallback((part: ContextPart) => {
+    setCleared((c) => {
+      const next = c.includes(part) ? c : [...c, part];
+      clearedRef.current = next;
+      return next;
+    });
+  }, []);
+  /** Parts still carried: the market only when it isn't fixed by the page (item chip or ?market= link). */
+  const carried: { part: ContextPart; label: string }[] = carry
+    ? ([
+        carry.market && !scope && !legacyMarket ? { part: "market" as const, label: carry.market.label } : null,
+        carry.topic ? { part: "topic" as const, label: carry.topic.label } : null,
+        carry.period ? { part: "period" as const, label: carry.period.label } : null,
+      ].filter(Boolean) as { part: ContextPart; label: string }[]).filter((p) => !cleared.includes(p.part))
+    : [];
+  /** A typed follow-up keeps the carried date window. */
+  const typedRange: DateRange = carry?.period && !cleared.includes("period") ? carry.period.range : "all";
 
   /** Remove the item chip: the chat goes back to general (fresh thread, general starters). */
   const clearScope = useCallback(() => {
@@ -332,6 +385,11 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               <div className="mb-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-300">
                 {m.role === "user" ? "You" : "Memo · Bungah Capital Intel"}
               </div>
+              {m.role === "assistant" && m.opener ? (
+                <p className={`mb-2 text-sm leading-snug ${m.opener.kind === "unsupported" ? "text-slate-100" : "text-slate-300"}`} data-opener={m.opener.kind}>
+                  {m.opener.text}
+                </p>
+              ) : null}
               {m.role === "assistant" ? (
                 m.brief ? (
                   <ChatBriefView
@@ -398,6 +456,21 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                   ) : null}
                 </p>
               )}
+              {m.role === "assistant" && m.alternate ? (
+                <div className="mt-3 space-y-2 border-t border-white/[0.06] pt-3" data-alternate>
+                  <p className="text-sm leading-snug text-slate-300">
+                    <span className="text-slate-200">Next best on file:</span> {m.alternate.why}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void send(m.alternate!.question, m.alternate!.range ?? "all", "chip")}
+                    className="min-h-11 rounded-full border border-white/45 bg-white/[0.03] px-4 py-2.5 text-left text-sm leading-snug text-slate-100 transition hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                  >
+                    {m.alternate.label}
+                  </button>
+                </div>
+              ) : null}
               {/* With a brief, sources live in its own "Sources (N)" section. */}
               {!m.brief && m.sources && m.sources.length > 0 ? (
                 <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
@@ -417,7 +490,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           ))}
           {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
-          <div ref={endRef} className={`${scope ? "scroll-mb-40" : "scroll-mb-24"} sm:scroll-mb-0`} />
+          <div ref={endRef} className={`${scope && carried.length ? "scroll-mb-52" : scope || carried.length ? "scroll-mb-40" : "scroll-mb-24"} sm:scroll-mb-0`} />
         </div>
       )}
 
@@ -438,11 +511,31 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             </span>
           </div>
         ) : null}
+        {!isEmpty && carried.length ? (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-300" data-carry>
+            <span id="chat-carry-label">Following up on</span>
+            <ul className="flex flex-wrap items-center gap-1.5" aria-labelledby="chat-carry-label">
+              {carried.map((p) => (
+                <li key={p.part} className="inline-flex min-h-11 items-center rounded-full border border-white/30 bg-white/[0.03] pl-3 text-slate-100">
+                  <span className="max-w-[12rem] truncate">{p.label}</span>
+                  <button
+                    type="button"
+                    onClick={() => dropPart(p.part)}
+                    aria-label={`Stop following up on ${p.label}`}
+                    className="ml-0.5 inline-flex h-11 w-11 items-center justify-center rounded-full text-base text-slate-200 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-slate-200"
+                  >
+                    <span aria-hidden>×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <form
           className="flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            void send(input, "all", "typed");
+            void send(input, typedRange, "typed");
           }}
         >
           <input
@@ -461,7 +554,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           </button>
         </form>
       </div>
-      <div aria-hidden className={`${scope ? "h-32" : "h-16"} sm:hidden`} />
+      <div aria-hidden className={`${scope && carried.length ? "h-44" : scope ? "h-32" : carried.length ? "h-28" : "h-16"} sm:hidden`} />
 
     </div>
   );
