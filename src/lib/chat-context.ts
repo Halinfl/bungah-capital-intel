@@ -100,6 +100,50 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export const UNSUPPORTED_LINE = "I don't have enough data to answer this confidently; here's what I do know.";
 
+/** True when the card's own words name the segment (then the data does speak to it: no unsupported line). */
+export function cardNamesSegment(seg: string, cardText: string): boolean {
+  return new RegExp(`\\b${seg.replace(/[- ]/g, "[- ]")}\\b`, "i").test(cardText);
+}
+
+/** The unsupported-segment line over a card (`where` "below") or after a repeat note (the answer above). */
+export function unsupportedSegmentText(seg: string, marketLabel: string | null, where: "below" | "above"): string {
+  if (where === "above") {
+    return `${UNSUPPORTED_LINE} There's no ${seg}-only cut on file. ${marketLabel ? `The answer above covers all ${marketLabel} hotels.` : "The answer above covers all hotels in this market."}`;
+  }
+  return `${UNSUPPORTED_LINE} There's no ${seg}-only cut on file, so the ${marketLabel ? `${marketLabel} figures` : "figures"} below cover all hotels.`;
+}
+
+/**
+ * First question that names a segment (Eric QA, Nov 13): the same honest line as on a follow-up, over the
+ * all-hotel card. Null when there's no segment, the card names it, or the chat is about a REIT or a deal.
+ */
+export function segmentFirstOpener(x: { question: string; cardText: string; marketLabel: string | null; itemScoped: "market" | "reit" | "deal" | null }): Opener | null {
+  if (x.itemScoped === "reit" || x.itemScoped === "deal") return null;
+  const seg = segmentOf(x.question);
+  if (!seg || cardNamesSegment(seg, x.cardText)) return null;
+  return { kind: "unsupported", text: unsupportedSegmentText(seg, x.marketLabel, "below") };
+}
+
+/**
+ * National reads on file, by topic: after × on the market, a vague follow-up on one of these topics gets the
+ * national card (the opener says "this is the national read"). Topics not listed have no national read, so the
+ * reply asks which market instead; it never builds a ranking.
+ */
+export const NATIONAL_QUESTION: Partial<Record<ChatIntent, string>> = {
+  revpar_metrics: "What's the national RevPAR and occupancy picture?",
+  debt_overlay: "What's the national hotel debt and refinancing picture?",
+  rates: "What's the national hotel debt and refinancing picture?",
+  talent_greenlight: "What's the national hotel labor and staffing picture?",
+};
+
+/** The softened no-match reply after × on the market when the topic has no national read on file. */
+export function whichMarketLine(topicLabel: string | null): string {
+  return topicLabel
+    ? `Which market do you mean? There's no national ${lcTopic(topicLabel)} read on file, so name a covered market and I'll answer from its cited figures.`
+    : "Which market do you mean? Name a covered market and I'll answer from its cited figures.";
+}
+const lcTopic = (s: string) => (/^[A-Z][a-z]+\b/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+
 /**
  * The one line a follow-up answer opens with, or null (first question, a repeat, a prompt without a card, or
  * nothing changed that a reader could see). `prev*` describe the answer directly above, `cur*` this one.
@@ -124,10 +168,7 @@ export function whatChanged(x: {
 }): Opener | null {
   if (!x.hasPrev) return null;
   const seg = x.itemScoped === "reit" || x.itemScoped === "deal" ? null : segmentOf(x.question);
-  if (seg && !new RegExp(`\\b${seg.replace(/[- ]/g, "[- ]")}\\b`, "i").test(x.cardText)) {
-    const where = x.curMarketLabel ? `${x.curMarketLabel} figures` : "figures";
-    return { kind: "unsupported", text: `${UNSUPPORTED_LINE} There's no ${seg}-only cut on file, so the ${where} below cover all hotels.` };
-  }
+  if (seg && !cardNamesSegment(seg, x.cardText)) return { kind: "unsupported", text: unsupportedSegmentText(seg, x.curMarketLabel, "below") };
   const prevTopic = x.prevIntent ? TOPIC_LABEL[x.prevIntent as ChatIntent] ?? null : null;
   const curTopic = x.curIntent ? TOPIC_LABEL[x.curIntent as ChatIntent] ?? null : null;
   const sameMarket = (x.prevMarket ?? null) === (x.curMarket ?? null);
@@ -164,12 +205,12 @@ export function whatChanged(x: {
  * whose card is not one already shown. A segment narrowing gets the closest peer compare; a narrower window
  * gets the next-wider window on the same question.
  */
-export function alternateCandidates(x: { question: string; prevRange: DateRange | null; curRange: DateRange; marketLabel: string | null; peers: string[]; unsupported: boolean }): Alternate[] {
+export function alternateCandidates(x: { question: string; prevRange: DateRange | null; curRange: DateRange; marketLabel: string | null; peers: string[]; unsupported: boolean; segment?: string | null }): Alternate[] {
   const out: Alternate[] = [];
   const prevRange = x.prevRange ?? "all";
   if (x.unsupported && x.marketLabel) {
     for (const p of x.peers.slice(0, 2)) {
-      out.push({ label: `Compare ${x.marketLabel} with ${p}`, question: `Compare ${x.marketLabel} vs ${p}`, why: `${p} is the closest peer on file: same supply tier, nearest region.` });
+      out.push({ label: `Compare ${x.marketLabel} with ${p}`, question: `Compare ${x.marketLabel} vs ${p}`, why: `${p}, the closest peer: same supply tier, nearest region. This is a market compare; there's no ${x.segment ?? "segment"}-only cut for ${p} either.` });
     }
   }
   if (RANGE_ORDER[x.curRange] < RANGE_ORDER[prevRange]) {

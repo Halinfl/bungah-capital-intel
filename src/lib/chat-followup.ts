@@ -21,7 +21,7 @@ import { createHash } from "node:crypto";
 import { CHAT_INTENTS, classifyIntent, isBareRates, type ChatIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import type { ChatScope } from "./chat-scope";
-import { alternateCandidates, contextOf, parseCleared, segmentOf, UNSUPPORTED_LINE, whatChanged, type Alternate, type ChatContext, type ContextPart, type Opener } from "./chat-context";
+import { alternateCandidates, contextOf, NATIONAL_QUESTION, parseCleared, segmentFirstOpener, segmentOf, TOPIC_LABEL, unsupportedSegmentText, whatChanged, whichMarketLine, type Alternate, type ChatContext, type ContextPart, type Opener } from "./chat-context";
 import { guardPublic } from "./public-text";
 
 export type Prev = {
@@ -358,7 +358,7 @@ export async function applyNoRepeat<A extends { content: string; brief?: unknown
  * builds a chip's card the way its own request will). Never part of the cache key, the fingerprint or the log.
  */
 export async function followUpExtras(x: {
-  answer: { brief?: unknown; intent?: string; marketSlug: string | null };
+  answer: { content?: string; brief?: unknown; intent?: string; marketSlug: string | null };
   prev: Prev | null;
   question: string;
   range: DateRange;
@@ -383,11 +383,23 @@ export async function followUpExtras(x: {
   // (the card above covers all hotels), and offer the closest peer.
   const seg = scope?.kind === "reit" || scope?.kind === "deal" ? null : segmentOf(question);
   if (prev && x.repeat && seg && answer.marketSlug) {
-    const repeatLine = `${UNSUPPORTED_LINE} There's no ${seg}-only cut on file; the full cited card above covers all ${curLabel ?? "market"} hotels.`;
-    const alternate = await pickAlternate(alternateCandidates({ question, prevRange: prev.range ?? null, curRange: range, marketLabel: curLabel, peers: await peerNames(answer.marketSlug), unsupported: true }));
+    const repeatLine = unsupportedSegmentText(seg, curLabel, "above");
+    const alternate = await pickAlternate(alternateCandidates({ question, prevRange: prev.range ?? null, curRange: range, marketLabel: curLabel, peers: await peerNames(answer.marketSlug), unsupported: true, segment: seg }));
     return { context, opener: null, alternate, repeatLine: guardPublic(repeatLine) };
   }
-  if (!prev || x.repeat || !brief || typeof brief.answer !== "string") return { context, opener: null, alternate: null, repeatLine: null };
+  // A national read without a summary card (the national signals list) after × on the market still gets the
+  // "Dropped <market>, so this is the national read" line, so it never looks like the market's own answer.
+  if (!x.repeat && !brief && prev?.cleared?.includes("market") && prev.marketSlug && !answer.marketSlug && answer.content && /^\*\*National\b/.test(answer.content)) {
+    const dropped = await marketShortName(prev.marketSlug);
+    return { context, opener: dropped ? { kind: "angle", text: `Dropped ${dropped}, so this is the national read.` } : null, alternate: null, repeatLine: null };
+  }
+  if (x.repeat || !brief || typeof brief.answer !== "string") return { context, opener: null, alternate: null, repeatLine: null };
+  const cardText = [brief.answer, ...(brief.reads ?? []).map((r) => r.text ?? "")].join(" ");
+  // First question (Eric QA, Nov 13): a segment the graph has no cut for gets the same honest line.
+  if (!prev) {
+    const first = segmentFirstOpener({ question, cardText, marketLabel: curLabel, itemScoped: scope?.kind ?? null });
+    return { context, opener: first ? guardPublic(first) : null, alternate: null, repeatLine: null };
+  }
   const opener = whatChanged({
     hasPrev: true,
     question,
@@ -402,7 +414,7 @@ export async function followUpExtras(x: {
     curRange: range,
     prevDataTo: prev.dataTo ?? null,
     curDataTo: brief.span?.to ?? null,
-    cardText: [brief.answer, ...(brief.reads ?? []).map((r) => r.text ?? "")].join(" "),
+    cardText,
     itemScoped: scope?.kind ?? null,
   });
   const alternate = opener
@@ -414,8 +426,61 @@ export async function followUpExtras(x: {
           marketLabel: curLabel,
           peers: opener.kind === "unsupported" ? await peerNames(answer.marketSlug) : [],
           unsupported: opener.kind === "unsupported",
+          segment: seg,
         })
       )
     : null;
   return { context, opener: opener ? guardPublic(opener) : null, alternate, repeatLine: null };
 }
+
+/** The generic no-match card ("This question didn't match a market we cover"). */
+export const NO_MATCH_RE = /didn't match a market we cover/i;
+
+/**
+ * After × on the market chip, a vague follow-up that names no market used to get the bare no-match card (Eric QA
+ * (c), Nov 13). Now: if the topic has a national read on file (NATIONAL_QUESTION), answer with that national card;
+ * the opener then says "Dropped <market>, so this is the national read". Otherwise keep the no-match reply but ask
+ * which market, with chips for the dropped market and its peers on the same topic. Never builds a ranking.
+ * Returns null when this rule doesn't apply. `build` builds a card the way the route does (cache included).
+ */
+export async function clearedMarketFallback<A extends { content: string; brief?: unknown; intent?: string; marketSlug: string | null }>(x: {
+  answer: A;
+  prev: Prev | null;
+  question: string;
+  scope: ChatScope | null;
+  askedMarket: string | null;
+  build: (question: string) => Promise<A>;
+}): Promise<{ answer: A; national: boolean; followUps?: FollowUpChip[] } | null> {
+  const { answer, prev } = x;
+  if (!prev?.cleared?.includes("market") || x.scope || x.askedMarket || answer.marketSlug || !NO_MATCH_RE.test(answer.content)) return null;
+  const own = classifyIntent(x.question);
+  const topic = (own !== "unknown" ? own : prev.cleared.includes("topic") ? null : prev.intent) as ChatIntent | null;
+  const nq = topic ? NATIONAL_QUESTION[topic] : undefined;
+  if (nq) {
+    const nat = await x.build(nq);
+    const nb = nat.brief as { answer?: string } | null | undefined;
+    if (nb && typeof nb.answer === "string" && !nat.marketSlug && !NO_MATCH_RE.test(nat.content)) return { answer: nat, national: true };
+  }
+  const topicLabel = topic ? TOPIC_LABEL[topic] ?? null : null;
+  const dropped = await marketShortName(prev.marketSlug);
+  const lens = topic ? LENS_OF[topic] : undefined;
+  const chips: FollowUpChip[] = [];
+  if (dropped && lens) {
+    for (const m of [dropped, ...(await peerNames(prev.marketSlug)).slice(0, 2)]) {
+      const c = followUpChips({ intent: "unknown", market: m, question: x.question, range: "all" }).find((ch) => ch.label.startsWith(LENS_LABEL[lens]));
+      if (c) chips.push(c);
+    }
+  }
+  return {
+    answer: { ...answer, content: whichMarketLine(topicLabel), brief: null },
+    national: false,
+    ...(chips.length ? { followUps: chips } : {}),
+  };
+}
+const LENS_LABEL: Record<"perf" | "supply" | "demand" | "debt" | "labor", string> = {
+  perf: "RevPAR and occupancy in",
+  supply: "Supply pipeline in",
+  demand: "Demand drivers in",
+  debt: "Debt and refinancing in",
+  labor: "Labor and staffing in",
+};

@@ -9,7 +9,7 @@ import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
 import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
-import { answerHash, applyNoRepeat, followUpExtras, parsePrev, resolveFollowUp, type FollowUpChip } from "@/lib/chat-followup";
+import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
 
 /** Questions longer than this are cut (bounds per-request work). */
@@ -234,6 +234,32 @@ export async function POST(req: Request) {
       const rt = await resolveFollowUp({ question: c.question, scope, marketSlug: askedMarket, prev: chipPrev });
       return answerHash((await cardFor(c.question, c.range ?? "all", rt)).value);
     };
+    // Batch 1 (Eric QA c): × on the market, then a vague question → the national read when one is on file,
+    // else "which market?" with chips (each dropped if its card was already shown). Never a ranking.
+    let fallbackChips: FollowUpChip[] | undefined;
+    const fb = await clearedMarketFallback({
+      answer,
+      prev,
+      question,
+      scope,
+      askedMarket,
+      build: async (q) => (await cardFor(q, range, await resolveFollowUp({ question: q, scope, marketSlug: null, prev: null }))).value,
+    });
+    if (fb) {
+      answer = fb.answer;
+      if (fb.followUps?.length) {
+        const taken = shownHashes(prev);
+        fallbackChips = [];
+        for (const c of fb.followUps) {
+          const h = await hashOf(c).catch(() => null);
+          if (h && !taken.has(h)) {
+            taken.add(h);
+            fallbackChips.push(c);
+          }
+        }
+        answer = { ...answer, ...(fallbackChips.length ? { followUps: fallbackChips } : {}) };
+      }
+    }
     const nr = await applyNoRepeat(answer, { prev, question, range, hashOf });
     answer = nr.answer;
     const { hash, repeat, followUps } = nr;
@@ -283,7 +309,7 @@ export async function POST(req: Request) {
           "x-chat-cache": cache,
           "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
           ...(TEST_TOGGLES
-            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : ""].filter(Boolean).join("; ") }
+            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : "", fb ? (fb.national ? "cleared-market:national" : "cleared-market:which-market") : ""].filter(Boolean).join("; ") }
             : {}),
         },
       }

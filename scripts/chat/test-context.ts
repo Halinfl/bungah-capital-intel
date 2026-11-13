@@ -32,7 +32,7 @@ async function main() {
   installGraphFixture();
   const C = await import("@/lib/chat-context");
   const { answerChat } = await import("@/lib/chat-llm");
-  const { answerHash, applyNoRepeat, parsePrev, resolveFollowUp, followUpExtras, routingPrev, SEEN_MAX } = await import("@/lib/chat-followup");
+  const { answerHash, applyNoRepeat, parsePrev, resolveFollowUp, followUpExtras, routingPrev, clearedMarketFallback, shownHashes, SEEN_MAX } = await import("@/lib/chat-followup");
 
   /* ---------------- unit ---------------- */
   ok(C.segmentOf("upscale only") === "upscale", "segment: upscale");
@@ -87,18 +87,37 @@ async function main() {
     last: Prev | null = null;
     seen: string[] = [];
     turns: Turn[] = [];
+    lastFallback: string | null = null;
     constructor(public name: string, public scope: Scope | null = null) {}
     async ask(q: string, range: Range = "all", cleared: string[] = []): Promise<Turn> {
       const raw = this.last ? { ...this.last, seen: this.seen.slice(0, SEEN_MAX), ...(cleared.length ? { cleared } : {}) } : undefined;
       const p = parsePrev(raw ? JSON.parse(JSON.stringify(raw)) : undefined);
-      const a = await card(q, this.scope, p, range);
+      let a = await card(q, this.scope, p, range);
+      // Same as the route: × market + vague question → national read on file, else "which market?" (chips filtered).
+      const fb = await clearedMarketFallback({ answer: a, prev: p, question: q, scope: this.scope, askedMarket: this.scope?.kind === "market" ? this.scope.id : null, build: (nq) => card(nq, this.scope, null, range) });
+      this.lastFallback = fb ? (fb.national ? "national" : "which-market") : null;
       const chipPrev: Prev = { question: q, intent: (a.intent as Prev["intent"]) ?? null, marketSlug: a.marketSlug, answerHash: null, seen: [] };
       const hashOf = async (c: Chip) => answerHash(await card(c.question, this.scope, chipPrev, c.range ?? "all"));
+      if (fb) {
+        a = fb.answer;
+        if (fb.followUps?.length) {
+          const taken = shownHashes(p);
+          const keep: Chip[] = [];
+          for (const c of fb.followUps) {
+            const h = await hashOf(c);
+            if (!taken.has(h)) {
+              taken.add(h);
+              keep.push(c);
+            }
+          }
+          a = { ...a, followUps: keep };
+        }
+      }
       const nr = await applyNoRepeat(a, { prev: p, question: q, range, hashOf });
       const ex = await followUpExtras({ answer: nr.answer, prev: p, question: q, range, scope: this.scope, repeat: nr.repeat, hash: nr.hash, hashOf });
       const content = ex.repeatLine && /^That's the same answer/.test(nr.answer.content) ? ex.repeatLine : nr.answer.content;
       const brief = (nr.answer as { brief?: { answer?: string; span?: { to?: string | null } } | null }).brief;
-      const t: Turn = { q, range, content, head: brief?.answer ?? content.split("\n")[0], intent: nr.answer.intent ?? null, marketSlug: nr.answer.marketSlug, hash: nr.hash, repeat: nr.repeat, followUps: nr.followUps, context: ex.context, opener: ex.opener, alternate: ex.alternate, dataTo: brief?.span?.to ?? null };
+      const t: Turn = { q, range, content, head: brief?.answer ?? content.split("\n")[0], intent: nr.answer.intent ?? null, marketSlug: nr.answer.marketSlug, hash: nr.hash, repeat: nr.repeat, followUps: nr.followUps ?? (nr.answer as { followUps?: Chip[] }).followUps, context: ex.context, opener: ex.opener, alternate: ex.alternate, dataTo: brief?.span?.to ?? null };
       // Rules on every turn.
       ok(!this.seen.includes(t.hash) || t.repeat, `${this.name}: "${q}" never shows a card already shown`);
       for (const line of [t.opener?.text, t.alternate?.why, t.alternate?.label, ex.repeatLine].filter(Boolean) as string[]) {
@@ -148,14 +167,39 @@ async function main() {
   ok(unsupported, "T2: segment narrowing says what's on file", b2.opener?.text ?? b2.content);
   ok(b2.marketSlug === "nashville", "T2: segment narrowing keeps the market");
   ok(Boolean(b2.alternate && /^Compare Nashville vs /.test(b2.alternate.question)), "T2: one next-best alternate (closest peer)", JSON.stringify(b2.alternate));
+  ok(Boolean(b2.alternate && !/on file/.test(b2.alternate.why) && /This is a market compare; there's no upscale-only cut for \w+ either\.$/.test(b2.alternate.why)), "T2: alternate why has no second 'on file' and says the peer has no upscale cut either", b2.alternate?.why);
   const b3 = await t2.ask("What about select-service hotels in Nashville?");
   ok(b3.opener?.kind === "unsupported" || b3.content.startsWith(C.UNSUPPORTED_LINE) || b3.repeat, "T2: select-service also unsupported", b3.opener?.text ?? b3.content);
+  if (b3.repeat) ok(/There's no select-service-only cut on file\. The answer above covers all Nashville hotels\.$/.test(b3.content), "T2: repeat note reads 'The answer above covers all Nashville hotels.'", b3.content);
+
+  // T2b: first question that names a segment (Eric QA a): all-hotel card + the exact unsupported line.
+  const t2b = new Thread("T2b first-question segment");
+  const s1 = await t2b.ask("What's the RevPAR for upscale hotels in Nashville?");
+  ok(s1.opener?.kind === "unsupported" && s1.opener.text === "I don't have enough data to answer this confidently; here's what I do know. There's no upscale-only cut on file, so the Nashville figures below cover all hotels.", "T2b: first-question segment line", s1.opener?.text);
+  ok(s1.marketSlug === "nashville" && !s1.repeat, "T2b: still the Nashville all-hotel card");
+  const t2c = new Thread("T2c first-question REIT segment", { kind: "reit", id: "HST" });
+  const s2 = await t2c.ask("How did their upscale hotels do last quarter?");
+  ok(s2.opener === null, "T2c: REIT scope first question: no segment line", s2.opener?.text);
+  const t2d = new Thread("T2d first-question no segment");
+  ok((await t2d.ask("What's the RevPAR and occupancy read for Orlando?")).opener === null, "T2d: first question without a segment: no opener");
 
   // T3: × on the market → no inheritance.
   const t3 = new Thread("T3 clear market");
   await t3.ask("What's the RevPAR and occupancy read for Nashville?");
   const c2 = await t3.ask("What's the supply pipeline?", "all", ["market"]);
   ok(c2.marketSlug !== "nashville", "T3: × market → the follow-up does not inherit Nashville", String(c2.marketSlug));
+  ok(t3.lastFallback === "which-market" && /^Which market do you mean\? There's no national supply pipeline read on file/.test(c2.content), "T3: no national supply read → softened 'which market?' reply", c2.content);
+  ok(!/heaviest|ranking|rank/i.test(c2.content) && (c2.followUps ?? []).every((c) => /^Supply pipeline in /.test(c.label)), "T3: no invented ranking; chips are the same topic per market", JSON.stringify(c2.followUps));
+  ok((c2.followUps ?? []).length >= 1, "T3: at least one market chip", JSON.stringify(c2.followUps));
+  // × market + a vague question on a topic with a national read on file → the national card, labelled.
+  const t3n = new Thread("T3n clear market, national read");
+  await t3n.ask("What's the hotel supply pipeline in Nashville?");
+  const n2 = await t3n.ask("What's the debt and refinancing picture?", "all", ["market"]);
+  ok(n2.marketSlug === null && /^Dropped Nashville, so this is the national read/.test(n2.opener?.text ?? ""), "T3n: national debt read, opener says so", `${t3n.lastFallback} ${n2.opener?.text} | ${n2.head.slice(0, 80)}`);
+  const t3r = new Thread("T3r clear market, national RevPAR");
+  await t3r.ask("What's the hotel supply pipeline in Nashville?");
+  const r2 = await t3r.ask("How is RevPAR doing?", "all", ["market"]);
+  ok(r2.marketSlug === null && /^Dropped Nashville, so this is the national read/.test(r2.opener?.text ?? ""), "T3r: national RevPAR read (existing national card), opener says so", `${t3r.lastFallback} ${r2.opener?.text ?? r2.content.slice(0, 80)}`);
   // Control: same question without × inherits.
   const t3b = new Thread("T3 control");
   await t3b.ask("What's the RevPAR and occupancy read for Nashville?");
@@ -207,6 +251,22 @@ async function main() {
   await t8.ask("What's the hotel supply pipeline in Nashville?");
   const h3 = await t8.ask("What's the RevPAR and occupancy read for Nashville?");
   ok(h3.repeat && h3.opener === null, "T8: repeat → note only, no opener");
+
+  // T9: "Newer cited data" happy path. The graph has not changed since Oct 26 (every nightly dump has the same 896
+  // signal rows), so no real thread has seen newer data. Constructed from real rows: the earlier card is built
+  // (span-probe.ts, child process) as if four real Nashville rows weren't on file yet (the C&W Q2 print, the Oct 11
+  // latest-pulse row that repeats it, and the two Oct 11 citywide calendars), then the same question on the full graph is asked with that card as prev.
+  const { execFileSync } = await import("node:child_process");
+  const HOLD = "w1-nash-cw-q2,w1s-nashville-latest-pulse,w1d-nashville-compression-90d,w1d-nashville-d7";
+  const NQ = "What's the RevPAR and occupancy read for Nashville?";
+  const early = JSON.parse(execFileSync("npx", ["tsx", "scripts/chat/span-probe.ts"], { env: { ...process.env, PROBE_QS: JSON.stringify([NQ]), PROBE_HOLDBACK_IDS: HOLD }, encoding: "utf8" }))[0] as { hash: string; dataTo: string; intent: string; marketSlug: string };
+  const t9 = new Thread("T9 newer cited data (constructed)");
+  t9.last = { question: NQ, intent: early.intent as Prev["intent"], marketSlug: early.marketSlug, answerHash: early.hash, range: "all", dataTo: early.dataTo };
+  t9.seen = [early.hash];
+  log.push(`## T9 earlier card (rows held back: ${HOLD})\nhash=${early.hash} dataTo=${early.dataTo}`);
+  const n9 = await t9.ask(NQ);
+  ok(!n9.repeat && n9.opener?.kind === "data", "T9: same market/topic/window, later cited month → 'Newer cited data' opener", `${early.dataTo} → ${n9.dataTo}: ${n9.opener?.text}`);
+  ok(n9.opener?.text === `Newer cited data than your last answer: the sources now run through ${n9.dataTo} (they ran through ${early.dataTo}).`, "T9: opener names both months from the cited spans", n9.opener?.text);
 
   const fs = await import("node:fs");
   const out = process.env.BATCH1_OUT ?? "/workspace/bungah-audit/chat-batch1/local-threads.md";
