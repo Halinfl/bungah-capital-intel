@@ -23,6 +23,11 @@ export const LICENSED_TEXT = new RegExp(
     // STR's own products and market definitions: "STR market", "STR pipeline", "STR forecast", "STR Jan–Jul 2025"
     String.raw`\bSTR\s+(?:market|pipeline|benchmark|data|census|trend|weekly|monthly|report|chain|segment|figures|forecast|metrics|SF\b|Q[1-4]\b|20\d\d\b|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b)`,
     String.raw`\bSTR\s*\/\s*Tourism Economics`,
+    // Destination-report credits (r4): "(STR data)", "(source STR)", "(hotel chart, source STR)",
+    // "(sources CoStar, STR)", "(Visit Napa Valley; STR, YTD Dec 2025)".
+    String.raw`\bSTR data\b`,
+    String.raw`\bsources?:?\s+(?:[^();|]{0,60}?,\s*)?STR\b(?![\s-]*(?:registry|permits?|units?|listings?|rentals?|ordinance|TOT|tax|remit))`,
+    String.raw`[(;]\s*STR\s*,`,
   ].join("|"),
   "i"
 );

@@ -703,6 +703,12 @@ function perfCardFacts(m: MarketRow, facts: Fact[]): Fact[] {
   return [...(head ? [head] : []), ...perfReads(facts, 3, new Set(head ? [head.text] : []))];
 }
 
+/** A REIT's own comparable-hotel / portfolio print ("Host Hotels Chicago comparable RevPAR"), not a market read. */
+const PORTFOLIO_SLICE = /\bcomparable (?:RevPAR|hotels?|portfolio)\b|\bportfolio[- ]wide\b|\b(?:Host Hotels|Park Hotels|Pebblebrook|DiamondRock|Apple Hospitality|Ryman|Sunstone|Xenia|RLJ|Summit Hotel)\b[^.;]{0,40}\bRevPAR\b/i;
+function isPortfolioSlice(f: Fact): boolean {
+  return PORTFOLIO_SLICE.test(f.text) || PORTFOLIO_SLICE.test(f.title ?? "");
+}
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -726,12 +732,19 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     const asksRevpar = !opts.question || /\brevpar\b/i.test(opts.question);
     // "Why are rates up in Nashville?" / "room rates" / "ADR": the longest recent print that carries ADR leads.
     const asksAdr = Boolean(opts.question) && !asksRevpar && !/\b(occupanc\w*|occ)\b/i.test(opts.question!) && (ROOM_RATE_WORDS.test(opts.question!) || isBareRates(opts.question!));
-    const perf = facts.filter(PERF_FACT);
+    // r4 (Eric QA): a REIT's comparable-hotel RevPAR is a portfolio slice, never the market read. It leads only as a
+    // labeled slice after a line saying there's no public market-wide or county RevPAR on file.
+    const allPerf = facts.filter(PERF_FACT);
+    const perf = allPerf.filter((f) => !isPortfolioSlice(f));
+    const slice = longestFirst(allPerf.filter(isPortfolioSlice))[0];
     const move = longestFirst(perf.filter((f) => REVPAR_MOVE.test(f.text) && !isSpot(f)))[0];
     const occRate = longestFirst(perf.filter((f) => OCC_RATE.test(f.text) && !isSpot(f)))[0];
     const anyRevpar = longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text) && !isSpot(f)))[0] ?? longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text)))[0];
     const adrHead = asksAdr ? longestFirst(perf.filter((f) => ADR_FIGURE.test(f.text) && !isSpot(f)))[0] : undefined;
-    if (adrHead) {
+    if (!perf.length && slice && !metrics) {
+      answer = `${short}: no public market-wide or county RevPAR on file. The closest public read is a REIT portfolio slice, not the market: ${headLine(short, "demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
+      reads = perfReads(facts, n, new Set([slice.text]));
+    } else if (adrHead) {
       answer = headLine(short, "demand", adrHead);
       reads = perfReads(facts, n, new Set([adrHead.text]));
     } else if (asksRevpar && move) {

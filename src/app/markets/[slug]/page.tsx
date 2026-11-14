@@ -15,7 +15,7 @@ import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
 import { isOwnSource, withoutOwnLinks } from "@/lib/rule-rows";
-import { withoutLicensedSnapshot } from "@/lib/licensed-sources";
+import { isLicensedText, withoutLicensedSnapshot } from "@/lib/licensed-sources";
 import {
   fmtPct,
   fmtUsd,
@@ -41,7 +41,7 @@ import { marketOwners } from "@/lib/reits-market";
 import { MarketHistoryBlock, hasAirportData } from "@/components/MarketHistoryBlock";
 import { MarketSectionChips } from "@/components/MarketSectionChips";
 import { HotelPerformanceBlock } from "@/components/HotelPerformanceBlock";
-import { hotelPerf } from "@/lib/hotel-performance";
+import { hotelPerf, hotelPerfLicensedHidden } from "@/lib/hotel-performance";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +99,17 @@ export default async function MarketDetailPage({
       },
     }), null);
   // A snapshot cited to STR is not shown (licensed-sources.ts, Hal Nov 13 2026); display only.
-  const market = marketQ.data ? withoutLicensedSnapshot(marketQ.data) : marketQ.data;
+  const rawMarket = marketQ.data;
+  const market = rawMarket ? withoutLicensedSnapshot(rawMarket) : rawMarket;
+  // r4 (Eric QA): a market whose market-wide hotel figures on file are licensed (STR/CoStar snapshot, C&W print or a
+  // destination report credited to STR) keeps its normal intro, with a line saying why no snapshot is shown, instead
+  // of the unchecked-market copy.
+  const licensedHidden = Boolean(
+    rawMarket &&
+      ((isLicensedText(rawMarket.sourceLabel) && !/^\s*Illustrative seed\b/i.test(rawMarket.sourceLabel)) ||
+        hotelPerfLicensedHidden(rawMarket.slug) > 0 ||
+        rawMarket.signals.some((s) => isLicensedText(`${s.title} ${s.sourceLabel}`) && /\b(OCC|occupancy|ADR|RevPAR)\b/i.test(s.title)))
+  );
 
   // DB outage with no cached copy: friendly page (200), never a 404 or 500.
   if (!market && !marketQ.ok) {
@@ -127,6 +137,12 @@ export default async function MarketDetailPage({
 
   const isOrlando = market.slug === "orlando";
   const thin = isSeedMarket(market);
+  const withheldIntro = thin && licensedHidden && hasPublicCoverage(market, market.signals.length + taxSeries.length);
+  // The summary without sentences about the snapshot that is no longer shown ("Seed lodging metrics are…").
+  const introSummary = glueText(scrubInternal(market.summary))
+    .split(/(?<=\.)\s+/)
+    .filter((x) => !/\b(seed|illustrative|lodging metrics|lodging color)\b/i.test(x))
+    .join(" ");
   const short = shortMarketLabel(market.name, market.slug);
   const hasRevpar = market.occupancy != null && market.adr != null;
   const ttRates = ttMarketBySiteSlug(market.slug);
@@ -209,7 +225,15 @@ export default async function MarketDetailPage({
           <span className="mx-2 text-slate-300">·</span>
           Destination dashboard
         </p>
-        {thin ? (
+        {withheldIntro ? (
+          <>
+            {introSummary ? <p className="mt-4 max-w-3xl text-slate-300">{introSummary}</p> : null}
+            <p className="mt-3 max-w-3xl text-sm text-slate-300" data-snapshot-withheld>
+              The market-wide occupancy and ADR snapshot isn&apos;t shown because its source is licensed data; the
+              figures below are cited to public sources.
+            </p>
+          </>
+        ) : thin ? (
           <p className="mt-4 max-w-3xl text-slate-300">
             {hotelPerf(market.slug)
               ? "Hotel figures below are cited to their sources; other sources for this market are still being checked."

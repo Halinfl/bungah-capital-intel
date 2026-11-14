@@ -459,6 +459,11 @@ function publicSafe<T extends { title: string; body: string; sourceLabel: string
   return withNeutralBrands(withoutLicensedSources(withoutLeaks(rows), extraLicensed));
 }
 
+/** National RevPAR gap line (r4): the national prints were licensed STR/CoStar data. */
+export const NATIONAL_PERF_GAP = "There's no national RevPAR, occupancy or ADR read on file from a public source.";
+/** Markets whose RevPAR / occupancy reads on file are public (county, metro or CVB data), offered after the gap. */
+export const NATIONAL_PERF_CHIP_MARKETS = ["nashville", "dallas", "houston"];
+
 /**
  * Leak guard at load (src/lib/public-text.ts stripLeaks): file paths, code files, dataset IDs used as labels and internal
  * codes ("(D3)") leave every signal before any fact is read, and known internal source references become their public
@@ -1248,11 +1253,31 @@ export async function answerFromGraph(
   // National RevPAR / occupancy: the national performance prints are licensed STR/CoStar data (not published, Hal
   // Nov 13 2026), so the answer says there's no public national read instead of the generic line.
   const perfAsk = intent === "revpar_metrics" || /\b(revpar|occupancy|occ|adr|average daily rate)\b/i.test(q);
+  if (perfAsk) {
+    // r4: the honest gap, then markets whose RevPAR / occupancy figures on file are public (county, metro, CVB).
+    const chips = NATIONAL_PERF_CHIP_MARKETS.filter((slug) => ctx.markets.some((m) => m.slug === slug)).map((slug) => {
+      const name = ctx.markets.find((m) => m.slug === slug)!.name.split(/[–—,]/)[0].trim();
+      return { label: `${name} RevPAR`, question: `What's the RevPAR and occupancy read for ${name}?` };
+    });
+    return {
+      content: [
+        NATIONAL_PERF_GAP,
+        "",
+        chips.length
+          ? `Markets with public RevPAR and occupancy figures on file: ${chips.map((c) => c.label.replace(/ RevPAR$/, "")).join(", ")}. Or [browse the markets we cover](/markets).`
+          : "Try naming a covered market, or [browse the markets we cover](/markets).",
+        "",
+        "_Decision support:_ no national figure is given here because none is on file from a public source; you make the call.",
+      ].join("\n"),
+      citations: [],
+      intent,
+      mode: "deterministic",
+      ...(chips.length ? { followUps: chips } : {}),
+    };
+  }
   return {
     content: [
-      perfAsk
-        ? "There's no national RevPAR, occupancy or ADR read on file from a public source, and this question didn't match a market we cover."
-        : "Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover.",
+      "Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover.",
       "",
       "Try naming a covered market, for example: [Capital thesis for Orlando](/chat?market=orlando), or [browse the markets we cover](/markets).",
       "",

@@ -434,7 +434,7 @@ export async function followUpExtras(x: {
 }
 
 /** The generic no-match card ("This question didn't match a market we cover"). */
-export const NO_MATCH_RE = /didn't match a market we cover/i;
+export const NO_MATCH_RE = /didn't match a market we cover|^There's no national RevPAR, occupancy or ADR read on file/i;
 
 /**
  * After × on the market chip, a vague follow-up that names no market used to get the bare no-match card (Eric QA
