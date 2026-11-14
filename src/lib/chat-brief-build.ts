@@ -9,6 +9,7 @@ import { nearestCoveredMarkets } from "./chat-coverage";
 import { coverageInProgressLine, isSeedMarket } from "./format";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import { publisherName, scrubInternal } from "./public-text";
+import { isBrandCompare } from "./brand-neutral";
 import { FED_POLICY, fedDate, fedDecisions, fedForecastLine, isFedForecastQuestion, isFedPolicyQuestion, pct as fedPct, rangeText, type FedPolicy } from "./fed-policy";
 import {
   chipKind,
@@ -940,7 +941,8 @@ export function nationalDebtBrief(
 ): ChatBrief {
   const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind));
   const facts = debt.flatMap((s) => signalFacts(s));
-  const head = pickReads(facts, "debt", 1)[0];
+  // A brand-flag comparison (Trepp CMBS rates by flag) may be a read, never the lead (Hal, Nov 13 2026).
+  const head = pickReads(facts.filter((f) => !isBrandCompare(f)), "debt", 1)[0];
   const reads = pickReads(facts, "debt", 3, new Set(head ? [head.text] : []));
   // The delinquency slot fed the answer line; the reads keep wall and rate, plus the next newest debt fact.
   const answer = head ? headLine("US hotel", "debt", head) : "US hotel debt: no cited national debt read on file yet.";
@@ -1110,7 +1112,7 @@ export function ratesBrief(signals: SignalLike[], question: string, opts: BriefO
   const debt = signals.filter((s) => ["debt", "rates", "cmbs", "cap_rate"].includes(s.kind) || RATE_ROW.test(s.title));
   // "How are rates affecting debt / refinancing?": the newest cited debt read comes first, then the other rates.
   const debtRead = /\b(debt|refinanc\w*|cmbs|loans?|lend\w*|maturit\w*)\b/i.test(question)
-    ? pickReads(debt.filter((s) => !RATE_ROW.test(s.title)).flatMap((s) => signalFacts(s)), "debt", 1)
+    ? pickReads(debt.filter((s) => !RATE_ROW.test(s.title)).flatMap((s) => signalFacts(s)).filter((f) => !isBrandCompare(f)), "debt", 1)
     : [];
   const reads = [...debtRead, ...others].slice(0, 3).map(toRead);
   const ordered = [...debt].sort((a, b) => Number(RATE_ROW.test(b.title)) - Number(RATE_ROW.test(a.title)));

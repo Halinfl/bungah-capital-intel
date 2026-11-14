@@ -196,10 +196,12 @@ async function main() {
   await t3n.ask("What's the hotel supply pipeline in Nashville?");
   const n2 = await t3n.ask("What's the debt and refinancing picture?", "all", ["market"]);
   ok(n2.marketSlug === null && /^Dropped Nashville, so this is the national read/.test(n2.opener?.text ?? ""), "T3n: national debt read, opener says so", `${t3n.lastFallback} ${n2.opener?.text} | ${n2.head.slice(0, 80)}`);
-  const t3r = new Thread("T3r clear market, national RevPAR");
+  // r3: the national RevPAR prints were CoStar data and are no longer shown, so a cleared-market RevPAR question asks
+  // which market (no national read on file) instead of answering nationally.
+  const t3r = new Thread("T3r clear market, national RevPAR (none on file since r3)");
   await t3r.ask("What's the hotel supply pipeline in Nashville?");
   const r2 = await t3r.ask("How is RevPAR doing?", "all", ["market"]);
-  ok(r2.marketSlug === null && /^Dropped Nashville, so this is the national read/.test(r2.opener?.text ?? ""), "T3r: national RevPAR read (existing national card), opener says so", `${t3r.lastFallback} ${r2.opener?.text ?? r2.content.slice(0, 80)}`);
+  ok(r2.marketSlug === null && t3r.lastFallback === "which-market" && /^Which market do you mean\? There's no national RevPAR and occupancy read on file/.test(r2.content), "T3r: no national RevPAR read on file → which-market reply", `${t3r.lastFallback} ${r2.content.slice(0, 120)}`);
   // Control: same question without × inherits.
   const t3b = new Thread("T3 control");
   await t3b.ask("What's the RevPAR and occupancy read for Nashville?");
@@ -254,10 +256,11 @@ async function main() {
 
   // T9: "Newer cited data" happy path. The graph has not changed since Oct 26 (every nightly dump has the same 896
   // signal rows), so no real thread has seen newer data. Constructed from real rows: the earlier card is built
-  // (span-probe.ts, child process) as if four real Nashville rows weren't on file yet (the C&W Q2 print, the Oct 11
-  // latest-pulse row that repeats it, and the two Oct 11 citywide calendars), then the same question on the full graph is asked with that card as prev.
+  // (span-probe.ts, child process) as if three real Nashville rows weren't on file yet (the Oct 11 supply snapshot that
+  // carries the YE 2025 county read, and the two Oct 11 citywide calendars), then the same question on the full graph
+  // is asked with that card as prev. (r3: the C&W STR/CoStar rows held back before are now never shown at all.)
   const { execFileSync } = await import("node:child_process");
-  const HOLD = "w1-nash-cw-q2,w1s-nashville-latest-pulse,w1d-nashville-compression-90d,w1d-nashville-d7";
+  const HOLD = "w1s-nashville-snapshot,w1d-nashville-compression-90d,w1d-nashville-d7";
   const NQ = "What's the RevPAR and occupancy read for Nashville?";
   const early = JSON.parse(execFileSync("npx", ["tsx", "scripts/chat/span-probe.ts"], { env: { ...process.env, PROBE_QS: JSON.stringify([NQ]), PROBE_HOLDBACK_IDS: HOLD }, encoding: "utf8" }))[0] as { hash: string; dataTo: string; intent: string; marketSlug: string };
   const t9 = new Thread("T9 newer cited data (constructed)");

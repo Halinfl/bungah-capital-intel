@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { withoutSocial } from "./social-sources";
 import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
+import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
+import { withNeutralBrands } from "./brand-neutral";
 import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
 import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
 import { prisma } from "./prisma";
@@ -450,6 +452,14 @@ function taxLine(s: SignalRow): string {
 }
 
 /**
+ * Public-answer source rules at load (Hal, Nov 13 2026): no STR/CoStar-cited figure (licensed-sources.ts) and no
+ * brand-vs-brand framing of loan performance (brand-neutral.ts). Display layer only; DB rows unchanged.
+ */
+function publicSafe<T extends { title: string; body: string; sourceLabel: string; sourceUrls?: unknown; magnitude?: string | null }>(rows: T[], extraLicensed: string[] = []): T[] {
+  return withNeutralBrands(withoutLicensedSources(withoutLeaks(rows), extraLicensed));
+}
+
+/**
  * Leak guard at load (src/lib/public-text.ts stripLeaks): file paths, code files, dataset IDs used as labels and internal
  * codes ("(D3)") leave every signal before any fact is read, and known internal source references become their public
  * citation (e.g. the Texas Comptroller HOT dataset with its period and URL). Display layer only; DB rows unchanged.
@@ -844,14 +854,17 @@ export async function retrieveGraphContext(
       orderBy: { name: "asc" },
     }), [], GRAPH_MEMO);
   if (!marketsQ.ok) throw new Error("CAPITAL_GRAPH_UNAVAILABLE");
-  const markets = marketsQ.data;
+  // A market snapshot cited to STR is not shown (licensed-sources.ts); its figures also mark republished copies in the
+  // market's rows. Display layer only.
+  const snapLabels = new Map(marketsQ.data.map((m) => [m.id, m.sourceLabel]));
+  const markets = marketsQ.data.map((m) => withoutLicensedSnapshot(m));
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = withoutLeaks(withoutRules(withoutSocial(citedOnly(m.signals))));
+    m.signals = publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""]);
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withDataLayerRates(withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  const nationalSignals = withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
@@ -1232,9 +1245,14 @@ export async function answerFromGraph(
     };
   }
 
+  // National RevPAR / occupancy: the national performance prints are licensed STR/CoStar data (not published, Hal
+  // Nov 13 2026), so the answer says there's no public national read instead of the generic line.
+  const perfAsk = intent === "revpar_metrics" || /\b(revpar|occupancy|occ|adr|average daily rate)\b/i.test(q);
   return {
     content: [
-      "Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover.",
+      perfAsk
+        ? "There's no national RevPAR, occupancy or ADR read on file from a public source, and this question didn't match a market we cover."
+        : "Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover.",
       "",
       "Try naming a covered market, for example: [Capital thesis for Orlando](/chat?market=orlando), or [browse the markets we cover](/markets).",
       "",
@@ -1254,7 +1272,7 @@ export async function sourcesForAnswer(
   content: string
 ): Promise<NonNullable<ChatAnswer["sources"]>> {
   // The 10-year is the data-layer read (r6d), never a stored older row.
-  const rows = withDataLayerRates(withoutLeaks(withoutRules(withoutSocial(citedOnly(
+  const rows = withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-source-signals"], () =>
       prisma.signal.findMany({
         where: { NOT: { sourceUrls: { equals: Prisma.AnyNull } } },

@@ -15,6 +15,7 @@ import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
 import { isOwnSource, withoutOwnLinks } from "@/lib/rule-rows";
+import { withoutLicensedSnapshot } from "@/lib/licensed-sources";
 import {
   fmtPct,
   fmtUsd,
@@ -97,7 +98,8 @@ export default async function MarketDetailPage({
         },
       },
     }), null);
-  const market = marketQ.data;
+  // A snapshot cited to STR is not shown (licensed-sources.ts, Hal Nov 13 2026); display only.
+  const market = marketQ.data ? withoutLicensedSnapshot(marketQ.data) : marketQ.data;
 
   // DB outage with no cached copy: friendly page (200), never a 404 or 500.
   if (!market && !marketQ.ok) {

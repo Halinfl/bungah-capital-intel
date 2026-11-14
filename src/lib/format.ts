@@ -1,4 +1,6 @@
 import { withoutRules } from "@/lib/rule-rows";
+import { withoutLicensedSources } from "@/lib/licensed-sources";
+import { withNeutralBrands } from "@/lib/brand-neutral";
 
 export function fmtPct(n: number | null | undefined, digits = 1): string {
   if (n == null) return "—";
@@ -110,7 +112,8 @@ export function citedOnly<T extends SeedCheckable>(rows: T[]): T[] {
  * methodology row (kind nuance / labor_rule) or a row sourced only to our own site (rule-rows.ts). Display only.
  */
 export function publicRows<T extends SeedCheckable & { kind?: string | null; sourceLabel?: string | null }>(rows: T[]): T[] {
-  return withoutRules(citedOnly(rows));
+  // No STR/CoStar-cited figure and no brand-vs-brand loan framing on a public page (Hal, Nov 13 2026).
+  return withNeutralBrands(withoutLicensedSources(withoutRules(citedOnly(rows))));
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -397,11 +397,13 @@ async function main() {
     const why = await th.ask("Why is occupancy down?");
     show("r3-1 revpar", rev);
     show("r3-1 why", why);
-    check(!/\bactually\b/i.test(why.content), `r3-1 Nashville: "actually" despite conflicting figures: ${why.head.slice(0, 160)}`);
-    check(why.head.startsWith("Mixed: occupancy is down 0.2% in Q2 2026 (Cushman & Wakefield) but up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com)."), `r3-1 Nashville mixed line: ${why.head.slice(0, 200)}`);
-    check(/OCC 71\.7% \(−0\.2%\)/.test(rev.head), `r3-1 the RevPAR card no longer shows C&W OCC −0.2%: ${rev.head.slice(0, 120)}`);
+    // r3 (Nov 13 2026): the C&W Q2 print (STR/CoStar data, OCC −0.2%) is no longer shown, so every cited Nashville
+    // occupancy figure is up and the line is "actually" (the all-agree case), not "Mixed".
+    check(why.head.startsWith("Occupancy is actually up 3.2% year to date through Sep 12 2026 (county data, roadgenius.com)."), `r3-1 Nashville all-agree line: ${why.head.slice(0, 200)}`);
+    check(!/Mixed|Cushman|CoStar/.test(why.head), `r3-1 Nashville: licensed figure in the premise: ${why.head.slice(0, 160)}`);
+    check(!/OCC 71\.7%|Cushman|CoStar/.test(rev.head) && /county|roadgenius/.test(rev.head), `r3-1 the RevPAR card leads with county data, no C&W: ${rev.head.slice(0, 120)}`);
     const readTexts = (why.brief?.reads ?? []).map((r) => String(r.text ?? ""));
-    check(readTexts.some((t) => /OCC[^;]{0,25}−0\.2%/.test(t)) && readTexts.some((t) => /OCC[^;]{0,25}\+3\.2%/.test(t)), `r3-1 both premise figures are not cited reads: ${readTexts.join(" | ").slice(0, 200)}`);
+    check(readTexts.some((t) => /OCC[^;]{0,25}\+3\.2%/.test(t)) && !readTexts.some((t) => /OCC[^;]{0,25}−0\.2%/.test(t)), `r3-1 the premise figure is a cited read (and the C&W one is gone): ${readTexts.join(" | ").slice(0, 200)}`);
     console.log(`  r3-1 "Why is occupancy down?" after the RevPAR card: ${why.head.slice(0, 200)}`);
 
     // Every market × metric × direction: "actually" only if no figure on the market's performance card (or the
@@ -501,7 +503,7 @@ async function main() {
     check(!/National hotel capital signals|Fed funds|SOFR/.test(bare.content), "r3-a bare rates still answers interest rates");
     const roomChip = await ask(RATES_CHIPS[0].question, null, bare.prevOut);
     const rateChip = await ask(RATES_CHIPS[1].question, null, bare.prevOut);
-    check(roomChip.intent === "revpar_metrics" && /ADR/.test(roomChip.content) && roomChip.content !== RATES_PROMPT, `r3-a room-rates chip → ${roomChip.intent}: ${roomChip.head.slice(0, 80)}`);
+    check(roomChip.intent === "revpar_metrics" && /ADR/.test(roomChip.content) && roomChip.content !== RATES_PROMPT && !/CoStar/.test(roomChip.content), `r3-a room-rates chip → ${roomChip.intent}: ${roomChip.head.slice(0, 80)}`);
     check(rateChip.intent === "rates" && /Treasury|SOFR|Fed/.test(rateChip.content), `r3-a interest chip → ${rateChip.intent}: ${rateChip.head.slice(0, 80)}`);
     // "rates" + a market: the RevPAR / ADR card, led by an ADR print, with the ADR premise.
     const nr = await ask("Why are rates up in Nashville?", null, null);
@@ -509,7 +511,8 @@ async function main() {
     check(nr.intent === "revpar_metrics" && nr.marketSlug === "nashville", `r3-a "Why are rates up in Nashville?" → ${nr.intent} · ${nr.marketSlug}`);
     check(/\bADR\b/.test(nr.head) && !/\bpax\b/.test(nr.head), `r3-a Nashville rates headline: ${nr.head.slice(0, 160)}`);
     // r4: only the latest 12 months are weighed, so FY2025 ADR −1.3% no longer makes this "Mixed".
-    check(nr.head.startsWith("ADR is up 1.2% in Q2 2026 (Cushman & Wakefield)."), `r3-a/r4 Nashville ADR premise: ${nr.head.slice(0, 160)}`);
+    // r3: the C&W ADR +1.2% print is STR/CoStar data and no longer shown; the county ADR read leads, with no premise.
+    check(nr.head.startsWith("Nashville: 2025 county OCC / ADR: 67.0% / $199.20 (ADR −1.3%)") && !/Cushman|CoStar/.test(nr.head), `r3-a/r4 Nashville ADR head: ${nr.head.slice(0, 160)}`);
     // Bare "rates" with context: a market on screen → room rates there; an interest-rate card on screen → interest rates.
     const t1 = new Thread(null);
     await t1.ask("What's the supply pipeline in Nashville?");
@@ -578,9 +581,10 @@ async function main() {
     show("r4-1 rates repeat", rr);
     const rawRates = await card("Why are rates up in Nashville?", null, rev.prevOut, "all");
     const pl = (rawRates.brief as (Brief & { premise?: string }) | null)?.premise ?? "";
-    check(/^ADR is up 1\.2% in Q2 2026 \(Cushman & Wakefield\)\.$/.test(pl), `r4-1 the rates card's premise: ${pl}`);
+    // r3: with the C&W print gone the rates card has no premise and is the RevPAR card again (plain repeat line).
+    check(pl === "", `r4-1 the rates card's premise: ${pl}`);
     if (rr.repeat) {
-      check(rr.content === `${pl} ${CARD_ABOVE_LINE}`, `r4-1 rates repeat after the RevPAR card: ${JSON.stringify(rr.content)}`);
+      check(rr.content === "That's the same answer as above. Nothing more specific is on file for that.", `r4-1 rates repeat after the RevPAR card: ${JSON.stringify(rr.content)}`);
       check((rr.followUps ?? []).length === 3, `r4-1 rates repeat chips: ${(rr.followUps ?? []).length}`);
       await checkNote("r4-1 rates repeat", th, "nashville");
     } else check(rr.head.startsWith(pl), `r4-1 rates card does not lead with the ADR line: ${rr.head.slice(0, 120)}`);
@@ -630,7 +634,7 @@ async function main() {
     console.log(`  r4-2 premise clauses with period + source: ${clauses}`);
     // Fresh "Why is occupancy down?" (no card above): Mixed is fine; both figures cited.
     const fresh = await ask("Why is occupancy down?", nash, null);
-    check(/^Mixed: occupancy is down 0\.2% in Q2 2026 \(Cushman & Wakefield\) but up 3\.2% year to date through Sep 12 2026 \(county data, roadgenius\.com\)\./.test(fresh.head), `r4-2 fresh occupancy-down: ${fresh.head.slice(0, 200)}`);
+    check(/^Occupancy is actually up 3\.2% year to date through Sep 12 2026 \(county data, roadgenius\.com\)\./.test(fresh.head), `r4-2 fresh occupancy-down: ${fresh.head.slice(0, 200)}`);
   }
   {
     // r4-4. Compare answers in the user's order (unscoped and scoped).
@@ -651,7 +655,8 @@ async function main() {
     check(dl.head.startsWith("Dallas:") && !/Dallas–Fort Worth/.test(dl.head), `r4 Dallas heading: ${dl.head.slice(0, 80)}`);
     const fw = await ask("How is Fort Worth doing?", null, null);
     check(fw.marketSlug === "dallas" && fw.head.startsWith("Dallas:"), `r4 Fort Worth → Dallas: ${fw.head.slice(0, 60)}`);
-    check(/\(Cushman & Wakefield, Dallas market\)/.test(dl.head), `r4 Dallas lead figure area tag: ${dl.head.slice(0, 200)}`);
+    // r3: the C&W Dallas print is STR/CoStar data; the Matthews DFW read leads, still area-tagged.
+    check(/\(Matthews, DFW metro\)/.test(dl.head) && !/CoStar|Cushman/.test(dl.head), `r4 Dallas lead figure area tag: ${dl.head.slice(0, 200)}`);
     const sup = await ask("What's the supply pipeline in Dallas?", null, null);
     check(sup.head.startsWith("Dallas supply: supply-pressure score") && !/Dallas–Fort Worth supply|supply: Dallas supply/.test(sup.head) && /Lodging Econometrics, Dallas market\)/.test(sup.head), `r4 Dallas supply headline: ${sup.head.slice(0, 160)}`);
     const all = new Map<string, string>();
@@ -690,9 +695,11 @@ async function main() {
     // r5-1. A set-aside week that backs the user is named in the line (real cited figures).
     const wkDown = await card("Why are rates down in Nashville?", null, null, "all");
     const pl = (wkDown.brief as (Brief & { premise?: string }) | null)?.premise ?? "";
-    check(pl === "ADR is up 1.2% in Q2 2026 (Cushman & Wakefield), though the week ending Aug 8 was down 4.1% (CoStar).", `r5-1 though-line: ${pl}`);
+    // r3: both figures (C&W Q2 ADR +1.2%, CoStar week ADR −4.1%) were STR/CoStar data and are no longer shown, so
+    // there is no though-line on the live card; the unit cases below still cover the rule.
+    check(!/Cushman|CoStar/.test(pl), `r5-1 though-line: ${pl}`);
     const rd = ((wkDown.brief as Brief | null)?.reads ?? []).map((r) => String(r.text ?? ""));
-    check(rd.some((t) => /ADR −4\.1%/.test(t)) && rd.some((t) => /ADR \$186 \(\+1\.2%\)/.test(t)), `r5-1 both figures are cited reads: ${rd.join(" | ").slice(0, 200)}`);
+    check(!rd.some((t) => /ADR −4\.1%|ADR \$186 \(\+1\.2%\)/.test(t)), `r5-1 the STR/CoStar figures are not cited reads: ${rd.join(" | ").slice(0, 200)}`);
     const q2 = { ...fact("C&W Q2 2026: ADR $186 (+1.2%)", 20260630, "Cushman & Wakefield"), period: { start: 20260401, end: 20260630, label: "Q2 2026" } } as F;
     const wk = { ...fact("CoStar wk ending Aug 8 2026: ADR $158 (−4.1%)", 20260808, "CoStar"), period: { start: 20260802, end: 20260808, label: "w/e Aug 8 2026" } } as F;
     // A single week only counts when it is on the card on screen (shown), as in r3-1.
@@ -713,13 +720,14 @@ async function main() {
     // r5-2. Compare: Nashville's cited C&W Q2 2026 snapshot (OCC 71.7%, ADR $186: C&W MarketBeat U.S. Hospitality Q2 2026,
     // checked against the PDF); a peer with none says so for itself; "for each below" only when both have reads.
     const nc = await ask("Compare Nashville vs Charlotte", null, null);
-    check(nc.head === "Nashville: OCC 71.7% (−0.2%), ADR $186 (+1.2%), RevPAR $133 (+1.0%) (Q2 2026, Cushman & Wakefield) · Charlotte: no cited occupancy/ADR snapshot on file.", `r5-2 Nashville vs Charlotte: ${nc.head}`);
+    // r3: Nashville's snapshot is now the county 2025 read (the C&W Q2 print is STR/CoStar data, not shown).
+    check(nc.head === "Nashville: OCC / ADR: 67.0% / $199.20 (ADR −1.3%) (2025, county data, roadgenius.com) · Charlotte: no cited occupancy/ADR snapshot on file.", `r5-2 Nashville vs Charlotte: ${nc.head}`);
     check(!/for either|for each below/.test(nc.content), "r5-2 'for either' / 'for each below' still shown");
-    check(((nc.brief as Brief | null)?.reads ?? []).some((r) => /OCC 71\.7% \(−0\.2%\), ADR \$186/.test(String(r.text ?? ""))), "r5-2 Nashville snapshot is not a cited read");
+    check(((nc.brief as Brief | null)?.reads ?? []).some((r) => /67\.0% \/ \$199\.20/.test(String(r.text ?? ""))), "r5-2 Nashville snapshot is not a cited read");
     const cn = await ask("Charlotte vs Nashville", null, null);
-    check(cn.head.startsWith("Charlotte: no cited occupancy/ADR snapshot on file · Nashville: OCC 71.7%"), `r5-2 order kept: ${cn.head.slice(0, 120)}`);
+    check(cn.head.startsWith("Charlotte: no cited occupancy/ADR snapshot on file · Nashville: OCC / ADR: 67.0%"), `r5-2 order kept: ${cn.head.slice(0, 120)}`);
     const na = await ask("Compare Nashville vs Atlanta", null, null);
-    check(/^Nashville: OCC 71\.7% .* · Atlanta: OCC 65\.9% \(\+0\.5%\), ADR \$133 \(\+5\.0%\), RevPAR \$88 \(\+5\.5%\) \(Q2 2026, Cushman & Wakefield\)\.$/.test(na.head), `r5-2 Nashville vs Atlanta: ${na.head}`);
+    check(na.head === "Nashville: OCC / ADR: 67.0% / $199.20 (ADR −1.3%) (2025, county data, roadgenius.com) · Atlanta: no cited occupancy/ADR snapshot on file.", `r5-2 Nashville vs Atlanta: ${na.head}`);
     const ac = await ask("Austin vs Charlotte", null, null);
     const acReads = ((ac.brief as Brief | null)?.reads ?? []).map((r) => String(r.text ?? ""));
     const both = acReads.some((t) => t.startsWith("Austin:")) && acReads.some((t) => t.startsWith("Charlotte:"));
@@ -880,7 +888,8 @@ async function main() {
     const dv = await ask("How many visitors does Dallas get?", null, null);
     check(dv.head === "Dallas: visitors 2024: 27.7M (record); $10.9B economic impact; $649M state/local tax (dallasexaminer.com, City of Dallas).", `r6-2 Dallas head: ${dv.head}`);
     const dr = (dv.brief?.reads ?? []).map((r) => String(r.text ?? ""));
-    check(dr.some((t) => /^Event week: CoStar week ending 2026-07-18 \(WC semifinal\)/.test(t)), `r6-2 Dallas event-week bullet: ${dr.join(" | ").slice(0, 300)}`);
+    // r3: the CoStar semifinal-week print is no longer shown; no read may cite CoStar.
+    check(!dr.some((t) => /CoStar/.test(t)), `r6-2 Dallas event-week bullet: ${dr.join(" | ").slice(0, 300)}`);
     check(!/semifinal|week ending/i.test(dv.head), "r6-2 Dallas head still an event week");
     const { marketFacts, visitorHead, isEventPrint } = await import("@/lib/chat-brief-build");
     const heads: string[] = [];

@@ -10,6 +10,7 @@
     "test:followup": "tsx scripts/chat/test-followup.ts",
     "test:context": "tsx scripts/chat/test-context.ts",
     "test:leaks": "tsx scripts/chat/test-public-leaks.ts",
+    "test:licensed": "tsx scripts/chat/test-licensed-sources.ts",
     "test:deals-headline": "tsx scripts/deals/test-headline.ts",
     "test:deal-match": "tsx scripts/chat/test-deal-match.ts",
     "test:chat-label": "tsx scripts/chat/test-chat-label.ts",
