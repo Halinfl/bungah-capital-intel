@@ -417,6 +417,11 @@ export async function followUpExtras(x: {
     cardText,
     itemScoped: scope?.kind ?? null,
   });
+  // r4 (Eric QA nice-to-have 1): the same segment asked again on the same market gets the tighter repeat wording,
+  // even when a different all-hotel card is available.
+  if (opener?.kind === "unsupported" && seg && prev.question && segmentOf(prev.question) === seg && prev.marketSlug === answer.marketSlug) {
+    opener.text = `${unsupportedSegmentText(seg, curLabel, "above")} So does this one.`;
+  }
   const alternate = opener
     ? await pickAlternate(
         alternateCandidates({

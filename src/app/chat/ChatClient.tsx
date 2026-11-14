@@ -133,6 +133,16 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
+  // r4 (Eric QA): the phone composer grows when the carry chip wraps; measure it so the last memo always clears it.
+  const composerRef = useRef<HTMLDivElement | null>(null);
+  const [composerH, setComposerH] = useState(96);
+  useEffect(() => {
+    const el = composerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setComposerH(Math.ceil(el.getBoundingClientRect().height)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   useEffect(() => {
     if (messages.length) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length]);
@@ -490,11 +500,12 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           ))}
           {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
-          <div ref={endRef} className={`${scope && carried.length ? "scroll-mb-52" : scope || carried.length ? "scroll-mb-40" : "scroll-mb-24"} sm:scroll-mb-0`} />
+          <div ref={endRef} style={{ ["--composer-h" as string]: `${composerH + 16}px` }} className="scroll-mb-[var(--composer-h)] sm:scroll-mb-0" />
+          <div aria-hidden data-composer-spacer style={{ height: composerH + 16 }} className="sm:hidden" />
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 space-y-2 border-t border-white/[0.1] bg-[#2f333c]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
+      <div ref={composerRef} data-composer className="fixed inset-x-0 bottom-0 z-30 space-y-2 border-t border-white/[0.1] bg-[#2f333c]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
         {scope ? (
           <div className="flex items-center gap-2 text-sm text-slate-300">
             <span id="chat-scope-label">Asking about</span>

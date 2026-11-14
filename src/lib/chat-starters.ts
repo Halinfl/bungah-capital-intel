@@ -95,17 +95,20 @@ export const ITEM_CANDIDATES: Record<ScopeKind, StarterCandidate[]> = {
 export const GENERAL_CANDIDATES: { topic: string; options: StarterCandidate[] }[] = [
   {
     topic: "markets",
+    // r4 (Eric QA): markets whose RevPAR / occupancy on file is public (county, CVB). A key read may say "OCC".
     options: [
-      { q: "What's the RevPAR and occupancy read for Orlando?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported },
-      { q: "What's the RevPAR and occupancy read for Nashville?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported },
+      { q: "What's the RevPAR and occupancy read for Nashville?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported, readTopic: T.perf },
+      { q: "What's the RevPAR and occupancy read for Houston?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported, readTopic: T.perf },
+      { q: "What's the RevPAR and occupancy read for Orlando?", expect: ["revpar_metrics", "demand_visitation"], topic: T.reported, readTopic: T.perf },
     ],
   },
   {
     topic: "supply",
+    // A supply key read may be a delivered hotel or scheduled rooms ("Opened", "+1,300 scheduled"): supplyRead.
     options: [
-      { q: "How much new supply is coming in Nashville?", expect: ["supply_pipeline"], topic: T.supply },
-      { q: "How much new supply is coming in Austin?", expect: ["supply_pipeline"], topic: T.supply },
-      { q: "How much new supply is coming in Orlando?", expect: ["supply_pipeline"], topic: T.supply },
+      { q: "How much new supply is coming in Nashville?", expect: ["supply_pipeline"], topic: T.supply, readTopic: T.supplyRead },
+      { q: "How much new supply is coming in Dallas?", expect: ["supply_pipeline"], topic: T.supply, readTopic: T.supplyRead },
+      { q: "How much new supply is coming in Austin?", expect: ["supply_pipeline"], topic: T.supply, readTopic: T.supplyRead },
     ],
   },
   {
