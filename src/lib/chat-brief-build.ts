@@ -709,6 +709,10 @@ function isPortfolioSlice(f: Fact): boolean {
   return PORTFOLIO_SLICE.test(f.text) || PORTFOLIO_SLICE.test(f.title ?? "");
 }
 
+/** Short-term-rental questions and facts (Airbnb / Vrbo / STR listings, revenue share, STR occupancy tax). */
+const SHORT_TERM_Q = /\bshort[- ]term[- ]rentals?\b|\bairbnb\b|\bvrbo\b|\bvacation rentals?\b|\bSTRs?\b/i;
+const SHORT_TERM_FACT = /\bshort[- ]term[- ]rentals?\b|\bshort-term-rental\b|\bSTR (?:revenue|share|listings|demand|OCC)\b/i;
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -720,7 +724,16 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   let reads: Fact[];
   const scoreSig = m.signals.find((s) => /supply-pressure score\s*\d\s*\/\s*5/i.test(s.title));
   const rateRow = lens === "debt" ? (opts.rateLead ?? []).filter((s) => /\b(10-year|10Y)\b/i.test(s.title)).map((s) => ({ s, f: signalFacts(s)[0] })).filter((x) => x.f?.period).sort((a, b) => b.f.key - a.f.key)[0] : undefined;
-  if (rateRow) {
+  const strHead = opts.question && SHORT_TERM_Q.test(opts.question) ? longestFirst(facts.filter((f) => f.readable !== false && SHORT_TERM_FACT.test(`${f.title ?? ""} ${f.text}`)))[0] : undefined;
+  if (strHead) {
+    // r4 (Eric QA): "How are short-term rentals doing?": the cited short-term-rental read leads (Nashville's STR
+    // revenue share), then the market's demand reads.
+    answer = headLine(short, "demand", strHead);
+    reads = [
+      ...facts.filter((f) => f !== strHead && !sameFact(f, strHead) && SHORT_TERM_FACT.test(`${f.title ?? ""} ${f.text}`)),
+      ...demandReads(facts, 3, strHead).filter((f) => !sameFact(f, strHead)),
+    ].slice(0, 3 - (opts.extraReads?.length ?? 0));
+  } else if (rateRow) {
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
@@ -763,10 +776,13 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = headLine(short, "demand", { ...anyRevpar, text: revparFirstText(anyRevpar.text) });
       reads = perfReads(facts, n, new Set([anyRevpar.text]));
     } else {
-      const head = occRate ?? longestFirst(perf)[0];
+      const head = occRate ?? longestFirst(perf)[0] ?? slice!;
       answer = headLine(short, "demand", head);
+      if (asksRevpar && !anyRevpar && slice) answer = `${answer.replace(/\.$/, "")}. No public market-wide RevPAR on file; the REIT figure below is a portfolio slice.`;
       reads = perfReads(facts, n, new Set([head.text]));
     }
+    // A REIT slice shown as a key read is labeled as one.
+    reads = reads.map((f) => (isPortfolioSlice(f) && !/portfolio slice/i.test(f.text) ? { ...f, text: `REIT portfolio slice, not the market: ${f.text}` } : f));
   } else if (lens === "demand" && intent !== "revpar_metrics" && !visitorHead(facts) && opts.question && VISITOR_Q.test(opts.question) && stateVisitorFact(facts)) {
     // Only a state-level visitor count on file: say so; the statewide figure is a labeled bullet, not the lead.
     const st = stateVisitorFact(facts)!;
