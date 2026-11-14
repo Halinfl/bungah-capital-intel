@@ -25,9 +25,9 @@ async function main() {
   };
 
   // 1. Unit.
-  for (const t of ["C&W Q2 2026 (STR/CoStar): OCC 71.7%", "CoStar wk ending 2026-08-08", "Choose Chicago PDF (cdn.choosechicago.com; STR Inc)", "Visit Orlando Q3 2025 (Simpleview PDF; STR)", "GMCVB Industry Updates (STR)", "per STR, OCC rose", "data from str.com", "Implied rooms (STR market)", "STR forecast (Oʻahu): 2026F OCC 78.9%", "STR Jan–Jul 2025 (DDC cite)", "STR pipeline (UC + final planning)", "Lodging Magazine (CoStar)", "STR, Inc. data"])
+  for (const t of ["C&W Q2 2026 (STR/CoStar): OCC 71.7%", "CoStar wk ending 2026-08-08", "Choose Chicago PDF (cdn.choosechicago.com; STR Inc)", "Visit Orlando Q3 2025 (Simpleview PDF; STR)", "GMCVB Industry Updates (STR)", "per STR, OCC rose", "data from str.com", "Implied rooms (STR market)", "STR forecast (Oʻahu): 2026F OCC 78.9%", "STR Jan–Jul 2025 (DDC cite)", "STR pipeline (UC + final planning)", "Lodging Magazine (CoStar)", "STR, Inc. data", "Choose Chicago, Hotel Performance 2025 (STR data)", "Discover Los Angeles, TMD Lodging Metrics through Q3 2026 (source STR)", "Visit Philadelphia, 2025 Hotel Performance (sources CoStar, STR)", "Destination DC, 2025 Annual Visitor Statistics (hotel chart, source STR)", "Visit Napa Valley (Visit Napa Valley; STR, YTD Dec 2025)"])
     check(isLicensedText(t), `licensed: ${t}`);
-  for (const t of ["Dallas STR ordinance upheld", "STR TOT (3114): $3,342,998", "STR revenue $540M = 21% of lodging revenue", "hotel vs STR remit scope varies", "city hotel tax $18.24M + STR hotel tax $3.59M", "(STR/short-term rental share 8.7%)", "STR listings ~+80%, STR OCC ~−20%", "Aerolux (121) is an STR-unit building", "Los Angeles city TOT (hotel + STR)", "oversupply was STR, not hotel keys", "Cottage/STR is the primary bed-base", "Underwrite against STR competition", "streets", "STRATEGY"])
+  for (const t of ["Dallas STR ordinance upheld", "STR TOT (3114): $3,342,998", "STR revenue $540M = 21% of lodging revenue", "hotel vs STR remit scope varies", "city hotel tax $18.24M + STR hotel tax $3.59M", "(STR/short-term rental share 8.7%)", "STR listings ~+80%, STR OCC ~−20%", "Aerolux (121) is an STR-unit building", "Los Angeles city TOT (hotel + STR)", "oversupply was STR, not hotel keys", "Cottage/STR is the primary bed-base", "Underwrite against STR competition", "streets", "STRATEGY", "sources: City Controller, STR registry", "source: STR permits data"])
     check(!isLicensedText(t), `not licensed (short-term rental / other): ${t}`);
   check(isLicensedLink({ url: "https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/x" }) && isLicensedLink({ url: "https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf" }) && !isLicensedLink({ url: "https://roadgenius.com/x", label: "County YTD" }), "licensed links");
   const pulse = stripLicensed({
@@ -138,6 +138,32 @@ async function main() {
   const nash = await answerChat("What's the RevPAR and occupancy read for Nashville?");
   const nashB = nash.brief as { answer?: string } | null;
   check(Boolean(nashB?.answer && /county|roadgenius/i.test(nashB.answer) && !/STR|CoStar|C&W/.test(nashB.answer)), `Nashville leads with county/public numbers: ${nashB?.answer}`);
+  // r4 (Eric QA r3): the hotel-performance blocks never show an STR / CoStar-credited row; the JSON keeps them.
+  const { hotelPerf, hotelPerfSlugs, headlinePerf, hotelPerfLicensedHidden } = await import("@/lib/hotel-performance");
+  const perfBad: string[] = [];
+  let hidden = 0;
+  for (const slug of hotelPerfSlugs()) {
+    hidden += hotelPerfLicensedHidden(slug);
+    for (const r of [...(hotelPerf(slug)?.rows ?? []), ...(headlinePerf(slug) ? [headlinePerf(slug)!] : [])]) {
+      const t = JSON.stringify(r);
+      if (isLicensedText(t) || /costar|str-benchmark/i.test(t) || /69\.2%|\$243\.10|\$168\.15/.test(t)) perfBad.push(`${slug}: ${r.source}`);
+    }
+  }
+  check(perfBad.length === 0, `hotel-performance rows with STR/CoStar: ${perfBad.join(" || ")}`);
+  check(hidden >= 15, `hotel-performance licensed rows hidden: ${hidden}`);
+  check(hotelPerfLicensedHidden("chicago") > 0 && hotelPerfLicensedHidden("los-angeles") > 0 && hotelPerfLicensedHidden("philadelphia") > 0 && hotelPerfLicensedHidden("new-york-city") > 0, "Chicago / LA / Philly / NYC hotel-performance rows hidden");
+  // Chicago RevPAR: the gap line first, then the Host slice labeled as a REIT portfolio slice.
+  const chi = (await answerChat("What's the RevPAR for Chicago?")).brief as { answer?: string } | null;
+  check(Boolean(chi?.answer && /^Chicago: no public market-wide or county RevPAR on file\. The closest public read is a REIT portfolio slice, not the market: Host Hotels Chicago comparable RevPAR/.test(chi.answer)), `Chicago RevPAR gap + labeled slice: ${chi?.answer}`);
+  const mia = (await answerChat("What's the RevPAR for Miami?")).brief as { answer?: string; reads?: { text: string }[] } | null;
+  check(Boolean(mia?.answer && !/Host Hotels/.test(mia.answer) && (mia.reads ?? []).every((r) => !/comparable RevPAR/.test(r.text) || /^REIT portfolio slice, not the market:/.test(r.text))), `Miami REIT slice labeled: ${mia?.answer} | ${mia?.reads?.map((r) => r.text).join(" | ")}`);
+  // National RevPAR: the gap line without "didn't match", and chips to markets with public reads.
+  const natP = await answerChat("What's the national RevPAR?");
+  check(/^There's no national RevPAR, occupancy or ADR read on file from a public source\./.test(natP.content) && !/didn't match/.test(natP.content), `national RevPAR gap: ${natP.content.slice(0, 160)}`);
+  check(JSON.stringify(natP.followUps?.map((c) => c.label)) === JSON.stringify(["Nashville RevPAR", "Dallas RevPAR", "Houston RevPAR"]), `national RevPAR chips: ${JSON.stringify(natP.followUps)}`);
+  // Short-term rentals in Nashville lead with the cited STR revenue share.
+  const nstr = (await answerChat("How are short-term rentals doing in Nashville?")).brief as { answer?: string } | null;
+  check(Boolean(nstr?.answer && /short-term rentals: 21% of lodging revenue \(\$540M of \$2\.6B\)/.test(nstr.answer)), `Nashville short-term rentals lead: ${nstr?.answer}`);
   console.log(`licensed scan: ${before} fixture rows cite STR/CoStar, ${raw.length - kept.length} dropped, ${kept.filter((r, i) => r !== raw[i]).length >= 0 ? "" : ""}${answers} answers (${markets.length} markets × ${QS.length} questions + ${NATIONAL.length} national), ${debtAnswers} debt answers checked`);
   for (const f of fails) console.log(`FAIL ${f}`);
   console.log(`licensed-source test: ${checks - fails.length}/${checks} checks pass`);
