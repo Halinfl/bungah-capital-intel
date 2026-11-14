@@ -10,6 +10,7 @@ import { scrubInternal } from "@/lib/public-text";
 import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
 import { MarketsHistoryIndex } from "@/components/MarketHistory";
 import { headlinePerf } from "@/lib/hotel-performance";
+import { isLicensedText, withoutLicensedSnapshot } from "@/lib/licensed-sources";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,9 @@ export default async function MarketsPage() {
         signals: { select: { kind: true, sourceLabel: true, title: true, body: true, magnitude: true, asOf: true, sourceUrls: true } },
       },
     }), []);
-  const markets = marketsQ.data;
+  // r4 (Eric QA): a snapshot cited to STR / CoStar is not shown here either (licensed-sources.ts); display only.
+  const withheld = new Set(marketsQ.data.filter((m) => isLicensedText(m.sourceLabel) && !/^\s*Illustrative seed\b/i.test(m.sourceLabel)).map((m) => m.id));
+  const markets = marketsQ.data.map((m) => withoutLicensedSnapshot(m));
   // Social posts are never sources: rows resting only on them don't count toward coverage.
   for (const m of markets) m.signals = withoutSocial(citedOnly(m.signals));
   const dbDown = !marketsQ.ok;
@@ -48,7 +51,9 @@ export default async function MarketsPage() {
       slug: m.slug,
       name: m.name,
       region: m.region,
-      summary: seed
+      summary: withheld.has(m.id)
+        ? scrubInternal(m.summary).split(/(?<=\.)\s+/).filter((x) => !/\b(seed|illustrative|lodging metrics|lodging color)\b/i.test(x)).join(" ") || "Cited signals on demand, supply, debt and labor. Open the market for sources."
+        : seed
         ? "Cited signals on demand, supply, debt and labor. Open the market for sources."
         : scrubInternal(m.summary),
       visitorsM: seed ? null : m.visitorsM,

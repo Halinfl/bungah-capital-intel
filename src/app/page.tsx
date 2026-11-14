@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { withoutLicensedSnapshot } from "@/lib/licensed-sources";
 import { withoutSocial } from "@/lib/social-sources";
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
@@ -74,7 +75,8 @@ export default async function HomePage() {
         },
       },
     }), []);
-  const markets = marketsQ.data;
+  // r4: a snapshot cited to STR / CoStar is never shown in the hero either (licensed-sources.ts); display only.
+  const markets = marketsQ.data.map((m) => withoutLicensedSnapshot(m));
   // Social posts are never sources (src/lib/social-sources.ts).
   for (const m of markets) m.signals = withoutSocial(citedOnly(m.signals));
   const coveredCount = markets.filter((m) => hasPublicCoverage(m, publicRows(m.signals).length)).length;
