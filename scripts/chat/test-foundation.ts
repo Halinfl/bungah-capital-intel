@@ -97,7 +97,8 @@ async function main() {
     const r = await S.resolveThread(db, threadId, owner);
     if (r.mode !== "owned") throw new Error(`expected owned, got ${r.mode}`);
     const isPrivate = Boolean(owner.userId);
-    await S.persistOwnedTurn(db, r, owner, mk(q, { isPrivate, userId: owner.userId }));
+    const w = await S.createOwnedThread(db, r, owner, q); // before the response, as the route does
+    await S.persistOwnedTurn(db, w, owner, mk(q, { isPrivate, userId: owner.userId })); // after the response
     return r;
   }
   const anon = () => A.verifyAnon(A.mintAnon()!.cookie)!;
@@ -146,6 +147,23 @@ async function main() {
     const t = await db.chatThread.findUnique({ where: { id: a.threadId } });
     ok(t?.userId === "user_F1" && t?.anonOwnerId === null, "signed-in thread owned by userId only");
     ok((await db.chatQuestionLog.count({ where: { userId: "user_F1" } })) === 3, "one log row per turn (3)");
+    // A follow-up that arrives before the first answer's after-response write still lands in the same thread.
+    const fast = { userId: null, anonId: anon() };
+    const f1 = await S.resolveThread(db, null, fast);
+    if (f1.mode !== "owned") throw new Error("owned expected");
+    const f1w = await S.createOwnedThread(db, f1, fast, "F1 fast q1");
+    const f2 = await S.resolveThread(db, f1.threadId, fast);
+    ok(f2.mode === "owned" && f2.status === "existing" && f2.threadId === f1.threadId, "immediate follow-up (first write still pending) → same thread");
+    await S.persistOwnedTurn(db, f1w, fast, mk("F1 fast q1"));
+    if (f2.mode === "owned") await S.persistOwnedTurn(db, f2, fast, mk("F1 fast q2"));
+    ok((await db.chatThread.count({ where: { anonOwnerId: fast.anonId } })) === 1 && (await db.chatMessage.count({ where: { threadId: f1.threadId } })) === 4, "fast pair: 1 thread, 4 messages");
+    let threw = false;
+    try {
+      await S.createOwnedThread(db, { mode: "owned", threadId: S.newThreadId(), status: "new" }, { userId: null, anonId: null }, "x");
+    } catch {
+      threw = true;
+    }
+    ok(threw, "an ownerless thread is never created");
   }
 
   section("F2 someone else's threadId");

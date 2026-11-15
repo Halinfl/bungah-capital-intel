@@ -174,6 +174,20 @@ export function logRowData(x: TurnInput, threadId: string | null): Prisma.ChatQu
 }
 
 /**
+ * Create a new owned thread now (before the response goes out), so a follow-up sent the moment the answer
+ * lands finds it. Returns the same resolution marked "existing" for the after-response write.
+ */
+export async function createOwnedThread(db: Db, r: Extract<ResolvedThread, { mode: "owned" }>, owner: Owner, title: string): Promise<Extract<ResolvedThread, { mode: "owned" }>> {
+  if (r.status !== "new") return r;
+  if (!owner.userId && !owner.anonId) throw new Error("createOwnedThread: no owner");
+  await db.chatThread.create({
+    data: { id: r.threadId, title: title.slice(0, 80) || "Chat", userId: owner.userId, anonOwnerId: owner.userId ? null : owner.anonId },
+    select: { id: true },
+  });
+  return { ...r, status: "existing" };
+}
+
+/**
  * Owned write (foundation schema): create the thread on its first turn, then the log row, then the two
  * messages pointing at the log row. Follow-ups append to the same thread (F1).
  */

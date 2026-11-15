@@ -11,7 +11,7 @@ import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/ch
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
-import { foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
+import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
 import { ANON_COOKIE, anonCookieOptions, anonFromRequest, mintAnon } from "@/lib/chat-anon";
 
 /** Questions longer than this are cut (bounds per-request work). */
@@ -273,6 +273,7 @@ export async function POST(req: Request) {
     // Only the bare repeat note is replaced; a decline or premise line on a repeat is kept as it is.
     if (repeatLine && /^That's the same answer/.test(answer.content)) answer = { ...answer, content: repeatLine };
 
+    const forceFailEarly = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     // One conversation = one owned thread: accept the client's threadId only from its owner (else a new
     // thread). Read-only except a same-browser claim after sign-in. Skipped when this deployment writes nothing.
     if (!userId && !anonId && shouldPersist()) {
@@ -289,6 +290,16 @@ export async function POST(req: Request) {
         thread = await resolveThread(prisma, body.threadId, owner);
       } catch (e) {
         console.error("[chat-log] thread resolve failed (log row only):", e instanceof Error ? e.message : e);
+        thread = null;
+      }
+    }
+    // A new conversation's thread is created now (one small insert), so an immediate follow-up finds it.
+    const threadStatus = thread ? (thread.mode === "owned" ? `${thread.status}${thread.rejected ? `; rejected:${thread.rejected}` : ""}` : thread.mode) : "none";
+    if (thread?.mode === "owned" && thread.status === "new" && !forceFailEarly) {
+      try {
+        thread = await createOwnedThread(prisma, thread, owner, question);
+      } catch (e) {
+        console.error("[chat-log] thread create failed (log row only):", e instanceof Error ? e.message : e);
         thread = null;
       }
     }
@@ -331,7 +342,7 @@ export async function POST(req: Request) {
           "x-chat-cache": cache,
           "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
           ...(TEST_TOGGLES
-            ? { "x-chat-thread": thread ? (thread.mode === "owned" ? `${thread.status}${thread.rejected ? `; rejected:${thread.rejected}` : ""}` : thread.mode) : "none", "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : "", fb ? (fb.national ? "cleared-market:national" : "cleared-market:which-market") : ""].filter(Boolean).join("; ") }
+            ? { "x-chat-thread": threadStatus, "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : "", fb ? (fb.national ? "cleared-market:national" : "cleared-market:which-market") : ""].filter(Boolean).join("; ") }
             : {}),
         },
       }
