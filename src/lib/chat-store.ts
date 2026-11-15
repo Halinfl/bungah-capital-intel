@@ -119,22 +119,26 @@ export async function resolveThread(db: Db, requestedId: unknown, owner: Owner, 
  * One-time claim of a signed-out thread by its signed-in owner (same browser, within 24h of its creation).
  * Atomic: a conditional update, so a second claim (another browser, another account, or a replay) changes
  * nothing. Saved items made before sign-in move to the user with it; the public log rows written before
- * sign-in are unlinked from the thread (threadId → null).
+ * sign-in are unlinked from the thread (threadId → null). All in one transaction.
  */
 export async function claimThread(db: Db, threadId: string, owner: Owner, now = new Date()): Promise<{ ok: boolean; reason?: string }> {
   if (!(await foundationReady(db))) return { ok: false, reason: "schema" };
   if (!owner.userId || !owner.anonId) return { ok: false, reason: "needs-sign-in-and-browser" };
   const since = new Date(now.getTime() - CLAIM_WINDOW_MS);
-  const res = await db.chatThread.updateMany({
-    where: { id: threadId, userId: null, claimedAt: null, anonOwnerId: owner.anonId, createdAt: { gte: since } },
-    data: { userId: owner.userId, anonOwnerId: null, claimedAt: now },
+  // One transaction: the ownership change, the saves moving with it and the public-row unlink (Decision A)
+  // land together or not at all, so no committed state has a signed-in thread with linked public log rows.
+  return db.$transaction(async (tx) => {
+    const res = await tx.chatThread.updateMany({
+      where: { id: threadId, userId: null, claimedAt: null, anonOwnerId: owner.anonId, createdAt: { gte: since } },
+      data: { userId: owner.userId, anonOwnerId: null, claimedAt: now },
+    });
+    if (res.count !== 1) return { ok: false, reason: "not-claimable" };
+    await tx.savedItem.updateMany({ where: { threadId, anonOwnerId: owner.anonId }, data: { userId: owner.userId, anonOwnerId: null } });
+    // The public rows written before sign-in keep their (signed-out) text but lose the link; the thread's
+    // messages still point at them one way (questionLogId).
+    await tx.chatQuestionLog.updateMany({ where: { threadId, isPrivate: false }, data: { threadId: null } });
+    return { ok: true };
   });
-  if (res.count !== 1) return { ok: false, reason: "not-claimable" };
-  await db.savedItem.updateMany({ where: { threadId, anonOwnerId: owner.anonId }, data: { userId: owner.userId, anonOwnerId: null } });
-  // Decision A: no log row points at a signed-in thread. The public rows written before sign-in keep their
-  // (signed-out) text but lose the link; the thread's messages still point at them one way (questionLogId).
-  await db.chatQuestionLog.updateMany({ where: { threadId, isPrivate: false }, data: { threadId: null } });
-  return { ok: true };
 }
 
 /* ------------------------------------------------------------------ writes */

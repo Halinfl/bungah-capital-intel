@@ -460,6 +460,27 @@ async function main() {
     ok((await S.claimThread(db, t4.threadId, signedX)).ok, "explicit claim, same browser → ok");
     ok((await db.chatQuestionLog.count({ where: { threadId: t4.threadId } })) === 0, "explicit claim: both pre-sign-in public rows unlinked");
     ok((await db.chatQuestionLog.count({ where: { question: { in: ["F8 explicit claim thread", "F8 explicit claim follow-up"] }, threadId: null, isPrivate: false } })) === 2, "explicit claim: the rows themselves stay (public)");
+    // One transaction: if the public-row unlink fails, the claim itself rolls back.
+    const t5 = await turn({ userId: null, anonId: X }, null, "F8 atomic claim thread");
+    const failing = new Proxy(db, {
+      get(target, prop, recv) {
+        if (prop !== "$transaction") return Reflect.get(target, prop, recv);
+        return (fn: (tx: unknown) => Promise<unknown>) =>
+          target.$transaction(async (tx) =>
+            fn(new Proxy(tx, { get: (t, k, r) => (k === "chatQuestionLog" ? { updateMany: async () => { throw new Error("injected unlink failure"); } } : Reflect.get(t, k, r)) }))
+          );
+      },
+    }) as typeof db;
+    let threw = false;
+    try {
+      await S.claimThread(failing, t5.threadId, signedX);
+    } catch {
+      threw = true;
+    }
+    const t5row = await db.chatThread.findUnique({ where: { id: t5.threadId } });
+    ok(threw && t5row?.userId === null && t5row?.anonOwnerId === X && t5row?.claimedAt === null, "unlink failure rolls the claim back (same transaction)");
+    ok((await db.chatQuestionLog.count({ where: { threadId: t5.threadId } })) === 1, "rolled back: the public row is still linked to the still-signed-out thread");
+    ok((await S.claimThread(db, t5.threadId, signedX)).ok && (await db.chatQuestionLog.count({ where: { threadId: t5.threadId } })) === 0, "retry claims and unlinks together");
     // Outside 24h.
     const t3 = await turn({ userId: null, anonId: X }, null, "F8 stale anon thread");
     await db.$executeRawUnsafe(`UPDATE "ChatThread" SET "createdAt" = now() - interval '25 hours' WHERE id = $1`, t3.threadId);
