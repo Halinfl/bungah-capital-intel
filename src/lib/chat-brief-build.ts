@@ -713,6 +713,73 @@ function isPortfolioSlice(f: Fact): boolean {
 const SHORT_TERM_Q = /\bshort[- ]term[- ]rentals?\b|\bairbnb\b|\bvrbo\b|\bvacation rentals?\b|\bSTRs?\b/i;
 const SHORT_TERM_FACT = /\bshort[- ]term[- ]rentals?\b|\bshort-term-rental\b|\bSTR (?:revenue|share|listings|demand|OCC)\b/i;
 
+
+/** A yellow-source row whose raw OCC / ADR / RevPAR was reduced to a qualitative band. Not a public figure. */
+const QUALITATIVE_BAND = /qualitative band only|bucket:\s*moderate band/i;
+export function isQualitativeBucketFact(f: Fact): boolean {
+  return QUALITATIVE_BAND.test(`${f.text} ${f.title ?? ""}`);
+}
+
+const METRIC_GAP_WORD: Record<"revpar" | "occ" | "adr" | "supply", string> = {
+  revpar: "RevPAR",
+  occ: "occupancy",
+  adr: "ADR",
+  supply: "supply figure",
+};
+
+/**
+ * The market-performance or supply metric a question is asking for, or null when it is not a
+ * RevPAR / OCC / ADR / supply question. Used to lead with the Chicago-style gap (and to skip Groq)
+ * when the licensed / yellow strip leaves no public figure.
+ */
+export function askedMarketMetric(question: string | undefined, intent?: ChatIntent | null): "revpar" | "occ" | "adr" | "supply" | null {
+  const q = question ?? "";
+  if (intent === "supply_pipeline" || intent === "supply_ranking" || (/\b(supply|pipeline)\b/i.test(q) && !/\b(revpar|occupancy|adr)\b/i.test(q))) return "supply";
+  if (intent === "revpar_metrics" || /\b(revpar|occupancy|adr|average daily rate)\b/i.test(q)) {
+    if (q && !/\brevpar\b/i.test(q) && !/\b(occupanc\w*|occ)\b/i.test(q) && (ROOM_RATE_WORDS.test(q) || isBareRates(q))) return "adr";
+    if (q && !/\brevpar\b/i.test(q) && /\b(occupanc\w*|occ)\b/i.test(q) && !/\b(adr|average daily rate)\b/i.test(q)) return "occ";
+    return "revpar";
+  }
+  return null;
+}
+
+function publicPerfFacts(facts: Fact[]): Fact[] {
+  return facts.filter(PERF_FACT).filter((f) => !isPortfolioSlice(f) && !isQualitativeBucketFact(f));
+}
+
+function hasPublicMetricFigure(facts: Fact[], metric: "revpar" | "occ" | "adr" | "supply", scoreSig?: { title: string; body?: string | null } | null): boolean {
+  if (metric === "supply") {
+    if (scoreSig && /supply-pressure score\s*\d\s*\/\s*5/i.test(scoreSig.title) && !QUALITATIVE_BAND.test(scoreSig.title)) return true;
+    return pickReads(facts, "supply", 6).some((f) => !isQualitativeBucketFact(f) && /\d/.test(f.text));
+  }
+  const perf = publicPerfFacts(facts);
+  if (metric === "revpar") return perf.some((f) => REVPAR_FIGURE.test(f.text) || REVPAR_MOVE.test(f.text));
+  if (metric === "adr") return perf.some((f) => ADR_FIGURE.test(f.text));
+  return perf.some((f) => /\b(OCC|occupancy)\b[^.;|]{0,30}?\d/i.test(f.text));
+}
+
+/** Green (public) reads that can follow a coverage gap: airlift / visitors first, then supply or demand. */
+function greenSecondaryReads(facts: Fact[], n: number, used: Set<string> = new Set()): Fact[] {
+  const ok = (f: Fact) => Boolean(f.readable) && !isQualitativeBucketFact(f) && !used.has(f.text);
+  const paxPrimary = /(?:\btotal pax\b|\benplanements\b|pax:|passengers?:)/i;
+  const airPrimary = facts.filter((f) => ok(f) && paxPrimary.test(f.text));
+  const air = facts.filter((f) => ok(f) && !airPrimary.includes(f) && /\b(pax|enplanements|passengers?|airlift)\b/i.test(f.text));
+  const vis = facts.filter((f) => ok(f) && !airPrimary.includes(f) && !air.includes(f) && /\bvisitors?\b/i.test(f.text));
+  const supply = pickReads(facts, "supply", n).filter(ok);
+  const demand = pickReads(facts, "demand", n).filter((f) => ok(f) && !PERF_RE.test(f.text));
+  const out: Fact[] = [];
+  for (const f of [...airPrimary, ...air, ...vis, ...supply, ...demand]) {
+    if (out.some((x) => x.text === f.text || sameFact(x, f))) continue;
+    out.push(f);
+    if (out.length >= n) break;
+  }
+  return out;
+}
+
+function metricGapLine(short: string, metric: "revpar" | "occ" | "adr" | "supply"): string {
+  return `${short}: no public market-wide or county ${METRIC_GAP_WORD[metric]} on file.`;
+}
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -737,24 +804,37 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
-  } else if (intent === "revpar_metrics" && (metrics || facts.some(PERF_FACT))) {
+  } else if (intent === "revpar_metrics" || askedMarketMetric(opts.question, intent) === "revpar" || askedMarketMetric(opts.question, intent) === "occ" || askedMarketMetric(opts.question, intent) === "adr") {
     // Performance questions. "How has RevPAR moved": the longest-period cited RevPAR change leads (T12, YTD,
     // quarter, month), never a single week or event print; else the snapshot level; else any RevPAR print.
     // "Occupancy and rate" (no RevPAR asked): the snapshot OCC / ADR, else the longest-period OCC / ADR print.
+    // When the licensed / yellow strip leaves no public market-wide or county figure, lead with the Chicago-style
+    // gap (a REIT slice or a green airlift / visitor read may follow). Never fall through to an unsourced lead.
     const n = 3 - (opts.extraReads?.length ?? 0);
-    const asksRevpar = !opts.question || /\brevpar\b/i.test(opts.question);
+    const metric = askedMarketMetric(opts.question, intent) ?? "revpar";
+    const asksRevpar = metric === "revpar";
     // "Why are rates up in Nashville?" / "room rates" / "ADR": the longest recent print that carries ADR leads.
-    const asksAdr = Boolean(opts.question) && !asksRevpar && !/\b(occupanc\w*|occ)\b/i.test(opts.question!) && (ROOM_RATE_WORDS.test(opts.question!) || isBareRates(opts.question!));
+    const asksAdr = metric === "adr";
     // r4 (Eric QA): a REIT's comparable-hotel RevPAR is a portfolio slice, never the market read. It leads only as a
     // labeled slice after a line saying there's no public market-wide or county RevPAR on file.
     const allPerf = facts.filter(PERF_FACT);
-    const perf = allPerf.filter((f) => !isPortfolioSlice(f));
+    const perf = allPerf.filter((f) => !isPortfolioSlice(f) && !isQualitativeBucketFact(f));
     const slice = longestFirst(allPerf.filter(isPortfolioSlice))[0];
     const move = longestFirst(perf.filter((f) => REVPAR_MOVE.test(f.text) && !isSpot(f)))[0];
     const occRate = longestFirst(perf.filter((f) => OCC_RATE.test(f.text) && !isSpot(f)))[0];
     const anyRevpar = longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text) && !isSpot(f)))[0] ?? longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text)))[0];
     const adrHead = asksAdr ? longestFirst(perf.filter((f) => ADR_FIGURE.test(f.text) && !isSpot(f)))[0] : undefined;
-    if (!perf.length && slice && !metrics) {
+    const gapMetric = metric === "supply" ? "revpar" : metric;
+    if (!metrics && !hasPublicMetricFigure(facts, gapMetric) ) {
+      const gap = metricGapLine(short, gapMetric);
+      if (slice && gapMetric === "revpar") {
+        answer = `${gap} The closest public read is a REIT portfolio slice, not the market: ${headLine(short, "demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
+        reads = [slice, ...greenSecondaryReads(facts, n, new Set([slice.text]))].slice(0, n);
+      } else {
+        answer = gap;
+        reads = greenSecondaryReads(facts, n);
+      }
+    } else if (!perf.length && slice && !metrics) {
       answer = `${short}: no public market-wide or county RevPAR on file. The closest public read is a REIT portfolio slice, not the market: ${headLine(short, "demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
       reads = perfReads(facts, n, new Set([slice.text]));
     } else if (adrHead) {
@@ -783,13 +863,13 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     }
     // A REIT slice shown as a key read is labeled as one.
     reads = reads.map((f) => (isPortfolioSlice(f) && !/portfolio slice/i.test(f.text) ? { ...f, text: `REIT portfolio slice, not the market: ${f.text}` } : f));
-  } else if (lens === "demand" && intent !== "revpar_metrics" && !visitorHead(facts) && opts.question && VISITOR_Q.test(opts.question) && stateVisitorFact(facts)) {
+  } else if (lens === "demand" &&  !visitorHead(facts) && opts.question && VISITOR_Q.test(opts.question) && stateVisitorFact(facts)) {
     // Only a state-level visitor count on file: say so; the statewide figure is a labeled bullet, not the lead.
     const st = stateVisitorFact(facts)!;
     answer = `${short}: no cited city or metro visitor count on file.`;
     const n = 3 - (opts.extraReads?.length ?? 0);
     reads = [st, ...demandReads(facts, n, st).filter((f) => !sameFact(f, st) && !isStateFigure(f))].slice(0, n);
-  } else if (lens === "demand" && intent !== "revpar_metrics" && visitorHead(facts) && ((opts.question && VISITOR_Q.test(opts.question)) || !pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f)))) {
+  } else if (lens === "demand" &&  visitorHead(facts) && ((opts.question && VISITOR_Q.test(opts.question)) || !pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f)))) {
     // "How many visitors does Dallas get?": the latest full-period visitor count leads; the newest event print
     // (a World Cup week) stays as a labeled bullet.
     const head = visitorHead(facts)!;
@@ -798,7 +878,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     reads = demandReads(facts, n, head).filter((f) => !sameFact(f, head));
     const ev = facts.filter((f) => f.readable && spotLabel(f)?.startsWith("Event")).sort((a, b) => b.key - a.key)[0];
     if (ev && !reads.some((f) => f === ev || sameFact(f, ev))) reads = [...reads.slice(0, Math.max(0, n - 1)), ev];
-  } else if (lens === "demand" && intent !== "revpar_metrics" && pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f))) {
+  } else if (lens === "demand" &&  pickReads(facts, "demand", 6).some((f) => DRIVER(f) && !isEventPrint(f))) {
     // "What's demand doing": a demand driver (visitors, airlift, events, group) leads; the OCC / ADR snapshot
     // belongs to the performance answer, so the two starters never open the same card. Never a single event week.
     const drivers = pickReads(facts, "demand", 6).filter((f) => DRIVER(f) && !isEventPrint(f));
@@ -810,6 +890,11 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   } else if (lens === "demand" && metrics) {
     answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
+  } else if (lens === "supply" && !hasPublicMetricFigure(facts, "supply", scoreSig)) {
+    // Licensed / yellow strip left no public supply or pipeline figure: Chicago-style gap, green cites only.
+    const n = 3 - (opts.extraReads?.length ?? 0);
+    answer = metricGapLine(short, "supply");
+    reads = greenSecondaryReads(facts, n);
   } else if (lens === "supply" && scoreSig) {
     const head = withArea(m.slug, signalFacts(scoreSig as SignalLike)[0]);
     answer = headLine(short, "supply", { ...head, text: scrubInternal(scoreSig.title).replace(new RegExp(`^${short}\\s*`, "i"), "") });
@@ -834,7 +919,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   }
   // A "why is X down/up" question (drivers card, or the RevPAR / ADR card for room-rate questions): the cited
   // figures for X first, "actually" only when they all contradict the question, "Mixed:" when they disagree.
-  const premise = lens === "demand" && opts.question && !opts.decline ? premiseCheck(facts, opts.question, perfCardFacts(m, facts)) : null;
+  const premise = lens === "demand" && opts.question && !opts.decline && !/: no public market-wide or county /.test(answer) ? premiseCheck(facts, opts.question, perfCardFacts(m, facts)) : null;
   if (premise) {
     answer = `${premise.line} ${answer}`;
     const pf = premise.facts;

@@ -66,6 +66,7 @@ import {
   digestBrief,
   digestReads,
   marketBrief,
+  askedMarketMetric,
   nationalDebtBrief,
   ratesBrief,
   propertyBrief,
@@ -648,6 +649,28 @@ async function answerChatIn(
         false
       )
     );
+  }
+
+
+  // Covered-market RevPAR / OCC / ADR / supply questions: use the deterministic brief (Chicago-style
+  // gap when the licensed / yellow strip left no public figure). Do not call Groq for unsourced market color.
+  if (ctx.matched && askedMarketMetric(question, ctx.intent)) {
+    const graphBrief = briefForGraph(question, ctx, issuerDigests(question, corpus), range);
+    if (graphBrief) {
+      return withNote(
+        finalize(
+          {
+            content: "",
+            brief: graphBrief,
+            citations: [...new Set((graphBrief.cited ?? []).map((c) => c.label))],
+            intent: ctx.intent,
+            marketSlug: ctx.matched.slug,
+            mode: "deterministic",
+          },
+          true
+        )
+      );
+    }
   }
 
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;

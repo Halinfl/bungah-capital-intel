@@ -1,9 +1,10 @@
+process.env.BUNGAH_NO_NEXT_CACHE = "1";
 /**
  * Unit tests for the Groq production-ready Chat path (no network, no DB).
  * Covers model allowlist, caps/429 fallback signals, pack redaction, output guards,
  * disclosure copy, and the draft privacy page.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import assert from "node:assert/strict";
 import { DEFAULT_GROQ_MODEL, GROQ_OVERFLOW_MODEL, resolveGroqModelId } from "../../src/lib/chat-llm-models";
@@ -35,15 +36,20 @@ import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src
 import type { GraphContext } from "../../src/lib/chat";
 
 const failures: string[] = [];
-function test(name: string, fn: () => void) {
-  try {
-    fn();
-    console.log(`ok  ${name}`);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    failures.push(`${name}: ${msg}`);
-    console.error(`FAIL  ${name}: ${msg}`);
-  }
+const testRuns: Promise<void>[] = [];
+async function test(name: string, fn: () => void | Promise<void>): Promise<void> {
+  const run = (async () => {
+    try {
+      await fn();
+      console.log(`ok  ${name}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      failures.push(`${name}: ${msg}`);
+      console.error(`FAIL  ${name}: ${msg}`);
+    }
+  })();
+  testRuns.push(run);
+  await run;
 }
 
 test("default and overflow are Production gpt-oss ids", () => {
@@ -464,8 +470,142 @@ test("Chat typography, tap target, and visitor-facing copy meet the QA bar", () 
   assert.doesNotMatch(links, /text-emerald-300/);
 });
 
-if (failures.length) {
-  console.error(`\n${failures.length} failed`);
-  process.exit(1);
+
+const GRAPH_FIXTURE = process.env.BUNGAH_GRAPH_FIXTURE || "/workspace/backups/bungah-db/latest";
+
+async function runMarketMetricGapTests() {
+  if (!existsSync(GRAPH_FIXTURE)) {
+    throw new Error(`graph fixture missing at ${GRAPH_FIXTURE}`);
+  }
+  process.env.BUNGAH_GRAPH_FIXTURE = GRAPH_FIXTURE;
+  process.env.BUNGAH_NO_NEXT_CACHE = "1";
+  const { installGraphFixture } = await import("./graph-fixture");
+  assert.equal(installGraphFixture(GRAPH_FIXTURE), true);
+  const { answerChat } = await import("../../src/lib/chat-llm");
+  const { askedMarketMetric } = await import("../../src/lib/chat-brief-build");
+  const { resolveFollowUp } = await import("../../src/lib/chat-followup");
+
+  assert.equal(askedMarketMetric("What is RevPAR doing in Miami?", "revpar_metrics"), "revpar");
+  assert.equal(askedMarketMetric("And supply there?", "supply_pipeline"), "supply");
+  assert.equal(askedMarketMetric("What's demand doing in Miami?", "demand_visitation"), null);
+
+  const headOf = (a: { content: string; brief?: { answer?: string; reads?: { text?: string }[] } | null }) =>
+    a.brief?.answer ?? a.content.split("\n")[0];
+  const readsOf = (a: { brief?: { reads?: { text?: string }[] } | null }) =>
+    (a.brief?.reads ?? []).map((r) => r.text ?? "").join("\n");
+  const blobOf = (a: { content: string; brief?: { answer?: string; reads?: { text?: string }[] } | null }) =>
+    `${headOf(a)}\n${readsOf(a)}\n${a.content}`;
+
+  await test("Miami RevPAR uses the Chicago-style gap and does not call Groq for unsourced color", async () => {
+    const prevLlm = process.env.BUNGAH_USE_LLM;
+    const prevKey = process.env.GROQ_API_KEY;
+    process.env.BUNGAH_USE_LLM = "true";
+    process.env.GROQ_API_KEY = "gsk_test_not_a_real_key";
+    let groqCalls = 0;
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (/groq/i.test(url)) groqCalls += 1;
+      throw new Error(`test must not call the network (${url})`);
+    }) as typeof fetch;
+    try {
+      const out = await answerChat("What is RevPAR doing in Miami?");
+      assert.equal(out.mode, "deterministic");
+      assert.equal(out.intent, "revpar_metrics");
+      assert.equal(out.marketSlug, "miami");
+      assert.match(headOf(out), /^Miami: no public market-wide or county RevPAR on file/);
+      assert.doesNotMatch(blobOf(out), /63\.6%|I couldn't find a cited source right now/i);
+      assert.doesNotMatch(headOf(out), /pax|Art Basel|winter seasonality/i);
+      assert.match(readsOf(out), /pax/i);
+      assert.equal(groqCalls, 0);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevLlm === undefined) delete process.env.BUNGAH_USE_LLM;
+      else process.env.BUNGAH_USE_LLM = prevLlm;
+      if (prevKey === undefined) delete process.env.GROQ_API_KEY;
+      else process.env.GROQ_API_KEY = prevKey;
+    }
+  });
+
+  await test("Dallas RevPAR stays deterministic: a public figure if one remains, otherwise the gap, never unsourced Groq color", async () => {
+    const out = await answerChat("What is RevPAR doing in Dallas?");
+    const head = headOf(out);
+    assert.equal(out.mode, "deterministic");
+    assert.equal(out.marketSlug, "dallas");
+    assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+    const gap = /^Dallas: no public market-wide or county RevPAR on file/.test(head);
+    const publicFig = /\bRevPAR\b/.test(head) && /\d/.test(head) && !/^Dallas: no public/.test(head);
+    assert.ok(gap || publicFig, `Dallas should gap or cite a public RevPAR figure: ${head}`);
+  });
+
+  await test("Nashville RevPAR leads with the gap, not flynashville passenger counts", async () => {
+    const out = await answerChat("What is RevPAR doing in Nashville?");
+    const head = headOf(out);
+    assert.equal(out.mode, "deterministic");
+    assert.equal(out.marketSlug, "nashville");
+    assert.match(head, /^Nashville: no public market-wide or county RevPAR on file/);
+    assert.doesNotMatch(head, /2,389,896|flynashville|pax/i);
+    assert.match(readsOf(out), /2,389,896|\bpax\b|flynashville/i);
+    assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+  });
+
+  await test("Nashville supply follow-up is a deterministic cited supply answer, not unsourced Groq color", async () => {
+    const prevLlm = process.env.BUNGAH_USE_LLM;
+    const prevKey = process.env.GROQ_API_KEY;
+    process.env.BUNGAH_USE_LLM = "true";
+    process.env.GROQ_API_KEY = "gsk_test_not_a_real_key";
+    let groqCalls = 0;
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (/groq/i.test(url)) groqCalls += 1;
+      throw new Error(`test must not call the network (${url})`);
+    }) as typeof fetch;
+    try {
+      const route = await resolveFollowUp({
+        question: "And supply there?",
+        scope: null,
+        marketSlug: null,
+        prev: { question: "What is RevPAR doing in Nashville?", intent: "revpar_metrics", marketSlug: "nashville", answerHash: "x", seen: [] },
+      });
+      assert.equal(route.marketSlug, "nashville");
+      const out = await answerChat("And supply there?", {
+        marketSlug: route.marketSlug,
+        intent: route.intent,
+        history: [
+          { role: "user", content: "What is RevPAR doing in Nashville?" },
+          { role: "assistant", content: "Nashville: no public market-wide or county RevPAR on file." },
+        ],
+      });
+      assert.equal(out.mode, "deterministic");
+      assert.equal(out.marketSlug, "nashville");
+      assert.equal(out.intent, "supply_pipeline");
+      assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+      const head = headOf(out);
+      const supplyGap = /^Nashville: no public market-wide or county supply figure on file/.test(head);
+      const citedSupply = /supply-pressure|pipeline|inventory|under construction|keys/i.test(`${head}\n${readsOf(out)}`);
+      assert.ok(supplyGap || citedSupply, `supply follow-up should gap or cite a public supply figure: ${head}`);
+      assert.doesNotMatch(head, /^Nashville: no public market-wide or county RevPAR/);
+      assert.equal(groqCalls, 0);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevLlm === undefined) delete process.env.BUNGAH_USE_LLM;
+      else process.env.BUNGAH_USE_LLM = prevLlm;
+      if (prevKey === undefined) delete process.env.GROQ_API_KEY;
+      else process.env.GROQ_API_KEY = prevKey;
+    }
+  });
 }
-console.log("\ntest:llm-prod ok");
+
+// typography test is sync and already registered; run the fixture cases before the summary.
+
+void (async () => {
+  await Promise.all(testRuns);
+  await runMarketMetricGapTests();
+  await Promise.all(testRuns);
+  if (failures.length) {
+    console.error(`\n${failures.length} failed`);
+    process.exit(1);
+  }
+  console.log("\ntest:llm-prod ok");
+})();
