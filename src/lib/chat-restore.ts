@@ -95,3 +95,22 @@ export function withoutFailedTurn<T extends { role: string; question?: string; f
   const dropQ = asked?.role === "user" && asked.question === failed.question;
   return msgs.filter((_, j) => j !== i && !(dropQ && j === i - 1));
 }
+
+export type RestoredLink = { label: string; url: string };
+/**
+ * A stored answer is the full card as one markdown block, with its outside sources as "[label](https://…)".
+ * For a restored conversation the links become plain labels in the text (MarkdownLite renders on-site links
+ * only) and the outside sources are listed once each (http/https only, deduped, at most `max`).
+ */
+export function splitRestoredContent(text: string, max = 20): { text: string; links: RestoredLink[] } {
+  const links: RestoredLink[] = [];
+  const seen = new Set<string>();
+  const out = text.replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (_all, label: string, url: string) => {
+    if (!seen.has(url) && links.length < max) {
+      seen.add(url);
+      links.push({ label: label.trim() || url, url });
+    }
+    return label;
+  });
+  return { text: out, links };
+}

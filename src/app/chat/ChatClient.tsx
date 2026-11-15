@@ -12,7 +12,7 @@ import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
 import { parseInlineLinks } from "@/lib/inline-links";
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "@/lib/chat-llm-disclosure";
-import { messagesFromThread, parseMarker, planRestore, restoreKey, serializeMarker, withoutFailedTurn } from "@/lib/chat-restore";
+import { messagesFromThread, parseMarker, planRestore, restoreKey, serializeMarker, splitRestoredContent, withoutFailedTurn } from "@/lib/chat-restore";
 import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
@@ -98,6 +98,8 @@ type Msg = {
   requestId?: string;
   /** A refusal that retrying won't fix (too long, conversation deleted): no "Try again". */
   noRetry?: boolean;
+  /** r4: brought back after a reload (stored text, no card): rendered by RestoredAnswer. */
+  restored?: boolean;
   /** Batch 1: what changed vs the answer before it, and one next-best alternate. */
   opener?: Opener;
   alternate?: Alternate;
@@ -223,7 +225,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     const b = document.body;
     const update = () => {
       // Pinch zoom also shrinks the visual viewport; only a keyboard (scale 1) lifts the composer.
-      const inset = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      const inset = Math.abs(vv.scale - 1) > 0.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
       b.style.setProperty("--chat-kb-inset", `${inset}px`);
     };
     update();
@@ -316,7 +318,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
         threadIdRef.current = t.id;
         setThreadId(t.id);
         writeMarker(t.id);
-        setMessages(restored.map((m) => ({ ...m, range: "all" as DateRange })));
+        setMessages(restored.map((m) => ({ ...m, range: "all" as DateRange, restored: true })));
         setAnnounce(plan.kind === "claim" && url !== "/api/chat/threads/current" ? "Your conversation is saved to your account." : "Conversation restored.");
       } catch {
         /* offline or blocked: start fresh, as before */
@@ -662,11 +664,13 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               {m.role === "assistant" ? (
                 <>
                 {m.mode === "llm" ? (
-                  <p className="mb-1 text-[11px] uppercase tracking-wider text-slate-400" data-chat-ai-label>
+                  <p className="mb-1 text-xs uppercase tracking-wider text-slate-400" data-chat-ai-label>
                     {CHAT_AI_LABEL}
                   </p>
                 ) : null}
-                {m.brief ? (
+                {m.restored ? (
+                  <RestoredAnswer text={m.content} />
+                ) : m.brief ? (
                   <ChatBriefView
                     brief={m.brief}
                     onReask={m.question ? (r) => void send(m.question!, r, "reask") : undefined}
@@ -756,7 +760,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
-              {!m.brief && m.citations && m.citations.length > 0 ? (
+              {!m.brief && !m.restored && m.citations && m.citations.length > 0 ? (
                 <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Citations</div>
                   {m.citations.map((c, j) => (
@@ -933,6 +937,33 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
         </div>
       </div>
 
+    </div>
+  );
+}
+
+/**
+ * r4: an answer brought back after a reload. The stored text is the whole card as markdown; outside links show
+ * as their labels and are listed once under "Sources (N)" (neutral colours, 44px targets, long URLs wrap).
+ */
+function RestoredAnswer({ text }: { text: string }) {
+  const { text: body, links } = splitRestoredContent(text);
+  return (
+    <div className="min-w-0 space-y-3 [overflow-wrap:anywhere]" data-restored>
+      <MarkdownLite text={body} />
+      {links.length ? (
+        <details className="rounded-lg border border-white/[0.08]">
+          <summary className={`flex min-h-11 cursor-pointer items-center px-3 text-sm text-slate-100 ${RING}`}>Sources ({links.length})</summary>
+          <ul className="space-y-0 px-3 pb-2 text-sm">
+            {links.map((l) => (
+              <li key={l.url}>
+                <a href={l.url} target="_blank" rel="noopener noreferrer" className={`inline-flex min-h-11 items-center text-slate-200 underline decoration-white/40 underline-offset-2 hover:text-white ${RING}`}>
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }

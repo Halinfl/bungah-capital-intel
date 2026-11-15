@@ -546,6 +546,8 @@ async function main() {
       { role: "assistant", content: "A1", citations: JSON.stringify(["s1", 2, "s2"]) },
       { role: "assistant", content: "A2", citations: "not json" },
     ]);
+    const sp = R.splitRestoredContent("RevPAR up ([HST 10-K](https://sec.gov/a)); again [HST 10-K](https://sec.gov/a), [site](/markets/x), [bad](javascript:x).");
+    ok(sp.text === "RevPAR up (HST 10-K); again HST 10-K, [site](/markets/x), [bad](javascript:x)." && sp.links.length === 1 && sp.links[0].url === "https://sec.gov/a", "restored text: outside links → labels, listed once; on-site and other links untouched (MarkdownLite decides)", JSON.stringify(sp));
     ok(restored.length === 3 && restored[1].question === "Q1" && JSON.stringify(restored[1].citations) === '["s1","s2"]' && restored[2].citations?.length === 0, "stored messages → chat messages", JSON.stringify(restored));
 
     // Server: GET /api/chat/threads/current (getCurrentThread) and the owner GET.
