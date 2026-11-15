@@ -5,7 +5,7 @@
  */
 import type { GraphContext, MarketRow } from "./chat";
 import { isLicensedText, withoutLicensedSources, withoutLicensedSnapshot } from "./licensed-sources";
-import { parseSourceUrls } from "./source-links";
+import { canonicalizeCiteUrl, parseSourceUrls } from "./source-links";
 
 export const LLM_PACK_MAX_FACTS = 8;
 
@@ -65,7 +65,7 @@ function formatFact(row: FactRow, prefix: string): string | null {
   if (!link && !row.sourceLabel) return null;
   const asOf = (row.asOf ?? "").trim() || "date not on file";
   const source = displaySourceLabel(row, link?.url ?? "", (row.sourceLabel ?? link?.label ?? "source").trim());
-  const url = link?.url ?? "";
+  const url = canonicalizeCiteUrl(link?.url ?? "");
   const mag = (row.magnitude ?? "").trim();
   const body = (row.body ?? "").replace(/\s+/g, " ").trim();
   const title = (row.title ?? "").trim();

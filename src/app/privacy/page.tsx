@@ -33,15 +33,16 @@ export default function PrivacyPage() {
           that request in the United States.
         </p>
         <p className="max-w-2xl text-slate-200">
-          We configure Groq for Zero Data Retention (ZDR). With ZDR on, Groq does not retain your prompts or the
-          model&apos;s outputs for reliability or abuse monitoring. Groq may still keep usage metadata that does not
-          include the text of your question or the answer (for example, token counts).
+          When AI answers are turned on, we use Groq with zero data retention enabled. With zero data retention
+          enabled, Groq does not retain your prompts or the model&apos;s outputs for reliability or abuse monitoring.
+          Groq may still keep usage metadata that does not include the text of your question or the answer (for
+          example, token counts).
         </p>
         <p className="max-w-2xl text-slate-200">Do not enter confidential, personal, or login information into Chat.</p>
         <p className="max-w-2xl text-slate-200">
           Signed-in (private) Chat uses the same AI path as signed-out Chat. The question, recent turns in that thread,
-          and any cited facts we retrieve are sent to Groq in the United States to generate a reply. Groq Zero Data
-          Retention is on for our inference. The thread itself stays private: owner-only, never written into public
+          and any cited facts we retrieve are sent to Groq in the United States to generate a reply. When AI answers
+          are turned on, we use Groq with zero data retention enabled. The thread itself stays private: owner-only, never written into public
           question logs, and kept until you delete it or your account. We do not use signed-in Chat conversations to
           train or improve Chat. If we ever offer an opt-in, we&apos;ll update this notice first and it will be off by
           default.

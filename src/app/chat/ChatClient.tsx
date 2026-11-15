@@ -755,13 +755,13 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               ) : null}
               {/* With a brief, sources live in its own "Sources (N)" section. */}
               {!m.brief && m.sources && m.sources.length > 0 ? (
-                <div className="mt-3 space-y-1.5 border-t border-white/[0.06] pt-3">
+                <div className="mt-3 min-w-0 space-y-1.5 border-t border-white/[0.06] pt-3 [overflow-wrap:anywhere]">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Sources (open original)</div>
                   <SourceLinks links={m.sources} />
                 </div>
               ) : null}
               {!m.brief && !m.restored && m.citations && m.citations.length > 0 ? (
-                <div className="mt-3 flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
+                <div className="mt-3 flex min-w-0 flex-col flex-wrap gap-1.5 border-t border-white/[0.06] pt-3 [overflow-wrap:anywhere]">
                   <div className="text-xs uppercase tracking-wider text-slate-300">Citations</div>
                   {m.citations.map((c, j) => (
                     <SourceChip key={j} label={c} />
@@ -773,7 +773,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
           {showDelete ? (
-            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.06] pt-3 text-sm" data-delete-conversation>
+            <div className="relative z-20 flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.06] pt-3 text-sm" data-delete-conversation>
               {deleteStep === "idle" ? (
                 <>
                 <button

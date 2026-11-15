@@ -5,11 +5,11 @@ import { glueText } from "@/lib/glue";
 import { withoutSocialLinks } from "@/lib/social-sources";
 
 // Plain inline link; py-3.5 on 12px text gives a ~44px tap height without changing line layout.
-const linkCls = "src-link relative z-10 py-3.5 text-emerald-300 underline-offset-2 hover:underline focus-visible:underline";
+const linkCls = "src-link py-3.5 text-slate-200 underline-offset-2 hover:underline focus-visible:underline";
 
 function Item({ l }: { l: SourceLink }) {
   return (
-    <li className="src-item relative z-10 mr-3 inline">
+    <li className="src-item mr-3 inline min-w-0 [overflow-wrap:anywhere]">
       <a href={l.url} target="_blank" rel="noopener noreferrer" className={linkCls} title={l.url}>
         {glueText(scrubInternal(l.label))}{"\u00a0↗"}
       </a>
@@ -47,7 +47,7 @@ export function SourceLinks({
   // inline from 640px (r6c: a lone link was a 17px row in the chat "Sources (open original)" list).
   const group = "src-group";
   return (
-    <div className="relative z-10 text-xs leading-7">
+    <div className="relative min-w-0 text-xs leading-7 [overflow-wrap:anywhere]">
       <ul className={group}>
         {/* The key never carries the raw label (it ships in the page payload): URL + position only. */}
         {shown.map((l, i) => (

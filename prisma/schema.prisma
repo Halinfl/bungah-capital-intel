@@ -169,10 +169,13 @@ model ChatIdea {
   text      String
   threadId  String?
   source    String
+  /// Signed-in owner, kept internal (never returned on public responses). Used to delete ideas on user.deleted.
+  userId    String?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@index([source])
+  @@index([userId])
 }
 
 /// Per-person Chat settings (signed-in only). No row = defaults: training opt-in OFF (Decision C).

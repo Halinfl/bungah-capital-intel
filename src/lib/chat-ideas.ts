@@ -28,24 +28,27 @@ async function ensureChatIdeaTable(db: Db) {
       "text" TEXT NOT NULL,
       "threadId" TEXT,
       "source" TEXT NOT NULL,
+      "userId" TEXT,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "ChatIdea_pkey" PRIMARY KEY ("id")
     )`);
+  await db.$executeRawUnsafe(`ALTER TABLE "ChatIdea" ADD COLUMN IF NOT EXISTS "userId" TEXT`);
   await db.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ChatIdea_createdAt_idx" ON "ChatIdea"("createdAt")`);
   await db.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ChatIdea_source_idx" ON "ChatIdea"("source")`);
+  await db.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "ChatIdea_userId_idx" ON "ChatIdea"("userId")`);
   ensured = true;
 }
 
 export async function saveChatIdea(
   db: Db,
-  opts: { text: string; threadId?: string | null; source: "signed-out" | "signed-in" }
+  opts: { text: string; threadId?: string | null; source: "signed-out" | "signed-in"; userId?: string | null }
 ): Promise<{ ok: true; id: string } | { ok: false; reason: string }> {
   const text = opts.text.trim().slice(0, 4000);
   if (text.length < 8) return { ok: false, reason: "too-short" };
   try {
     await ensureChatIdeaTable(db);
     const row = await db.chatIdea.create({
-      data: { text, threadId: opts.threadId || null, source: opts.source },
+      data: { text, threadId: opts.threadId || null, source: opts.source, userId: opts.userId || null },
     });
     return { ok: true, id: row.id };
   } catch (e) {
@@ -81,4 +84,16 @@ export async function purgeSignedOutIdeas(db: Db, opts: { now?: Date; days?: num
   }
   const del = await db.chatIdea.deleteMany({ where });
   return { ok: true as const, dryRun: false, cutoff: cutoff.toISOString(), candidates: del.count, deleted: del.count };
+}
+
+/** Remove this signed-in person's ideas (and any signed-in idea attached to a thread we are deleting). */
+export async function deleteSignedInIdeas(db: Db, opts: { userId: string; threadIds?: string[] }) {
+  await ensureChatIdeaTable(db);
+  const byUser = await db.chatIdea.deleteMany({ where: { userId: opts.userId } });
+  let extra = 0;
+  if (opts.threadIds?.length) {
+    const rest = await db.chatIdea.deleteMany({ where: { source: "signed-in", threadId: { in: opts.threadIds } } });
+    extra = rest.count;
+  }
+  return byUser.count + extra;
 }

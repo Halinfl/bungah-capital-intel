@@ -70,7 +70,7 @@ export default async function WorkspacePage() {
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { href: "/markets", label: "Markets", desc: "Browse markets" },
-          { href: "/chat", label: "Chat", desc: "IC whiteboard ideate" },
+          { href: "/chat", label: "Chat", desc: "Ask a capital question" },
           { href: "/radars", label: "Radars", desc: "Quiet monitors" },
           { href: "/hard-assets", label: "Sound Assets", desc: "Our thesis on sound assets" },
         ].map((l) => (

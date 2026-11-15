@@ -2,15 +2,34 @@
  * Yellow sources: not shown as raw licensed figures. Harvey's supply tiers: green = public counts;
  * yellow = STR/CoStar (or a republication of them) with no license notice — score bucket only; red = skip.
  *
- * roadgenius.com republishes the same Nashville county OCC/ADR figures that other public pages attribute
- * to STR data published by the Nashville Convention & Visitors Corp (e.g. 2025 OCC 67.0%, ADR $199.20).
- * We could not confirm a non-STR primary origin on roadgenius, so it is treated as Yellow.
+ * Confirmed republications of STR or CoStar hotel-performance figures (OCC / ADR / RevPAR):
+ * - roadgenius.com: Nashville county OCC/ADR also attributed to STR via the Nashville CVB.
+ * - miamibusiness.com: the Aug 2026 Miami-Dade occupancy print is attributed on the page to
+ *   "STR data reported through the Greater Miami Convention & Visitors Bureau" (GMCVB).
+ * - miamiandbeaches.com / GMCVB industry updates and State of the Industry decks republish STR hotel metrics.
+ * - lodgingmagazine.com: the CoStar weekly hotel-performance reprints (e.g. week of Aug 2–8).
+ * Raw OCC/ADR/RevPAR from these hosts is reduced to a qualitative bucket. Other text is left alone.
  */
-export const YELLOW_HOSTS = ["roadgenius.com"];
+export const YELLOW_HOSTS = [
+  "roadgenius.com",
+  "miamibusiness.com",
+  "miamiandbeaches.com",
+  "lodgingmagazine.com",
+];
+
+/** Labels that mark the same reprint sources even when the URL is missing from the row. */
+export const YELLOW_LABELS = [
+  "miami business",
+  "gmcvb",
+  "greater miami convention",
+  "lodging magazine",
+];
 
 export function isYellowSource(label?: string | null, urls?: unknown): boolean {
   const blob = `${label ?? ""} ${typeof urls === "string" ? urls : JSON.stringify(urls ?? "")}`.toLowerCase();
-  return YELLOW_HOSTS.some((h) => blob.includes(h));
+  if (YELLOW_HOSTS.some((h) => blob.includes(h))) return true;
+  if (YELLOW_LABELS.some((s) => blob.includes(s))) return true;
+  return false;
 }
 
 const PERF = /\b(occupancy|occ(?:%|\b)|adr|revpar|average daily(?: rate)?|room demand|room revenue)\b/i;
@@ -41,6 +60,7 @@ export function withYellowBuckets<T extends Row>(rows: T[]): T[] {
     if (!PERF.test(text) && !RAW.test(text)) return r;
     return {
       ...r,
+      title: /occ|adr|revpar|occupancy/i.test(r.title ?? "") ? "Hotel performance (qualitative band only)" : r.title,
       body: yellowBucketText(r.asOf ?? null),
       magnitude: "bucket: moderate band",
     };

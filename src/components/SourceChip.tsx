@@ -23,10 +23,10 @@ export function SourceChip({ label, splitSeparators = false }: { label: string; 
   const group = parts.filter((p) => p.url).length >= 2;
   return (
     <span
-      className="relative z-10 inline-flex max-w-full items-start gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs leading-snug text-slate-300"
+      className="relative inline-flex max-w-full min-w-0 flex-wrap items-start gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs leading-snug text-slate-300 [overflow-wrap:anywhere]"
       title={clean}
     >
-      <span className="shrink-0 font-medium text-emerald-300">Source</span>
+      <span className="shrink-0 font-medium text-slate-300">Source</span>
       <span className={`${group ? "src-group " : ""}min-w-0 break-words`}>
         {parts.map((p, i) =>
           p.url ? (
@@ -35,7 +35,7 @@ export function SourceChip({ label, splitSeparators = false }: { label: string; 
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="src-link py-3.5 text-emerald-300 underline-offset-2 hover:underline"
+              className="src-link py-3.5 text-slate-200 underline-offset-2 hover:underline"
             >
               {glueText(p.text)}{"\u00a0↗"}
             </a>

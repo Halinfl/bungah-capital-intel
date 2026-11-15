@@ -17,6 +17,7 @@ export const CHAT_INTENTS = [
   // Set by guards in chat-llm.ts (not by RULES below).
   "advice_declined",
   "uncovered_market",
+  "uncitable_source",
   "supply_ranking",
   "property_asset",
   "reit_call",

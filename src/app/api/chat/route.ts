@@ -75,9 +75,10 @@ type LogInput = {
 };
 
 /**
- * Thread + question-log write. Runs after the response is sent (next/server `after`); never throws.
- * Foundation schema: one owned thread per conversation (src/lib/chat-store.ts). A private log row never
- * carries text or a threadId (Decision A). Older schema: the legacy write (one thread per answer).
+ * Thread + question-log write. Awaited before the response so a follow-up GET or reload sees the turn
+ * (no early `existing` with a missing second answer). Never throws. Foundation schema: one owned thread
+ * per conversation (src/lib/chat-store.ts). A private log row never carries text or a threadId (Decision A).
+ * Older schema: the legacy write (one thread per answer).
  */
 async function persist(x: LogInput): Promise<void> {
   const t0 = Date.now();
@@ -113,8 +114,8 @@ async function persist(x: LogInput): Promise<void> {
     } else if (await foundationReady(prisma)) await persistLogOnly(prisma, turn);
     else if (!PREVIEW) await legacyPersist(prisma, turn);
   } catch (persistErr) {
-    // A failed write never touches the answer: it was already sent.
-    console.error(`[chat-log] write failed after response (answer already sent, ${Date.now() - t0}ms):`, persistErr instanceof Error ? persistErr.message : persistErr);
+    // A failed write is logged; the answer is still returned.
+    console.error(`[chat-log] write failed (${Date.now() - t0}ms):`, persistErr instanceof Error ? persistErr.message : persistErr);
   }
 }
 
@@ -340,13 +341,11 @@ export async function POST(req: Request) {
     }
     const threadId = thread?.mode === "owned" ? thread.threadId : null;
 
-    // Log after the response is sent: a slow or failed write never delays or blocks the answer.
+    // Persist the turn before responding so a follow-up or reload cannot race an empty `after()` write.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     const logged = answer;
-    after(() => {
-      persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner, requestId });
-      if (!userId) void maybeSaveSignedOutIdea(prisma, question, threadId);
-    });
+    await persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner, requestId });
+    if (!userId) after(() => { void maybeSaveSignedOutIdea(prisma, question, threadId); });
     // S6: a signed-in request carrying this browser's signed-out id links the two (for account deletion).
     if (userId && anonId && shouldPersist()) after(() => recordAnonLink(prisma, owner).catch((e) => console.error("[chat-log] anon link failed:", e instanceof Error ? e.message : e)));
 

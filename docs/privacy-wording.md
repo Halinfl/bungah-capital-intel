@@ -16,11 +16,11 @@ Bungah Capital Intel (bungah.io) is operated by Bungah Capital LLC. This Chat pr
 
 When AI answers are turned on, Chat questions (signed-in or signed-out) are sent to Groq, a US-based inference provider, so a model can draft an answer from the public and derived facts we already hold. Groq processes that request in the United States.
 
-We configure Groq for Zero Data Retention (ZDR). With ZDR on, Groq does not retain your prompts or the model's outputs for reliability or abuse monitoring. Groq may still keep usage metadata that does not include the text of your question or the answer (for example, token counts).
+When AI answers are turned on, we use Groq with zero data retention enabled. With zero data retention enabled, Groq does not retain your prompts or the model's outputs for reliability or abuse monitoring. Groq may still keep usage metadata that does not include the text of your question or the answer (for example, token counts).
 
 Do not enter confidential, personal, or login information into Chat.
 
-Signed-in (private) Chat uses the same AI path as signed-out Chat. The question, recent turns in that thread, and any cited facts we retrieve are sent to Groq in the United States to generate a reply. Groq Zero Data Retention is on for our inference. The thread itself stays private: owner-only, never written into public question logs, and kept until you delete it or your account. We do not use signed-in Chat conversations to train or improve Chat. If we ever offer an opt-in, we'll update this notice first and it will be off by default.
+Signed-in (private) Chat uses the same AI path as signed-out Chat. The question, recent turns in that thread, and any cited facts we retrieve are sent to Groq in the United States to generate a reply. When AI answers are turned on, we use Groq with zero data retention enabled. The thread itself stays private: owner-only, never written into public question logs, and kept until you delete it or your account. We do not use signed-in Chat conversations to train or improve Chat. If we ever offer an opt-in, we'll update this notice first and it will be off by default.
 
 Chat is not intended for anyone under 18.
 
@@ -67,7 +67,7 @@ When AI answers are enabled, they are generated using OpenAI's gpt-oss-120b mode
 
 ## Counsel notes (not for the public page)
 
-- Code check: signed-in Chat uses the same Groq path as signed-out Chat (`allowLlm = range === "all"` in `src/lib/chat-llm.ts`). Private threads remain owner-only; public log rows store `[private]` rather than the question or answer; signed-in conversations are not used to train or improve Chat. Account deletion removes private threads and related private records (`deleteUserData` in `src/lib/chat-store.ts`). Groq Zero Data Retention is on at the org (Inference ZDR Enabled; Batch and Fine-tuning Off).
+- Code check: signed-in Chat uses the same Groq path as signed-out Chat (`allowLlm = range === "all"` in `src/lib/chat-llm.ts`). Private threads remain owner-only; public log rows store `[private]` rather than the question or answer; signed-in conversations are not used to train or improve Chat. Account deletion removes private threads, related private records, and that person's signed-in ideas (`deleteUserData` in `src/lib/chat-store.ts`). The public notice describes Groq zero data retention as enabled when AI answers are turned on; do not state the Groq console setting as a verified current fact until Hal confirms it himself.
 - Live search (`freeLiveSearch` in `src/lib/chat-web-search.ts`) sends only a short query string derived from the current question to Wikimedia, GDELT, and official government RSS. Prior turns are not sent to those providers. They may be sent to Groq, with ZDR, as thread context for inference.
 - Neon project `fragrant-cell-74825853` is in `aws-us-east-2` (United States), confirmed 15 Nov 2026 via the Neon project record. The public sentence "Chat data is stored in the United States." follows from that.
 - The public notice no longer describes an in-product training opt-in. If one is offered later, update this notice first; it must be off by default.

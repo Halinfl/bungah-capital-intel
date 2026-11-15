@@ -431,7 +431,15 @@ export async function deleteUserData(db: Db, userId: string) {
     const del = ids.length ? await tx.chatThread.deleteMany({ where: { id: { in: ids } } }) : { count: 0 };
     const prefs = await tx.chatUserPref.deleteMany({ where: { userId } });
     const links = await tx.chatAnonLink.deleteMany({ where: { userId } });
-    return { ok: true as const, schema: "foundation", threads: del.count, anonThreads: anonOwned.length, messages: messages.count, saved: saved.count, privateLogs: logs.privateLogs + userLogs.count, publicUnlinked: logs.publicUnlinked, prefs: prefs.count, anonLinks: links.count };
+    let ideas = 0;
+    try {
+      const byUser = await tx.chatIdea.deleteMany({ where: { userId } });
+      const byThread = ids.length ? await tx.chatIdea.deleteMany({ where: { source: "signed-in", threadId: { in: ids } } }) : { count: 0 };
+      ideas = byUser.count + byThread.count;
+    } catch {
+      // ChatIdea may be missing on an older schema.
+    }
+    return { ok: true as const, schema: "foundation", threads: del.count, anonThreads: anonOwned.length, messages: messages.count, saved: saved.count, privateLogs: logs.privateLogs + userLogs.count, publicUnlinked: logs.publicUnlinked, prefs: prefs.count, anonLinks: links.count, ideas };
   });
 }
 

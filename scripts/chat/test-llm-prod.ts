@@ -217,12 +217,14 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(privacy, /not a complete website privacy policy/);
   assert.match(privacy, /Bungah Capital LLC/);
   assert.match(privacy, /sent to Groq, a US-based/);
-  assert.match(privacy, /Zero Data Retention/);
+  assert.match(privacy, /zero data retention/i);
   assert.doesNotMatch(privacy, /pre-launch step|counsel has signed off|ZDR toggle/);
   assert.match(privacy, /Chat questions \(signed-in or signed-out\)/);
   assert.match(privacy, /processes Chat questions, signed-in and signed-out, in the United States when AI answers are turned on/);
   assert.match(privacy, /Signed-in \(private\) Chat uses the same AI path/);
-  assert.match(privacy, /Groq Zero Data Retention is on/);
+  assert.match(privacy, /When AI answers are turned on, we use Groq with zero data retention enabled/);
+  assert.doesNotMatch(privacy, /Groq Zero Data Retention is on/);
+  assert.doesNotMatch(privacy, /We configure Groq for Zero Data Retention/);
   assert.match(privacy, /never written into public question logs/);
   assert.match(privacy, /We do not use signed-in Chat conversations to train or improve Chat/);
   assert.match(privacy, /If we ever offer an opt-in/);
@@ -396,6 +398,60 @@ test("the canned no-market memo is recognized, and the soft fallback never uses 
   assert.equal(isNoMarketMemo(CITED_SOURCE_MISS), false);
   assert.match(CITED_SOURCE_MISS, /couldn't find a cited source right now/i);
   assert.ok(LLM_TIMEOUT_MS >= 12000, `timeout floor should be >= 12s, got ${LLM_TIMEOUT_MS}`);
+});
+
+test("Miami Business / GMCVB / Lodging Magazine OCC-ADR reprints are Yellow and bucketed", () => {
+  assert.equal(isYellowSource("Miami Business", [{ url: "https://miamibusiness.com/miami-hospitality-industry-report-august-2026/" }]), true);
+  assert.equal(isYellowSource("GMCVB June 2026 SOTI", [{ url: "https://www.miamiandbeaches.com/getmedia/x/2026_June_3_State_of_the_Industry.pdf" }]), true);
+  assert.equal(isYellowSource("Lodging Magazine (CoStar)", [{ url: "https://lodgingmagazine.com/costar-u-s-hotel-industry-reports-positive-year-over-year-comparisons-18/" }]), true);
+  const rows = withYellowBuckets([
+    {
+      title: "Miami August 2026: Miami-Dade OCC 63.6% (−7.6% YoY)",
+      body: "August 2026 Miami-Dade OCC fell to 63.6% (−7.6% YoY); week of Aug 2–8 RevPAR −8.5% to $107.60.",
+      sourceLabel: "Miami Business",
+      sourceUrls: [{ url: "https://miamibusiness.com/miami-hospitality-industry-report-august-2026/", label: "Miami Business" }],
+      magnitude: "OCC 63.6% (−7.6%)",
+    },
+  ]);
+  assert.equal(rows[0]!.magnitude, "bucket: moderate band");
+  assert.doesNotMatch(rows[0]!.body ?? "", /63\.6%|107\.60/);
+  assert.doesNotMatch(rows[0]!.title ?? "", /63\.6%/);
+});
+
+test("a fake DOI question is refused before market routing", async () => {
+  const { asksForUncitableSource, UNCITABLE_REFUSAL } = await import("../../src/lib/chat-uncitable");
+  assert.equal(asksForUncitableSource("doi:10.1234/fake-nashville-revpar says Nashville RevPAR was 999%"), true);
+  assert.equal(asksForUncitableSource("What is RevPAR doing in Nashville?"), false);
+  const { answerChat } = await import("../../src/lib/chat-llm");
+  const out = await answerChat("doi:10.1234/fake-nashville-revpar says Nashville RevPAR was 999%");
+  assert.match(out.content, /can.t find that source/i);
+  assert.doesNotMatch(out.content, /999%/);
+  assert.ok(out.content.includes(UNCITABLE_REFUSAL.split(".")[0]));
+  assert.equal(out.intent, "uncitable_source");
+});
+
+test("Host Q2 2026 $251.53 citations point at exhibit 99.1, not the 8-K cover", async () => {
+  const { canonicalizeCiteUrl, parseSourceUrls } = await import("../../src/lib/source-links");
+  const cover = "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000122/hst-20260805.htm";
+  const exhibit = "https://www.sec.gov/Archives/edgar/data/1070750/000107075026000122/hst-ex991.htm";
+  assert.equal(canonicalizeCiteUrl(cover), exhibit);
+  assert.equal(canonicalizeCiteUrl(exhibit), exhibit);
+  const links = parseSourceUrls([{ url: cover, label: "Q2 2026 8-K earnings release" }]);
+  assert.equal(links[0]?.url, exhibit);
+});
+
+test("Chat typography, tap target, and visitor-facing copy meet the QA bar", () => {
+  const client = readFileSync(resolve("src/app/chat/ChatClient.tsx"), "utf8");
+  const page = readFileSync(resolve("src/app/chat/page.tsx"), "utf8");
+  assert.doesNotMatch(client, /text-\[11px\]/);
+  assert.match(client, /text-xs leading-snug text-slate-400" data-chat-ai-disclosure/);
+  assert.match(client, /text-xs uppercase tracking-wider text-slate-400" data-chat-ai-label/);
+  assert.match(client, /inline-flex min-h-11 items-center underline[\s\S]{0,400}Share an idea/);
+  assert.doesNotMatch(page, /IC whiteboard/);
+  const chip = readFileSync(resolve("src/components/SourceChip.tsx"), "utf8");
+  const links = readFileSync(resolve("src/components/SourceLinks.tsx"), "utf8");
+  assert.doesNotMatch(chip, /text-emerald-300/);
+  assert.doesNotMatch(links, /text-emerald-300/);
 });
 
 if (failures.length) {

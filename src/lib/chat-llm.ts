@@ -98,6 +98,7 @@ import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citatio
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
 import { checkSearchCap, freeLiveSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
 import { STR_TABLE_REFUSAL, asksForStrTable } from "./chat-str";
+import { UNCITABLE_REFUSAL, asksForUncitableSource } from "./chat-uncitable";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -394,6 +395,20 @@ export async function answerChat(
 ): Promise<FinalAnswer> {
   const range = opts?.range ?? "all";
   const scope = opts?.scope ?? null;
+  // Fake / un-citable source (a DOI, an invented paper) beats market or item routing.
+  if (asksForUncitableSource(question)) {
+    return finalize(
+      {
+        content: [UNCITABLE_REFUSAL, "", decisionSupportFooter()].join("\n"),
+        citations: [],
+        sources: [],
+        intent: "uncitable_source",
+        marketSlug: null,
+        mode: "deterministic",
+      },
+      false
+    );
+  }
   // "Ask about this": an item chip routes the question to that item first.
   if (scope?.kind === "deal") {
     // Buy / sell about this deal: decline, then the deal's cited facts.

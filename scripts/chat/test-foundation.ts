@@ -626,6 +626,7 @@ async function main() {
     ok((await db.chatThread.count()) === before.t && (await db.chatQuestionLog.count()) === before.l && (await db.chatMessage.count()) === before.m, "S1/S2 refusals wrote no thread, message or log row");
     const routeSrc = fs.readFileSync(path.join(ROOT, "src/app/api/chat/route.ts"), "utf8");
     ok(!/\.slice\(0, MAX_QUESTION\)/.test(routeSrc), "S2 the route no longer slices the question");
+    ok(/await persist\(/.test(routeSrc) && !/after\(\(\) => \{\s*persist\(/.test(routeSrc), "follow-up turn is written before the response (no after() persist of the turn)");
     const client = fs.readFileSync(path.join(ROOT, "src/app/chat/ChatClient.tsx"), "utf8");
     ok(/const MAX_QUESTION = 1000/.test(client) && /data-chat-count/.test(client) && /input\.trim\(\)\.length > MAX_QUESTION/.test(client), "S2 client: visible counter and Send disabled over the cap");
 
