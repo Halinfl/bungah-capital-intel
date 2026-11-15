@@ -22,9 +22,12 @@ import { inspectLlmAnswer, scrubShowboatForeclosure } from "../../src/lib/chat-l
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "../../src/lib/chat-llm-disclosure";
 import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat-llm-citations";
 import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
-import { isAirliftQuestion, loadAirliftSignals } from "../../src/lib/chat-airlift";
+import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFactsFor } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { STR_TABLE_REFUSAL, asksForStrTable } from "../../src/lib/chat-str";
+import { buildGdeltQuery } from "../../src/lib/chat-web-search";
+import { CITED_SOURCE_MISS, isNoMarketMemo } from "../../src/lib/chat-llm";
+import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
 import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src/lib/chat-store";
@@ -207,7 +210,8 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   // r4 (merged from chat-foundation): composer uses the 2px slate focus-visible ring, not focus:outline-none.
   assert.match(client, /focus-visible:outline-2/);
   assert.doesNotMatch(client, /focus:outline-none/);
-  const privacy = readFileSync(resolve("src/app/privacy/page.tsx"), "utf8");
+  const privacySource = readFileSync(resolve("src/app/privacy/page.tsx"), "utf8");
+  const privacy = privacySource.replace(/\s+/g, " ");
   assert.match(privacy, /Draft — under legal review/);
   assert.match(privacy, /Chat privacy notice/);
   assert.match(privacy, /not a complete website privacy policy/);
@@ -215,12 +219,25 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(privacy, /sent to Groq, a US-based/);
   assert.match(privacy, /Zero Data Retention/);
   assert.doesNotMatch(privacy, /pre-launch step|counsel has signed off|ZDR toggle/);
+  assert.match(privacy, /Chat questions \(signed-in or signed-out\)/);
+  assert.match(privacy, /processes Chat questions, signed-in and signed-out, in the United States when AI answers are turned on/);
   assert.match(privacy, /Signed-in \(private\) Chat uses the same AI path/);
   assert.match(privacy, /Groq Zero Data Retention is on/);
   assert.match(privacy, /never written into public question logs/);
-  assert.match(privacy, /unless you opt in/);
-  assert.match(privacy, /off by default/);
-  assert.match(privacy, /not yet\s+a Chat settings toggle/);
+  assert.match(privacy, /We do not use signed-in Chat conversations to train or improve Chat/);
+  assert.match(privacy, /If we ever offer an opt-in/);
+  assert.match(privacy, /update this notice first and it will be off by default/);
+  assert.match(privacy, /a short search query based on your question \(not your full thread\)/);
+  assert.match(privacy, /query may include words from your question/);
+  assert.match(privacy, /deleted automatically after 12 months/);
+  assert.match(privacy, /Deleting your account removes/);
+  assert.match(privacy, /kept until you delete them or your account/);
+  assert.match(privacy, /Chat data is stored in the United States/);
+  assert.match(privacy, /Inactive signed-out threads may be removed after 90 days/);
+  assert.doesNotMatch(privacy, /unless you opt in/);
+  assert.doesNotMatch(privacy, /trainOptIn|\/api\/chat\/prefs|\/api\/cron\/chat-purge|user\.deleted|in this preview/);
+  assert.doesNotMatch(privacy, /Private question-log rows/);
+  assert.doesNotMatch(privacy, /When you are signed in, we may send your question/);
   assert.match(privacy, /12 months/);
   assert.match(privacy, /halvespucci@gmail.com/);
   assert.match(privacy, /not intended for anyone under 18/);
@@ -232,10 +249,30 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(privacy, /text-only credit; no logos are used/);
   assert.doesNotMatch(privacy, /<img/i);
   const wording = readFileSync(resolve("docs/privacy-wording.md"), "utf8");
+  const publicMd = (wording.split("## Proposed body")[1]?.split("## Counsel notes")[0] ?? "").replace(/\s+/g, " ");
   assert.match(wording, /Bungah Capital LLC/);
   assert.match(wording, /12 months/);
   assert.match(wording, /halvespucci@gmail.com/);
+  assert.match(publicMd, /Chat questions \(signed-in or signed-out\)/);
+  assert.match(publicMd, /processes Chat questions, signed-in and signed-out, in the United States when AI answers are turned on/);
+  assert.match(publicMd, /Chat data is stored in the United States/);
+  assert.match(publicMd, /a short search query based on your question \(not your full thread\)/);
+  assert.match(publicMd, /We do not use signed-in Chat conversations to train or improve Chat/);
+  assert.match(publicMd, /We do not sell your Chat questions\. We do not put secrets, passwords, or payment details into Chat prompts/);
+  assert.doesNotMatch(publicMd, /trainOptIn|\/api\/chat\/prefs|\/api\/cron\/chat-purge|user\.deleted|in this preview/);
+  assert.doesNotMatch(publicMd, /Private question-log rows/);
   assert.doesNotMatch(wording, /this wording should not go live until that confirmation/);
+  // Page prose matches the proposed body (same required sentences).
+  for (const needle of [
+    "Chat questions (signed-in or signed-out)",
+    "processes Chat questions, signed-in and signed-out, in the United States when AI answers are turned on",
+    "Chat data is stored in the United States",
+    "a short search query based on your question (not your full thread)",
+    "We do not use signed-in Chat conversations to train or improve Chat",
+    "We do not sell your Chat questions. We do not put secrets, passwords, or payment details into Chat prompts",
+  ]) {
+    assert.match(privacy, new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
 });
 
 test("citations array keeps only sources the answer used, and 【】 markers are stripped", () => {
@@ -280,6 +317,12 @@ test("roadgenius OCC/ADR is treated as Yellow and reduced to a bucket", () => {
 
 test("FAA / airlift questions classify to demand_visitation", () => {
   assert.equal(isAirliftQuestion("What are trends currently effecting the market after the FAA issue on Friday"), true);
+  assert.equal(isAirliftQuestion("How were Dulles (IAD) passengers in July 2026?"), true);
+  assert.equal(isAirliftQuestion("What's the O'Hare passenger count?"), true);
+  assert.equal(isAirliftQuestion("DCA Reagan National traffic"), true);
+  assert.equal(airportMentionedIn("Dulles passengers", "IAD"), true);
+  const dulles = airliftFactsFor("How were Dulles (IAD) passengers in July 2026?");
+  assert.ok(dulles.market.some((f) => /dulles|IAD/i.test(f.title) || /IAD/i.test(f.body)), "Dulles/IAD rows are attached");
   assert.equal(classifyIntent("What are trends currently effecting the market after the FAA issue on Friday"), "demand_visitation");
   assert.equal(classifyIntent("How is airlift into Nashville?"), "demand_visitation");
 });
@@ -332,6 +375,27 @@ test("STR table prompts are detected and the refusal names STR", () => {
 test("idea detector catches feedback and ignores a plain market question", () => {
   assert.equal(looksLikeIdea("You should add a comparison of two markets side by side"), true);
   assert.equal(looksLikeIdea("What's the RevPAR read for Nashville?"), false);
+});
+
+test("GDELT query builder drops question-words and quotes a topic", () => {
+  const q = buildGdeltQuery("What's a recent news headline about the 2026 United States midterm elections? Cite a source.");
+  assert.match(q, /sourcelang:english/);
+  assert.doesNotMatch(q, /\bWhat's\b|\bCite\b|\bheadline\b|\bsource\b/i);
+  assert.match(q, /midterm/i);
+  assert.match(q, /2026/);
+  assert.ok(q.includes('"'), q);
+});
+
+test("live-search style answers still fail the licensed-text guard when they quote STR", () => {
+  const leaked = "From cited open sources:\n\nNashville occupancy was 67.0% (STR data, as-of 2026).";
+  assert.equal(inspectLlmAnswer(leaked), "licensed_figures");
+});
+
+test("the canned no-market memo is recognized, and the soft fallback never uses it", () => {
+  assert.equal(isNoMarketMemo("Chat answers from the cited Capital Graph: named markets, the national debt wall, talent signals, and active radars. This question didn't match a market we cover."), true);
+  assert.equal(isNoMarketMemo(CITED_SOURCE_MISS), false);
+  assert.match(CITED_SOURCE_MISS, /couldn't find a cited source right now/i);
+  assert.ok(LLM_TIMEOUT_MS >= 12000, `timeout floor should be >= 12s, got ${LLM_TIMEOUT_MS}`);
 });
 
 if (failures.length) {

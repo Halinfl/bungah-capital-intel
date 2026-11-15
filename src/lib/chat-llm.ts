@@ -86,6 +86,7 @@ import {
   estimateTokensFromText,
   isGroqRateLimitError,
   LLM_TIMEOUT_MS,
+  LLM_SEARCH_TIMEOUT_MS,
   markGroqRateLimited,
   parseRetryAfter,
   reconcileLlmTokens,
@@ -117,7 +118,23 @@ Rules (non-negotiable):
 8. If the pack marks a factor as skipped because the source restricts republication, say that factor is not shown for that reason. Do not fill it in.
 9. Product name: Bungah Capital Intel.
 10. When a Deep-link market slug or Primary market is present, lead with THAT market. Do not privilege Orlando or Las Vegas when the question names another market.
-11. If you used our cited pack for figures, you may start with "From our cited data:". If you used cited open sources from a live search (Wikipedia, Wikidata, GDELT, or official government feeds), start with "From cited open sources:". Keep source name, link, and as-of attached to each figure. Do not use Groq browser search or social sites.`;
+11. If you used our cited pack for figures, you may start with "From our cited data:". If you used cited open sources from a live search (Wikipedia, Wikidata, GDELT, or official government feeds), start with "From cited open sources:". Keep source name, link, and as-of attached to each figure. Do not use Groq browser search or social sites.
+12. Wikipedia: paraphrase in your own words (do not copy passages), link the article, and say "CC BY-SA 4.0". Wikidata is CC0; link the item. GDELT: cite the GDELT Project and https://www.gdeltproject.org/ plus the publisher URL. Official government feeds: cite the agency and a link.`;
+
+export const CITED_SOURCE_MISS = "I couldn't find a cited source right now.";
+
+export function isNoMarketMemo(content: string): boolean {
+  return /didn't match a market we cover/i.test(content);
+}
+
+function softCitedMiss(background?: string): string {
+  const bg = (background ?? "").trim();
+  return [
+    CITED_SOURCE_MISS,
+    bg || "I can still offer general background, without inventing figures, dates, or sources. You can also rephrase or ask again.",
+    "Decision support, not a recommendation. You make the call.",
+  ].join("\n\n");
+}
 
 /** Explicit opt-in; default false (Hal spend lock — no paid inference). */
 export function isLlmEnabled(): boolean {
@@ -631,6 +648,18 @@ async function answerChatIn(
     const historyBlock = history.length
       ? ["=== PRIOR TURNS IN THIS CONVERSATION ===", ...history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`), "=== END PRIOR TURNS ===", ""].join("\n")
       : "";
+    const packHasFacts = llmPack.factCount > 0;
+    // Current-fact questions: run open search BEFORE the first LLM call so a pack timeout
+    // cannot fall through to the canned no-market memo without searching.
+    let live: Awaited<ReturnType<typeof freeLiveSearch>> = null;
+    const wantSearchFirst = isWebSearchEnabled() && needsCurrentFacts(question) && !packHasFacts;
+    if (wantSearchFirst) {
+      const capS = checkSearchCap(opts.llmSubject ?? "anon");
+      if (capS.ok) {
+        reserveSearch(opts.llmSubject ?? "anon");
+        live = await freeLiveSearch(question);
+      }
+    }
     const prompt = [
       historyBlock,
       `User question: ${question}`,
@@ -641,6 +670,7 @@ async function answerChatIn(
       llmPack.pack,
       "=== END FACT PACK ===",
       "",
+      live?.pack ?? "",
       hadCorpus
         ? [
             "=== ALLOWED AUTHORED CORPUS (digests / ideology — cite by file path already in the pack or here) ===",
@@ -649,13 +679,15 @@ async function answerChatIn(
             "",
           ].join("\n")
         : "=== ALLOWED AUTHORED CORPUS ===\n(none matched this question)\n=== END CORPUS ===\n",
-      "Answer the visitor now. If the pack has the facts, lead with them (From our cited data). If this is a general or conversational question, just answer helpfully without inventing figures.",
+      "Answer the visitor now. If the pack has the facts, lead with them (From our cited data). If you used cited open sources, start with From cited open sources and follow the license rules. If this is a general or conversational question, just answer helpfully without inventing figures.",
     ]
       .filter(Boolean)
       .join("\n");
     const outputCap = 800;
+    const callTimeout = live || wantSearchFirst ? LLM_SEARCH_TIMEOUT_MS : LLM_TIMEOUT_MS;
     const estimated = estimateTokensFromText(SYSTEM_PROMPT + "\n" + prompt, outputCap);
     reserveLlmCall(opts.llmSubject ?? "anon", estimated);
+    const sourceList = [...llmPack.citations, ...digestCitesForPack, ...(live?.citations ?? [])];
     try {
       const { text, usage } = await generateText({
         model: model as Parameters<typeof generateText>[0]["model"],
@@ -663,32 +695,31 @@ async function answerChatIn(
         prompt,
         temperature: 0.3,
         maxOutputTokens: outputCap,
-        abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+        abortSignal: AbortSignal.timeout(callTimeout),
       });
       const used = Number(usage?.totalTokens ?? 0);
       if (used) reconcileLlmTokens(used, estimated);
       let content = stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim()));
-      let citations = citationsUsedInAnswer(content, [...llmPack.citations, ...digestCitesForPack]);
-      const packHasAnswer = llmPack.factCount > 0 && citations.length > 0;
-      const wantSearch =
+      let citations = citationsUsedInAnswer(content, sourceList);
+      const packHasAnswer = packHasFacts && citations.length > 0 && !live;
+      // If the pack-first call (no pre-search) still lacks a cited current-fact answer, search now and retry once.
+      if (
         isWebSearchEnabled() &&
+        !live &&
         !packHasAnswer &&
-        (needsCurrentFacts(question) || /don't have (any )?(a )?cited|no cited source/i.test(content));
-      if (wantSearch) {
+        (needsCurrentFacts(question) || /don't have (any )?(a )?cited|no cited source/i.test(content))
+      ) {
         const capS = checkSearchCap(opts.llmSubject ?? "anon");
         if (capS.ok) {
           reserveSearch(opts.llmSubject ?? "anon");
-          const live = await freeLiveSearch(question);
+          live = await freeLiveSearch(question);
           if (live?.pack) {
-            const historyBlock2 = history.length
-              ? history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`).join("\n")
-              : "";
             const { text: liveText, usage: liveUsage } = await generateText({
               model: model as Parameters<typeof generateText>[0]["model"],
               system: SYSTEM_PROMPT,
-              prompt: [historyBlock2, `User question: ${question}`, "", live.pack, "", "Answer from these cited open sources in your own words. If they do not actually answer the question, say you do not have a cited source. Never invent figures."].join("\n"),
+              prompt: [historyBlock, `User question: ${question}`, "", live.pack, "", "Answer from these cited open sources in your own words. Follow the license rules. If they do not actually answer the question, say you do not have a cited source. Never invent figures."].join("\n"),
               maxOutputTokens: 800,
-              abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+              abortSignal: AbortSignal.timeout(LLM_SEARCH_TIMEOUT_MS),
             });
             const usedLive = Number(liveUsage?.totalTokens ?? 0);
             if (usedLive) reconcileLlmTokens(usedLive, usedLive);
@@ -706,6 +737,9 @@ async function answerChatIn(
         if (packHasAnswer && !/^from our cited data/i.test(content) && !/^from cited open sources/i.test(content)) {
           content = `From our cited data:\n\n${content}`;
         }
+        if (live && /^from cited open sources/i.test(content) === false && citations.some((c) => /wikipedia|wikidata|gdelt|federal reserve|bureau of labor|aviation administration/i.test(c))) {
+          content = `From cited open sources:\n\n${content}`;
+        }
         const answer: ChatAnswer = {
           content,
           citations,
@@ -721,6 +755,36 @@ async function answerChatIn(
     } catch (err) {
       if (isGroqRateLimitError(err)) markGroqRateLimited(parseRetryAfter(err));
       console.error("[chat-llm] generateText failed; falling back", err instanceof Error ? err.message : "error");
+    }
+    // Last-resort LLM: general background, never the canned no-market memo.
+    try {
+      const { text: bg } = await generateText({
+        model: model as Parameters<typeof generateText>[0]["model"],
+        system: SYSTEM_PROMPT,
+        prompt: [historyBlock, `User question: ${question}`, "", "I couldn't complete a fully cited answer. Start with exactly: I couldn't find a cited source right now. Then give brief general background. Do not invent figures, dates, or sources."].join("\n"),
+        maxOutputTokens: 400,
+        abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      });
+      const bgContent = stripCitationBrackets(scrubShowboatForeclosure((bg ?? "").trim()));
+      if (bgContent && !inspectLlmAnswer(bgContent) && !isNoMarketMemo(bgContent)) {
+        const content = bgContent.toLowerCase().includes("couldn't find a cited source") ? bgContent : softCitedMiss(bgContent);
+        return withNote(
+          finalize(
+            { content, citations: [], intent: ctx.intent, marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null, mode: "llm" },
+            false
+          )
+        );
+      }
+    } catch {
+      // static miss below
+    }
+    if (history.length || !/\b(revpar|occupancy|adr|pipeline|supply|demand|hotel tax|how is\b.{0,40}\bdoing)\b/i.test(question)) {
+      return withNote(
+        finalize(
+          { content: softCitedMiss(), citations: [], intent: ctx.intent, marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null, mode: "llm" },
+          false
+        )
+      );
     }
   }
 
@@ -779,6 +843,12 @@ async function answerChatIn(
     marketSlug: fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
     mode: "deterministic",
   };
+  // Never return the canned "we don't cover that market" memo for a general question or a follow-up.
+  if (isNoMarketMemo(answer.content) && ((opts.history && opts.history.length > 0) || !wantsMarketData)) {
+    answer.content = softCitedMiss();
+    answer.brief = undefined;
+    answer.citations = [];
+  }
   return withNote(
     finalize(answer, answeredWellHeuristic(fallback, ctx.intent, Boolean(ctx.matched), hadCorpus))
   );

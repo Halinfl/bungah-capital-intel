@@ -11,7 +11,11 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export const LLM_DAILY_REQUEST_CAP = Number(process.env.BUNGAH_LLM_DAILY_CAP || 400);
 export const LLM_DAILY_TOKEN_CAP = Number(process.env.BUNGAH_LLM_DAILY_TOKEN_CAP || 180_000);
 export const LLM_USER_DAILY_CAP = Number(process.env.BUNGAH_LLM_USER_DAILY_CAP || 20);
-export const LLM_TIMEOUT_MS = Number(process.env.BUNGAH_LLM_TIMEOUT_MS || 2500);
+/** Floor of 12s so a tight preview env (e.g. 8000) cannot reintroduce first-call timeouts that skip search. */
+const envTimeout = Number(process.env.BUNGAH_LLM_TIMEOUT_MS || 12000);
+export const LLM_TIMEOUT_MS = Number.isFinite(envTimeout) && envTimeout > 0 ? Math.max(envTimeout, 12_000) : 12_000;
+/** Longer budget when the first call already includes live-search results or a current-fact question. */
+export const LLM_SEARCH_TIMEOUT_MS = Math.max(LLM_TIMEOUT_MS, 20_000);
 
 type DayBucket = { start: number; requests: number; tokens: number };
 const ORG: DayBucket = { start: 0, requests: 0, tokens: 0 };

@@ -613,7 +613,10 @@ async function main() {
     const pkgBase = JSON.parse(execSync(`git show ${BASE}:package.json`, { cwd: ROOT }).toString());
     ok(JSON.stringify(pkgNow.dependencies) === JSON.stringify(pkgBase.dependencies), "no new runtime dependency");
     ok(JSON.stringify(pkgNow.devDependencies) === JSON.stringify(pkgBase.devDependencies), "no new dev dependency");
-    ok(!fs.existsSync(path.join(ROOT, "vercel.json")), "no vercel.json (no cron or config change shipped)");
+    const vjPath = path.join(ROOT, "vercel.json");
+    ok(fs.existsSync(vjPath), "vercel.json declares the Production chat-purge cron");
+    const vj = JSON.parse(fs.readFileSync(vjPath, "utf8")) as { crons?: { path?: string; schedule?: string }[] };
+    ok(Array.isArray(vj.crons) && vj.crons.some((c) => c.path === "/api/cron/chat-purge" && Boolean(c.schedule)), "chat-purge cron is scheduled in vercel.json");
     const changed = execSync(`git diff --name-only ${BASE}`, { cwd: ROOT }).toString().split("\n").filter((f) => /\.(ts|tsx|mjs)$/.test(f) && fs.existsSync(path.join(ROOT, f)) && f !== "scripts/chat/test-foundation.ts");
     const bad = changed.filter((f) => /BUNGAH_USE_LLM|GROQ_API_KEY|AI_GATEWAY_API_KEY|OPENAI_API_KEY|BUNGAH_CHAT_MODEL|https?:\/\/(?!local\b)/.test(fs.readFileSync(path.join(ROOT, f), "utf8").replace(/^\s*(\/\/|\/?\*).*$/gm, "")));
     ok(bad.length === 0, "changed files add no model keys, LLM flag or external URL", bad.join(","));

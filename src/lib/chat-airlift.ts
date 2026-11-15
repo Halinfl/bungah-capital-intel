@@ -23,11 +23,57 @@ export type AirliftSignal = {
   scope?: string | null;
 };
 
+/** Topic words, plus 'passengers'. Airport codes and names are matched separately. */
 export const AIRLIFT_QUESTION =
-  /\b(faa|airlift|air[- ]?travel|airports?|flights?|ground[\s-]?stop|air traffic|newark cap)\b/i;
+  /\b(faa|airlift|air[- ]?travel|airports?|flights?|ground[\s-]?stop|air traffic|newark cap|passengers?|enplanements?)\b/i;
+
+/** Airport codes in the shipped packs, plus common names (Dulles, O'Hare, Reagan, …). */
+export const AIRPORT_ALIASES: Record<string, string[]> = {
+  IAD: ["dulles", "washington dulles"],
+  DCA: ["reagan", "reagan national", "washington national"],
+  ORD: ["o'hare", "ohare", "o hare"],
+  MDW: ["midway"],
+  MCO: ["orlando international"],
+  EWR: ["newark"],
+  JFK: ["kennedy"],
+  LGA: ["laguardia"],
+  LAX: ["los angeles international"],
+  SFO: ["san francisco international"],
+  SEA: ["seatac", "sea-tac"],
+  ATL: ["hartsfield"],
+  DFW: ["dallas fort worth", "dallas/fort worth"],
+  IAH: ["intercontinental", "bush intercontinental"],
+  HOU: ["hobby"],
+  BOS: ["logan"],
+  MIA: ["miami international"],
+  BNA: ["nashville international"],
+  PHL: ["philadelphia international"],
+  PHX: ["sky harbor"],
+  LAS: ["harry reid", "mccarran"],
+  SAN: ["san diego international"],
+  HNL: ["honolulu international", "daniel k inouye"],
+  TPA: ["tampa international"],
+  AUS: ["austin bergstrom", "bergstrom"],
+  DTW: ["detroit metro", "wayne county"],
+  MSP: ["minneapolis saint paul", "minneapolis-st paul", "minneapolis-st. paul"],
+  PBI: ["palm beach international"],
+};
+
+export function airportMentionedIn(question: string, code?: string | null): boolean {
+  const q = question.toLowerCase();
+  const codes = code ? [code.toUpperCase()] : Object.keys(AIRPORT_ALIASES);
+  for (const c of codes) {
+    if (!c) continue;
+    if (new RegExp("\\b" + c.replace(/[^A-Z0-9]/g, "") + "\\b", "i").test(question)) return true;
+    for (const alias of AIRPORT_ALIASES[c] ?? []) {
+      if (alias && q.includes(alias.toLowerCase())) return true;
+    }
+  }
+  return false;
+}
 
 export function isAirliftQuestion(question: string): boolean {
-  return AIRLIFT_QUESTION.test(question);
+  return AIRLIFT_QUESTION.test(question) || airportMentionedIn(question);
 }
 
 const SHIPPED_DIR = path.join(process.cwd(), "src/data");
@@ -209,7 +255,7 @@ export function airliftFactsFor(
   const market: AirliftFact[] = [];
   for (const row of rows) {
     if (isNational(row)) national.push(toFact(row));
-    else if (marketMatches(row, marketSlug, marketName)) market.push(toFact(row));
+    else if (marketMatches(row, marketSlug, marketName) || airportMentionedIn(question, row.airport_code)) market.push(toFact(row));
   }
   // A national FAA question with no matched market still gets the national facts (and not every city row).
   return { national, market };

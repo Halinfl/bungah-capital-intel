@@ -903,6 +903,9 @@ export async function retrieveGraphContext(
     }
     if (matched && extra.market.length) {
       matched.signals.unshift(...extra.market.map((f) => asSignalRow(f, matched.id)));
+    } else if (extra.market.length) {
+      // Airport-code / name hit without a matched market slug (e.g. "Dulles passengers").
+      nationalSignals.unshift(...extra.market.map((f) => asSignalRow(f, null)));
     }
   }
 

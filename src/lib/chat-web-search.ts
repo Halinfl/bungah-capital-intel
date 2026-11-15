@@ -44,7 +44,7 @@ export function isBlockedSearchHost(url: string): boolean {
 }
 
 const CURRENT_FACT =
-  /\b(today|tonight|yesterday|this (week|month|year)|latest|breaking|news|current|right now|as of|what happened|ground stop|FAA|interest rates?|who is|when (were|was)|elected)\b/i;
+  /\b(today|tonight|yesterday|this (week|month|year)|latest|breaking|news|current|recent|right now|as of|what happened|ground stop|FAA|interest rates?|who is|when (were|was)|elected|headline)\b/i;
 
 export function needsCurrentFacts(question: string): boolean {
   return CURRENT_FACT.test(question);
@@ -224,22 +224,63 @@ async function wikidataOfficeholder(qid: string): Promise<LiveSourceFact | null>
   };
 }
 
+const GDELT_STOP = new Set(
+  "what what's who whom when where why how which a an the about cite source sources citation citations headline headlines please can you tell me give send latest current today tonight yesterday this week month year recent news breaking right now as of were was elected is are was a for with from that those these into your our their its and the".split(
+    /\s+/
+  )
+);
+const GDELT_WEAK = new Set(["united", "states", "american", "national", "question"]);
+
+/** Build a GDELT DOC query: drop question-function words, quote a short topic phrase, require English. */
+export function buildGdeltQuery(question: string): string {
+  const raw = question.replace(/[?!:;,./]+/g, " ").replace(/\s+/g, " ").trim();
+  const tokens = raw
+    .split(" ")
+    .map((w) => w.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9']+$/g, ""))
+    .filter((w) => w.length >= 3 && !GDELT_STOP.has(w.toLowerCase()));
+  if (!tokens.length) return "";
+  const topic = tokens.slice(0, 8);
+  const years = topic.filter((w) => /^\d{4}$/.test(w));
+  const distinctive = topic.filter((w) => !/^\d{4}$/.test(w) && !GDELT_WEAK.has(w.toLowerCase()));
+  const phraseWords = (distinctive.length ? distinctive : topic).slice(0, 2);
+  const used = new Set([...phraseWords, ...years].map((w) => w.toLowerCase()));
+  const extra = topic.filter((w) => !used.has(w.toLowerCase())).join(" ");
+  const phrase = phraseWords.length >= 2 ? `"${phraseWords.join(" ")}"` : phraseWords[0];
+  return [phrase, ...years, extra, "sourcelang:english"].filter(Boolean).join(" ").trim();
+}
+
 let lastGdeltAt = 0;
-async function gdeltFacts(question: string): Promise<LiveSourceFact[]> {
-  const wait = 5100 - (Date.now() - lastGdeltAt);
-  if (wait > 0 && lastGdeltAt) await new Promise((r) => setTimeout(r, wait));
-  const q = question
-    .replace(/[?]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length >= 3)
-    .slice(0, 8)
-    .join(" ");
-  if (q.length < 5) return [];
+async function fetchGdeltJson(query: string): Promise<{ articles?: { url?: string; title?: string; seendate?: string; domain?: string }[] } | null> {
   const url =
-    "https://api.gdeltproject.org/api/v2/doc/doc?mode=ArtList&format=json&maxrecords=6&timespan=14d&sort=DateDesc&query=" +
-    encodeURIComponent(q);
+    "https://api.gdeltproject.org/api/v2/doc/doc?mode=ArtList&format=json&maxrecords=8&timespan=14d&sort=DateDesc&query=" +
+    encodeURIComponent(query);
+  const wait = 8000 - (Date.now() - lastGdeltAt);
+  if (wait > 0 && lastGdeltAt) await new Promise((r) => setTimeout(r, wait));
   lastGdeltAt = Date.now();
-  const data = (await getJson(url, 10_000)) as { articles?: { url?: string; title?: string; seendate?: string; domain?: string }[] } | null;
+  const raw = await getText(url, 20_000);
+  if (!raw) return null;
+  if (raw.status === 429 || /limit requests to one every/i.test(raw.text)) {
+    await new Promise((r) => setTimeout(r, 20_000));
+    lastGdeltAt = Date.now();
+    const retry = await getText(url, 20_000);
+    if (!retry || retry.status === 429 || /limit requests to one every/i.test(retry.text)) return null;
+    try {
+      return JSON.parse(retry.text) as { articles?: { url?: string; title?: string; seendate?: string; domain?: string }[] };
+    } catch {
+      return null;
+    }
+  }
+  try {
+    return JSON.parse(raw.text) as { articles?: { url?: string; title?: string; seendate?: string; domain?: string }[] };
+  } catch {
+    return null;
+  }
+}
+
+export async function gdeltFacts(question: string): Promise<LiveSourceFact[]> {
+  const q = buildGdeltQuery(question);
+  if (q.length < 5) return [];
+  const data = await fetchGdeltJson(q);
   const out: LiveSourceFact[] = [];
   for (const a of data?.articles ?? []) {
     const href = a.url ?? "";
