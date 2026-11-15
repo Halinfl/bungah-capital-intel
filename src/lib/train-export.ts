@@ -30,11 +30,13 @@ export type TrainRecord = {
     intent: string | null;
     marketSlug: string | null;
     citations: string[];
-    source: "llm" | "memo" | string;
+    /** Public rows: the model path ("llm" | "memo"). Opt-in rows: "signed-in-opt-in". */
+    source: "llm" | "memo" | "signed-in-opt-in" | string;
     modelUsed?: string | null;
     answeredWell?: boolean;
     trainEligible: true;
-    isPrivate: false;
+    /** false = signed-out public log row; true = signed-in (private) content exported only by opt-in. */
+    isPrivate: boolean;
     /** "public" (signed-out log row) or "opt-in" (signed-in thread of a person who opted in). */
     origin: "public" | "opt-in";
     createdAt?: string;
@@ -145,7 +147,7 @@ export async function buildCorpus(db: PrismaClient, opts: { excludedIds?: Set<st
               { role: "user", content: u.content.trim() },
               { role: "assistant", content: a.content.trim() },
             ],
-            meta: { intent: null, marketSlug: null, citations: parseCitations(a.citations), source: "memo", trainEligible: true, isPrivate: false, origin: "opt-in", createdAt: a.createdAt.toISOString(), id: a.id },
+            meta: { intent: null, marketSlug: null, citations: parseCitations(a.citations), source: "signed-in-opt-in", modelUsed: "memo", trainEligible: true, isPrivate: true, origin: "opt-in", createdAt: a.createdAt.toISOString(), id: a.id },
           };
           lines.push(JSON.stringify(record));
           optInWritten += 1;

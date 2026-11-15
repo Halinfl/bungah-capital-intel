@@ -259,6 +259,10 @@ async function main() {
     ok(!text.includes(PRE), "content from before the opt-in is not exported");
     ok(!text.includes(OTHER) && !text.includes(PRIV), "people who did not opt in stay out");
     ok(text.split("\n").filter((l) => l.includes(POST)).every((l) => JSON.parse(l).meta.origin === "opt-in"), "opt-in records tagged meta.origin=opt-in");
+    const optRecs = text.split("\n").filter((l) => l.includes(POST)).map((l) => JSON.parse(l).meta);
+    ok(optRecs.length > 0 && optRecs.every((m) => m.isPrivate === true && m.source === "signed-in-opt-in"), "opt-in records labelled isPrivate:true, source:signed-in-opt-in", JSON.stringify(optRecs[0]));
+    const pubRecs = text.split("\n").filter((l) => l.includes(PUB)).map((l) => JSON.parse(l).meta);
+    ok(pubRecs.length > 0 && pubRecs.every((m) => m.isPrivate === false && m.origin === "public" && m.source !== "signed-in-opt-in"), "public records stay isPrivate:false, origin:public", JSON.stringify(pubRecs[0]));
     await S.setTrainOptIn(db, "user_OPT", false);
     text = runExport();
     ok(!text.includes(POST), "opting out removes them from the next export");
