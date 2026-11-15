@@ -140,6 +140,22 @@ async function main() {
     ok(p2.length === 2 && p2[0] === "[a](//x.com) and " && typeof p2[1] === "object" && p2[1].href === "/deals", "a rejected link before a good one stays text", JSON.stringify(p2));
   }
 
+  section("MarkdownLite links (same rule as inline links)");
+  {
+    const { inline } = await import("@/components/MarkdownLite");
+    const good = inline("See [Nashville](/markets/nashville) and [chat](/chat?market=orlando&x=1).");
+    ok(good.includes("<a href='/markets/nashville'") && good.includes(">Nashville</a>"), "on-site path → link", good);
+    ok(good.includes("href='/chat?market=orlando&amp;x=1'"), "query string kept (escaped)", good);
+    ok(good.includes("focus-visible:outline-2"), "link has the 2px focus ring");
+    for (const bad of ["//evil.example/x", "/\\evil.example", "https://evil.example", "http://x.com/a", "javascript:alert(1)", "data:text/html,x", "mailto:a@b.c", "markets"]) {
+      const h = inline(`Read [here](${bad}) now`);
+      ok(!h.includes("<a ") && h.includes("[here]("), `rejected, left as text: ${bad}`, h);
+    }
+    const q = inline("[x](/a'onmouseover=alert(1)) [y](/b\"z)");
+    ok(!/\sonmouseover=/i.test(q) && !q.includes("'onmouseover") && !q.includes('"z') && q.includes("&#39;onmouseover") && q.includes("&quot;z"), "quotes in a path stay escaped inside the href (no new attribute)", q);
+    ok(inline("<b>hi</b> **bold**") === "&lt;b&gt;hi&lt;/b&gt; <strong class='text-white font-semibold'>bold</strong>", "HTML escaped, bold kept");
+  }
+
   section("F1 one thread per conversation");
   {
     const o = { userId: null, anonId: anon() };
