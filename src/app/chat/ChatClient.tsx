@@ -12,6 +12,7 @@ import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
 import { parseInlineLinks } from "@/lib/inline-links";
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "@/lib/chat-llm-disclosure";
+import { messagesFromThread, parseMarker, planRestore, restoreKey, serializeMarker } from "@/lib/chat-restore";
 import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
@@ -49,6 +50,8 @@ const TIMEOUT_MS = 60_000;
 const RETRY_DEBOUNCE_MS = 2_000;
 const WORKING_MESSAGE = "Getting an answer…";
 const DELETE_FAIL_MESSAGE = "Couldn't delete this conversation. Try again in a moment.";
+/** The 2px slate focus ring every chat control uses (keyboard focus only). */
+const RING = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200";
 
 /**
  * Read a /api/chat response without trusting its body: a Vercel timeout or edge error page is HTML or plain
@@ -140,6 +143,19 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   const [threadId, setThreadId] = useState<string | null>(null);
   /** "Delete conversation": idle → confirming → deleting; a failure keeps the conversation and says so. */
   const [deleteStep, setDeleteStep] = useState<"idle" | "confirm" | "deleting">("idle");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  /** r4: remember which conversation is on screen (id only, no text) so a reload brings it back; null = nothing to restore. */
+  const markerKey = restoreKey(scope ? `${scope.kind}:${scope.id}` : "");
+  const writeMarker = useCallback(
+    (id: string | null) => {
+      try {
+        window.localStorage.setItem(markerKey, serializeMarker(id, signedIn));
+      } catch {
+        /* storage blocked: the conversation just won't come back after a reload */
+      }
+    },
+    [markerKey, signedIn]
+  );
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -204,6 +220,54 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     setAnnounce("");
     autoSubmittedKey.current = null;
   }, [initialQuestionKey, initialQuestion]);
+
+  // r4: on load, bring back the conversation this browser had on screen (owner GET; the server returns it only
+  // to its owner). Signed out → signed in in the same browser within 24h: claim it first, once (plan §2).
+  const restoredKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (restoredKey.current === initialQuestionKey) return;
+    restoredKey.current = initialQuestionKey;
+    let marker = null;
+    try {
+      marker = parseMarker(window.localStorage.getItem(markerKey));
+    } catch {
+      marker = null;
+    }
+    const plan = planRestore(marker, signedIn, { canRestore: !queryQuestion && !legacyMarket, general: !scope });
+    if (plan.kind === "none") {
+      // A signed-in conversation never comes back signed out; forget it.
+      if (marker?.id && marker.signedIn && !signedIn) writeMarker(null);
+      return;
+    }
+    const seq = requestSeq.current;
+    void (async () => {
+      let url = plan.kind === "current" ? "/api/chat/threads/current" : `/api/chat/threads/${encodeURIComponent(plan.id)}`;
+      try {
+        if (plan.kind === "claim") {
+          writeMarker(null); // once: a failed claim is not retried on the next load
+          const c = await fetch(`/api/chat/threads/${encodeURIComponent(plan.id)}/claim`, { method: "POST" });
+          if (!c.ok) url = "/api/chat/threads/current";
+        }
+        const res = await fetch(url, { cache: "no-store" });
+        const data = res.ok ? await readJson(res) : null;
+        const t = data?.thread as { id?: unknown; messages?: unknown } | undefined;
+        if (seq !== requestSeq.current || sending.current) return; // the visitor already started something
+        if (!t || typeof t.id !== "string" || !Array.isArray(t.messages)) {
+          if (plan.kind === "get") writeMarker(null);
+          return;
+        }
+        const restored = messagesFromThread(t.messages as Parameters<typeof messagesFromThread>[0]);
+        if (!restored.length) return;
+        threadIdRef.current = t.id;
+        setThreadId(t.id);
+        writeMarker(t.id);
+        setMessages(restored.map((m) => ({ ...m, range: "all" as DateRange })));
+        setAnnounce(plan.kind === "claim" && url !== "/api/chat/threads/current" ? "Your conversation is saved to your account." : "Conversation restored.");
+      } catch {
+        /* offline or blocked: start fresh, as before */
+      }
+    })();
+  }, [initialQuestionKey, markerKey, signedIn, queryQuestion, legacyMarket, scope, writeMarker]);
 
   // Section bodies for an answer already on screen (same question, item and window); not a new question.
   const loadSections = useCallback(
@@ -327,6 +391,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       if (nextThreadId) {
         threadIdRef.current = nextThreadId;
         setThreadId(nextThreadId);
+        writeMarker(nextThreadId);
       }
       // Failed or rate-limited replies leave the previous answer as the follow-up context.
       if (nextPrev) {
@@ -343,7 +408,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       setSlow(false);
       setAnnounce(reply.rateLimited ? RATE_LIMIT_MESSAGE : reply.failed ? reply.content : "Answer ready.");
     },
-    [busy, marketSlug, scope]
+    [busy, marketSlug, scope, writeMarker]
   );
 
   useEffect(() => {
@@ -405,11 +470,36 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     setBusy(false);
     setSlow(false);
     setDeleteStep("idle");
+    writeMarker(null);
     setAnnounce("Conversation deleted.");
     // r2 (Eric QA): back to the top so the page heading and the fresh start are in view.
     const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-  }, [deleteStep]);
+  }, [deleteStep, writeMarker]);
+
+  /** r4 "New chat": a fresh screen; the conversation stays on the server and no longer comes back on reload. */
+  const newChat = useCallback(() => {
+    requestSeq.current += 1;
+    inFlight.current?.abort();
+    inFlight.current = null;
+    sending.current = false;
+    lastAnswer.current = null;
+    seenHashes.current = [];
+    threadIdRef.current = null;
+    setThreadId(null);
+    setCarry(null);
+    setCleared([]);
+    clearedRef.current = [];
+    setMessages([]);
+    setBusy(false);
+    setSlow(false);
+    setDeleteStep("idle");
+    writeMarker(null);
+    setAnnounce("New chat.");
+    const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    inputRef.current?.focus({ preventScroll: true });
+  }, [writeMarker]);
 
   /** Remove the item chip: the chat goes back to general (fresh thread, general starters). */
   const clearScope = useCallback(() => {
@@ -595,6 +685,14 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           {showDelete ? (
             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.06] pt-3 text-sm" data-delete-conversation>
               {deleteStep === "idle" ? (
+                <>
+                <button
+                  type="button"
+                  onClick={newChat}
+                  className={`inline-flex min-h-11 items-center rounded-full border border-white/45 px-4 text-slate-100 hover:border-white/60 hover:bg-white/[0.06] ${RING}`}
+                >
+                  New chat
+                </button>
                 <button
                   type="button"
                   onClick={() => setDeleteStep("confirm")}
@@ -602,6 +700,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                 >
                   Delete conversation
                 </button>
+                </>
               ) : (
                 <>
                   <span className="text-slate-200" id="chat-delete-confirm">
@@ -677,16 +776,17 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           }}
         >
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={scope ? `Ask about ${scope.label}…` : "Capital question…"}
             aria-label={scope ? `Question about ${scope.label}` : "Capital question"}
-            className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 focus:outline-none"
+            className={`min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 ${RING}`}
           />
           <button
             type="submit"
             disabled={busy || !input.trim()}
-            className="min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
+            className={`min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900 ${RING}`}
           >
             Send
           </button>

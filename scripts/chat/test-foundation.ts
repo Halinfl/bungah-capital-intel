@@ -140,6 +140,30 @@ async function main() {
     ok(p2.length === 2 && p2[0] === "[a](//x.com) and " && typeof p2[1] === "object" && p2[1].href === "/deals", "a rejected link before a good one stays text", JSON.stringify(p2));
   }
 
+  section("MarkdownLite links (same rule as inline links)");
+  {
+    const { inline } = await import("@/components/MarkdownLite");
+    const good = inline("See [Nashville](/markets/nashville) and [chat](/chat?market=orlando&x=1).");
+    ok(good.includes("<a href='/markets/nashville'") && good.includes(">Nashville</a>"), "on-site path → link", good);
+    ok(good.includes("href='/chat?market=orlando&amp;x=1'"), "query string kept (escaped)", good);
+    ok(good.includes("focus-visible:outline-2"), "link has the 2px focus ring");
+    for (const bad of ["//evil.example/x", "/\\evil.example", "https://evil.example", "http://x.com/a", "javascript:alert(1)", "data:text/html,x", "mailto:a@b.c", "markets"]) {
+      const h = inline(`Read [here](${bad}) now`);
+      ok(!h.includes("<a ") && h.includes("[here]("), `rejected, left as text: ${bad}`, h);
+    }
+    const q = inline("[x](/a'onmouseover=alert(1)) [y](/b\"z)");
+    ok(!/\sonmouseover=/i.test(q) && !q.includes("'onmouseover") && !q.includes('"z') && q.includes("&#39;onmouseover") && q.includes("&quot;z"), "quotes in a path stay escaped inside the href (no new attribute)", q);
+    ok(inline("<b>hi</b> **bold**") === "&lt;b&gt;hi&lt;/b&gt; <strong class='text-white font-semibold'>bold</strong>", "HTML escaped, bold kept");
+  }
+
+  section("after sign-in path");
+  {
+    const { afterSignInPath } = await import("@/lib/after-sign-in");
+    ok(afterSignInPath("/chat") === "/chat", "redirect_url=/chat → back to Chat");
+    for (const v of [undefined, "", "/workspace", "/chat/x", "//evil.example", "https://evil.example/chat", "/chat?x=1", ["/chat", "/chat"]] as (string | string[] | undefined)[])
+      ok(afterSignInPath(v) === "/workspace", `anything else → /workspace: ${JSON.stringify(v)}`);
+  }
+
   section("F1 one thread per conversation");
   {
     const o = { userId: null, anonId: anon() };
@@ -497,6 +521,87 @@ async function main() {
     await db.$executeRawUnsafe(`UPDATE "ChatThread" SET "createdAt" = now() - interval '25 hours' WHERE id = $1`, t3.threadId);
     const r3 = await S.resolveThread(db, t3.threadId, signedX);
     ok(r3.mode === "owned" && r3.threadId !== t3.threadId && r3.rejected === "claim-expired", "claim after 24h fails → new thread");
+  }
+
+  section("restore after reload (r4)");
+  {
+    const R = await import("@/lib/chat-restore");
+    const now = Date.now();
+    // Client plan: which marker leads to which request.
+    ok(R.planRestore(null, true, { now }).kind === "current" && R.planRestore(null, false, { now }).kind === "current", "no marker (general chat) → the caller's current conversation");
+    ok(R.planRestore(null, true, { now, general: false }).kind === "none", "no marker on a scoped chat → nothing");
+    ok(R.planRestore({ id: "ct_restore_1", signedIn: true, at: now }, true, { now }).kind === "get", "signed-in marker, signed in → owner GET of that id");
+    ok(R.planRestore({ id: "ct_restore_1", signedIn: false, at: now }, false, { now }).kind === "get", "signed-out marker, signed out → owner GET of that id");
+    ok(R.planRestore({ id: "ct_restore_1", signedIn: true, at: now }, false, { now }).kind === "none", "signed-in conversation never comes back after sign-out");
+    const c = R.planRestore({ id: "ct_restore_1", signedIn: false, at: now - 60_000 }, true, { now });
+    ok(c.kind === "claim" && c.id === "ct_restore_1", "signed out → signed in, same browser, <24h → claim, then show");
+    ok(R.planRestore({ id: "ct_restore_1", signedIn: false, at: now - 25 * 3600_000 }, true, { now }).kind === "none", "signed out → signed in after 24h → no claim");
+    ok(R.planRestore({ id: null, signedIn: true, at: now }, true, { now }).kind === "none" && R.planRestore({ id: null, signedIn: false, at: now }, false, { now }).kind === "none", "after New chat / Delete (id null) → nothing to restore, even with older threads on the server");
+    ok(R.planRestore({ id: "ct_restore_1", signedIn: true, at: now }, true, { now, canRestore: false }).kind === "none", "a ?q= / ?market= link starts fresh");
+    ok(R.parseMarker(R.serializeMarker("ct_restore_1", true, now))?.id === "ct_restore_1", "marker round-trips");
+    ok(R.parseMarker("{bad") === null && R.parseMarker(JSON.stringify({ id: "../x", signedIn: true, at: 1 })) === null && R.parseMarker(JSON.stringify({ id: "ct_restore_1" })) === null, "malformed / unsafe markers ignored");
+    ok(!R.serializeMarker("ct_restore_1", false, now).match(/question|content|answer/i), "marker holds an id only, no conversation text");
+    const restored = R.messagesFromThread([
+      { role: "user", content: "Q1" },
+      { role: "assistant", content: "A1", citations: JSON.stringify(["s1", 2, "s2"]) },
+      { role: "assistant", content: "A2", citations: "not json" },
+    ]);
+    ok(restored.length === 3 && restored[1].question === "Q1" && JSON.stringify(restored[1].citations) === '["s1","s2"]' && restored[2].citations?.length === 0, "stored messages → chat messages", JSON.stringify(restored));
+
+    // Server: GET /api/chat/threads/current (getCurrentThread) and the owner GET.
+    const U = { userId: "user_RST", anonId: null };
+    const older = await turn(U, null, "RST signed-in older");
+    const newer = await turn(U, null, "RST signed-in newer");
+    await turn(U, newer.threadId, "RST signed-in newer follow-up");
+    await db.chatThread.update({ where: { id: older.threadId }, data: { title: "touch" } }); // bump: older is now most recent
+    let cur = await S.getCurrentThread(db, U);
+    ok(cur?.id === older.threadId, "signed in: the most recently updated owned thread", cur?.id);
+    await turn(U, newer.threadId, "RST newer again");
+    cur = await S.getCurrentThread(db, U);
+    ok(cur?.id === newer.threadId && cur.messages.length === 6 && cur.messages[0].content === "RST signed-in newer", "signed in: newest after a follow-up, all messages in order");
+    ok(!("userId" in (cur ?? {})) && !("anonOwnerId" in (cur ?? {})), "no owner ids in the response");
+    ok((await S.getOwnedThread(db, newer.threadId, U))?.messages.length === 6, "owner GET of the marked id → 200");
+    const V = { userId: "user_RST_other", anonId: null };
+    ok((await S.getCurrentThread(db, V)) === null, "another user: nothing (404), none of U's content");
+    ok((await S.getOwnedThread(db, newer.threadId, V)) === null, "another user with U's id: owner GET 404");
+    const Xa = anon();
+    const anonT = await turn({ userId: null, anonId: Xa }, null, "RST signed-out q");
+    await turn({ userId: null, anonId: Xa }, anonT.threadId, "RST signed-out follow-up");
+    const ac = await S.getCurrentThread(db, { userId: null, anonId: Xa });
+    ok(ac?.id === anonT.threadId && ac.messages.length === 4, "signed out: this browser's own thread comes back");
+    ok((await S.getCurrentThread(db, { userId: null, anonId: anon() })) === null, "another browser (other anon cookie): nothing");
+    ok((await S.getCurrentThread(db, { userId: null, anonId: null })) === null, "no cookie: nothing");
+    ok((await S.getOwnedThread(db, anonT.threadId, { userId: null, anonId: anon() })) === null, "another browser with the id: owner GET 404");
+    ok((await S.getCurrentThread(db, { userId: "user_RST_other", anonId: Xa })) === null, "someone signing in on that browser doesn't see it before a claim");
+    ok((await S.getOwnedThread(db, anonT.threadId, { userId: "user_RST", anonId: Xa })) === null, "a signed-in user can't read the browser's unclaimed thread directly");
+    // Claim on sign-in, then it's the user's current conversation.
+    const W = { userId: "user_RST_claim", anonId: Xa };
+    ok((await S.claimThread(db, anonT.threadId, W)).ok, "same browser signs in → claim ok");
+    const wc = await S.getCurrentThread(db, W);
+    ok(wc?.id === anonT.threadId && wc.messages.length === 4, "after claim: shown as the signed-in user's conversation");
+    ok((await S.getCurrentThread(db, { userId: null, anonId: Xa })) === null, "after claim: the signed-out browser no longer gets it");
+    ok(!(await S.claimThread(db, anonT.threadId, W)).ok, "claim only once");
+    // Purged signed-out thread → nothing.
+    const Xp = anon();
+    const pt = await turn({ userId: null, anonId: Xp }, null, "RST purge me");
+    await db.$executeRawUnsafe(`UPDATE "ChatThread" SET "updatedAt" = now() - interval '120 days', "createdAt" = now() - interval '120 days' WHERE id = $1`, pt.threadId);
+    ok((await S.getCurrentThread(db, { userId: null, anonId: Xp }))?.id === pt.threadId, "old signed-out thread still there before the purge");
+    await S.purgeAnonThreads(db, {});
+    ok((await S.getCurrentThread(db, { userId: null, anonId: Xp })) === null && (await S.getOwnedThread(db, pt.threadId, { userId: null, anonId: Xp })) === null, "after the purge: nothing to restore");
+    // Delete → the deleted thread can't come back (owner GET 404); with no other thread, current is empty too.
+    const D = { userId: "user_RST_del", anonId: null };
+    const dt = await turn(D, null, "RST delete me");
+    ok((await S.deleteThread(db, dt.threadId, D)).ok, "delete ok");
+    ok((await S.getOwnedThread(db, dt.threadId, D)) === null && (await S.getCurrentThread(db, D)) === null, "after Delete: owner GET 404, nothing current");
+    // New chat: a fresh question after restore starts a new thread and becomes current.
+    const nc = await turn(U, null, "RST new chat");
+    ok(nc.status === "new" && nc.threadId !== newer.threadId && (await S.getCurrentThread(db, U))?.id === nc.threadId, "New chat → new thread, which is now current");
+    process.env.BUNGAH_CHAT_FOUNDATION = "off";
+    ok((await S.getCurrentThread(db, U)) === null, "legacy schema: nothing to restore");
+    delete process.env.BUNGAH_CHAT_FOUNDATION;
+    S.resetFoundationCache();
+    const routeSrc = fs.readFileSync(path.join(ROOT, "src/app/api/chat/threads/current/route.ts"), "utf8");
+    ok(routeSrc.includes("ownerFromRequest(req)") && !/searchParams|params/.test(routeSrc), "current route reads the owner from the session/cookie only (no id or user parameter)");
   }
 
   section("F9 no spend / zero-retention unchanged");

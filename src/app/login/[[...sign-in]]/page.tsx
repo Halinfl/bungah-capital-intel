@@ -5,6 +5,7 @@ import { SignIn } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { clerkAppearance } from "@/lib/clerk-appearance";
+import { afterSignInPath } from "@/lib/after-sign-in";
 
 export const metadata: Metadata = {
   title: "Sign in · Bungah Capital Intel",
@@ -12,9 +13,10 @@ export const metadata: Metadata = {
   robots: NOINDEX,
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const next = afterSignInPath((await searchParams).redirect_url);
   const { userId } = await auth();
-  if (userId) redirect("/workspace");
+  if (userId) redirect(next);
 
   return (
     <div className="mx-auto max-w-md space-y-6">
@@ -31,7 +33,7 @@ export default async function LoginPage() {
           routing="path"
           path="/login"
           signUpUrl="/signup"
-          forceRedirectUrl="/workspace"
+          forceRedirectUrl={next}
           appearance={clerkAppearance}
         />
       </div>

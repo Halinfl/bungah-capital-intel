@@ -1,3 +1,5 @@
+import { isOnSitePath } from "@/lib/inline-links";
+
 /** Minimal markdown-ish renderer for chat / artifacts (no external deps). */
 export function MarkdownLite({ text }: { text: string }) {
   const blocks = text.split(/\n\n+/);
@@ -52,16 +54,20 @@ export function MarkdownLite({ text }: { text: string }) {
   );
 }
 
-function inline(s: string): string {
+/** Exported for tests: one line of markdown → escaped HTML. */
+export function inline(s: string): string {
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;")
-    .replace(
-      /\[([^\]]+)\]\((\/[^)\s]+|https?:\/\/[^)\s]+)\)/g,
-      "<a href='$2' class='text-slate-100 underline underline-offset-2 hover:text-white'>$1</a>"
+    // On-site single-slash paths only (same rule as the chat's inline links): "//host", "/\\host", http(s):
+    // and every other scheme stay plain text. The text is already escaped, so the href can't break the quote.
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (all, label: string, href: string) =>
+      isOnSitePath(href.replace(/&amp;/g, "&"))
+        ? `<a href='${href}' class='text-slate-100 underline underline-offset-2 hover:text-white rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200'>${label}</a>`
+        : all
     )
     .replace(/\*\*(.+?)\*\*/g, "<strong class='text-white font-semibold'>$1</strong>")
     // Word-bounded so underscores inside URLs / file names never turn into italics.

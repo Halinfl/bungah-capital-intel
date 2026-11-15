@@ -28,7 +28,7 @@ export function MobileMenu({ items }: { items: Item[] }) {
         aria-controls="mobile-menu"
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 text-slate-100 hover:bg-white/[0.06]"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/15 text-slate-100 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200"
       >
         <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
           {open ? (
@@ -49,7 +49,7 @@ export function MobileMenu({ items }: { items: Item[] }) {
                 <Link
                   href={l.href}
                   aria-current={pathname === l.href || pathname?.startsWith(`${l.href}/`) ? "page" : undefined}
-                  className={`block rounded-md px-2 py-3 text-base ${
+                  className={`block rounded-md px-2 py-3 text-base focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-slate-200 ${
                     pathname === l.href || pathname?.startsWith(`${l.href}/`) ? "bg-white/[0.06] text-white" : "text-slate-200"
                   } hover:bg-white/[0.05]`}
                 >
@@ -64,7 +64,7 @@ export function MobileMenu({ items }: { items: Item[] }) {
                           <Link
                             href={c.href}
                             aria-current={on ? "page" : undefined}
-                            className={`flex min-h-11 items-center justify-between gap-3 rounded-md py-3 pl-6 pr-2 text-base ${
+                            className={`flex min-h-11 items-center justify-between gap-3 rounded-md py-3 pl-6 pr-2 text-base focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-slate-200 ${
                               on ? "bg-white/[0.06] text-white" : "text-slate-200"
                             } hover:bg-white/[0.05]`}
                           >

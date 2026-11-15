@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 type Item = { href: string; label: string };
 
-const linkCls = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2.5 transition hover:bg-white/[0.05] hover:text-white";
+const linkCls = "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2.5 transition hover:bg-white/[0.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200";
 
 /** Desktop primary nav links with an active state (aria-current="page") for the current section. */
 export function NavLinks({ items }: { items: Item[] }) {
