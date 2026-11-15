@@ -78,7 +78,11 @@ Writes `data/train/bungah-chat-corpus.jsonl` (gitignored when large). Keep this 
 
 Signed-in conversations are excluded unless that person turned on `ChatUserPref.trainOptIn` (off by default;
 `PUT /api/chat/prefs`). For people who opted in, the export reads their own threads, and only messages
-written at or after the opt-in (`trainOptInAt`). Private log rows carry no text and are never read.
-Records carry `meta.origin` = `"public"` or `"opt-in"`. Opt-in records are labelled honestly:
-`meta.isPrivate: true`, `meta.source: "signed-in-opt-in"` (public records: `isPrivate: false`, `source` = `memo`/`llm`).
+written at or after the opt-in (`trainOptInAt`). Private log rows carry no text; the export reads only
+their `modelUsed` (the answer path), never any content from them.
+Every record says where it came from:
+- Public (signed-out log row): `meta.origin: "public"`, `meta.isPrivate: false`, `meta.source` = the answer path (`memo` or `llm`).
+- Opt-in (signed-in thread of someone who opted in): `meta.origin: "opt-in"`, `meta.isPrivate: true` (it is
+  signed-in content, exported only because of the opt-in), `meta.source: "signed-in-opt-in"`, and
+  `meta.modelUsed` = that turn's stored answer path (`memo` / `llm`, or `null` if its log row is gone).
 Logic: `src/lib/train-export.ts`.
