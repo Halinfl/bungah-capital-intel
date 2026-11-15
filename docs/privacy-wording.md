@@ -1,32 +1,50 @@
-# Draft privacy-policy wording — Chat and Groq
+# Draft Chat privacy notice — Chat and Groq
 
-Status: **draft only**. Harvey reviews this before anything is live. This text is also on the preview `/privacy` page, marked as a draft. It is not on bungah.io production.
+Status: **draft only**, under legal review. This text is also on the preview `/privacy` page. It is a Chat privacy notice, not a complete website privacy policy, and it is not on bungah.io production.
 
 Last updated for review: November 15, 2026 (America/New_York).
 
 ## Proposed page title
 
-Privacy · Bungah Capital Intel
+Chat privacy notice · Bungah Capital Intel
 
 ## Proposed body
 
-Bungah Capital Intel (bungah.io) is operated by Bungah Capital. This page explains how Chat handles your questions. It supplements our [Trust Contract](/trust).
+Bungah Capital Intel (bungah.io) is operated by Bungah Capital LLC. This Chat privacy notice explains how Chat handles your questions. It is not a complete website privacy policy. It supplements our [Trust Contract](/trust).
 
 ### What you type into Chat
 
 When AI answers are turned on, questions you submit in public (signed-out) Chat are sent to Groq, a US-based inference provider, so a model can draft an answer from the public and derived facts we already hold. Groq processes that request in the United States.
 
-We configure Groq for Zero Data Retention (ZDR). With ZDR on, Groq does not retain your prompts or the model's outputs for reliability or abuse monitoring. Groq may still keep usage metadata that does not include the text of your question or the answer (for example, token counts). Enabling and confirming the live ZDR toggle in Groq's Data Controls is a pre-launch step for Hal; this wording should not go live until that confirmation is in hand and counsel has signed off.
+We configure Groq for Zero Data Retention (ZDR). With ZDR on, Groq does not retain your prompts or the model's outputs for reliability or abuse monitoring. Groq may still keep usage metadata that does not include the text of your question or the answer (for example, token counts).
 
 Do not enter confidential, personal, or login information into Chat.
 
 Signed-in (private) Chat is not sent to Groq. Those questions stay on our systems and are answered from the same cited, deterministic path used when AI is off.
 
+Chat is not intended for anyone under 18.
+
+### Who processes Chat data
+
+These processors handle Chat-related data:
+
+- **Vercel** — hosts the site and application.
+- **Clerk** — provides sign-in, when you use an account.
+- **Neon** — hosts the database where Chat threads and logs are stored.
+- **Groq** — processes signed-out Chat questions in the United States when AI answers are turned on, as described above.
+
+We do not currently use a third-party analytics product on this site. Cookies we actually use for Chat:
+
+- **Clerk session cookies**, when you are signed in.
+- **`bci_anon`**, an HttpOnly cookie that identifies a signed-out conversation in this browser for up to 180 days (the conversation itself may be removed sooner if it is inactive; see retention below).
+
 ### What we log on our side
 
-- **Signed-out Chat.** We keep a question log (the question, the answer, citations, and ordinary technical metadata such as time and whether the answer came from the model or from our cited templates). We use this to improve coverage and to operate the product. These rows can be used to train or evaluate our own systems only when that use is allowed under this policy.
-- **Signed-in private threads.** When you are signed in, your conversation is stored as a private thread. Private question-log rows do not keep the question or answer text for training. You can delete a conversation from Chat. Deleting your account removes your private threads and related private records.
-- **Training.** We do not use signed-in private Chat to train models unless you opt in. Signed-out questions may be used to improve Chat only as described above. There is no training on Groq; Groq is not permitted to use our prompts or outputs to train its models.
+- **Signed-out Chat.** We keep a question log (the question, the answer, citations, and ordinary technical metadata such as time and whether the answer came from the model or from our cited templates). We may use signed-out questions and answers to improve and evaluate Chat. We keep those signed-out question logs for 12 months, then delete them. The cleanup job in this preview (`GET /api/cron/chat-purge`) performs that deletion.
+- **Signed-in private threads.** When you are signed in, your conversation is stored as a private thread. Private question-log rows do not keep the question or answer text for training. You can delete a conversation from Chat. Deleting your account through our sign-in provider (Clerk) removes your private threads, private messages, saved items, private log rows, and Chat settings. That deletion is run by our Clerk `user.deleted` webhook.
+- **Training.** We do not use signed-in private Chat to train models unless you opt in. Opt-in is off by default. It can be turned on through a signed-in API (`POST /api/chat/prefs` with `trainOptIn`); there is not yet a Chat settings toggle in the user interface. There is no training on Groq; Groq is not permitted to use our prompts or outputs to train its models.
+
+Signed-out conversations (the thread in your browser) with nothing saved may also be removed after 90 days of inactivity. That does not shorten the 12-month question-log retention: a public log row can remain, unlinked from a deleted thread, until it is 12 months old.
 
 ### What we do not do
 
@@ -34,14 +52,17 @@ We do not sell your Chat questions. We do not send signed-in private threads to 
 
 ### Retention and your choices
 
-You can delete a signed-in conversation at any time in Chat. You can close a signed-out session and, if we have issued a short-lived anonymous cookie, it expires. For any other privacy request, contact us at halvespucci@gmail.com (or the address published on bungah.io at launch).
+You can delete a signed-in conversation at any time in Chat. You can close a signed-out session; the `bci_anon` cookie expires after 180 days if you do not return. For any other privacy request, contact halvespucci@gmail.com.
 
 ### Sources and answers
 
 Chat answers may be AI-generated. They may be wrong or out of date. They are for information only, not investment, legal, or tax advice. Check the cited sources before relying on any figure.
 
+When AI answers are enabled, they are generated using OpenAI's gpt-oss-120b model, hosted by Groq. This is a text-only credit; no logos are used.
+
 ## Counsel notes (not for the public page)
 
-- Do not publish this page on production until: (1) Hal has turned on ZDR in Groq Data Controls and saved a screenshot, (2) Harvey has confirmed this wording, and (3) the live Chat path matches it (private threads stay off Groq; opt-in is honored).
-- If ZDR cannot be confirmed on the free org, do not claim zero data retention. Substitute: "Groq does not retain prompts or outputs by default, but may keep them for up to 30 days for reliability or abuse monitoring unless Zero Data Retention is enabled."
-- The public disclosure under the Chat input uses Harvey's required sentence and links here.
+- Code check (post-r4 merge, this preview branch): signed-in Chat is not sent to Groq (`allowLlm` requires `!opts.isPrivate`; `isPrivate` is set when a Clerk `userId` is present, `src/app/api/chat/route.ts` and `src/lib/chat-llm.ts`). Account deletion removes private threads and related private records (`deleteUserData` in `src/lib/chat-store.ts`, invoked from `src/app/api/webhooks/clerk/route.ts` on `user.deleted`).
+- ZDR is confirmed on (Inference ZDR Enabled; Batch and Fine-tuning Off). The public ZDR claim stays. This page still should not go live on production until Harvey and Hal say so.
+- Hal confirmed (15 Nov 2026): legal entity Bungah Capital LLC; signed-out logs retained 12 months; privacy contact halvespucci@gmail.com.
+- 12-month signed-out log deletion is implemented in code (`purgeSignedOutLogs`, called from the existing `/api/cron/chat-purge` job), not as a manual process. Vercel Cron typically fires against Production, which will not run this code until a production ship; on this preview the purge runs when that job is called against the preview deployment.

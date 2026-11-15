@@ -29,6 +29,16 @@ type FactRow = {
   kind?: string | null;
 };
 
+
+/** Prefer the canonical Host Q2 2026 8-K earnings-release label when that is the source. */
+function displaySourceLabel(row: FactRow, url: string, fallback: string): string {
+  const blob = `${row.sourceLabel ?? ""} ${url}`;
+  if (/1070750|hst-ex991|hst-20260805/i.test(blob) || (/host hotels/i.test(blob) && /8-?k|earnings release/i.test(blob))) {
+    return "Q2 2026 8-K earnings release";
+  }
+  return fallback;
+}
+
 function firstLink(row: FactRow): { url: string; label: string } | null {
   const links = parseSourceUrls(row.sourceUrls);
   return links[0] ?? null;
@@ -54,7 +64,7 @@ function formatFact(row: FactRow, prefix: string): string | null {
   // Harvey: if there's no source, the model must say it doesn't know — omit unsourced rows from the pack.
   if (!link && !row.sourceLabel) return null;
   const asOf = (row.asOf ?? "").trim() || "date not on file";
-  const source = (row.sourceLabel ?? link?.label ?? "source").trim();
+  const source = displaySourceLabel(row, link?.url ?? "", (row.sourceLabel ?? link?.label ?? "source").trim());
   const url = link?.url ?? "";
   const mag = (row.magnitude ?? "").trim();
   const body = (row.body ?? "").replace(/\s+/g, " ").trim();
@@ -75,7 +85,9 @@ function takeFacts(rows: FactRow[], citations: Set<string>, redSkipped: string[]
     }
     const line = formatFact(row, "");
     if (!line) continue;
-    if (row.sourceLabel) citations.add(row.sourceLabel);
+    const lineSource = displaySourceLabel(row, firstLink(row)?.url ?? "", (row.sourceLabel ?? "").trim());
+    if (lineSource) citations.add(lineSource);
+    else if (row.sourceLabel) citations.add(row.sourceLabel);
     lines.push(line);
     budget.left -= 1;
   }

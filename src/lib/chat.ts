@@ -3,6 +3,8 @@ import { withoutSocial } from "./social-sources";
 import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
+import { withYellowBuckets } from "./yellow-sources";
+import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
 import { withNeutralBrands } from "./brand-neutral";
 import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
 import { areaFor, hasAreaTags, signalArea } from "./chat-brief-build";
@@ -866,16 +868,16 @@ export async function retrieveGraphContext(
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""]);
+    m.signals = withYellowBuckets(publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""]));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
+  const nationalSignals = withYellowBuckets(withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  )))));
+  ))))));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
@@ -893,6 +895,16 @@ export async function retrieveGraphContext(
 
   const scored = findMarketsByScore(q, markets);
   const secondary = scored.filter((m) => m.id !== matched?.id).slice(0, 3);
+
+  if (isAirliftQuestion(question)) {
+    const extra = airliftFactsFor(question, matched?.slug ?? slug, matched?.name ?? null);
+    if (extra.national.length) {
+      nationalSignals.unshift(...extra.national.map((f) => asSignalRow(f, null)));
+    }
+    if (matched && extra.market.length) {
+      matched.signals.unshift(...extra.market.map((f) => asSignalRow(f, matched.id)));
+    }
+  }
 
   return {
     question,

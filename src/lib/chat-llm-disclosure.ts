@@ -5,4 +5,4 @@ export const CHAT_AI_DISCLOSURE =
 export const CHAT_AI_LABEL = "AI-generated";
 
 export const CHAT_PRIVACY_HREF = "/privacy";
-export const CHAT_PRIVACY_LINK_LABEL = "Privacy policy";
+export const CHAT_PRIVACY_LINK_LABEL = "Chat privacy notice";

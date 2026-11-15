@@ -143,6 +143,10 @@ const RULES: Rule[] = [
       /\battendance\b/.test(q) ||
       /\bairlift\b/.test(q) ||
       /\bpassengers?\b/.test(q) ||
+      /\bfaa\b/.test(q) ||
+      /\bair[- ]?travel\b/.test(q) ||
+      /\bairports?\b/.test(q) ||
+      /\bflights?\b/.test(q) ||
       /\bcitywides?\b/.test(q),
   },
   {

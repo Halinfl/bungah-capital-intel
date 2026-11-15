@@ -20,6 +20,13 @@ import {
 import { serializeLlmPack, LLM_PACK_MAX_FACTS } from "../../src/lib/chat-llm-pack";
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "../../src/lib/chat-llm-guard";
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "../../src/lib/chat-llm-disclosure";
+import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat-llm-citations";
+import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
+import { isAirliftQuestion } from "../../src/lib/chat-airlift";
+import { classifyIntent } from "../../src/lib/chat-intent";
+import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
+import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src/lib/chat-store";
+
 import type { GraphContext } from "../../src/lib/chat";
 
 const failures: string[] = [];
@@ -189,7 +196,7 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(CHAT_AI_DISCLOSURE, /Don't enter confidential or personal information/);
   assert.equal(CHAT_AI_LABEL, "AI-generated");
   assert.equal(CHAT_PRIVACY_HREF, "/privacy");
-  assert.equal(CHAT_PRIVACY_LINK_LABEL, "Privacy policy");
+  assert.equal(CHAT_PRIVACY_LINK_LABEL, "Chat privacy notice");
   const client = readFileSync(resolve("src/app/chat/ChatClient.tsx"), "utf8");
   assert.match(client, /CHAT_AI_DISCLOSURE/);
   assert.match(client, /data-chat-ai-disclosure/);
@@ -200,10 +207,104 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.doesNotMatch(client, /focus:outline-none/);
   const privacy = readFileSync(resolve("src/app/privacy/page.tsx"), "utf8");
   assert.match(privacy, /Draft — under legal review/);
+  assert.match(privacy, /Chat privacy notice/);
+  assert.match(privacy, /not a complete website privacy policy/);
+  assert.match(privacy, /Bungah Capital LLC/);
   assert.match(privacy, /sent to Groq, a US-based/);
   assert.match(privacy, /Zero Data Retention/);
+  assert.doesNotMatch(privacy, /pre-launch step|counsel has signed off|ZDR toggle/);
   assert.match(privacy, /Signed-in \(private\) Chat is not sent to Groq/);
   assert.match(privacy, /unless you opt in/);
+  assert.match(privacy, /off by default/);
+  assert.match(privacy, /not yet\s+a Chat settings toggle/);
+  assert.match(privacy, /12 months/);
+  assert.match(privacy, /halvespucci@gmail.com/);
+  assert.match(privacy, /not intended for anyone under 18/);
+  assert.match(privacy, /Vercel/);
+  assert.match(privacy, /Clerk/);
+  assert.match(privacy, /Neon/);
+  assert.match(privacy, /bci_anon/);
+  assert.match(privacy, /gpt-oss-120b/);
+  assert.match(privacy, /text-only credit; no logos are used/);
+  assert.doesNotMatch(privacy, /<img/i);
+  const wording = readFileSync(resolve("docs/privacy-wording.md"), "utf8");
+  assert.match(wording, /Bungah Capital LLC/);
+  assert.match(wording, /12 months/);
+  assert.match(wording, /halvespucci@gmail.com/);
+  assert.doesNotMatch(wording, /this wording should not go live until that confirmation/);
+});
+
+test("citations array keeps only sources the answer used, and 【】 markers are stripped", () => {
+  const cleaned = stripCitationBrackets("Host lifted FY 2026 comparable RevPAR guidance to 4.75%–5.25%【】 (Q2 2026 8-K earnings release).");
+  assert.doesNotMatch(cleaned, /\u3010|\u3011|【|】/);
+  assert.match(cleaned, /8-K earnings release/);
+  const used = citationsUsedInAnswer(cleaned, [
+    "Q2 2026 8-K earnings release",
+    "FRED, Federal Reserve Bank of St. Louis (DGS10, from the Fed's H.15 release)",
+    "Hilton Q2 transcript (goodmoat, third-party)",
+  ]);
+  assert.deepEqual(used, ["Q2 2026 8-K earnings release"]);
+});
+
+test("roadgenius OCC/ADR is treated as Yellow and reduced to a bucket", () => {
+  assert.equal(isYellowSource("roadgenius.com", [{ url: "https://roadgenius.com/statistics/tourism/usa/tennessee/nashville/" }]), true);
+  const rows = withYellowBuckets([
+    {
+      title: "Nashville 2025 county hotel performance",
+      body: "OCC 67.0% / ADR $199.20 (ADR -1.3%); RevPAR -2.1%",
+      sourceLabel: "roadgenius.com",
+      sourceUrls: [{ url: "https://roadgenius.com/statistics/tourism/usa/tennessee/nashville/" }],
+      magnitude: "67.0% / $199.20",
+      asOf: "2025",
+    },
+  ]);
+  assert.match(rows[0].magnitude ?? "", /bucket/i);
+  assert.doesNotMatch(rows[0].body ?? "", /67\.0%|\$199\.20/);
+  const pack = serializeLlmPack({
+    question: "What's the RevPAR and occupancy read for Nashville?",
+    intent: "revpar_metrics",
+    preferredMarketSlug: "nashville",
+    markets: [],
+    matched: null,
+    secondary: [],
+    nationalSignals: rows as never,
+    radars: [],
+  });
+  assert.doesNotMatch(pack.pack, /67\.0%|\$199\.20/);
+  assert.match(pack.pack, /bucket/i);
+});
+
+test("FAA / airlift questions classify to demand_visitation", () => {
+  assert.equal(isAirliftQuestion("What are trends currently effecting the market after the FAA issue on Friday"), true);
+  assert.equal(classifyIntent("What are trends currently effecting the market after the FAA issue on Friday"), "demand_visitation");
+  assert.equal(classifyIntent("How is airlift into Nashville?"), "demand_visitation");
+});
+
+test("a named asset with no retrieved facts uses the fixed sentence and does not echo foreclosure", () => {
+  const empty = {
+    question: "Is the Showboat in foreclosure?",
+    intent: "unknown" as const,
+    preferredMarketSlug: null,
+    markets: [],
+    matched: null,
+    secondary: [],
+    nationalSignals: [],
+    radars: [],
+  };
+  const hit = resolveNamedAsset("Is the Showboat in foreclosure?", empty);
+  assert.ok(hit && !hit.hasFacts);
+  assert.doesNotMatch(NO_PROPERTY_FACTS, /foreclosure/i);
+  assert.match(NO_PROPERTY_FACTS, /I don't have cited information on that property/);
+});
+
+test("signed-out log purge where clause is 12 months and never includes private rows", () => {
+  assert.equal(SIGNED_OUT_LOG_RETENTION_DAYS, 365);
+  const now = new Date("2026-11-15T16:00:00-05:00");
+  const where = signedOutLogPurgeWhere(now, SIGNED_OUT_LOG_RETENTION_DAYS);
+  assert.equal(where.isPrivate, false);
+  assert.equal(where.userId, null);
+  const cutoff = (where.createdAt as { lt: Date }).lt;
+  assert.equal(cutoff.toISOString(), new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString());
 });
 
 if (failures.length) {

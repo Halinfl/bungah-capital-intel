@@ -9,6 +9,7 @@
  * - B: signed-out threads with nothing saved are purged 90 days after their last activity (purgeAnonThreads).
  *   Signed-in threads stay until the owner deletes the conversation (deleteThread) or the account
  *   (deleteUserData, Clerk user.deleted webhook).
+ * - Signed-out question logs are kept 12 months, then deleted (purgeSignedOutLogs, same cron). Private logs are not.
  * - Legacy unowned threads (userId and anonOwnerId both null, written before the foundation) are never shown
  *   to anyone and never deleted by this code.
  * - Schema gate: every new read/write runs only when the database has the foundation columns
@@ -21,6 +22,8 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 type Db = PrismaClient;
 
 export const PURGE_DAYS = 90;
+/** Signed-out question logs (ChatQuestionLog where isPrivate=false and userId is null) are kept this long, then deleted. Hal, 15 Nov 2026. */
+export const SIGNED_OUT_LOG_RETENTION_DAYS = 365;
 /** A signed-out thread may be claimed by its signed-in owner once, from the same browser, within this window. */
 export const CLAIM_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** Upper bound on threads deleted per purge run (keeps one cron invocation short). */
@@ -391,4 +394,27 @@ export async function setTrainOptIn(db: Db, userId: string, on: boolean): Promis
     update: { trainOptIn: on, trainOptInAt: on ? now : null },
   });
   return on;
+}
+
+/** Where clause for signed-out question logs past the retention window. Private (signed-in) rows are never matched. */
+export function signedOutLogPurgeWhere(now = new Date(), days = SIGNED_OUT_LOG_RETENTION_DAYS): Prisma.ChatQuestionLogWhereInput {
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  return { isPrivate: false, userId: null, createdAt: { lt: cutoff } };
+}
+
+/**
+ * Delete signed-out ChatQuestionLog rows older than `days` (default 12 months). Does not touch signed-in
+ * private logs. dryRun counts only.
+ */
+export async function purgeSignedOutLogs(db: Db, opts: { now?: Date; days?: number; dryRun?: boolean } = {}) {
+  const now = opts.now ?? new Date();
+  const days = opts.days ?? SIGNED_OUT_LOG_RETENTION_DAYS;
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const where = signedOutLogPurgeWhere(now, days);
+  if (opts.dryRun) {
+    const candidates = await db.chatQuestionLog.count({ where });
+    return { ok: true as const, dryRun: true, cutoff: cutoff.toISOString(), candidates, deleted: 0 };
+  }
+  const del = await db.chatQuestionLog.deleteMany({ where });
+  return { ok: true as const, dryRun: false, cutoff: cutoff.toISOString(), candidates: del.count, deleted: del.count };
 }

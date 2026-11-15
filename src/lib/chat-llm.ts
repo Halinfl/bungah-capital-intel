@@ -93,6 +93,8 @@ import {
 } from "./chat-llm-cap";
 import { serializeLlmPack } from "./chat-llm-pack";
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
+import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citations";
+import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -107,7 +109,8 @@ Rules (non-negotiable):
 2. Write a short answer in your own words. Use only a few cited data points. Never reproduce a whole table.
 3. Every figure you state must carry its source name, its link (if the pack has one), and its as-of date, taken from the pack. If a fact has no source, do not use it. If the pack has no cited fact that answers the question, say you don't know or that cited coverage is not on file — do not guess, and do not fill the gap from world knowledge (including news events such as an FAA action that is not in the pack).
 4. Decision support only: surface cited facts for a human decision. Never give a buy, sell, or hold recommendation, and never recommend a deal, a stock, or a hotel purchase. If asked, refuse and point back to the cited facts.
-5. Never say Showboat is "in foreclosure". If a cited pack fact mentions Showboat, use only neutral wording and only what that source states.
+5. Never say Showboat (or any named property) is "in foreclosure". If a cited pack fact mentions the property, use only the approved neutral wording ("the subject of reported lender or court proceedings") and only what that source states. If the pack has no cited fact about a named property, say exactly: "I don't have cited information on that property." Do not repeat or echo the user's characterization of the property.
+12. Do not use 【】 or other bracket citation markers. Cite in prose: source name, link, and as-of date. When a pack fact is from Host Hotels' Q2 2026 8-K earnings release, cite it as "Q2 2026 8-K earnings release" — not as an earnings call unless the pack source is a transcript.
 6. Never include raw STR or CoStar figures, licensed tables, or internal team or agent names.
 7. Do not provide personal, private, or contact information about a named person. If the pack has no cited public fact about them, say you don't know.
 8. If the pack marks a factor as skipped because the source restricts republication, say that factor is not shown for that reason. Do not fill it in.
@@ -573,6 +576,23 @@ async function answerChatIn(
     return withNote(finalize({ ...ranked, intent: "supply_ranking" }, ranked.citations.length > 0));
   }
 
+  const named = resolveNamedAsset(question, ctx);
+  if (named && !named.hasFacts) {
+    return withNote(
+      finalize(
+        {
+          content: NO_PROPERTY_FACTS + "\n\nDecision support, not a recommendation. You make the call.",
+          citations: [],
+          sources: [],
+          intent: "property_asset",
+          marketSlug: named.marketSlug,
+          mode: "deterministic",
+        },
+        false
+      )
+    );
+  }
+
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;
   const digestCitesForPack = issuerDigests(question, corpus).map((d) => d.citePath);
 
@@ -617,13 +637,12 @@ async function answerChatIn(
       });
       const used = Number(usage?.totalTokens ?? 0);
       if (used) reconcileLlmTokens(used, estimated);
-      let content = (text ?? "").trim();
-      content = scrubShowboatForeclosure(content);
+      const content = stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim()));
       const fail = inspectLlmAnswer(content);
       if (content && !fail) {
         const answer: ChatAnswer = {
           content,
-          citations: [...new Set([...llmPack.citations, ...digestCitesForPack])],
+          citations: citationsUsedInAnswer(content, [...llmPack.citations, ...digestCitesForPack]),
           intent: ctx.intent,
           marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null,
           mode: "llm",
