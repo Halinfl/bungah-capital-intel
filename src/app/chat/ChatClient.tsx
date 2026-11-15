@@ -48,6 +48,8 @@ const TIMEOUT_MS = 60_000;
 const RETRY_DEBOUNCE_MS = 2_000;
 const WORKING_MESSAGE = "Getting an answer…";
 const DELETE_FAIL_MESSAGE = "Couldn't delete this conversation. Try again in a moment.";
+/** The 2px slate focus ring every chat control uses (keyboard focus only). */
+const RING = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200";
 
 /**
  * Read a /api/chat response without trusting its body: a Vercel timeout or edge error page is HTML or plain
@@ -670,12 +672,12 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             onChange={(e) => setInput(e.target.value)}
             placeholder={scope ? `Ask about ${scope.label}…` : "Capital question…"}
             aria-label={scope ? `Question about ${scope.label}` : "Capital question"}
-            className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 focus:outline-none"
+            className={`min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 ${RING}`}
           />
           <button
             type="submit"
             disabled={busy || !input.trim()}
-            className="min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900"
+            className={`min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900 ${RING}`}
           >
             Send
           </button>

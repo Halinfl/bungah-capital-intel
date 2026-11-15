@@ -83,9 +83,9 @@ function useDismiss(open: boolean, close: () => void, box: React.RefObject<HTMLE
  * #1f2228 card is ≥3:1 contrast.
  */
 const hitCls =
-  "group -my-[13px] inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full align-middle focus-visible:outline-none";
+  "group -my-[13px] inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full align-middle focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-slate-200";
 const pillCls =
-  "inline-flex items-center gap-1 rounded-full border border-slate-400 px-2 py-0.5 text-xs leading-none text-slate-100 group-hover:border-slate-200 group-hover:text-white group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-1 group-focus-visible:outline-slate-200";
+  "inline-flex items-center gap-1 rounded-full border border-slate-400 px-2 py-0.5 text-xs leading-none text-slate-100 group-hover:border-slate-200 group-hover:text-white";
 
 /** Keep Tab / Shift+Tab inside a modal box. */
 function trapTab(e: React.KeyboardEvent, box: HTMLElement | null) {

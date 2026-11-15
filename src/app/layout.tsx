@@ -58,7 +58,7 @@ export default function RootLayout({
                   ["/errata", "Errata"],
                   ["/sponsorship-policy", "Sponsorship policy"],
                 ].map(([href, label]) => (
-                  <Link key={href} href={href} className="inline-flex min-h-11 min-w-11 items-center justify-center text-slate-200 hover:text-white">
+                  <Link key={href} href={href} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-200 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200">
                     {label}
                   </Link>
                 ))}
