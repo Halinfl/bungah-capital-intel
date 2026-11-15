@@ -168,7 +168,7 @@ export async function POST(req: Request) {
     }
 
     const historyOwner: Owner = { userId: userId ?? null, anonId };
-    const history = !isPrivate && body.threadId
+    const history = body.threadId
       ? await recentOwnedMessages(prisma, body.threadId, historyOwner).catch(() => [])
       : [];
 

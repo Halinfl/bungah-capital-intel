@@ -39,8 +39,11 @@ export default function PrivacyPage() {
         </p>
         <p className="max-w-2xl text-slate-200">Do not enter confidential, personal, or login information into Chat.</p>
         <p className="max-w-2xl text-slate-200">
-          Signed-in (private) Chat is not sent to Groq. Those questions stay on our systems and are answered from the
-          same cited, deterministic path used when AI is off.
+          Signed-in (private) Chat uses the same AI path as signed-out Chat. The question, recent turns in that thread,
+          and any cited facts we retrieve are sent to Groq in the United States to generate a reply. Groq Zero Data
+          Retention is on for our inference. The thread itself stays private: owner-only, never written into public
+          question logs, not used to train or improve Chat unless you opt in, and deleted when you delete the
+          conversation or your account.
         </p>
         <p className="max-w-2xl text-slate-200">Chat is not intended for anyone under 18.</p>
       </section>
@@ -64,8 +67,11 @@ export default function PrivacyPage() {
         </ul>
         <p className="max-w-2xl text-slate-200">
           When live web search is turned on, a search query for a current fact that is not in our cited data is
-          sent to Groq and its search provider, Exa (United States), to retrieve citable pages. Groq&apos;s Zero
-          Data Retention applies to inference on Groq; it does not by itself promise Zero Data Retention at Exa.
+          sent to free, official open sources: the Wikimedia APIs (Wikipedia and Wikidata) and, for news headlines,
+          the GDELT Project DOC API, plus official U.S. government RSS feeds when the question is about the FAA,
+          the Federal Reserve, or BLS. We do not use Groq&apos;s paid browser search. Wikipedia text is available
+          under CC BY-SA; GDELT requires a citation and a link to https://www.gdeltproject.org/. Those providers
+          receive the search query, not your full private thread.
         </p>
         <p className="max-w-2xl text-slate-200">
           Ideas you share to improve Chat — through the &quot;Share an idea&quot; control, or a signed-out message
@@ -114,7 +120,7 @@ export default function PrivacyPage() {
       <section className="space-y-3">
         <h2 className="t-h2">What we do not do</h2>
         <p className="max-w-2xl text-slate-200">
-          We do not sell your Chat questions. We do not send signed-in private threads to Groq. We do not put secrets,
+          We do not sell your Chat questions. When you are signed in, we may send your question (and recent turns in that private thread, plus any cited facts we retrieve) to Groq in the United States to generate a reply. Groq Zero Data Retention is on for our inference. Your thread stays private: it is owner-only, it is never written into public question logs, it is not used to train or improve Chat unless you opt in, and it is deleted when you delete the conversation or your account. We do not put secrets,
           passwords, or payment details into Chat prompts.
         </p>
       </section>

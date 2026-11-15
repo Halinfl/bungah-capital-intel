@@ -20,7 +20,7 @@ We configure Groq for Zero Data Retention (ZDR). With ZDR on, Groq does not reta
 
 Do not enter confidential, personal, or login information into Chat.
 
-Signed-in (private) Chat is not sent to Groq. Those questions stay on our systems and are answered from the same cited, deterministic path used when AI is off.
+Signed-in (private) Chat uses the same AI path as signed-out Chat. The question, recent turns in that thread, and any cited facts we retrieve are sent to Groq in the United States to generate a reply. Groq Zero Data Retention is on for our inference. The thread itself stays private: owner-only, never written into public question logs, not used to train or improve Chat unless you opt in, and deleted when you delete the conversation or your account.
 
 Chat is not intended for anyone under 18.
 
@@ -33,7 +33,7 @@ These processors handle Chat-related data:
 - **Neon** — hosts the database where Chat threads and logs are stored.
 - **Groq** — processes signed-out Chat questions in the United States when AI answers are turned on, as described above.
 
-When live web search is turned on, a search query for a current fact that is not in our cited data is sent to Groq and its search provider, Exa (United States), to retrieve citable pages. Groq's Zero Data Retention applies to inference on Groq; it does not by itself promise Zero Data Retention at Exa.
+When live web search is turned on, a search query for a current fact that is not in our cited data is sent to free, official open sources: the Wikimedia APIs (Wikipedia and Wikidata) and, for news headlines, the GDELT Project DOC API, plus official U.S. government RSS feeds when the question is about the FAA, the Federal Reserve, or BLS. We do not use Groq's paid browser search. Wikipedia text is available under CC BY-SA; GDELT requires a citation and a link to https://www.gdeltproject.org/. Those providers receive the search query, not your full private thread.
 
 Ideas you share to improve Chat — through the "Share an idea" control, or a signed-out message that is clearly feedback — are stored as idea records (the text, optional thread id, whether you were signed out or signed in, and the time). Signed-out ideas are kept for 12 months, then deleted by the same cleanup job as signed-out question logs. Signed-in ideas are saved only when you explicitly share them; we do not scrape private threads for ideas.
 
@@ -52,7 +52,7 @@ Signed-out conversations (the thread in your browser) with nothing saved may als
 
 ### What we do not do
 
-We do not sell your Chat questions. We do not send signed-in private threads to Groq. We do not put secrets, passwords, or payment details into Chat prompts.
+We do not sell your Chat questions. When you are signed in, we may send your question (and recent turns in that private thread, plus any cited facts we retrieve) to Groq in the United States to generate a reply. Groq Zero Data Retention is on for our inference. Your thread stays private: it is owner-only, it is never written into public question logs, it is not used to train or improve Chat unless you opt in, and it is deleted when you delete the conversation or your account. We do not put secrets, passwords, or payment details into Chat prompts.
 
 ### Retention and your choices
 
@@ -66,7 +66,7 @@ When AI answers are enabled, they are generated using OpenAI's gpt-oss-120b mode
 
 ## Counsel notes (not for the public page)
 
-- Code check (post-r4 merge, this preview branch): signed-in Chat is not sent to Groq (`allowLlm` requires `!opts.isPrivate`; `isPrivate` is set when a Clerk `userId` is present, `src/app/api/chat/route.ts` and `src/lib/chat-llm.ts`). Account deletion removes private threads and related private records (`deleteUserData` in `src/lib/chat-store.ts`, invoked from `src/app/api/webhooks/clerk/route.ts` on `user.deleted`).
+- Code check (this preview branch): signed-in Chat uses the same Groq path as signed-out Chat (`allowLlm` is no longer blocked by `isPrivate`). Private threads remain owner-only; public log rows store `[private]` rather than the question or answer; training eligibility stays off unless the user has opted in; account deletion removes private threads and related private records (`deleteUserData` in `src/lib/chat-store.ts`, invoked from `src/app/api/webhooks/clerk/route.ts` on `user.deleted`). Groq Zero Data Retention is on at the org (Inference ZDR Enabled).
 - ZDR is confirmed on (Inference ZDR Enabled; Batch and Fine-tuning Off). The public ZDR claim stays. This page still should not go live on production until Harvey and Hal say so.
 - Hal confirmed (15 Nov 2026): legal entity Bungah Capital LLC; signed-out logs retained 12 months; privacy contact halvespucci@gmail.com.
 - 12-month signed-out log deletion is implemented in code (`purgeSignedOutLogs`, called from the existing `/api/cron/chat-purge` job), not as a manual process. Vercel Cron typically fires against Production, which will not run this code until a production ship; on this preview the purge runs when that job is called against the preview deployment.

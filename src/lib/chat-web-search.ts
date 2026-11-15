@@ -1,12 +1,29 @@
 /**
- * Live web-search fallback for Chat, using Groq's built-in browser_search on the Production
- * model openai/gpt-oss-120b (powered by Exa; existing GROQ_API_KEY; no new signup).
+ * $0 live-search fallback. Groq browser_search is paid ($5/1000) and is never called.
  *
- * Compound / compound-mini were decommissioned 21 Sep 2026. This is the remaining Groq path.
- * Enabled only when BUNGAH_USE_WEB_SEARCH is the exact string `true` (preview per-deployment).
- * Filter: no social sites, no STR/CoStar. Caps sit beside the LLM caps.
+ * Route (preview): Wikimedia APIs (Wikipedia + Wikidata) and, for news, the GDELT DOC 2.0
+ * API, plus official U.S. government RSS when the question is about FAA / Fed / BLS.
+ *
+ * Terms (checked 15 Nov 2026):
+ * - Wikimedia: official APIs; automated use allowed if we send a descriptive User-Agent,
+ *   respect rate limits, and attribute CC BY-SA content
+ *   (https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use,
+ *   https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines,
+ *   https://wikitech.wikimedia.org/wiki/Robot_policy).
+ * - GDELT: official DOC API, no key, "unlimited and unrestricted use for any academic,
+ *   commercial, or governmental use of any kind without fee"; redistribution must cite
+ *   the GDELT Project and link https://www.gdeltproject.org/
+ *   (https://www.gdeltproject.org/about.html).
+ * - Official U.S. government feeds are published for syndication; works of the U.S.
+ *   federal government are generally public domain.
+ *
+ * Rejected for automated/commercial use: Groq browser_search (paid); DuckDuckGo HTML
+ * scraping (not authorized); DuckDuckGo Instant Answer API (commercial use needs email
+ * approval); Google News RSS and Bing News RSS (personal, non-commercial feed-reader use only).
  */
-import { isLicensedLink, isLicensedText } from "./licensed-sources";
+import { isLicensedText } from "./licensed-sources";
+
+const UA = "BungahChatBot/1.0 (https://bungah.io/privacy; halvespucci@gmail.com)";
 
 export function isWebSearchEnabled(): boolean {
   return process.env.BUNGAH_USE_WEB_SEARCH?.trim().toLowerCase() === "true";
@@ -17,9 +34,9 @@ const SOCIAL =
 
 export function isBlockedSearchHost(url: string): boolean {
   try {
-    const host = new URL(url).hostname.replace(/^www\./i, "");
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
     if (SOCIAL.test(host) || SOCIAL.test("." + host)) return true;
-    if (isLicensedLink({ url, label: host })) return true;
+    if (/(^|\.)(str\.com|costar\.com|costargroup\.com)$/i.test(host)) return true;
     return false;
   } catch {
     return true;
@@ -27,7 +44,7 @@ export function isBlockedSearchHost(url: string): boolean {
 }
 
 const CURRENT_FACT =
-  /\b(today|tonight|yesterday|this (week|month|year)|latest|breaking|news|current|right now|as of|what happened|ground stop|FAA|interest rates?)\b/i;
+  /\b(today|tonight|yesterday|this (week|month|year)|latest|breaking|news|current|right now|as of|what happened|ground stop|FAA|interest rates?|who is|when (were|was)|elected)\b/i;
 
 export function needsCurrentFacts(question: string): boolean {
   return CURRENT_FACT.test(question);
@@ -35,7 +52,7 @@ export function needsCurrentFacts(question: string): boolean {
 
 export const SEARCH_DAILY_CAP = Number(process.env.BUNGAH_SEARCH_DAILY_CAP || 40);
 export const SEARCH_USER_DAILY_CAP = Number(process.env.BUNGAH_SEARCH_USER_DAILY_CAP || 8);
-export const SEARCH_TIMEOUT_MS = Number(process.env.BUNGAH_SEARCH_TIMEOUT_MS || 20_000);
+export const SEARCH_TIMEOUT_MS = Number(process.env.BUNGAH_SEARCH_TIMEOUT_MS || 8_000);
 
 type Bucket = { day: string; org: number; users: Map<string, number> };
 let bucket: Bucket = { day: "", org: 0, users: new Map() };
@@ -52,7 +69,8 @@ function roll(): Bucket {
 export function checkSearchCap(subject: string): { ok: true } | { ok: false; reason: "cap_org" | "cap_user" } {
   const b = roll();
   if (b.org >= SEARCH_DAILY_CAP) return { ok: false, reason: "cap_org" };
-  if ((b.users.get(subject) ?? 0) >= SEARCH_USER_DAILY_CAP) return { ok: false, reason: "cap_user" };
+  const n = b.users.get(subject) ?? 0;
+  if (n >= SEARCH_USER_DAILY_CAP) return { ok: false, reason: "cap_user" };
   return { ok: true };
 }
 
@@ -62,87 +80,242 @@ export function reserveSearch(subject: string): void {
   b.users.set(subject, (b.users.get(subject) ?? 0) + 1);
 }
 
-export type WebSearchHit = {
-  content: string;
-  citations: string[];
-  usedSearch: boolean;
+export type LiveSourceFact = {
+  label: string;
+  url: string;
+  asOf: string;
+  text: string;
+  license?: string;
 };
 
-const SEARCH_SYSTEM = `You are Bungah Capital Intel's chat. You may use the browser_search tool to find current, citable facts.
+export type LiveSearchHit = {
+  facts: LiveSourceFact[];
+  pack: string;
+  citations: string[];
+};
 
-Rules:
-- Only a few facts, in your own words. Never invent a figure, a source, a URL, or a date.
-- Every figure must have a source name, URL, and as-of or published date from a page you actually opened.
-- If you cannot find a good source, say so. Do not guess.
-- Do not use LinkedIn, X/Twitter, Facebook, Instagram, TikTok, Reddit, or other social sites. Do not use STR or CoStar or reprints of their hotel-performance figures.
-- Prefer government, company IR and SEC filings, airports, CVBs, and established news outlets.
-- Never give a buy, sell, or hold recommendation, and never recommend a deal.
-- Never say a property is "in foreclosure"; use only "the subject of reported lender or court proceedings" if a cited source supports a legal proceeding, otherwise say you don't have cited information on that property.
-- Never name internal team or agent names.
-- Do not use 【】 citation markers. Cite in prose.
-- Start the answer with a short line: "From a live web search:"`;
+function retrievedOn(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
-export async function groqBrowserSearch(opts: {
-  question: string;
-  packSummary?: string;
-  history?: { role: "user" | "assistant"; content: string }[];
-  apiKey: string;
-  model?: string;
-}): Promise<WebSearchHit | null> {
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+async function getJson(url: string, timeoutMs = SEARCH_TIMEOUT_MS): Promise<unknown | null> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const history = (opts.history ?? []).slice(-8).map((m) => ({
-      role: m.role,
-      content: m.content.slice(0, 1500),
-    }));
-    const user = [
-      opts.packSummary ? `Our cited data pack did not fully answer this. Pack context (do not invent from it):\n${opts.packSummary.slice(0, 2000)}\n` : "",
-      `Question: ${opts.question}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${opts.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: opts.model || "openai/gpt-oss-120b",
-        temperature: 0.2,
-        max_completion_tokens: 800,
-        reasoning_effort: "low",
-        tool_choice: "auto",
-        tools: [{ type: "browser_search" }],
-        messages: [{ role: "system", content: SEARCH_SYSTEM }, ...history, { role: "user", content: user }],
-      }),
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Accept: "application/json" },
+      signal: ctrl.signal,
     });
-    if (!res.ok) {
-      const err = await res.text().catch(() => "");
-      console.error("[chat-web-search] groq status", res.status, err.slice(0, 200));
-      return null;
-    }
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    let content = (data.choices?.[0]?.message?.content ?? "").trim();
-    if (!content) return null;
-    // Drop blocked hosts if the model cited them as raw URLs.
-    const urls = content.match(/https?:\/\/[^\s)\]>'"]+/g) ?? [];
-    const blocked = urls.filter((u) => isBlockedSearchHost(u) || isLicensedText(u));
-    if (blocked.length) {
-      for (const u of blocked) content = content.replaceAll(u, "[source omitted]");
-    }
-    if (isLicensedText(content)) return null;
-    const citations = [...new Set(urls.filter((u) => !isBlockedSearchHost(u) && !isLicensedText(u)))];
-    if (!/^from a live web search/i.test(content)) content = `From a live web search:\n\n${content}`;
-    return { content, citations, usedSearch: true };
-  } catch (e) {
-    console.error("[chat-web-search] failed", e instanceof Error ? e.message : "error");
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
     return null;
   } finally {
     clearTimeout(t);
   }
+}
+
+async function getText(url: string, timeoutMs = SEARCH_TIMEOUT_MS): Promise<{ status: number; text: string } | null> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Accept: "application/rss+xml, application/xml, text/xml, application/json, */*" },
+      signal: ctrl.signal,
+    });
+    const text = await res.text();
+    return { status: res.status, text };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function cleanSnippet(html: string, max = 500): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&#\d+;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
+}
+
+async function wikipediaFacts(question: string): Promise<LiveSourceFact[]> {
+  const out: LiveSourceFact[] = [];
+  const asOf = retrievedOn();
+  const searchUrl =
+    "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&utf8=1&srlimit=3&srsearch=" +
+    encodeURIComponent(question);
+  const search = (await getJson(searchUrl)) as { query?: { search?: { title: string; snippet?: string }[] } } | null;
+  const hits = search?.query?.search ?? [];
+  const titles = hits.map((h) => h.title).filter(Boolean).slice(0, 2);
+  for (const title of titles) {
+    const exUrl =
+      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageprops&exintro=1&explaintext=1&ppprop=wikibase_item&format=json&titles=" +
+      encodeURIComponent(title);
+    const page = (await getJson(exUrl)) as {
+      query?: { pages?: Record<string, { title?: string; extract?: string; pageprops?: { wikibase_item?: string }; missing?: unknown }> };
+    } | null;
+    const rec = Object.values(page?.query?.pages ?? {})[0];
+    if (!rec || rec.missing || !rec.extract) continue;
+    const url = "https://en.wikipedia.org/wiki/" + encodeURIComponent(title.replace(/ /g, "_"));
+    if (isBlockedSearchHost(url) || isLicensedText(rec.extract)) continue;
+    out.push({
+      label: `Wikipedia, ${title}`,
+      url,
+      asOf,
+      text: rec.extract.slice(0, 800),
+      license: "CC BY-SA 4.0",
+    });
+    const qid = rec.pageprops?.wikibase_item;
+    if (qid) {
+      const office = await wikidataOfficeholder(qid);
+      if (office) out.push(office);
+    }
+  }
+  return out;
+}
+
+function timeValue(v: unknown): string | null {
+  if (v && typeof v === "object" && "time" in (v as object)) {
+    const t = String((v as { time: string }).time);
+    const m = t.match(/([+-]?\d{4}-\d{2}-\d{2})/);
+    return m ? m[1].replace(/^\+/, "") : t;
+  }
+  return null;
+}
+
+async function wikidataOfficeholder(qid: string): Promise<LiveSourceFact | null> {
+  const url = `https://www.wikidata.org/wiki/Special:EntityData/${encodeURIComponent(qid)}.json`;
+  const data = (await getJson(url)) as {
+    entities?: Record<string, { claims?: Record<string, { rank?: string; mainsnak?: { datavalue?: { value?: { id?: string } } }; qualifiers?: Record<string, { datavalue?: { value?: unknown } }[]> }[]> }>;
+  } | null;
+  const claims = data?.entities?.[qid]?.claims;
+  if (!claims) return null;
+  const props = ["P1308", "P6", "P35", "P169"]; // officeholder, head of government, head of state, chief executive
+  let chosen: { id: string; start?: string | null } | null = null;
+  for (const pid of props) {
+    const sts = claims[pid] ?? [];
+    const preferred = sts.filter((s) => s.rank === "preferred");
+    const pool = preferred.length ? preferred : sts.filter((s) => s.rank !== "deprecated");
+    const current = pool.filter((s) => !(s.qualifiers?.P582 && s.qualifiers.P582.length));
+    const st = current[0] ?? pool[0];
+    const id = st?.mainsnak?.datavalue?.value?.id;
+    if (!id) continue;
+    const start = st?.qualifiers?.P580?.[0]?.datavalue?.value;
+    chosen = { id, start: timeValue(start) };
+    break;
+  }
+  if (!chosen) return null;
+  const person = (await getJson(`https://www.wikidata.org/wiki/Special:EntityData/${encodeURIComponent(chosen.id)}.json`)) as {
+    entities?: Record<string, { labels?: { en?: { value?: string } } }>;
+  } | null;
+  const name = person?.entities?.[chosen.id]?.labels?.en?.value;
+  if (!name) return null;
+  const asOf = chosen.start || retrievedOn();
+  return {
+    label: `Wikidata, current officeholder (${qid})`,
+    url: `https://www.wikidata.org/wiki/${chosen.id}`,
+    asOf,
+    text: `Current officeholder: ${name}${chosen.start ? ` (in office from ${chosen.start})` : ""}.`,
+  };
+}
+
+let lastGdeltAt = 0;
+async function gdeltFacts(question: string): Promise<LiveSourceFact[]> {
+  const wait = 5100 - (Date.now() - lastGdeltAt);
+  if (wait > 0 && lastGdeltAt) await new Promise((r) => setTimeout(r, wait));
+  const q = question
+    .replace(/[?]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length >= 3)
+    .slice(0, 8)
+    .join(" ");
+  if (q.length < 5) return [];
+  const url =
+    "https://api.gdeltproject.org/api/v2/doc/doc?mode=ArtList&format=json&maxrecords=6&timespan=14d&sort=DateDesc&query=" +
+    encodeURIComponent(q);
+  lastGdeltAt = Date.now();
+  const data = (await getJson(url, 10_000)) as { articles?: { url?: string; title?: string; seendate?: string; domain?: string }[] } | null;
+  const out: LiveSourceFact[] = [];
+  for (const a of data?.articles ?? []) {
+    const href = a.url ?? "";
+    if (!href || isBlockedSearchHost(href) || isLicensedText(`${a.title ?? ""} ${href}`)) continue;
+    const seen = a.seendate ? `${a.seendate.slice(0, 4)}-${a.seendate.slice(4, 6)}-${a.seendate.slice(6, 8)}` : retrievedOn();
+    out.push({
+      label: `GDELT Project / ${a.domain || "news"}, ${cleanSnippet(a.title || href, 160)}`,
+      url: href,
+      asOf: seen,
+      text: `${cleanSnippet(a.title || "", 200)} (indexed by the GDELT Project, https://www.gdeltproject.org/).`,
+    });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+
+function parseRssItems(xml: string, limit = 4): { title: string; link: string; date: string }[] {
+  const items: { title: string; link: string; date: string }[] = [];
+  const parts = xml.split(/<item[\s>]/i).slice(1);
+  for (const part of parts) {
+    const title = cleanSnippet((part.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "", 200);
+    const link = cleanSnippet((part.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1] || "", 300);
+    const date = cleanSnippet((part.match(/<(?:pubDate|updated|dc:date)[^>]*>([\s\S]*?)<\/(?:pubDate|updated|dc:date)>/i) || [])[1] || "", 80);
+    if (!title || !link || !link.startsWith("http")) continue;
+    if (isBlockedSearchHost(link)) continue;
+    items.push({ title, link, date: date.slice(0, 16) || retrievedOn() });
+    if (items.length >= limit) break;
+  }
+  return items;
+}
+
+async function govRssFacts(question: string): Promise<LiveSourceFact[]> {
+  const q = question.toLowerCase();
+  const feeds: { url: string; label: string; match: RegExp }[] = [
+    { url: "https://www.federalreserve.gov/feeds/press_all.xml", label: "Board of Governors of the Federal Reserve System, press RSS", match: /\b(fed|fomc|interest rates?|federal reserve|fed funds)\b/i },
+    { url: "https://www.bls.gov/feed/bls_latest.rss", label: "U.S. Bureau of Labor Statistics, latest RSS", match: /\b(bls|unemployment|cpi|payroll|jobs report|labor)\b/i },
+    { url: "https://www.faa.gov/rss/news.xml", label: "Federal Aviation Administration, news RSS", match: /\b(faa|ground stop|airlift|air traffic|airport)\b/i },
+  ];
+  const out: LiveSourceFact[] = [];
+  for (const feed of feeds) {
+    if (!feed.match.test(q)) continue;
+    const got = await getText(feed.url);
+    if (!got || got.status !== 200 || !got.text.includes("<item")) continue;
+    for (const it of parseRssItems(got.text)) {
+      out.push({
+        label: feed.label,
+        url: it.link,
+        asOf: it.date || retrievedOn(),
+        text: it.title,
+      });
+    }
+  }
+  return out;
+}
+
+export async function freeLiveSearch(question: string): Promise<LiveSearchHit | null> {
+  const [wiki, news, gov] = await Promise.all([
+    wikipediaFacts(question).catch(() => [] as LiveSourceFact[]),
+    needsCurrentFacts(question) || /\bnews\b/i.test(question)
+      ? gdeltFacts(question).catch(() => [] as LiveSourceFact[])
+      : Promise.resolve([] as LiveSourceFact[]),
+    govRssFacts(question).catch(() => [] as LiveSourceFact[]),
+  ]);
+  const facts = [...wiki, ...gov, ...news].filter((f) => f.text && f.url && !isBlockedSearchHost(f.url));
+  if (!facts.length) return null;
+  const asOf = retrievedOn();
+  const lines = facts.map((f) => {
+    const lic = f.license ? `, ${f.license}` : "";
+    return `- ${f.label} (${f.url}, as-of/retrieved ${f.asOf}${lic}): ${f.text}`;
+  });
+  const pack = [
+    `=== CITED OPEN SOURCES (retrieved ${asOf}; paraphrase in your own words; each figure needs source, link, as-of) ===`,
+    ...lines,
+    "GDELT items, if any, must be cited to the GDELT Project (https://www.gdeltproject.org/) and the publisher URL.",
+    "=== END CITED OPEN SOURCES ===",
+  ].join("\n");
+  const citations = [...new Set(facts.map((f) => `${f.label} (${f.url}, as-of ${f.asOf})`))];
+  return { facts, pack, citations };
 }

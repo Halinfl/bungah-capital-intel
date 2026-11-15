@@ -9,6 +9,7 @@ import { isLicensedText } from "./licensed-sources";
 import { isYellowSource } from "./yellow-sources";
 
 export type AirliftSignal = {
+  id?: string;
   market: string;
   airport_code?: string | null;
   category?: string | null;
@@ -71,6 +72,7 @@ function asRows(raw: unknown): AirliftSignal[] {
     if (!headline && !fact) continue;
     if (!source && !url) continue;
     out.push({
+      id: r.id != null ? String(r.id).trim() : undefined,
       market,
       airport_code: r.airport_code != null ? String(r.airport_code) : null,
       category: r.category != null ? String(r.category) : null,
@@ -104,13 +106,28 @@ export function loadAirliftSignals(): AirliftSignal[] {
     for (const row of asRows(readJson(file))) {
       const blob = `${row.headline} ${row.fact} ${row.source} ${row.url}`;
       if (isLicensedText(blob) || isYellowSource(row.source, row.url)) continue;
-      const key = `${row.market}|${row.headline}|${row.as_of}|${row.url}`;
+      const key = row.id ? `id:${row.id}` : `${row.market}|${row.headline}|${row.as_of}|${row.url}`;
       if (seen.has(key)) continue;
       seen.add(key);
       out.push(row);
     }
   }
-  return out;
+  return applyAirliftSupersedes(out);
+}
+
+/** Later batches replace specific earlier ids (Vectra: was-003 replaces was-001, orl-004 replaces orl-002). */
+export const AIRLIFT_SUPERSEDES: Record<string, string> = {
+  "airlift-was-001": "airlift-was-003",
+  "airlift-orl-002": "airlift-orl-004",
+};
+
+export function applyAirliftSupersedes(rows: AirliftSignal[]): AirliftSignal[] {
+  const present = new Set(rows.map((r) => r.id).filter((id): id is string => Boolean(id)));
+  return rows.filter((r) => {
+    if (!r.id) return true;
+    const replacement = AIRLIFT_SUPERSEDES[r.id];
+    return !(replacement && present.has(replacement));
+  });
 }
 
 export type AirliftFact = {

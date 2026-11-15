@@ -24,6 +24,7 @@ import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat
 import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
 import { isAirliftQuestion, loadAirliftSignals } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
+import { STR_TABLE_REFUSAL, asksForStrTable } from "../../src/lib/chat-str";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
 import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src/lib/chat-store";
@@ -214,7 +215,9 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(privacy, /sent to Groq, a US-based/);
   assert.match(privacy, /Zero Data Retention/);
   assert.doesNotMatch(privacy, /pre-launch step|counsel has signed off|ZDR toggle/);
-  assert.match(privacy, /Signed-in \(private\) Chat is not sent to Groq/);
+  assert.match(privacy, /Signed-in \(private\) Chat uses the same AI path/);
+  assert.match(privacy, /Groq Zero Data Retention is on/);
+  assert.match(privacy, /never written into public question logs/);
   assert.match(privacy, /unless you opt in/);
   assert.match(privacy, /off by default/);
   assert.match(privacy, /not yet\s+a Chat settings toggle/);
@@ -313,6 +316,17 @@ test("airlift pack loads the national FAA ground-stop fact", () => {
   assert.ok(rows.length >= 34, `expected at least 34 airlift rows, got ${rows.length}`);
   assert.ok(rows.some((r) => /ground stop/i.test(r.headline)));
   assert.equal(isAirliftQuestion("What are trends currently effecting the market after the FAA issue on Friday"), true);
+  const ids = new Set(rows.map((r) => r.id).filter(Boolean));
+  assert.ok(ids.has("airlift-was-003"), "batch 2 Washington replacement is present");
+  assert.ok(ids.has("airlift-orl-004"), "batch 2 Orlando replacement is present");
+  assert.equal(ids.has("airlift-was-001"), false, "was-001 is superseded");
+  assert.equal(ids.has("airlift-orl-002"), false, "orl-002 is superseded");
+});
+
+test("STR table prompts are detected and the refusal names STR", () => {
+  assert.equal(asksForStrTable("Can you send me the full STR occupancy, ADR, and RevPAR table for Nashville?"), true);
+  assert.equal(asksForStrTable("What's the RevPAR read for Nashville?"), false);
+  assert.match(STR_TABLE_REFUSAL, /don't share STR data/i);
 });
 
 test("idea detector catches feedback and ignores a plain market question", () => {

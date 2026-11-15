@@ -95,7 +95,8 @@ import { serializeLlmPack } from "./chat-llm-pack";
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
 import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citations";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
-import { checkSearchCap, groqBrowserSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
+import { checkSearchCap, freeLiveSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
+import { STR_TABLE_REFUSAL, asksForStrTable } from "./chat-str";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -116,7 +117,7 @@ Rules (non-negotiable):
 8. If the pack marks a factor as skipped because the source restricts republication, say that factor is not shown for that reason. Do not fill it in.
 9. Product name: Bungah Capital Intel.
 10. When a Deep-link market slug or Primary market is present, lead with THAT market. Do not privilege Orlando or Las Vegas when the question names another market.
-11. If you used our cited pack for figures, you may start with "From our cited data:". If you used live web search, start with "From a live web search:". Keep source name, link, and as-of attached to each figure.`;
+11. If you used our cited pack for figures, you may start with "From our cited data:". If you used cited open sources from a live search (Wikipedia, Wikidata, GDELT, or official government feeds), start with "From cited open sources:". Keep source name, link, and as-of attached to each figure. Do not use Groq browser search or social sites.`;
 
 /** Explicit opt-in; default false (Hal spend lock — no paid inference). */
 export function isLlmEnabled(): boolean {
@@ -523,6 +524,27 @@ async function answerChatIn(
       false
     );
   }
+
+  if (asksForStrTable(question)) {
+    const marketName = ctx.matched?.name ?? null;
+    const publicHint = places.length
+      ? uncoveredMarketLines(places, ctx.markets).join("\n")
+      : marketName
+        ? `For ${marketName}, we can cite public sources on file instead — airport traffic, CVB or hotel-tax releases, and company filings. Ask about one of those and I'll cite it.`
+        : "When we have public sources on file for the market you asked about — airports, CVBs, government releases, or company filings — we can share those instead.";
+    return finalize(
+      {
+        content: [STR_TABLE_REFUSAL, "", publicHint.trim(), "", "We do not provide STR tables or workbooks.", "", decisionSupportFooter()].join("\n"),
+        citations: [],
+        sources: [],
+        intent: ctx.intent ?? "revpar_metrics",
+        marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null,
+        mode: "deterministic",
+      },
+      false
+    );
+  }
+
   // A covered market named alongside an uncovered one: one answer, coverage note first.
   const coverageNote = places.length
     ? uncoveredMarketLines(places, ctx.markets).filter((l) => !/Browse every market/.test(l))
@@ -600,7 +622,7 @@ async function answerChatIn(
   const digestCitesForPack = issuerDigests(question, corpus).map((d) => d.citePath);
 
   // Private threads, date windows, missing Production model, caps, or a 429 cooldown: no Groq call.
-  const allowLlm = range === "all" && !opts.isPrivate;
+  const allowLlm = range === "all";
   const model = allowLlm ? resolveModel() : null;
   const cap = model ? checkLlmCap(opts.llmSubject ?? "anon") : { ok: false as const, reason: "disabled" as const };
   if (model && cap.ok) {
@@ -651,27 +673,37 @@ async function answerChatIn(
       const wantSearch =
         isWebSearchEnabled() &&
         !packHasAnswer &&
-        (needsCurrentFacts(question) || llmPack.factCount === 0) &&
-        Boolean(process.env.GROQ_API_KEY?.trim());
+        (needsCurrentFacts(question) || /don't have (any )?(a )?cited|no cited source/i.test(content));
       if (wantSearch) {
         const capS = checkSearchCap(opts.llmSubject ?? "anon");
         if (capS.ok) {
           reserveSearch(opts.llmSubject ?? "anon");
-          const web = await groqBrowserSearch({
-            question,
-            packSummary: llmPack.pack,
-            history,
-            apiKey: process.env.GROQ_API_KEY!.trim(),
-          });
-          if (web?.content) {
-            content = stripCitationBrackets(scrubShowboatForeclosure(web.content));
-            citations = citationsUsedInAnswer(content, [...citations, ...web.citations]);
+          const live = await freeLiveSearch(question);
+          if (live?.pack) {
+            const historyBlock2 = history.length
+              ? history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`).join("\n")
+              : "";
+            const { text: liveText, usage: liveUsage } = await generateText({
+              model: model as Parameters<typeof generateText>[0]["model"],
+              system: SYSTEM_PROMPT,
+              prompt: [historyBlock2, `User question: ${question}`, "", live.pack, "", "Answer from these cited open sources in your own words. If they do not actually answer the question, say you do not have a cited source. Never invent figures."].join("\n"),
+              maxOutputTokens: 800,
+              abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+            });
+            const usedLive = Number(liveUsage?.totalTokens ?? 0);
+            if (usedLive) reconcileLlmTokens(usedLive, usedLive);
+            const liveContent = stripCitationBrackets(scrubShowboatForeclosure((liveText ?? "").trim()));
+            const liveFail = inspectLlmAnswer(liveContent);
+            if (liveContent && !liveFail) {
+              content = /^from cited open sources/i.test(liveContent) ? liveContent : `From cited open sources:\n\n${liveContent}`;
+              citations = citationsUsedInAnswer(content, [...citations, ...live.citations]);
+            }
           }
         }
       }
       const fail = inspectLlmAnswer(content);
       if (content && !fail) {
-        if (packHasAnswer && !/^from our cited data/i.test(content) && !/^from a live web search/i.test(content)) {
+        if (packHasAnswer && !/^from our cited data/i.test(content) && !/^from cited open sources/i.test(content)) {
           content = `From our cited data:\n\n${content}`;
         }
         const answer: ChatAnswer = {
