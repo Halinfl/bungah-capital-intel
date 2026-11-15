@@ -13,7 +13,7 @@
  *   footer   one decision-support line for the whole answer
  */
 import type { DigestHit } from "./chat-retrieve";
-import { parseSourceUrls, type SourceLink } from "./source-links";
+import { canonicalizeCiteUrl, parseSourceUrls, type SourceLink } from "./source-links";
 import CITATION_OVERLAY from "@/data/citation-overlay.json";
 import { cleanSourceLabel, publisherName, scrubInternal } from "./public-text";
 
@@ -1471,7 +1471,7 @@ export function digestFacts(d: DigestHit, raw: string): DigestFacts {
     .filter((l) => /https?:\/\//.test(l) && !/_raw\//.test(l));
   const links = srcLines
     .map((l) => {
-      const url = /(https?:\/\/[^\s)`]+)/.exec(l)?.[1] ?? "";
+      const url = canonicalizeCiteUrl(/(https?:\/\/[^\s)`]+)/.exec(l)?.[1] ?? "");
       const label = plain(l.replace(/^-\s*/, "").replace(/https?:\/\/\S+/g, "").replace(/\(`[^`]*`\)/g, "").replace(/[—:\s]+$/, "")) || publisherName(url);
       return { url, label };
     })

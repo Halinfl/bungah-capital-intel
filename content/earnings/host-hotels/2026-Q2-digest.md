@@ -10,7 +10,7 @@
 - **company release:** Host Hotels & Resorts, Inc. Reports Results for the Second Quarter of 2026  
   https://www.hosthotels.com/Press-Releases/2026/PressRelease_28366 (`company release`)  
   Mirrored: `_raw/HST_Q2_2026_PressRelease.html`
-- **8-K Item 2.02:** https://www.sec.gov/Archives/edgar/data/1070750/000107075026000122/hst-20260805.htm (`8-K`) — exhibits 99.1 release / 99.2 supplemental
+- **8-K Item 2.02:** https://www.sec.gov/Archives/edgar/data/1070750/000107075026000122/hst-ex991.htm (`8-K` exhibit 99.1, earnings release) — the 8-K cover page only names the exhibits; the comparable hotel RevPAR figure is in 99.1
 - **highlights PDF:** https://www.hosthotels.com/-/media/HostHotels/Files/DownloadLinksAssets/Quarterly-Highlights/2026/Host_Hotels_Resorts_Inc_2026_Q2_Earnings_Highlights.pdf (`slides`) — mirrored `_raw/HST_Q2_2026_Highlights.pdf`
 - **Supplemental:** referenced on company website www.hosthotels.com (`supplement`) — open for property-level detail when needed
 - **Transcript:** not opened this pass (paywall risk) — operating claims below are from the written release only

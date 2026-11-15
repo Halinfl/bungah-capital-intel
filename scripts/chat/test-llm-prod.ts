@@ -438,6 +438,16 @@ test("Host Q2 2026 $251.53 citations point at exhibit 99.1, not the 8-K cover", 
   assert.equal(canonicalizeCiteUrl(exhibit), exhibit);
   const links = parseSourceUrls([{ url: cover, label: "Q2 2026 8-K earnings release" }]);
   assert.equal(links[0]?.url, exhibit);
+  const { digestFacts } = await import("../../src/lib/chat-brief");
+  const raw = readFileSync(resolve("content/earnings/host-hotels/2026-Q2-digest.md"), "utf8");
+  const facts = digestFacts(
+    { name: "Host Hotels & Resorts", ticker: "HST", slug: "host-hotels", citePath: "content/earnings/host-hotels/2026-Q2-digest.md", period: "2026-Q2", raw, excerpt: raw, score: 1 },
+    raw,
+  );
+  assert.match(raw, /\$251\.53/);
+  assert.equal(facts.source.url, exhibit);
+  assert.ok(facts.links.every((l) => l.url !== cover));
+  assert.ok(facts.links.some((l) => l.url === exhibit));
 });
 
 test("Chat typography, tap target, and visitor-facing copy meet the QA bar", () => {
