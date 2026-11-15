@@ -6,10 +6,12 @@
  * memos. Flip BUNGAH_USE_LLM=true only when spend is approved.
  *
  * When enabled, provider order (OSS preferred):
- *   1. GROQ_API_KEY  → Groq OpenAI-compatible (llama-3.3-70b-versatile)
+ *   1. GROQ_API_KEY  → Groq OpenAI-compatible (openai/gpt-oss-120b, Production only)
  *   2. AI_GATEWAY_API_KEY → Gateway OSS slug (default meta/llama-3.3-70b)
  *   3. OPENAI_API_KEY → direct OpenAI (gpt-4o-mini)
- *   4. Deterministic memo fallback (no key / call fails)
+ *   4. Deterministic memo fallback (no key / call fails / cap / 429 / private thread)
+ *
+ * Signed-in private threads never call Groq. Preview/Beta Groq models are refused.
  *
  * Context = Capital Graph pack + allowed authored digests / ideology notes.
  * No fine-tune job yet — RAG + generateText only when LLM is on.
@@ -28,7 +30,6 @@ import {
   isSupplyRankingQuestion,
   namedCoveredMarkets,
   retrieveGraphContext,
-  serializeGraphPack,
   type ChatAnswer,
   type GraphContext,
 } from "./chat";
@@ -79,28 +80,40 @@ import { dealAdviceBrief, dealBrief, dealLens, dealMarketSlug, reitBrief, reitLe
 import type { ChatScope } from "./chat-scope";
 import { digestTickers } from "./chat-retrieve";
 import { MARKET_TOPIC, matchDealName } from "./chat-deal-match";
+import { resolveGroqModelId } from "./chat-llm-models";
+import {
+  checkLlmCap,
+  estimateTokensFromText,
+  isGroqRateLimitError,
+  LLM_TIMEOUT_MS,
+  markGroqRateLimited,
+  parseRetryAfter,
+  reconcileLlmTokens,
+  reserveLlmCall,
+} from "./chat-llm-cap";
+import { serializeLlmPack } from "./chat-llm-pack";
+import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
-/** Groq OpenAI-compatible chat model id. */
-export const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+export { DEFAULT_GROQ_MODEL } from "./chat-llm-models";
 const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
 
-const SYSTEM_PROMPT = `You are Bungah Capital Intel — a hotel / hospitality-capital IC analyst chat.
+const SYSTEM_PROMPT = `You are Bungah Capital Intel — a hotel / hospitality-capital chat.
 
 Rules (non-negotiable):
-1. Answer ONLY from the Capital Graph facts and the allowed authored corpus (earnings digests / ideology notes) provided in the user message. Never invent STR, visitation, ADR, OCC, RevPAR, pipeline, or debt numbers.
-2. Answer only from the cited rows in the pack. Seed / placeholder rows are excluded. If a market has few cited rows, say only what is cited and add: "Deeper cited coverage for <market> is in progress." Never invent figures.
-3. Decision support: surface cited facts and so-whats for human decision. Never recommend auto-executing capital, never claim private CSP, never book or source meetings.
-4. Human-touch / talent / staffing / GC-MEP capacity is a first-class greenlight gate alongside demand, supply, and debt.
-5. When intent emphasizes a lens (supply, talent, RevPAR, which-submarket, debt, demand), lead with that lens — then support with the rest of the pack.
-6. Use concise IC-memo markdown. Cite sources by repeating sourceLabel strings from the graph pack AND digest file paths (e.g. content/earnings/hilton/2026-Q2-digest.md).
-7. Digests are editor-authored summaries of public IR — prefer them over inventing call color. Do not claim you read a paywalled transcript unless the digest cites it.
-8. If the pack lacks enough to answer, say what is missing and invite a richer private workspace — do not hallucinate coverage.
-9. Product name: Bungah Capital Intel. Never mention internal team or agent names.
-10. When a Deep-link market slug or Primary market is present, lead with THAT market's dashboard memo (metrics, signals, nuance). Never open with National talent / Orlando Epic / Vegas Hard Rock copy unless the deep-linked market is orlando or las-vegas respectively. National signals are secondary one-liners only.
-11. Do not privilege Orlando or Las Vegas when the question names another market.`;
+1. Answer ONLY from the cited facts and allowed authored corpus in the user message. Never invent STR, visitation, ADR, OCC, RevPAR, pipeline, debt, or any other figures. Never invent a source, a link, or a date.
+2. Write a short answer in your own words. Use only a few cited data points. Never reproduce a whole table.
+3. Every figure you state must carry its source name, its link (if the pack has one), and its as-of date, taken from the pack. If a fact has no source, do not use it. If the pack has no cited fact that answers the question, say you don't know or that cited coverage is not on file — do not guess, and do not fill the gap from world knowledge (including news events such as an FAA action that is not in the pack).
+4. Decision support only: surface cited facts for a human decision. Never give a buy, sell, or hold recommendation, and never recommend a deal, a stock, or a hotel purchase. If asked, refuse and point back to the cited facts.
+5. Never say Showboat is "in foreclosure". If a cited pack fact mentions Showboat, use only neutral wording and only what that source states.
+6. Never include raw STR or CoStar figures, licensed tables, or internal team or agent names.
+7. Do not provide personal, private, or contact information about a named person. If the pack has no cited public fact about them, say you don't know.
+8. If the pack marks a factor as skipped because the source restricts republication, say that factor is not shown for that reason. Do not fill it in.
+9. Product name: Bungah Capital Intel.
+10. When a Deep-link market slug or Primary market is present, lead with THAT market. Do not privilege Orlando or Las Vegas when the question names another market.
+11. Keep source names, links, and as-of dates attached to the figures they belong to. Do not strip those provenance markers.`;
 
 /** Explicit opt-in; default false (Hal spend lock — no paid inference). */
 export function isLlmEnabled(): boolean {
@@ -141,9 +154,10 @@ function resolveModel() {
       apiKey: groqKey,
       baseURL: GROQ_BASE_URL,
     });
-    const modelId = override || DEFAULT_GROQ_MODEL;
-    // Groq expects bare ids (llama-3.3-70b-versatile); strip provider prefix if set.
-    return groq(bareModelId(modelId));
+    // Keep the openai/ prefix on gpt-oss ids; refuse Preview/Beta and retired Llama ids.
+    const modelId = resolveGroqModelId(override);
+    if (!modelId) return null;
+    return groq(modelId);
   }
 
   if (gatewayKey) {
@@ -340,9 +354,20 @@ export const RATES_CHIPS: { label: string; question: string }[] = [
  *   5. LLM only when explicitly enabled; otherwise deterministic graph / digest memos.
  * Steps 1, 3 and 4 never call a model. Every path returns exactly one final answer.
  */
+export type AnswerChatOpts = {
+  marketSlug?: string | null;
+  range?: DateRange;
+  scope?: ChatScope | null;
+  intent?: ChatIntent | null;
+  /** Signed-in private threads never call Groq. */
+  isPrivate?: boolean;
+  /** Hashed later; IP or user id for the per-user daily cap. */
+  llmSubject?: string | null;
+};
+
 export async function answerChat(
   question: string,
-  opts?: { marketSlug?: string | null; range?: DateRange; scope?: ChatScope | null; intent?: ChatIntent | null }
+  opts?: AnswerChatOpts
 ): Promise<FinalAnswer> {
   const range = opts?.range ?? "all";
   const scope = opts?.scope ?? null;
@@ -356,7 +381,7 @@ export async function answerChat(
     const item = lens ? dealBrief(scope.id, lens) : null;
     if (item) return finalizeItem(item);
     // Not about the sale itself: answer for the sale's market.
-    return answerChat(question, { marketSlug: dealMarketSlug(scope.id) ?? opts?.marketSlug, range, intent: opts?.intent });
+    return answerChat(question, { marketSlug: dealMarketSlug(scope.id) ?? opts?.marketSlug, range, intent: opts?.intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
   }
   if (scope?.kind === "reit") {
     const lens = reitLens(question);
@@ -375,7 +400,7 @@ export async function answerChat(
     }
     const item = lens ? reitBrief(scope.id, lens, question) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
     if (item) return finalizeItem(item);
-    return answerChat(name ? `${question} (${name})` : question, { range });
+    return answerChat(name ? `${question} (${name})` : question, { range, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
   }
   // Unscoped deal name ("Tell me about The Wade"): answer with the deal card, unless it's an advice question or a
   // market-metric question that only mentions the deal.
@@ -393,12 +418,12 @@ export async function answerChat(
   }
   const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
   const intent = opts?.intent ?? null;
-  const res = await answerChatIn(question, { marketSlug, range, intent });
+  const res = await answerChatIn(question, { marketSlug, range, intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
   if (range === "all") return res;
   if (!res.brief?.window?.filterable) {
     // Either an intent that can't filter by date (answered in full, no chip), or the window
     // removed everything the answer was built on (say so plainly, keep the chip).
-    const full = await answerChatIn(question, { marketSlug, range: "all", intent });
+    const full = await answerChatIn(question, { marketSlug, range: "all", intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
     return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
   }
   if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
@@ -443,7 +468,7 @@ function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
 
 async function answerChatIn(
   question: string,
-  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null }
+  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null; isPrivate?: boolean; llmSubject?: string | null }
 ): Promise<FinalAnswer> {
   const range = opts.range;
   const advice = classifyAdviceRequest(question);
@@ -548,48 +573,57 @@ async function answerChatIn(
     return withNote(finalize({ ...ranked, intent: "supply_ranking" }, ranked.citations.length > 0));
   }
 
-  const { pack, citations: packCitations } = serializeGraphPack(ctx);
-  const allCitations = [
-    ...new Set([...packCitations, ...corpus.citations]),
-  ];
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;
+  const digestCitesForPack = issuerDigests(question, corpus).map((d) => d.citePath);
 
-  const model = range === "all" ? resolveModel() : null;
-  if (model) {
+  // Private threads, date windows, missing Production model, caps, or a 429 cooldown: no Groq call.
+  const allowLlm = range === "all" && !opts.isPrivate;
+  const model = allowLlm ? resolveModel() : null;
+  const cap = model ? checkLlmCap(opts.llmSubject ?? "anon") : { ok: false as const, reason: "disabled" as const };
+  if (model && cap.ok) {
+    const llmPack = serializeLlmPack(ctx);
+    const prompt = [
+      `User question: ${question}`,
+      opts?.marketSlug ? `Deep-link market slug: ${opts.marketSlug}` : "",
+      `Classified intent: ${ctx.intent}`,
+      "",
+      "=== CITED FACT PACK (answer only from these; each fact has source, link, as-of) ===",
+      llmPack.pack,
+      "=== END FACT PACK ===",
+      "",
+      hadCorpus
+        ? [
+            "=== ALLOWED AUTHORED CORPUS (digests / ideology — cite by file path already in the pack or here) ===",
+            corpus.pack,
+            "=== END CORPUS ===",
+            "",
+          ].join("\n")
+        : "=== ALLOWED AUTHORED CORPUS ===\n(none matched this question)\n=== END CORPUS ===\n",
+      "Write the short cited answer now.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const outputCap = 800;
+    const estimated = estimateTokensFromText(SYSTEM_PROMPT + "\n" + prompt, outputCap);
+    reserveLlmCall(opts.llmSubject ?? "anon", estimated);
     try {
-      const { text } = await generateText({
+      const { text, usage } = await generateText({
         model: model as Parameters<typeof generateText>[0]["model"],
         system: SYSTEM_PROMPT,
-        prompt: [
-          `User question: ${question}`,
-          opts?.marketSlug ? `Deep-link market slug: ${opts.marketSlug}` : "",
-          `Classified intent: ${ctx.intent}`,
-          "",
-          "=== CAPITAL GRAPH PACK (cite only these facts) ===",
-          pack,
-          "=== END GRAPH PACK ===",
-          "",
-          hadCorpus
-            ? [
-                "=== ALLOWED AUTHORED CORPUS (digests / ideology — cite by file path) ===",
-                corpus.pack,
-                "=== END CORPUS ===",
-                "",
-              ].join("\n")
-            : "=== ALLOWED AUTHORED CORPUS ===\n(none matched this question)\n=== END CORPUS ===\n",
-          "Write the IC-style answer now.",
-        ]
-          .filter(Boolean)
-          .join("\n"),
+        prompt,
         temperature: 0.2,
-        maxOutputTokens: 1400,
+        maxOutputTokens: outputCap,
+        abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
-
-      const content = (text ?? "").trim();
-      if (content) {
+      const used = Number(usage?.totalTokens ?? 0);
+      if (used) reconcileLlmTokens(used, estimated);
+      let content = (text ?? "").trim();
+      content = scrubShowboatForeclosure(content);
+      const fail = inspectLlmAnswer(content);
+      if (content && !fail) {
         const answer: ChatAnswer = {
           content,
-          citations: allCitations,
+          citations: [...new Set([...llmPack.citations, ...digestCitesForPack])],
           intent: ctx.intent,
           marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null,
           mode: "llm",
@@ -598,8 +632,10 @@ async function answerChatIn(
           finalize(answer, answeredWellHeuristic(answer, ctx.intent, Boolean(ctx.matched), hadCorpus))
         );
       }
+      if (fail) console.error("[chat-llm] output guard failed; falling back", fail);
     } catch (err) {
-      console.error("[chat-llm] generateText failed; falling back", err);
+      if (isGroqRateLimitError(err)) markGroqRateLimited(parseRetryAfter(err));
+      console.error("[chat-llm] generateText failed; falling back", err instanceof Error ? err.message : "error");
     }
   }
 

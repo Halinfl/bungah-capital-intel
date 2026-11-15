@@ -15,6 +15,7 @@
     "test:deal-match": "tsx scripts/chat/test-deal-match.ts",
     "test:chat-label": "tsx scripts/chat/test-chat-label.ts",
     "test:foundation": "tsx scripts/chat/test-foundation.ts",
+    "test:llm-prod": "tsx scripts/chat/test-llm-prod.ts",
     "postbuild": "node scripts/check-ic-frame.mjs",
     "test:ic-frame": "node scripts/check-ic-frame.mjs",
     "start": "next start",

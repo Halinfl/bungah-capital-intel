@@ -11,6 +11,7 @@ import Link from "next/link";
 import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
 import { parseInlineLinks } from "@/lib/inline-links";
+import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "@/lib/chat-llm-disclosure";
 import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
@@ -82,6 +83,8 @@ type Msg = {
   /** Batch 1: what changed vs the answer before it, and one next-best alternate. */
   opener?: Opener;
   alternate?: Alternate;
+  /** Set when this answer came from the Groq path (label only; deterministic answers stay unlabeled). */
+  mode?: "llm" | "deterministic";
 };
 
 const RANGE_TAG: Record<DateRange, string> = { "90d": "Last 90 days", "12m": "Last 12 months", all: "All dates" };
@@ -290,6 +293,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               followUps: Array.isArray(data.followUps) ? (data.followUps as FollowUpChip[]).slice(0, 3) : undefined,
               opener: data.opener && typeof (data.opener as Opener).text === "string" ? (data.opener as Opener) : undefined,
               alternate: data.alternate && typeof (data.alternate as Alternate).question === "string" ? (data.alternate as Alternate) : undefined,
+              mode: data.mode === "llm" ? "llm" : data.mode === "deterministic" ? "deterministic" : undefined,
             };
             if (data.context && typeof data.context === "object") nextContext = data.context as ChatContext;
             if (typeof data.threadId === "string" && data.threadId) nextThreadId = data.threadId;
@@ -480,7 +484,13 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                 </p>
               ) : null}
               {m.role === "assistant" ? (
-                m.brief ? (
+                <>
+                {m.mode === "llm" ? (
+                  <p className="mb-1 text-[11px] uppercase tracking-wider text-slate-400" data-chat-ai-label>
+                    {CHAT_AI_LABEL}
+                  </p>
+                ) : null}
+                {m.brief ? (
                   <ChatBriefView
                     brief={m.brief}
                     onReask={m.question ? (r) => void send(m.question!, r, "reask") : undefined}
@@ -536,7 +546,8 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                   </div>
                 ) : (
                   <MarkdownLite text={m.content} />
-                )
+                )}
+                </>
               ) : (
                 <p className="text-sm text-slate-200">
                   {m.content}
@@ -680,6 +691,15 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             Send
           </button>
         </form>
+        <p className="text-[11px] leading-snug text-slate-400" data-chat-ai-disclosure>
+          {CHAT_AI_DISCLOSURE}{" "}
+          <Link
+            href={CHAT_PRIVACY_HREF}
+            className="underline decoration-white/30 underline-offset-2 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200"
+          >
+            {CHAT_PRIVACY_LINK_LABEL}
+          </Link>
+        </p>
       </div>
 
     </div>

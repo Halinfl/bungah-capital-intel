@@ -187,7 +187,7 @@ export async function POST(req: Request) {
     // answerChat returns the one final answer: seed wording and internal labels are already
     // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
     const build = (q: string, rng: typeof range, rt: { marketSlug: string | null; intent: typeof route.intent }) => async (): Promise<Built> => {
-      const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent });
+      const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent, isPrivate, llmSubject: userId || clientIp(req) });
       const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
       const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
       // Final leak guard on everything the card carries (idempotent; answerChat already ran it).
