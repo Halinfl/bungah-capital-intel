@@ -73,3 +73,10 @@ Writes `data/train/bungah-chat-corpus.jsonl` (gitignored when large). Keep this 
 ## Schema fields (`ChatQuestionLog`)
 
 `question`, `answerText`, `citationsJson` (citations), `intent`, `marketSlug`, `modelUsed`, `trainEligible`, `isPrivate`, `userId?`, `answerSnippet`, `answeredWell`, `threadId`, `createdAt`.
+
+## Signed-in content (Chat foundation, 2026-11-14, Decision C)
+
+Signed-in conversations are excluded unless that person turned on `ChatUserPref.trainOptIn` (off by default;
+`PUT /api/chat/prefs`). For people who opted in, the export reads their own threads, and only messages
+written at or after the opt-in (`trainOptInAt`). Private log rows carry no text and are never read.
+Records carry `meta.origin` = `"public"` or `"opt-in"`. Logic: `src/lib/train-export.ts`.
