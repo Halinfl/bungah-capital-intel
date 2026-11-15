@@ -163,9 +163,18 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   // r2 (Eric QA): the "Delete conversation" row appears once the answer is in (threadId set, not busy);
   // scroll again then, so the row (the last thing in the thread) clears the composer too.
   const showDelete = Boolean(threadId && !busy);
+  const lastAutoScroll = useRef(0);
   useEffect(() => {
-    if (messages.length) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (!messages.length) return;
+    lastAutoScroll.current = Date.now();
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, showDelete]);
+  // The composer grows right after an answer (the "Following up on" chips appear), which raises its top
+  // over the row that was just scrolled clear; scroll once more then. Not on later composer changes.
+  useEffect(() => {
+    if (!messages.length || Date.now() - lastAutoScroll.current > 2000) return;
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [composerH, messages.length]);
 
   // Fresh thread whenever marketSlug / initialQuestionKey changes so a prior
   // auto-ask does not burn Q2 of another market CTA.
