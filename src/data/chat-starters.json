@@ -1,6 +1,6 @@
 {
- "verifiedAt": "2026-11-15T04:57:25.253Z",
- "basis": "graph dump 20261114T070915Z",
+ "verifiedAt": "2026-10-27T16:04:48.534Z",
+ "basis": "graph dump 20261027T060017Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
   "aspen-vail": "Aspen / Vail",
@@ -77,6 +77,10 @@
   "aspen-vail": [],
   "atlanta": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -87,6 +91,10 @@
   "baltimore": [],
   "boston": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -94,9 +102,6 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
    }
   ],
   "branson": [],
@@ -104,19 +109,9 @@
   "charlotte": [],
   "chicago": [
    {
-    "q": "How much new supply is coming?"
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
    },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
-   }
-  ],
-  "cincinnati": [],
-  "cleveland": [],
-  "columbus-oh": [],
-  "dallas": [
    {
     "q": "How much new supply is coming?"
    },
@@ -125,9 +120,24 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
+   }
+  ],
+  "cincinnati": [],
+  "cleveland": [],
+  "columbus-oh": [],
+  "dallas": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
    },
    {
-    "q": "What's demand doing here?"
+    "q": "How much new supply is coming?"
+   },
+   {
+    "q": "What's happening with hotel debt here?"
+   },
+   {
+    "q": "Is labor a risk to the thesis here?"
    }
   ],
   "denver": [],
@@ -163,6 +173,10 @@
   ],
   "los-angeles": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -170,20 +184,18 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's the latest occupancy and rate read here?"
    }
   ],
   "miami": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
    {
     "q": "How much new supply is coming?"
    },
    {
     "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "What's the latest occupancy and rate read here?"
    },
    {
     "q": "What's demand doing here?"
@@ -207,13 +219,14 @@
   "new-orleans": [],
   "new-york-city": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's the RevPAR and occupancy read here?"
    },
    {
     "q": "What's demand doing here?"
@@ -224,13 +237,17 @@
     "q": "How much new supply is coming?"
    },
    {
-    "q": "What's demand doing here?"
+    "q": "What's the RevPAR and occupancy read here?"
    }
   ],
   "outer-banks": [],
   "palm-springs": [],
   "philadelphia": [],
   "phoenix": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
    {
     "q": "How much new supply is coming?"
    },
@@ -249,19 +266,24 @@
   "san-antonio": [],
   "san-diego": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
     "q": "Is labor a risk to the thesis here?"
    },
    {
-    "q": "What's the latest occupancy and rate read here?"
-   },
-   {
     "q": "What's demand doing here?"
    }
   ],
   "san-francisco-bay": [
+   {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
    {
     "q": "How much new supply is coming?"
    },
@@ -270,21 +292,19 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's the RevPAR and occupancy read here?"
    }
   ],
   "savannah": [],
   "seattle": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's the RevPAR and occupancy read here?"
    },
    {
     "q": "What's demand doing here?"
@@ -311,6 +331,10 @@
   "virginia-beach-norfolk": [],
   "washington-dc": [
    {
+    "q": "How has RevPAR moved here over the last 12 months?",
+    "range": "12m"
+   },
+   {
     "q": "How much new supply is coming?"
    },
    {
@@ -318,9 +342,6 @@
    },
    {
     "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
    }
   ],
   "palm-beach": [],
@@ -364,9 +385,6 @@
    },
    {
     "q": "How did RevPAR, ADR and occupancy move last quarter?"
-   },
-   {
-    "q": "Which hotels have they bought or sold lately?"
    }
   ],
   "APLE": [
@@ -508,87 +526,6 @@
   ]
  },
  "deal": {
-  "midway-portfolio-chicago": [
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "hotel-zags-portland-or": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   }
-  ],
-  "bellmoor-rehoboth-beach": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   }
-  ],
-  "embassy-suites-las-vegas": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "four-seasons-scottsdale-troon-north": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "the-wade-chicago": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "tideline-palm-beach": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   }
-  ],
-  "embassy-suites-dulles-airport": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "embassy-suites-philadelphia-airport": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   }
-  ],
   "grande-lakes-orlando": [
    {
     "q": "What did the buyer pay per key, and how does that compare?"
@@ -674,11 +611,6 @@
   },
   {
    "scope": "market:atlanta",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:atlanta",
    "q": "What's happening with hotel debt here?",
    "reason": "no-figure card (\"Atlanta: no dated, cited debt figure on file yet; the cited rows we ha\")"
   },
@@ -688,16 +620,6 @@
    "reason": "0 key reads"
   },
   {
-   "scope": "market:atlanta",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:atlanta",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "0 key reads"
-  },
-  {
    "scope": "market:austin",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -766,21 +688,6 @@
    "scope": "market:baltimore",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:boston",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "off-topic card (\"Boston: Cruise: Flynn Cruiseport; 480,000 cruise pax (Massport board) \")"
-  },
-  {
-   "scope": "market:boston",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "off-topic card (\"Boston: Cruise: Flynn Cruiseport; 480,000 cruise pax (Massport board) \")"
-  },
-  {
-   "scope": "market:boston",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "off-topic card (\"Boston: Cruise: Flynn Cruiseport; 480,000 cruise pax (Massport board) \")"
   },
   {
    "scope": "market:branson",
@@ -888,26 +795,6 @@
    "reason": "0 key reads"
   },
   {
-   "scope": "market:chicago",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "off-topic card (\"Chicago: Local 1 2026 strike: Started Oct 9 2026, 6 hotels; demands: w\")"
-  },
-  {
-   "scope": "market:chicago",
-   "q": "What's happening with hotel debt here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:chicago",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:chicago",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "0 key reads"
-  },
-  {
    "scope": "market:cincinnati",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1010,21 +897,6 @@
   {
    "scope": "market:columbus-oh",
    "q": "What's demand doing here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:dallas",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:dallas",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:dallas",
-   "q": "What's the latest occupancy and rate read here?",
    "reason": "0 key reads"
   },
   {
@@ -1328,29 +1200,9 @@
    "reason": "off-topic card (\"Las Vegas: OCC 80.3%, ADR $184.00, RevPAR $147.75 (OCC×ADR) (LVCVA FAQ\")"
   },
   {
-   "scope": "market:los-angeles",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:los-angeles",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"Los Angeles: Hotel OCC 2025 (thru Nov): 71.6%; ADR $196 (Hotel Online)\")"
-  },
-  {
-   "scope": "market:miami",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
-  },
-  {
    "scope": "market:miami",
    "q": "Is labor a risk to the thesis here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:miami",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"Miami: Aug 2026 Miami-Dade: OCC 63.6% (−7.6%) (Miami Business). No pub\")"
   },
   {
    "scope": "market:minneapolis",
@@ -1500,11 +1352,6 @@
   {
    "scope": "market:new-orleans",
    "q": "What's demand doing here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:new-york-city",
-   "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
   },
   {
@@ -1515,7 +1362,7 @@
   {
    "scope": "market:orlando",
    "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
+   "reason": "does not lead with the topic (\"Orlando: August 2026 operating print — soft (Orange County): OCC 62.4%\")"
   },
   {
    "scope": "market:orlando",
@@ -1529,13 +1376,8 @@
   },
   {
    "scope": "market:orlando",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:orlando",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "0 key reads"
+   "q": "What's demand doing here?",
+   "reason": "same card as \"What's the RevPAR and occupancy read here?\""
   },
   {
    "scope": "market:outer-banks",
@@ -1640,11 +1482,6 @@
   {
    "scope": "market:philadelphia",
    "q": "What's demand doing here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:phoenix",
-   "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
   },
   {
@@ -1653,16 +1490,6 @@
    "reason": "no-figure card (\"Phoenix: no dated, cited debt figure on file yet; the cited rows we ha\")"
   },
   {
-   "scope": "market:phoenix",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:phoenix",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "0 key reads"
-  },
-  {
    "scope": "market:pittsburgh",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -1874,23 +1701,8 @@
   },
   {
    "scope": "market:san-diego",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "market:san-diego",
    "q": "What's happening with hotel debt here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:san-diego",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "does not lead with the topic (\"San Diego: Gaylord Pacific Resort & Convention Center: ~1,600 rooms; w\")"
-  },
-  {
-   "scope": "market:san-francisco-bay",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"San Francisco: RevPAR $188.06 (+14.1%); 2026 forecast: 24.4M visitors;\")"
   },
   {
    "scope": "market:savannah",
@@ -1926,11 +1738,6 @@
    "scope": "market:savannah",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:seattle",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "does not lead with the topic (\"Seattle: T12 composite (secondary): RevPAR mid-$120s ~flat, OCC 68–69%\")"
   },
   {
    "scope": "market:seattle",
@@ -2076,21 +1883,6 @@
    "scope": "market:virginia-beach-norfolk",
    "q": "What's demand doing here?",
    "reason": "0 key reads"
-  },
-  {
-   "scope": "market:washington-dc",
-   "q": "How has RevPAR moved here over the last 12 months?",
-   "reason": "off-topic card (\"Washington: Events DC citywides FY2027 booked: 19 (as of May 2026); 9 \")"
-  },
-  {
-   "scope": "market:washington-dc",
-   "q": "What's the RevPAR and occupancy read here?",
-   "reason": "off-topic card (\"Washington: Events DC citywides FY2027 booked: 19 (as of May 2026); 9 \")"
-  },
-  {
-   "scope": "market:washington-dc",
-   "q": "What's the latest occupancy and rate read here?",
-   "reason": "off-topic card (\"Washington: Events DC citywides FY2027 booked: 19 (as of May 2026); 9 \")"
   },
   {
    "scope": "market:palm-beach",
@@ -2165,7 +1957,12 @@
   {
    "scope": "reit:PK",
    "q": "What debt is coming due?",
-   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 4 hotel transactions\")"
+   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\")"
+  },
+  {
+   "scope": "reit:PK",
+   "q": "Which hotels have they bought or sold lately?",
+   "reason": "off-topic card (\"Park Hotels & Resorts (PK) capital moves on file: 0 hotel transactions\"; no key read on topic)"
   },
   {
    "scope": "reit:APLE",
@@ -2198,34 +1995,9 @@
    "reason": "intent reit_reported"
   },
   {
-   "scope": "deal:midway-portfolio-chicago",
-   "q": "What did the buyer pay per key, and how does that compare?",
-   "reason": "off-topic card (\"Midway Portfolio, Chicago, IL (Midway): $68M for 1,057 keys, $64k per \"; no key read on topic)"
-  },
-  {
-   "scope": "deal:midway-portfolio-chicago",
-   "q": "Why did this grade the way it did?",
-   "reason": "intent demand_visitation"
-  },
-  {
-   "scope": "deal:hotel-zags-portland-or",
-   "q": "What's demand doing in this market?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "deal:bellmoor-rehoboth-beach",
-   "q": "What's demand doing in this market?",
-   "reason": "no summary card"
-  },
-  {
-   "scope": "deal:tideline-palm-beach",
-   "q": "What's demand doing in this market?",
-   "reason": "0 key reads"
-  },
-  {
-   "scope": "deal:embassy-suites-philadelphia-airport",
-   "q": "What's demand doing in this market?",
-   "reason": "0 key reads"
+   "scope": "general",
+   "q": "What's the RevPAR and occupancy read for Orlando?",
+   "reason": "off-topic card (\"Orlando: August 2026 operating print — soft (Orange County): OCC 62.4%\"; no key read on topic)"
   }
  ]
 }
