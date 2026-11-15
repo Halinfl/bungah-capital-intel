@@ -118,7 +118,8 @@ export async function resolveThread(db: Db, requestedId: unknown, owner: Owner, 
 /**
  * One-time claim of a signed-out thread by its signed-in owner (same browser, within 24h of its creation).
  * Atomic: a conditional update, so a second claim (another browser, another account, or a replay) changes
- * nothing. Saved items made before sign-in move to the user with it.
+ * nothing. Saved items made before sign-in move to the user with it; the public log rows written before
+ * sign-in are unlinked from the thread (threadId → null).
  */
 export async function claimThread(db: Db, threadId: string, owner: Owner, now = new Date()): Promise<{ ok: boolean; reason?: string }> {
   if (!(await foundationReady(db))) return { ok: false, reason: "schema" };
@@ -130,6 +131,9 @@ export async function claimThread(db: Db, threadId: string, owner: Owner, now = 
   });
   if (res.count !== 1) return { ok: false, reason: "not-claimable" };
   await db.savedItem.updateMany({ where: { threadId, anonOwnerId: owner.anonId }, data: { userId: owner.userId, anonOwnerId: null } });
+  // Decision A: no log row points at a signed-in thread. The public rows written before sign-in keep their
+  // (signed-out) text but lose the link; the thread's messages still point at them one way (questionLogId).
+  await db.chatQuestionLog.updateMany({ where: { threadId, isPrivate: false }, data: { threadId: null } });
   return { ok: true };
 }
 

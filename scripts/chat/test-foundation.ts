@@ -411,6 +411,8 @@ async function main() {
     const t = await turn({ userId: null, anonId: X }, null, "F8 asked signed out");
     await db.savedItem.create({ data: { anonOwnerId: X, kind: "answer", threadId: t.threadId } });
     const signedX = { userId: "user_F8", anonId: X };
+    const preLog = await db.chatQuestionLog.findFirst({ where: { question: "F8 asked signed out" } });
+    ok(preLog?.threadId === t.threadId && !preLog?.isPrivate, "before sign-in: the public log row points at the signed-out thread");
     const r = await S.resolveThread(db, t.threadId, signedX);
     ok(r.mode === "owned" && r.status === "claimed" && r.threadId === t.threadId, "same browser, signed in → claimed", JSON.stringify(r));
     await S.persistOwnedTurn(db, r as Extract<typeof r, { mode: "owned" }>, signedX, mk("F8 after sign-in", { isPrivate: true, userId: "user_F8" }));
@@ -418,6 +420,10 @@ async function main() {
     ok(th?.userId === "user_F8" && th?.anonOwnerId === null && th?.claimedAt, "thread now belongs to the user (anon id cleared)");
     ok((await db.chatMessage.count({ where: { threadId: t.threadId } })) === 4, "the follow-up appended to the claimed thread");
     ok((await db.savedItem.count({ where: { threadId: t.threadId, userId: "user_F8", anonOwnerId: null } })) === 1, "the pre-sign-in save moved to the user");
+    const postLog = await db.chatQuestionLog.findUnique({ where: { id: preLog!.id } });
+    ok(postLog?.threadId === null && postLog?.question === "F8 asked signed out" && postLog?.trainEligible, "claim (via /api/chat) unlinks the pre-sign-in public log row; its public text stays");
+    ok((await db.chatQuestionLog.count({ where: { threadId: t.threadId } })) === 0, "no log row points at the claimed (signed-in) thread");
+    ok((await db.chatMessage.count({ where: { threadId: t.threadId, questionLogId: preLog!.id } })) === 2, "the thread's question + answer messages still point one way at that log row");
     ok((await S.getOwnedThread(db, t.threadId, { userId: null, anonId: X })) === null, "the signed-out browser no longer reads it");
     ok((await S.getOwnedThread(db, t.threadId, { userId: "user_F8", anonId: null }))?.messages.length === 4, "the user reads it from any browser");
     const Y = anon();
@@ -429,6 +435,13 @@ async function main() {
     const t2 = await turn({ userId: null, anonId: X }, null, "F8 second anon thread");
     ok(!(await S.claimThread(db, t2.threadId, { userId: "user_F8", anonId: Y })).ok, "claim from a different browser (anon id) fails");
     ok((await db.chatThread.findUnique({ where: { id: t2.threadId } }))?.anonOwnerId === X, "unclaimed thread unchanged");
+    // Explicit claim (POST /api/chat/threads/[id]/claim) unlinks the same way.
+    const t4 = await turn({ userId: null, anonId: X }, null, "F8 explicit claim thread");
+    await turn({ userId: null, anonId: X }, t4.threadId, "F8 explicit claim follow-up");
+    ok((await db.chatQuestionLog.count({ where: { threadId: t4.threadId } })) === 2, "explicit claim: 2 public rows linked before");
+    ok((await S.claimThread(db, t4.threadId, signedX)).ok, "explicit claim, same browser → ok");
+    ok((await db.chatQuestionLog.count({ where: { threadId: t4.threadId } })) === 0, "explicit claim: both pre-sign-in public rows unlinked");
+    ok((await db.chatQuestionLog.count({ where: { question: { in: ["F8 explicit claim thread", "F8 explicit claim follow-up"] }, threadId: null, isPrivate: false } })) === 2, "explicit claim: the rows themselves stay (public)");
     // Outside 24h.
     const t3 = await turn({ userId: null, anonId: X }, null, "F8 stale anon thread");
     await db.$executeRawUnsafe(`UPDATE "ChatThread" SET "createdAt" = now() - interval '25 hours' WHERE id = $1`, t3.threadId);
