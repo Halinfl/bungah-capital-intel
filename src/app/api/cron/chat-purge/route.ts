@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PURGE_DAYS, SIGNED_OUT_LOG_RETENTION_DAYS, purgeAnonThreads, purgeSignedOutLogs } from "@/lib/chat-store";
+import { purgeSignedOutIdeas } from "@/lib/chat-ideas";
 
 /**
  * Chat cleanup: (1) 90-day purge of signed-out conversations with nothing saved (Decision B);
@@ -28,7 +29,8 @@ export async function GET(req: Request) {
   try {
     const threads = await purgeAnonThreads(prisma, { dryRun, days: PURGE_DAYS });
     const logs = await purgeSignedOutLogs(prisma, { dryRun, days: SIGNED_OUT_LOG_RETENTION_DAYS });
-    const out = { threads, logs };
+    const ideas = await purgeSignedOutIdeas(prisma, { dryRun, days: SIGNED_OUT_LOG_RETENTION_DAYS });
+    const out = { threads, logs, ideas };
     console.log(`[chat-purge] ${JSON.stringify(out)}`);
     return NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {

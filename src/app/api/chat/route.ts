@@ -11,8 +11,9 @@ import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/ch
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
-import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
+import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, recentOwnedMessages, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
 import { ANON_COOKIE, anonCookieOptions, anonFromRequest, mintAnon } from "@/lib/chat-anon";
+import { maybeSaveSignedOutIdea } from "@/lib/chat-ideas";
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
@@ -166,6 +167,11 @@ export async function POST(req: Request) {
       }
     }
 
+    const historyOwner: Owner = { userId: userId ?? null, anonId };
+    const history = !isPrivate && body.threadId
+      ? await recentOwnedMessages(prisma, body.threadId, historyOwner).catch(() => [])
+      : [];
+
     const question = String(body.question ?? "").slice(0, MAX_QUESTION);
     const scope = parseScope(body.scope);
     const askedMarket =
@@ -187,7 +193,7 @@ export async function POST(req: Request) {
     // answerChat returns the one final answer: seed wording and internal labels are already
     // scrubbed there, so the text stored, logged and rendered is identical (no later rewrite).
     const build = (q: string, rng: typeof range, rt: { marketSlug: string | null; intent: typeof route.intent }) => async (): Promise<Built> => {
-      const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent, isPrivate, llmSubject: userId || clientIp(req) });
+      const answer = await answerChat(q, { marketSlug: rt.marketSlug, range: rng, scope, intent: rt.intent, isPrivate, llmSubject: userId || clientIp(req), history });
       const citations = scrubSeedCitations(answer.citations ?? []).map((c) => cleanSourceLabel(c));
       const sources = (answer.sources ?? (await sourcesForAnswer(answer.content))).map((l) => ({ ...l, label: scrubInternal(l.label) }));
       // Final leak guard on everything the card carries (idempotent; answerChat already ran it).
@@ -308,7 +314,10 @@ export async function POST(req: Request) {
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     const logged = answer;
-    after(() => persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner }));
+    after(() => {
+      persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner });
+      if (!userId) void maybeSaveSignedOutIdea(prisma, question, threadId);
+    });
 
     const modelUsed = toModelUsed(answer.mode);
     const res = NextResponse.json(

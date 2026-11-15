@@ -63,6 +63,17 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p className="max-w-2xl text-slate-200">
+          When live web search is turned on, a search query for a current fact that is not in our cited data is
+          sent to Groq and its search provider, Exa (United States), to retrieve citable pages. Groq&apos;s Zero
+          Data Retention applies to inference on Groq; it does not by itself promise Zero Data Retention at Exa.
+        </p>
+        <p className="max-w-2xl text-slate-200">
+          Ideas you share to improve Chat — through the &quot;Share an idea&quot; control, or a signed-out message
+          that is clearly feedback — are stored as idea records (the text, optional thread id, whether you were
+          signed out or signed in, and the time). Signed-out ideas are kept for 12 months, then deleted. Signed-in
+          ideas are saved only when you explicitly share them; we do not scrape private threads for ideas.
+        </p>
+        <p className="max-w-2xl text-slate-200">
           We do not currently use a third-party analytics product on this site. Cookies we actually use for Chat: Clerk
           session cookies when you are signed in, and <code className="text-slate-100">bci_anon</code>, an HttpOnly cookie
           that identifies a signed-out conversation in this browser for up to 180 days (the conversation itself may be

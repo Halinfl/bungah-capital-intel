@@ -95,6 +95,7 @@ import { serializeLlmPack } from "./chat-llm-pack";
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
 import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citations";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
+import { checkSearchCap, groqBrowserSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
 export const DEFAULT_GATEWAY_OSS_MODEL = "meta/llama-3.3-70b";
@@ -102,21 +103,20 @@ export { DEFAULT_GROQ_MODEL } from "./chat-llm-models";
 const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 const GROQ_BASE_URL = "https://api.groq.com/openai/v1";
 
-const SYSTEM_PROMPT = `You are Bungah Capital Intel — a hotel / hospitality-capital chat.
+const SYSTEM_PROMPT = `You are Bungah Capital Intel — a normal, conversational chat about hotel and hospitality capital, and a helpful general assistant when the visitor asks about something else. Answer follow-ups using the thread context. Be concise and clear.
 
 Rules (non-negotiable):
-1. Answer ONLY from the cited facts and allowed authored corpus in the user message. Never invent STR, visitation, ADR, OCC, RevPAR, pipeline, debt, or any other figures. Never invent a source, a link, or a date.
-2. Write a short answer in your own words. Use only a few cited data points. Never reproduce a whole table.
-3. Every figure you state must carry its source name, its link (if the pack has one), and its as-of date, taken from the pack. If a fact has no source, do not use it. If the pack has no cited fact that answers the question, say you don't know or that cited coverage is not on file — do not guess, and do not fill the gap from world knowledge (including news events such as an FAA action that is not in the pack).
-4. Decision support only: surface cited facts for a human decision. Never give a buy, sell, or hold recommendation, and never recommend a deal, a stock, or a hotel purchase. If asked, refuse and point back to the cited facts.
-5. Never say Showboat (or any named property) is "in foreclosure". If a cited pack fact mentions the property, use only the approved neutral wording ("the subject of reported lender or court proceedings") and only what that source states. If the pack has no cited fact about a named property, say exactly: "I don't have cited information on that property." Do not repeat or echo the user's characterization of the property.
-12. Do not use 【】 or other bracket citation markers. Cite in prose: source name, link, and as-of date. When a pack fact is from Host Hotels' Q2 2026 8-K earnings release, cite it as "Q2 2026 8-K earnings release" — not as an earnings call unless the pack source is a transcript.
-6. Never include raw STR or CoStar figures, licensed tables, or internal team or agent names.
-7. Do not provide personal, private, or contact information about a named person. If the pack has no cited public fact about them, say you don't know.
+1. Do not refuse a question just because it is outside our loaded data. Use your general knowledge for conversation, explanations, and definitions. Never invent a number, a statistic, a source, a link, or a date.
+2. When the question asks for a specific figure or a current fact: use the cited fact pack first (those facts already have source, link, and as-of). If the pack does not have it, you may be given live web-search results — use only those cited pages. If neither has a good source, say you do not have a cited source and do not guess.
+3. Write in your own words. Use only a few cited data points. Never reproduce a whole table. Do not use 【】 citation markers. Cite in prose: source name, URL, and as-of or published date. When a pack fact is from Host Hotels' Q2 2026 8-K earnings release, cite it as "Q2 2026 8-K earnings release", not as an earnings call unless the pack source is a transcript.
+4. Never give a buy, sell, or hold recommendation, and never recommend a deal, a stock, or a hotel purchase. If asked, refuse and offer information instead.
+5. Never say Showboat (or any named property) is "in foreclosure". If a cited fact supports a legal proceeding, use only "the subject of reported lender or court proceedings". If there is no cited fact about that property, say exactly: "I don't have cited information on that property." Do not echo the user's characterization.
+6. Never include raw STR or CoStar figures, licensed tables, or internal team or agent names. Do not use LinkedIn, X/Twitter, Facebook, Instagram, TikTok, Reddit, or other social sites as sources.
+7. Do not provide personal, private, or contact information about a named person. If we have no cited public fact about them, say you don't know.
 8. If the pack marks a factor as skipped because the source restricts republication, say that factor is not shown for that reason. Do not fill it in.
 9. Product name: Bungah Capital Intel.
 10. When a Deep-link market slug or Primary market is present, lead with THAT market. Do not privilege Orlando or Las Vegas when the question names another market.
-11. Keep source names, links, and as-of dates attached to the figures they belong to. Do not strip those provenance markers.`;
+11. If you used our cited pack for figures, you may start with "From our cited data:". If you used live web search, start with "From a live web search:". Keep source name, link, and as-of attached to each figure.`;
 
 /** Explicit opt-in; default false (Hal spend lock — no paid inference). */
 export function isLlmEnabled(): boolean {
@@ -366,6 +366,8 @@ export type AnswerChatOpts = {
   isPrivate?: boolean;
   /** Hashed later; IP or user id for the per-user daily cap. */
   llmSubject?: string | null;
+  /** Prior turns in this owned thread (follow-ups). */
+  history?: { role: "user" | "assistant"; content: string }[];
 };
 
 export async function answerChat(
@@ -421,12 +423,12 @@ export async function answerChat(
   }
   const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
   const intent = opts?.intent ?? null;
-  const res = await answerChatIn(question, { marketSlug, range, intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
+  const res = await answerChatIn(question, { marketSlug, range, intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history });
   if (range === "all") return res;
   if (!res.brief?.window?.filterable) {
     // Either an intent that can't filter by date (answered in full, no chip), or the window
     // removed everything the answer was built on (say so plainly, keep the chip).
-    const full = await answerChatIn(question, { marketSlug, range: "all", intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
+    const full = await answerChatIn(question, { marketSlug, range: "all", intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history });
     return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
   }
   if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
@@ -471,7 +473,7 @@ function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
 
 async function answerChatIn(
   question: string,
-  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null; isPrivate?: boolean; llmSubject?: string | null }
+  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null; isPrivate?: boolean; llmSubject?: string | null; history?: { role: "user" | "assistant"; content: string }[] }
 ): Promise<FinalAnswer> {
   const range = opts.range;
   const advice = classifyAdviceRequest(question);
@@ -505,7 +507,8 @@ async function answerChatIn(
   }
 
   const { places, alsoCovered } = uncoveredFor(question, ctx, opts?.marketSlug);
-  if (places.length && !alsoCovered) {
+  const wantsMarketData = /\b(revpar|occupancy|adr|pipeline|supply|demand|hotel tax|how is\b.{0,40}\bdoing)\b/i.test(question);
+  if (places.length && !alsoCovered && wantsMarketData) {
     return finalize(
       {
         content: [...uncoveredMarketLines(places, ctx.markets), "", decisionSupportFooter()].join("\n"),
@@ -602,12 +605,17 @@ async function answerChatIn(
   const cap = model ? checkLlmCap(opts.llmSubject ?? "anon") : { ok: false as const, reason: "disabled" as const };
   if (model && cap.ok) {
     const llmPack = serializeLlmPack(ctx);
+    const history = opts.history ?? [];
+    const historyBlock = history.length
+      ? ["=== PRIOR TURNS IN THIS CONVERSATION ===", ...history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`), "=== END PRIOR TURNS ===", ""].join("\n")
+      : "";
     const prompt = [
+      historyBlock,
       `User question: ${question}`,
       opts?.marketSlug ? `Deep-link market slug: ${opts.marketSlug}` : "",
       `Classified intent: ${ctx.intent}`,
       "",
-      "=== CITED FACT PACK (answer only from these; each fact has source, link, as-of) ===",
+      "=== CITED FACT PACK (use these first for any specific figure; each fact has source, link, as-of) ===",
       llmPack.pack,
       "=== END FACT PACK ===",
       "",
@@ -619,7 +627,7 @@ async function answerChatIn(
             "",
           ].join("\n")
         : "=== ALLOWED AUTHORED CORPUS ===\n(none matched this question)\n=== END CORPUS ===\n",
-      "Write the short cited answer now.",
+      "Answer the visitor now. If the pack has the facts, lead with them (From our cited data). If this is a general or conversational question, just answer helpfully without inventing figures.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -631,18 +639,44 @@ async function answerChatIn(
         model: model as Parameters<typeof generateText>[0]["model"],
         system: SYSTEM_PROMPT,
         prompt,
-        temperature: 0.2,
+        temperature: 0.3,
         maxOutputTokens: outputCap,
         abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
       const used = Number(usage?.totalTokens ?? 0);
       if (used) reconcileLlmTokens(used, estimated);
-      const content = stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim()));
+      let content = stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim()));
+      let citations = citationsUsedInAnswer(content, [...llmPack.citations, ...digestCitesForPack]);
+      const packHasAnswer = llmPack.factCount > 0 && citations.length > 0;
+      const wantSearch =
+        isWebSearchEnabled() &&
+        !packHasAnswer &&
+        (needsCurrentFacts(question) || llmPack.factCount === 0) &&
+        Boolean(process.env.GROQ_API_KEY?.trim());
+      if (wantSearch) {
+        const capS = checkSearchCap(opts.llmSubject ?? "anon");
+        if (capS.ok) {
+          reserveSearch(opts.llmSubject ?? "anon");
+          const web = await groqBrowserSearch({
+            question,
+            packSummary: llmPack.pack,
+            history,
+            apiKey: process.env.GROQ_API_KEY!.trim(),
+          });
+          if (web?.content) {
+            content = stripCitationBrackets(scrubShowboatForeclosure(web.content));
+            citations = citationsUsedInAnswer(content, [...citations, ...web.citations]);
+          }
+        }
+      }
       const fail = inspectLlmAnswer(content);
       if (content && !fail) {
+        if (packHasAnswer && !/^from our cited data/i.test(content) && !/^from a live web search/i.test(content)) {
+          content = `From our cited data:\n\n${content}`;
+        }
         const answer: ChatAnswer = {
           content,
-          citations: citationsUsedInAnswer(content, [...llmPack.citations, ...digestCitesForPack]),
+          citations,
           intent: ctx.intent,
           marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null,
           mode: "llm",

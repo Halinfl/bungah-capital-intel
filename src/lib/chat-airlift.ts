@@ -1,35 +1,49 @@
 /**
  * Cited FAA / airlift / airport / air-travel signals (green/public only).
- * Vectra's pack lives at bungah-audit/groq-prod/signals/airlift/airlift-signals.json during authoring
- * and is shipped as src/data/airlift-signals.json so the preview runtime has the file.
+ * Reads every airlift-signals*.json in src/data and (locally) the audit signals folder,
+ * so Vectra batch-2 files (airlift-signals-b2.json) are picked up automatically.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { isLicensedText } from "./licensed-sources";
 import { isYellowSource } from "./yellow-sources";
 
 export type AirliftSignal = {
   market: string;
+  airport_code?: string | null;
+  category?: string | null;
   date?: string | null;
   headline: string;
   fact: string;
   source: string;
   url: string;
   as_of: string;
+  status?: string | null;
+  scope?: string | null;
 };
 
 export const AIRLIFT_QUESTION =
-  /\b(faa|airlift|air[- ]?travel|airports?|flights?)\b/i;
+  /\b(faa|airlift|air[- ]?travel|airports?|flights?|ground[\s-]?stop|air traffic|newark cap)\b/i;
 
 export function isAirliftQuestion(question: string): boolean {
   return AIRLIFT_QUESTION.test(question);
 }
 
-const SHIPPED = path.join(process.cwd(), "src/data/airlift-signals.json");
-const AUDIT = "/workspace/bungah-audit/groq-prod/signals/airlift/airlift-signals.json";
+const SHIPPED_DIR = path.join(process.cwd(), "src/data");
+const AUDIT_DIR = "/workspace/bungah-audit/groq-prod/signals/airlift";
+
+function jsonFilesIn(dir: string): string[] {
+  if (!dir || !existsSync(dir)) return [];
+  try {
+    return readdirSync(dir)
+      .filter((n) => /^airlift-signals.*\.json$/i.test(n))
+      .map((n) => path.join(dir, n));
+  } catch {
+    return [];
+  }
+}
 
 function readJson(file: string): unknown {
-  if (!existsSync(file)) return null;
   try {
     return JSON.parse(readFileSync(file, "utf8"));
   } catch {
@@ -38,7 +52,11 @@ function readJson(file: string): unknown {
 }
 
 function asRows(raw: unknown): AirliftSignal[] {
-  const list = Array.isArray(raw) ? raw : raw && typeof raw === "object" && Array.isArray((raw as { signals?: unknown }).signals) ? (raw as { signals: unknown[] }).signals : [];
+  const list = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === "object" && Array.isArray((raw as { signals?: unknown }).signals)
+      ? (raw as { signals: unknown[] }).signals
+      : [];
   const out: AirliftSignal[] = [];
   for (const row of list) {
     if (!row || typeof row !== "object") continue;
@@ -48,35 +66,49 @@ function asRows(raw: unknown): AirliftSignal[] {
     const source = String(r.source ?? "").trim();
     const url = String(r.url ?? "").trim();
     const as_of = String(r.as_of ?? r.asOf ?? r.date ?? "").trim();
-    const market = String(r.market ?? "national").trim() || "national";
+    const market = String(r.market ?? "").trim();
+    const scope = r.scope != null ? String(r.scope) : null;
     if (!headline && !fact) continue;
     if (!source && !url) continue;
     out.push({
       market,
+      airport_code: r.airport_code != null ? String(r.airport_code) : null,
+      category: r.category != null ? String(r.category) : null,
       date: r.date != null ? String(r.date) : null,
       headline,
       fact,
       source,
       url,
       as_of,
+      status: r.status != null ? String(r.status) : null,
+      scope,
     });
   }
   return out;
 }
 
-/** Green-only: drop licensed or yellow-unconfirmed sources. */
 export function loadAirliftSignals(): AirliftSignal[] {
-  const shipped = asRows(readJson(SHIPPED));
-  const audit = asRows(readJson(process.env.BUNGAH_AIRLIFT_SIGNALS?.trim() || AUDIT));
+  const dirs = [SHIPPED_DIR, process.env.BUNGAH_AIRLIFT_DIR?.trim() || "", AUDIT_DIR].filter(Boolean);
+  const files: string[] = [];
+  const seenPath = new Set<string>();
+  for (const dir of dirs) {
+    for (const f of jsonFilesIn(dir)) {
+      if (seenPath.has(f)) continue;
+      seenPath.add(f);
+      files.push(f);
+    }
+  }
   const seen = new Set<string>();
   const out: AirliftSignal[] = [];
-  for (const row of [...shipped, ...audit]) {
-    const blob = `${row.headline} ${row.fact} ${row.source} ${row.url}`;
-    if (isLicensedText(blob) || isYellowSource(row.source, row.url)) continue;
-    const key = `${row.market}|${row.headline}|${row.as_of}|${row.url}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(row);
+  for (const file of files) {
+    for (const row of asRows(readJson(file))) {
+      const blob = `${row.headline} ${row.fact} ${row.source} ${row.url}`;
+      if (isLicensedText(blob) || isYellowSource(row.source, row.url)) continue;
+      const key = `${row.market}|${row.headline}|${row.as_of}|${row.url}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(row);
+    }
   }
   return out;
 }
@@ -88,13 +120,21 @@ export type AirliftFact = {
   sourceUrls: { url: string; label: string }[];
   asOf: string;
   kind: "airlift";
-  magnitude: null;
+  magnitude: string | null;
 };
 
 function toFact(row: AirliftSignal): AirliftFact {
+  const extra = [
+    row.airport_code ? `airport ${row.airport_code}` : "",
+    row.status ? `status: ${row.status}` : "",
+    row.date ? `event date: ${row.date}` : "",
+  ]
+    .filter(Boolean)
+    .join("; ");
+  const body = extra ? `${row.fact} (${extra})` : row.fact;
   return {
     title: row.headline,
-    body: row.fact,
+    body,
     sourceLabel: row.source,
     sourceUrls: row.url ? [{ url: row.url, label: row.source }] : [],
     asOf: row.as_of || row.date || "date not on file",
@@ -103,24 +143,58 @@ function toFact(row: AirliftSignal): AirliftFact {
   };
 }
 
-function normMarket(s: string): string {
+function norm(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function airliftFactsFor(question: string, marketSlug?: string | null, marketName?: string | null): { national: AirliftFact[]; market: AirliftFact[] } {
+const NAME_TO_SLUG: Record<string, string> = {
+  "new-york": "new-york-city",
+  "new-york-city": "new-york-city",
+  nyc: "new-york-city",
+  "washington-dc": "washington-dc",
+  "washington-d-c": "washington-dc",
+  dc: "washington-dc",
+  "las-vegas": "las-vegas",
+  vegas: "las-vegas",
+  "san-francisco": "san-francisco-bay",
+  "san-francisco-bay": "san-francisco-bay",
+  "los-angeles": "los-angeles",
+};
+
+function isNational(row: AirliftSignal): boolean {
+  const m = norm(row.market || "");
+  const scope = (row.scope || "").toLowerCase();
+  return scope === "national" || !m || m === "national" || m === "us" || m === "united-states";
+}
+
+function marketMatches(row: AirliftSignal, slug?: string | null, name?: string | null): boolean {
+  if (isNational(row)) return false;
+  const m = norm(row.market);
+  const mapped = NAME_TO_SLUG[m] || m;
+  const s = norm(slug ?? "");
+  const n = norm(name ?? "");
+  const sMapped = NAME_TO_SLUG[s] || s;
+  const nMapped = NAME_TO_SLUG[n] || n;
+  return Boolean(
+    (s && (mapped === s || mapped === sMapped || m.includes(s) || s.includes(m))) ||
+      (n && (mapped === n || mapped === nMapped || m.includes(n) || n.includes(m)))
+  );
+}
+
+export function airliftFactsFor(
+  question: string,
+  marketSlug?: string | null,
+  marketName?: string | null
+): { national: AirliftFact[]; market: AirliftFact[] } {
   if (!isAirliftQuestion(question)) return { national: [], market: [] };
   const rows = loadAirliftSignals();
-  const slug = normMarket(marketSlug ?? "");
-  const name = normMarket(marketName ?? "");
   const national: AirliftFact[] = [];
   const market: AirliftFact[] = [];
   for (const row of rows) {
-    const m = normMarket(row.market || "national");
-    const isNat = !m || m === "national" || m === "us" || m === "united-states";
-    if (isNat) national.push(toFact(row));
-    else if (slug && (m === slug || m.includes(slug) || slug.includes(m))) market.push(toFact(row));
-    else if (name && (m === name || m.includes(name) || name.includes(m))) market.push(toFact(row));
+    if (isNational(row)) national.push(toFact(row));
+    else if (marketMatches(row, marketSlug, marketName)) market.push(toFact(row));
   }
+  // A national FAA question with no matched market still gets the national facts (and not every city row).
   return { national, market };
 }
 

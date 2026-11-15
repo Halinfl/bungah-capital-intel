@@ -141,6 +141,26 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   /** Chat foundation: the owned conversation's id (from the first answer), sent back on every follow-up. */
   const threadIdRef = useRef<string | null>(null);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [ideaOpen, setIdeaOpen] = useState(false);
+  const [ideaText, setIdeaText] = useState("");
+  const [ideaStatus, setIdeaStatus] = useState<"" | "saving" | "saved" | "error">("");
+  async function shareIdea() {
+    const text = ideaText.trim();
+    if (text.length < 8) return;
+    setIdeaStatus("saving");
+    try {
+      const res = await fetch("/api/chat/ideas", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text, threadId: threadIdRef.current }),
+      });
+      setIdeaStatus(res.ok ? "saved" : "error");
+      if (res.ok) setIdeaText("");
+    } catch {
+      setIdeaStatus("error");
+    }
+  }
+
   /** "Delete conversation": idle → confirming → deleting; a failure keeps the conversation and says so. */
   const [deleteStep, setDeleteStep] = useState<"idle" | "confirm" | "deleting">("idle");
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -800,6 +820,44 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             {CHAT_PRIVACY_LINK_LABEL}
           </Link>
         </p>
+        <div className="text-[11px] text-slate-400">
+          {ideaOpen ? (
+            <div className="space-y-2">
+              <label htmlFor="chat-idea" className="block">Share an idea to help us improve Chat.</label>
+              <textarea
+                id="chat-idea"
+                value={ideaText}
+                onChange={(e) => setIdeaText(e.target.value)}
+                rows={3}
+                className={`w-full rounded-lg border border-white/45 bg-[#262a32] px-3 py-2 text-sm text-white placeholder:text-slate-400 ${RING}`}
+                placeholder="A feature, a better answer, something we missed…"
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void shareIdea()}
+                  disabled={ideaStatus === "saving" || ideaText.trim().length < 8}
+                  className={`min-h-11 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 ${RING}`}
+                >
+                  {ideaStatus === "saving" ? "Saving…" : "Send idea"}
+                </button>
+                <button type="button" onClick={() => setIdeaOpen(false)} className={`min-h-11 px-2 ${RING}`}>
+                  Cancel
+                </button>
+                {ideaStatus === "saved" ? <span>Thanks — we saved that.</span> : null}
+                {ideaStatus === "error" ? <span>Couldn&apos;t save that. Try again.</span> : null}
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { setIdeaOpen(true); setIdeaStatus(""); }}
+              className={`underline decoration-white/30 underline-offset-2 hover:decoration-white ${RING}`}
+            >
+              Share an idea
+            </button>
+          )}
+        </div>
       </div>
 
     </div>

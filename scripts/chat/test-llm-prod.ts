@@ -22,7 +22,8 @@ import { inspectLlmAnswer, scrubShowboatForeclosure } from "../../src/lib/chat-l
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "../../src/lib/chat-llm-disclosure";
 import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat-llm-citations";
 import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
-import { isAirliftQuestion } from "../../src/lib/chat-airlift";
+import { isAirliftQuestion, loadAirliftSignals } from "../../src/lib/chat-airlift";
+import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
 import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src/lib/chat-store";
@@ -305,6 +306,18 @@ test("signed-out log purge where clause is 12 months and never includes private 
   assert.equal(where.userId, null);
   const cutoff = (where.createdAt as { lt: Date }).lt;
   assert.equal(cutoff.toISOString(), new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString());
+});
+
+test("airlift pack loads the national FAA ground-stop fact", () => {
+  const rows = loadAirliftSignals();
+  assert.ok(rows.length >= 34, `expected at least 34 airlift rows, got ${rows.length}`);
+  assert.ok(rows.some((r) => /ground stop/i.test(r.headline)));
+  assert.equal(isAirliftQuestion("What are trends currently effecting the market after the FAA issue on Friday"), true);
+});
+
+test("idea detector catches feedback and ignores a plain market question", () => {
+  assert.equal(looksLikeIdea("You should add a comparison of two markets side by side"), true);
+  assert.equal(looksLikeIdea("What's the RevPAR read for Nashville?"), false);
 });
 
 if (failures.length) {

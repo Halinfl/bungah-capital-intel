@@ -33,6 +33,10 @@ These processors handle Chat-related data:
 - **Neon** — hosts the database where Chat threads and logs are stored.
 - **Groq** — processes signed-out Chat questions in the United States when AI answers are turned on, as described above.
 
+When live web search is turned on, a search query for a current fact that is not in our cited data is sent to Groq and its search provider, Exa (United States), to retrieve citable pages. Groq's Zero Data Retention applies to inference on Groq; it does not by itself promise Zero Data Retention at Exa.
+
+Ideas you share to improve Chat — through the "Share an idea" control, or a signed-out message that is clearly feedback — are stored as idea records (the text, optional thread id, whether you were signed out or signed in, and the time). Signed-out ideas are kept for 12 months, then deleted by the same cleanup job as signed-out question logs. Signed-in ideas are saved only when you explicitly share them; we do not scrape private threads for ideas.
+
 We do not currently use a third-party analytics product on this site. Cookies we actually use for Chat:
 
 - **Clerk session cookies**, when you are signed in.

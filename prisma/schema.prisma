@@ -161,6 +161,20 @@ model SavedItem {
   @@index([threadId])
 }
 
+/// Visitor ideas and feedback shared to improve Chat (Hal, 15 Nov 2026).
+/// source is "signed-out" or "signed-in". Signed-in rows are created only when the person
+/// explicitly shares an idea (the private thread is not scraped).
+model ChatIdea {
+  id        String   @id @default(cuid())
+  text      String
+  threadId  String?
+  source    String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([source])
+}
+
 /// Per-person Chat settings (signed-in only). No row = defaults: training opt-in OFF (Decision C).
 model ChatUserPref {
   userId       String    @id

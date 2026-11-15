@@ -253,6 +253,23 @@ export async function persistLogOnly(db: Db, x: TurnInput): Promise<{ threadId: 
 
 /* ------------------------------------------------------------------ reads */
 
+
+/** Last turns in an owned thread, for conversational follow-ups. Empty if the id is missing or not owned. */
+export async function recentOwnedMessages(
+  db: Db,
+  threadId: unknown,
+  owner: Owner,
+  take = 10
+): Promise<{ role: "user" | "assistant"; content: string }[]> {
+  if (typeof threadId !== "string" || !THREAD_ID_RE.test(threadId)) return [];
+  const t = await getOwnedThread(db, threadId, owner);
+  if (!t) return [];
+  return t.messages
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .slice(-take)
+    .map((m) => ({ role: m.role as "user" | "assistant", content: m.content.slice(0, 2000) }));
+}
+
 export async function getOwnedThread(db: Db, threadId: string, owner: Owner) {
   if (!(await foundationReady(db))) return null;
   if (!THREAD_ID_RE.test(threadId)) return null;
