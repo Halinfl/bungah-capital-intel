@@ -131,6 +131,11 @@ export async function buildCorpus(db: PrismaClient, opts: { excludedIds?: Set<st
         orderBy: { createdAt: "asc" },
         select: { id: true, messages: { where: { createdAt: { gte: p.trainOptInAt! } }, orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: { id: true, role: true, content: true, citations: true, createdAt: true, questionLogId: true } } },
       });
+      // modelUsed only (no text) from the turns' log rows, to label each record with its real answer path.
+      const logIds = [...new Set(threads.flatMap((t) => t.messages.map((x) => x.questionLogId).filter((x): x is string => Boolean(x))))];
+      const pathOf = new Map(
+        (logIds.length ? await db.chatQuestionLog.findMany({ where: { id: { in: logIds } }, select: { id: true, modelUsed: true } }) : []).map((r) => [r.id, r.modelUsed] as const)
+      );
       for (const t of threads) {
         const m = t.messages;
         for (let i = 0; i + 1 < m.length; i++) {
@@ -141,13 +146,16 @@ export async function buildCorpus(db: PrismaClient, opts: { excludedIds?: Set<st
             skipped += 1;
             continue;
           }
+          // The answer path as stored for this turn: the turn's (private, text-free) log row keeps modelUsed.
+          const logId = a.questionLogId ?? u.questionLogId;
+          const modelUsed = logId ? (pathOf.get(logId) ?? null) : null;
           const record: TrainRecord = {
             messages: [
               { role: "system", content: TRAIN_SYSTEM_PROMPT },
               { role: "user", content: u.content.trim() },
               { role: "assistant", content: a.content.trim() },
             ],
-            meta: { intent: null, marketSlug: null, citations: parseCitations(a.citations), source: "signed-in-opt-in", modelUsed: "memo", trainEligible: true, isPrivate: true, origin: "opt-in", createdAt: a.createdAt.toISOString(), id: a.id },
+            meta: { intent: null, marketSlug: null, citations: parseCitations(a.citations), source: "signed-in-opt-in", modelUsed, trainEligible: true, isPrivate: true, origin: "opt-in", createdAt: a.createdAt.toISOString(), id: a.id },
           };
           lines.push(JSON.stringify(record));
           optInWritten += 1;

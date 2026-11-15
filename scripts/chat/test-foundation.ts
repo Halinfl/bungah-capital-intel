@@ -275,6 +275,17 @@ async function main() {
     ok(text.split("\n").filter((l) => l.includes(POST)).every((l) => JSON.parse(l).meta.origin === "opt-in"), "opt-in records tagged meta.origin=opt-in");
     const optRecs = text.split("\n").filter((l) => l.includes(POST)).map((l) => JSON.parse(l).meta);
     ok(optRecs.length > 0 && optRecs.every((m) => m.isPrivate === true && m.source === "signed-in-opt-in"), "opt-in records labelled isPrivate:true, source:signed-in-opt-in", JSON.stringify(optRecs[0]));
+    ok(optRecs.every((m) => m.modelUsed === "memo"), "opt-in record modelUsed = the stored path (memo)", JSON.stringify(optRecs.map((m) => m.modelUsed)));
+    // A turn whose stored answer path was the model: the record says llm (not a hardcoded memo).
+    const LLM = `F4LLM-${randomBytes(6).toString("hex")}`;
+    {
+      const r = await S.resolveThread(db, ot.threadId, opt);
+      if (r.mode !== "owned") throw new Error("expected owned");
+      await S.persistOwnedTurn(db, r, opt, mk(`Model path ${LLM} question`, { isPrivate: true, userId: opt.userId, modelUsed: "llm" }));
+    }
+    const llmRecs = runExport().split("\n").filter((l) => l.includes(LLM)).map((l) => JSON.parse(l).meta);
+    ok(llmRecs.length === 1 && llmRecs[0].modelUsed === "llm" && llmRecs[0].source === "signed-in-opt-in" && llmRecs[0].isPrivate === true, "opt-in record modelUsed derived from the stored path (llm)", JSON.stringify(llmRecs[0]));
+    text = runExport();
     const pubRecs = text.split("\n").filter((l) => l.includes(PUB)).map((l) => JSON.parse(l).meta);
     ok(pubRecs.length > 0 && pubRecs.every((m) => m.isPrivate === false && m.origin === "public" && m.source !== "signed-in-opt-in"), "public records stay isPrivate:false, origin:public", JSON.stringify(pubRecs[0]));
     await S.setTrainOptIn(db, "user_OPT", false);
