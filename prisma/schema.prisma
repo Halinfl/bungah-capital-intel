@@ -102,13 +102,26 @@ model Artifact {
   market Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
 }
 
+/// One conversation = one thread (Chat foundation, 2026-11-14). Rows written before the foundation have
+/// userId and anonOwnerId both null ("legacy unowned"): never shown to anyone, never touched by the purge.
 model ChatThread {
   id        String   @id @default(cuid())
   title     String   @default("New thread")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  /// Clerk userId of the signed-in owner. Kept until the owner deletes the conversation or the account.
+  userId      String?
+  /// Signed-out owner: the random id in the signed bci_anon cookie (no account link). Purged after 90 days
+  /// without activity unless something in the thread is saved. Cleared when the thread is claimed.
+  anonOwnerId String?
+  /// When a signed-out thread was claimed by its signed-in owner (same browser, within 24h, once).
+  claimedAt   DateTime?
 
   messages ChatMessage[]
+  saved    SavedItem[]
+
+  @@index([userId])
+  @@index([anonOwnerId])
 }
 
 model ChatMessage {
@@ -118,8 +131,42 @@ model ChatMessage {
   content   String
   citations String?
   createdAt DateTime @default(now())
+  /// The ChatQuestionLog row written for this turn. The link points from the owner's thread to the log row
+  /// only: a private log row never carries a threadId (Decision A), so deleting the conversation can still
+  /// find and delete its private log rows.
+  questionLogId String?
 
   thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  saved  SavedItem[]
+}
+
+/// A saved answer or deal (Batch 3 UI; the table ships with the foundation so retention can honor saves).
+model SavedItem {
+  id          String   @id @default(cuid())
+  /// Owner: Clerk userId when signed in; anonOwnerId only for a save made before sign-in (claimed with the thread).
+  userId      String?
+  anonOwnerId String?
+  /// "answer" | "deal"
+  kind        String
+  threadId    String?
+  messageId   String?
+  dealSlug    String?
+  createdAt   DateTime @default(now())
+
+  thread  ChatThread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  message ChatMessage? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([anonOwnerId])
+  @@index([threadId])
+}
+
+/// Per-person Chat settings (signed-in only). No row = defaults: training opt-in OFF (Decision C).
+model ChatUserPref {
+  userId       String    @id
+  trainOptIn   Boolean   @default(false)
+  trainOptInAt DateTime?
+  updatedAt    DateTime  @updatedAt
 }
 
 /// Memory-loop log: questions + answers for coverage learning and future fine-tune export.
