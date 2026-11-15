@@ -272,6 +272,23 @@ export async function getOwnedThread(db: Db, threadId: string, owner: Owner) {
   return rest;
 }
 
+/**
+ * The caller's current conversation (r4, restore after reload): signed in → their most recently updated
+ * thread; signed out → this browser's (anon cookie's) most recent thread, if the purge hasn't removed it.
+ * Nobody else's thread can come back: the lookup is by the caller's own owner id only.
+ */
+export async function getCurrentThread(db: Db, owner: Owner) {
+  if (!(await foundationReady(db))) return null;
+  const where: Prisma.ChatThreadWhereInput | null = owner.userId
+    ? { userId: owner.userId }
+    : owner.anonId
+      ? { anonOwnerId: owner.anonId, userId: null }
+      : null;
+  if (!where) return null;
+  const t = await db.chatThread.findFirst({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], select: { id: true } });
+  return t ? getOwnedThread(db, t.id, owner) : null;
+}
+
 /* ------------------------------------------------------------------ deletes */
 
 /** Delete the thread's log rows: private ones (found through its messages) go; public ones stay, unlinked. */
