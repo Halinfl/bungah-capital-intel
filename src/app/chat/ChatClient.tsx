@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
@@ -149,9 +149,23 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  // The phone composer is fixed: pad the page bottom by its measured height (no in-flow spacers), so the
+  // footer and the last row clear it and nothing blank is left below (r2: the ~450px strip at 390).
+  useEffect(() => {
+    const b = document.body;
+    b.style.setProperty("--chat-composer-h", `${composerH}px`);
+    b.setAttribute("data-chat-composer", "");
+    return () => {
+      b.style.removeProperty("--chat-composer-h");
+      b.removeAttribute("data-chat-composer");
+    };
+  }, [composerH]);
+  // r2 (Eric QA): the "Delete conversation" row appears once the answer is in (threadId set, not busy);
+  // scroll again then, so the row (the last thing in the thread) clears the composer too.
+  const showDelete = Boolean(threadId && !busy);
   useEffect(() => {
     if (messages.length) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
+  }, [messages.length, showDelete]);
 
   // Fresh thread whenever marketSlug / initialQuestionKey changes so a prior
   // auto-ask does not burn Q2 of another market CTA.
@@ -378,6 +392,9 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     setSlow(false);
     setDeleteStep("idle");
     setAnnounce("Conversation deleted.");
+    // r2 (Eric QA): back to the top so the page heading and the fresh start are in view.
+    const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   }, [deleteStep]);
 
   /** Remove the item chip: the chat goes back to general (fresh thread, general starters). */
@@ -489,7 +506,9 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                   </div>
                 ) : m.followUps?.length ? (
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-100">{m.content}</p>
+                    <p className="text-sm text-slate-100">
+                      <InlineLinks text={m.content} />
+                    </p>
                     <ul className="flex flex-wrap gap-2" aria-label="Other angles to weigh">
                       {m.followUps.map((c) => (
                         <li key={`${c.label}|${c.range ?? "all"}`}>
@@ -552,7 +571,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           ))}
           {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
-          {threadId && !busy ? (
+          {showDelete ? (
             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.06] pt-3 text-sm" data-delete-conversation>
               {deleteStep === "idle" ? (
                 <button
@@ -589,7 +608,6 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             </div>
           ) : null}
           <div ref={endRef} style={{ ["--composer-h" as string]: `${composerH + 16}px` }} className="scroll-mb-[var(--composer-h)] sm:scroll-mb-0" />
-          <div aria-hidden data-composer-spacer style={{ height: composerH + 16 }} className="sm:hidden" />
         </div>
       )}
 
@@ -653,8 +671,25 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           </button>
         </form>
       </div>
-      <div aria-hidden className={`${scope && carried.length ? "h-44" : scope ? "h-32" : carried.length ? "h-28" : "h-16"} sm:hidden`} />
 
     </div>
   );
+}
+
+/** Plain text with on-site markdown links ("[label](/path)") as real links; anything else stays text. */
+function InlineLinks({ text }: { text: string }) {
+  const out: ReactNode[] = [];
+  const re = /\[([^\]\n]+)\]\((\/[^)\s]*)\)/g;
+  let last = 0;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push(
+      <Link key={m.index} href={m[2]} className="text-white underline decoration-white/50 underline-offset-2 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200">
+        {m[1]}
+      </Link>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return <>{out}</>;
 }

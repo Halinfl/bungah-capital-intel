@@ -102,3 +102,14 @@ html {
     display: block;
   }
 }
+
+/*
+ * Chat (r2): on phones the composer is fixed to the bottom. ChatClient sets --chat-composer-h (its measured
+ * height) on <body> while /chat is mounted; the body bottom padding is the only clearance, so the footer and
+ * the thread's last row clear the composer and no blank strip is left at the end of the page.
+ */
+@media (max-width: 639.98px) {
+  body[data-chat-composer] {
+    padding-bottom: var(--chat-composer-h, 96px);
+  }
+}
