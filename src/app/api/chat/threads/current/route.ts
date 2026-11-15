@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentThread } from "@/lib/chat-store";
+import { getCurrentThread, recordAnonLink } from "@/lib/chat-store";
 import { NO_STORE, ownerFromRequest } from "@/lib/chat-owner";
 
 /**
@@ -9,7 +9,9 @@ import { NO_STORE, ownerFromRequest } from "@/lib/chat-owner";
  */
 export async function GET(req: Request) {
   try {
-    const t = await getCurrentThread(prisma, await ownerFromRequest(req));
+    const owner = await ownerFromRequest(req);
+    if (owner.userId && owner.anonId) await recordAnonLink(prisma, owner).catch((e) => console.error("[chat-thread] anon link failed:", e instanceof Error ? e.message : e));
+    const t = await getCurrentThread(prisma, owner);
     if (!t) return NextResponse.json({ error: "Conversation not found." }, { status: 404, headers: NO_STORE });
     return NextResponse.json({ thread: t }, { headers: NO_STORE });
   } catch (e) {

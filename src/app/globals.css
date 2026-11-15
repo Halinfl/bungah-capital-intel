@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* r4 (S7): the in-flow (desktop) chat composer needs width AND height; a landscape phone (e.g. 844x390,
+   740x360) keeps the fixed bottom composer. Used as `desk:` in ChatClient; the padding rule below mirrors it. */
+@custom-variant desk (@media (min-width: 640px) and (min-height: 500px));
+
 :root {
   --background: #2f333c;
   --foreground: #e8eef6;
@@ -108,7 +112,7 @@ html {
  * height) on <body> while /chat is mounted; the body bottom padding is the only clearance, so the footer and
  * the thread's last row clear the composer and no blank strip is left at the end of the page.
  */
-@media (max-width: 639.98px) {
+@media (max-width: 639.98px), (max-height: 499.98px) {
   body[data-chat-composer] {
     padding-bottom: var(--chat-composer-h, 96px);
   }

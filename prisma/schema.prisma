@@ -176,6 +176,18 @@ model ChatIdea {
 }
 
 /// Per-person Chat settings (signed-in only). No row = defaults: training opt-in OFF (Decision C).
+/// r4 (S6): which signed-out browser ids (bci_anon) a signed-in user has used, recorded when a signed-in request
+/// carries the cookie. Only used to delete that user's unclaimed signed-out threads on account deletion; the
+/// rows go with the account (user.deleted).
+model ChatAnonLink {
+  anonId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@id([anonId, userId])
+  @@index([userId])
+}
+
 model ChatUserPref {
   userId       String    @id
   trainOptIn   Boolean   @default(false)

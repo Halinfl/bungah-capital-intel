@@ -12,7 +12,7 @@ import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
 import { parseInlineLinks } from "@/lib/inline-links";
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "@/lib/chat-llm-disclosure";
-import { messagesFromThread, parseMarker, planRestore, restoreKey, serializeMarker } from "@/lib/chat-restore";
+import { messagesFromThread, parseMarker, planRestore, restoreKey, serializeMarker, withoutFailedTurn } from "@/lib/chat-restore";
 import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
@@ -49,6 +49,17 @@ const TIMEOUT_MS = 60_000;
 /** "Try again" ignores repeat taps inside this window, so one tap sends one request. */
 const RETRY_DEBOUNCE_MS = 2_000;
 const WORKING_MESSAGE = "Getting an answer…";
+/** r4 (S2): the server's cap; longer questions are refused with a clear message, never cut. */
+const MAX_QUESTION = 1000;
+/** The counter shows from here (and always once over the cap). */
+const COUNT_FROM = 800;
+const GONE_MESSAGE = "This conversation was deleted. Ask again to start a new one.";
+/** r4 (S4): one id per question, reused by "Try again", so a request that did reach the server is written once. */
+function newRequestId(): string {
+  const c = typeof crypto !== "undefined" ? crypto : undefined;
+  if (c && typeof c.randomUUID === "function") return c.randomUUID().replace(/-/g, "");
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
 const DELETE_FAIL_MESSAGE = "Couldn't delete this conversation. Try again in a moment.";
 /** The 2px slate focus ring every chat control uses (keyboard focus only). */
 const RING = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200";
@@ -83,6 +94,10 @@ type Msg = {
   prev?: PrevAnswer | null;
   /** No-repeat reply: other angles to try. */
   followUps?: FollowUpChip[];
+  /** r4 (S4): the question's request id (the retry sends the same one). */
+  requestId?: string;
+  /** A refusal that retrying won't fix (too long, conversation deleted): no "Try again". */
+  noRetry?: boolean;
   /** Batch 1: what changed vs the answer before it, and one next-best alternate. */
   opener?: Opener;
   alternate?: Alternate;
@@ -200,6 +215,26 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       b.removeAttribute("data-chat-composer");
     };
   }, [composerH]);
+  // r4 (S7): keep the fixed composer above the on-screen keyboard: the visual viewport shrinks (iOS/Android)
+  // while the layout viewport doesn't, so lift the composer by the difference.
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!vv) return;
+    const b = document.body;
+    const update = () => {
+      // Pinch zoom also shrinks the visual viewport; only a keyboard (scale 1) lifts the composer.
+      const inset = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      b.style.setProperty("--chat-kb-inset", `${inset}px`);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      b.style.removeProperty("--chat-kb-inset");
+    };
+  }, []);
   // r2 (Eric QA): the "Delete conversation" row appears once the answer is in (threadId set, not busy);
   // scroll again then, so the row (the last thing in the thread) clears the composer too.
   const showDelete = Boolean(threadId && !busy);
@@ -312,9 +347,10 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   );
 
   const send = useCallback(
-    async (text: string, range: DateRange = "all", source: AskSource = "typed") => {
+    async (text: string, range: DateRange = "all", source: AskSource = "typed", opts: { requestId?: string } = {}) => {
       const q = text.trim();
-      if (!q || busy || sending.current) return;
+      if (!q || q.length > MAX_QUESTION || busy || sending.current) return;
+      const requestId = opts.requestId ?? newRequestId();
       sending.current = true;
       setBusy(true);
       const { source: tagged, pending } = chatSourceFor<AskSource>(source, swipeTagPending.current);
@@ -322,7 +358,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       // A re-ask from the date chip keeps whatever is being typed.
       if (range === "all" || source === "typed") setInput("");
 
-      setMessages((m) => [...m, { role: "user", content: q, question: q, range }]);
+      setMessages((m) => [...m, { role: "user", content: q, question: q, range, requestId }]);
       const prev = lastAnswer.current
         ? { ...lastAnswer.current, seen: seenHashes.current.slice(0, SEEN_MAX), ...(clearedRef.current.length ? { cleared: clearedRef.current } : {}) }
         : null;
@@ -344,6 +380,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       let nextPrev: PrevAnswer | null = null;
       let nextContext: ChatContext | null = null;
       let nextThreadId: string | null = null;
+      let gone = false;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -356,6 +393,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             ...(prev ? { prev } : {}),
             ...(threadIdRef.current ? { threadId: threadIdRef.current } : {}),
             source: tagged,
+            requestId,
           }),
           signal: controller.signal,
         });
@@ -391,15 +429,22 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                 ...(typeof data.dataTo === "string" ? { dataTo: data.dataTo } : {}),
               };
             }
+          } else if (res.status === 404 && data?.code === "thread-gone") {
+            // S3: the conversation was deleted meanwhile; the next question starts a new one.
+            gone = true;
+            reply = { role: "assistant", content: GONE_MESSAGE, failed: true, noRetry: true, question: q, range };
+          } else if (res.status === 400 && typeof data?.error === "string") {
+            // S1/S2: the server's own plain refusal (empty or too long); retrying the same text won't help.
+            reply = { role: "assistant", content: data.error as string, failed: true, noRetry: true, question: q, range };
           } else {
             // 503 carries the route's own retryable copy; anything else (500, edge 504 page, empty body) gets one line.
             const own = res.status === 503 && typeof data?.error === "string" ? (data.error as string) : null;
-            reply = { role: "assistant", content: own ?? FAIL_MESSAGE, failed: true, question: q, range };
+            reply = { role: "assistant", content: own ?? FAIL_MESSAGE, failed: true, question: q, range, requestId };
           }
         }
       } catch {
         // Network drop, a timeout, or an abort. A reset/superseded request is dropped below.
-        reply = { role: "assistant", content: FAIL_MESSAGE, failed: true, question: q, range };
+        reply = { role: "assistant", content: FAIL_MESSAGE, failed: true, question: q, range, requestId };
       } finally {
         clearTimeout(slowTimer);
         clearTimeout(timeout);
@@ -412,6 +457,12 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
         threadIdRef.current = nextThreadId;
         setThreadId(nextThreadId);
         writeMarker(nextThreadId);
+      } else if (gone) {
+        threadIdRef.current = null;
+        setThreadId(null);
+        writeMarker(null);
+        lastAnswer.current = null;
+        seenHashes.current = [];
       }
       // Failed or rate-limited replies leave the previous answer as the follow-up context.
       if (nextPrev) {
@@ -429,6 +480,21 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       setAnnounce(reply.rateLimited ? RATE_LIMIT_MESSAGE : reply.failed ? reply.content : "Answer ready.");
     },
     [busy, marketSlug, scope, writeMarker]
+  );
+
+  /**
+   * r4 (S4) "Try again": the failed answer and its question leave the screen and the question is sent again
+   * with the same request id, so the thread shows it once and a copy that did reach the server is written once.
+   */
+  const retry = useCallback(
+    (i: number) => {
+      const failed = messages[i];
+      if (!failed?.failed || !failed.question || busy || sending.current) return;
+      const asked = messages[i - 1];
+      setMessages((m) => withoutFailedTurn(m, i));
+      void send(failed.question, failed.range ?? "all", "reask", { requestId: failed.requestId ?? asked?.requestId });
+    },
+    [messages, busy, send]
   );
 
   useEffect(() => {
@@ -618,7 +684,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                 ) : m.failed ? (
                   <div className="flex flex-wrap items-center gap-3">
                     <p className="text-sm text-slate-100">{m.content}</p>
-                    {m.question ? (
+                    {m.question && !m.noRetry ? (
                       <button
                         type="button"
                         disabled={busy}
@@ -626,7 +692,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
                           const now = Date.now();
                           if (now - lastRetry.current < RETRY_DEBOUNCE_MS) return;
                           lastRetry.current = now;
-                          void send(m.question!, m.range ?? "all", "reask");
+                          retry(i);
                         }}
                         className="min-h-11 rounded-lg border border-white/45 px-4 py-2 text-sm text-slate-100 hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
                       >
@@ -747,11 +813,11 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               )}
             </div>
           ) : null}
-          <div ref={endRef} style={{ ["--composer-h" as string]: `${composerH + 16}px` }} className="scroll-mb-[var(--composer-h)] sm:scroll-mb-0" />
+          <div ref={endRef} style={{ ["--composer-h" as string]: `${composerH + 16}px` }} className="scroll-mb-[var(--composer-h)] desk:scroll-mb-0" />
         </div>
       )}
 
-      <div ref={composerRef} data-composer className="fixed inset-x-0 bottom-0 z-30 space-y-2 border-t border-white/[0.1] bg-[#2f333c]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0">
+      <div ref={composerRef} data-composer className="fixed inset-x-0 bottom-[var(--chat-kb-inset,0px)] z-30 space-y-2 border-t border-white/[0.1] bg-[#2f333c]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur desk:static desk:z-auto desk:border-0 desk:bg-transparent desk:p-0">
         {scope ? (
           <div className="flex items-center gap-2 text-sm text-slate-300">
             <span id="chat-scope-label">Asking about</span>
@@ -801,17 +867,24 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             onChange={(e) => setInput(e.target.value)}
             placeholder={scope ? `Ask about ${scope.label}…` : "Capital question…"}
             aria-label={scope ? `Question about ${scope.label}` : "Capital question"}
+            aria-describedby={input.length >= COUNT_FROM ? "chat-count" : undefined}
             className={`min-h-11 min-w-0 flex-1 rounded-lg border border-white/45 bg-[#262a32] px-3 py-2.5 text-base text-white sm:text-sm placeholder:text-slate-400 focus:border-white/70 ${RING}`}
           />
           <button
             type="submit"
-            disabled={busy || !input.trim()}
+            disabled={busy || !input.trim() || input.trim().length > MAX_QUESTION}
             className={`min-h-11 rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900 ${RING}`}
           >
             Send
           </button>
         </form>
-        <p className="text-[11px] leading-snug text-slate-400" data-chat-ai-disclosure>
+        {input.length >= COUNT_FROM ? (
+          <p id="chat-count" className="text-xs text-slate-300" aria-live="polite" data-chat-count>
+            {input.trim().length.toLocaleString("en-US")} / {MAX_QUESTION.toLocaleString("en-US")} characters
+            {input.trim().length > MAX_QUESTION ? " · shorten it to send" : ""}
+          </p>
+        ) : null}
+        <p className="text-xs leading-snug text-slate-400" data-chat-ai-disclosure>
           {CHAT_AI_DISCLOSURE}{" "}
           <Link
             href={CHAT_PRIVACY_HREF}
@@ -820,7 +893,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             {CHAT_PRIVACY_LINK_LABEL}
           </Link>
         </p>
-        <div className="text-[11px] text-slate-400">
+        <div className="text-xs text-slate-400">
           {ideaOpen ? (
             <div className="space-y-2">
               <label htmlFor="chat-idea" className="block">Share an idea to help us improve Chat.</label>
@@ -852,7 +925,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             <button
               type="button"
               onClick={() => { setIdeaOpen(true); setIdeaStatus(""); }}
-              className={`underline decoration-white/30 underline-offset-2 hover:decoration-white ${RING}`}
+              className={`inline-flex min-h-11 items-center underline decoration-white/30 underline-offset-2 hover:decoration-white ${RING}`}
             >
               Share an idea
             </button>

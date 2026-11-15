@@ -604,6 +604,163 @@ async function main() {
     ok(routeSrc.includes("ownerFromRequest(req)") && !/searchParams|params/.test(routeSrc), "current route reads the owner from the session/cookie only (no id or user parameter)");
   }
 
+  section("r4 robustness (S1–S7, replay guard)");
+  {
+    const { POST: chatPOST } = await import("@/app/api/chat/route");
+    const post = (body: unknown) => chatPOST(new Request("http://local/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: typeof body === "string" ? body : JSON.stringify(body) }));
+    // S1: empty / whitespace / missing / non-string / bad JSON → 400, nothing written.
+    const before = { t: await db.chatThread.count(), l: await db.chatQuestionLog.count(), m: await db.chatMessage.count() };
+    for (const [name, b] of [["empty", { question: "" }], ["whitespace", { question: "   \n\t " }], ["missing", {}], ["number", { question: 42 }], ["null body", "null"], ["bad JSON", "{nope"]] as [string, unknown][]) {
+      const r = await post(b);
+      const j = (await r.json()) as { error?: string; code?: string };
+      ok(r.status === 400 && typeof j.error === "string" && j.error.length > 0, `S1 ${name} question → 400 with a message`, `${r.status} ${JSON.stringify(j)}`);
+    }
+    // S2: over 1000 characters → 400 that says so (no silent cut); exactly 1000 is not refused for length.
+    const long = await post({ question: "x".repeat(1001) });
+    const lj = (await long.json()) as { error?: string; code?: string; maxLength?: number; length?: number };
+    ok(long.status === 400 && lj.code === "too-long" && lj.maxLength === 1000 && lj.length === 1001 && /1,000 characters/.test(lj.error ?? "") && /1,001/.test(lj.error ?? ""), "S2 1,001 chars → 400 naming the cap and the length", JSON.stringify(lj));
+    const huge = await post({ question: "y".repeat(5000) });
+    ok(huge.status === 400, "S2 5,000 chars → 400");
+    ok((await db.chatThread.count()) === before.t && (await db.chatQuestionLog.count()) === before.l && (await db.chatMessage.count()) === before.m, "S1/S2 refusals wrote no thread, message or log row");
+    const routeSrc = fs.readFileSync(path.join(ROOT, "src/app/api/chat/route.ts"), "utf8");
+    ok(!/\.slice\(0, MAX_QUESTION\)/.test(routeSrc), "S2 the route no longer slices the question");
+    const client = fs.readFileSync(path.join(ROOT, "src/app/chat/ChatClient.tsx"), "utf8");
+    ok(/const MAX_QUESTION = 1000/.test(client) && /data-chat-count/.test(client) && /input\.trim\(\)\.length > MAX_QUESTION/.test(client), "S2 client: visible counter and Send disabled over the cap");
+
+    // S3: a Delete racing an in-flight turn never leaves an orphan.
+    const O = { userId: "user_S3", anonId: null };
+    const t = await turn(O, null, "S3 first");
+    const pending = await S.resolveThread(db, t.threadId, O); // the follow-up resolved before the Delete…
+    ok((await S.deleteThread(db, t.threadId, O)).ok, "S3 delete ok");
+    const late = pending.mode === "owned" ? await S.persistOwnedTurn(db, pending, O, mk("S3 late follow-up", { isPrivate: true, userId: O.userId })) : null;
+    ok(late?.skipped === "gone", "S3 …its after-response write finds the thread gone and writes nothing", JSON.stringify(late));
+    ok((await db.chatThread.count({ where: { userId: "user_S3" } })) === 0 && (await db.chatMessage.count({ where: { threadId: t.threadId } })) === 0 && (await db.chatQuestionLog.count({ where: { userId: "user_S3" } })) === 0, "S3 no thread, message or log row left for that user");
+    const r404 = await S.resolveThread(db, t.threadId, O);
+    ok(r404.mode === "gone", "S3 a follow-up arriving after the Delete → gone (route: 404 thread-gone), no new thread", JSON.stringify(r404));
+    ok((await db.chatThread.count({ where: { userId: "user_S3" } })) === 0, "S3 nothing minted");
+    // Real race, both orders, signed in and signed out: never an orphan.
+    for (let k = 0; k < 8; k++) {
+      const who = k % 2 ? { userId: null, anonId: anon() } : { userId: `user_S3r${k}`, anonId: null };
+      const rt = await turn(who, null, `S3 race ${k}`);
+      const pr = await S.resolveThread(db, rt.threadId, who);
+      if (pr.mode !== "owned") throw new Error("owned expected");
+      const isPriv = Boolean(who.userId);
+      await Promise.all([
+        S.persistOwnedTurn(db, pr, who, mk(`S3 race ${k} follow-up`, { isPrivate: isPriv, userId: who.userId })),
+        S.deleteThread(db, rt.threadId, who),
+      ]);
+      const msgs = await db.chatMessage.count({ where: { threadId: rt.threadId } });
+      const th = await db.chatThread.count({ where: { id: rt.threadId } });
+      const privLeft = isPriv ? await db.chatQuestionLog.count({ where: { userId: who.userId } }) : 0;
+      const pubLinked = await db.chatQuestionLog.count({ where: { threadId: rt.threadId } });
+      ok(th === 0 && msgs === 0 && privLeft === 0 && pubLinked === 0, `S3 race ${k} (${isPriv ? "signed in" : "signed out"}): no thread, messages, private rows or linked public rows left`, JSON.stringify({ th, msgs, privLeft, pubLinked }));
+    }
+    const wrongOwner = await S.persistOwnedTurn(db, { mode: "owned", threadId: (await turn({ userId: "user_S3own", anonId: null }, null, "S3 owned")).threadId, status: "existing" }, { userId: "user_S3thief", anonId: null }, mk("S3 thief", { isPrivate: true, userId: "user_S3thief" }));
+    ok(wrongOwner.skipped === "gone" && (await db.chatQuestionLog.count({ where: { userId: "user_S3thief" } })) === 0, "S3 the write re-checks ownership inside the transaction");
+
+    // S4: retry with the same request id → one thread, one turn.
+    const R4 = { userId: null, anonId: anon() };
+    const rid = "req_" + randomBytes(8).toString("hex");
+    const first = await S.resolveThread(db, null, R4, new Date(), { requestId: rid });
+    ok(first.mode === "owned" && first.status === "new" && first.threadId === S.threadIdForRequest(R4, rid), "S4 first question with a request id → its derived thread id");
+    if (first.mode !== "owned") throw new Error("owned expected");
+    const w1 = await S.createOwnedThread(db, first, R4, "S4 q");
+    // The client never got the answer (aborted) and retries with the same id before the late write lands.
+    const again = await S.resolveThread(db, null, R4, new Date(), { requestId: rid });
+    ok(again.mode === "owned" && again.status === "existing" && again.replay === true && again.threadId === first.threadId, "S4 retry of a first question → same thread (replay), not a second one", JSON.stringify(again));
+    const a1 = await S.persistOwnedTurn(db, w1, R4, mk("S4 q"), { requestId: rid }); // late after() of the first try
+    const a2 = again.mode === "owned" ? await S.persistOwnedTurn(db, again, R4, mk("S4 q"), { requestId: rid }) : null; // the retry's write
+    ok(a1.logId && a2?.skipped === "duplicate", "S4 late write + retry write → written once", JSON.stringify({ a1, a2 }));
+    ok((await db.chatThread.count({ where: { anonOwnerId: R4.anonId } })) === 1 && (await db.chatMessage.count({ where: { threadId: first.threadId } })) === 2 && (await db.chatQuestionLog.count({ where: { question: "S4 q" } })) === 1, "S4 one thread, 2 messages, 1 log row");
+    // Concurrent duplicate writes of a follow-up with one id.
+    const rid2 = "req_" + randomBytes(8).toString("hex");
+    const fu = await S.resolveThread(db, first.threadId, R4);
+    if (fu.mode !== "owned") throw new Error("owned expected");
+    const both = await Promise.all([S.persistOwnedTurn(db, fu, R4, mk("S4 follow-up"), { requestId: rid2 }), S.persistOwnedTurn(db, fu, R4, mk("S4 follow-up"), { requestId: rid2 })]);
+    ok(both.filter((b) => b.skipped === "duplicate").length === 1 && (await db.chatMessage.count({ where: { threadId: first.threadId } })) === 4, "S4 two concurrent copies of one follow-up → one turn", JSON.stringify(both));
+    ok(S.threadIdForRequest({ userId: null, anonId: anon() }, rid) !== first.threadId, "S4 the same request id from another owner → a different thread id");
+    ok((await S.resolveThread(db, null, R4, new Date(), { requestId: "bad id!" })).mode === "owned", "S4 a malformed request id is ignored (random thread)");
+    const R = await import("@/lib/chat-restore");
+    const ui = [
+      { role: "user", question: "Q", content: "Q" },
+      { role: "assistant", question: "Q", content: "A" },
+      { role: "user", question: "Q2", content: "Q2", requestId: "r2" },
+      { role: "assistant", question: "Q2", content: "fail", failed: true, requestId: "r2" },
+    ];
+    const kept = R.withoutFailedTurn(ui, 3);
+    ok(kept.length === 2 && kept.every((m) => m.content !== "fail" && m.content !== "Q2"), "S4 Try again removes the failed bubble and its question (the resend adds the question once)", JSON.stringify(kept));
+    ok(R.withoutFailedTurn(ui, 1).length === 4, "S4 a non-failed message is never removed");
+    ok(/requestId,/.test(client) && /retry\(i\)/.test(client) && /withoutFailedTurn\(m, i\)/.test(client), "S4 client sends the request id and Try again replaces the failed turn");
+
+    // S5: a second tab shares the marker (localStorage) and the cookie → it continues the latest thread.
+    const T1 = { userId: null, anonId: anon() };
+    const tab1 = await turn(T1, null, "S5 tab 1 question");
+    const marker = R.parseMarker(R.serializeMarker(tab1.threadId, false));
+    const plan2 = R.planRestore(marker, false);
+    ok(plan2.kind === "get" && plan2.id === tab1.threadId, "S5 tab 2 reads tab 1's marker → owner GET of the same thread");
+    ok((await S.getOwnedThread(db, tab1.threadId, T1))?.messages.length === 2, "S5 tab 2 (same cookie) gets the conversation");
+    const tab2 = await S.resolveThread(db, tab1.threadId, T1);
+    ok(tab2.mode === "owned" && tab2.status === "existing" && tab2.threadId === tab1.threadId, "S5 tab 2's next question continues it (no second thread)");
+    ok(R.planRestore(null, false).kind === "current" && (await S.getCurrentThread(db, T1))?.id === tab1.threadId, "S5 without a marker, the cookie owner's latest thread comes back");
+
+    // S6: account deletion also removes the unclaimed signed-out threads of the browsers the user signed in on.
+    const browser1 = anon();
+    const browser2 = anon();
+    const otherBrowser = anon();
+    const u6 = "user_S6";
+    const anonT1 = await turn({ userId: null, anonId: browser1 }, null, "S6 signed out on browser 1");
+    const anonT1b = await turn({ userId: null, anonId: browser1 }, null, "S6 second signed-out thread, browser 1");
+    await db.savedItem.create({ data: { anonOwnerId: browser1, kind: "answer", threadId: anonT1b.threadId } });
+    const anonT2 = await turn({ userId: null, anonId: browser2 }, null, "S6 signed out on browser 2");
+    const claimedT = await turn({ userId: null, anonId: browser2 }, null, "S6 claimed later");
+    const keepT = await turn({ userId: null, anonId: otherBrowser }, null, "S6 someone else's browser");
+    const signedT = await turn({ userId: u6, anonId: null }, null, "S6 signed in");
+    await S.recordAnonLink(db, { userId: u6, anonId: browser1 });
+    await S.recordAnonLink(db, { userId: u6, anonId: browser1 }); // idempotent
+    await S.recordAnonLink(db, { userId: u6, anonId: browser2 });
+    ok(await S.claimThread(db, claimedT.threadId, { userId: u6, anonId: browser2 }).then((x) => x.ok), "S6 one browser-2 thread claimed");
+    // Another user signed in on browser 2 too: their claimed thread stays theirs.
+    const otherUserClaim = await turn({ userId: null, anonId: browser2 }, null, "S6 browser 2, claimed by another user");
+    await S.claimThread(db, otherUserClaim.threadId, { userId: "user_S6_other", anonId: browser2 });
+    ok((await db.chatAnonLink.count({ where: { userId: u6 } })) === 2, "S6 links recorded once per browser");
+    ok((await S.recordAnonLink(db, { userId: null, anonId: browser1 })) === undefined && (await db.chatAnonLink.count({ where: { anonId: browser1 } })) === 1, "S6 no link without a signed-in user");
+    const pubBefore = await db.chatQuestionLog.count({ where: { isPrivate: false } });
+    const out = await S.deleteUserData(db, u6);
+    ok(out.ok && "anonThreads" in out && out.anonThreads === 3, "S6 user.deleted: 3 unclaimed signed-out threads from the user's browsers deleted", JSON.stringify(out));
+    for (const [id, name] of [[anonT1.threadId, "browser 1 thread"], [anonT1b.threadId, "browser 1 thread with a save"], [anonT2.threadId, "browser 2 thread"], [claimedT.threadId, "claimed thread"], [signedT.threadId, "signed-in thread"]] as [string, string][])
+      ok((await db.chatThread.count({ where: { id } })) === 0 && (await db.chatMessage.count({ where: { threadId: id } })) === 0, `S6 gone: ${name}`);
+    ok((await db.savedItem.count({ where: { anonOwnerId: browser1 } })) === 0, "S6 the browser's signed-out saves go too");
+    ok((await db.chatThread.count({ where: { id: keepT.threadId } })) === 1, "S6 another browser's signed-out thread is untouched");
+    ok((await db.chatThread.count({ where: { id: otherUserClaim.threadId, userId: "user_S6_other" } })) === 1, "S6 a thread another user claimed from the same browser is untouched");
+    ok((await db.chatQuestionLog.count({ where: { isPrivate: false } })) === pubBefore, "S6 public log rows stay (unlinked), same as the purge");
+    ok((await db.chatQuestionLog.count({ where: { threadId: { in: [anonT1.threadId, anonT2.threadId] } } })) === 0, "S6 …and no longer point at the deleted threads");
+    ok((await db.chatAnonLink.count({ where: { userId: u6 } })) === 0, "S6 the links go with the account");
+    const routes = ["src/app/api/chat/route.ts", "src/app/api/chat/threads/[id]/claim/route.ts", "src/app/api/chat/threads/current/route.ts"].map((f) => fs.readFileSync(path.join(ROOT, f), "utf8"));
+    ok(routes.every((r) => r.includes("recordAnonLink(")), "S6 chat, claim and current routes record the link when signed in with the browser cookie");
+
+    // S7: composer pinned on landscape phones; keyboard inset.
+    const css = fs.readFileSync(path.join(ROOT, "src/app/globals.css"), "utf8");
+    ok(/@custom-variant desk \(@media \(min-width: 640px\) and \(min-height: 500px\)\)/.test(css), "S7 desktop composer needs width ≥640 AND height ≥500");
+    ok(/@media \(max-width: 639\.98px\), \(max-height: 499\.98px\)/.test(css), "S7 body padding rule mirrors it (844×390, 740×360 keep the padding)");
+    const composer = /data-composer className="([^"]+)"/.exec(client)?.[1] ?? "";
+    ok(composer.includes("fixed") && composer.includes("desk:static") && !/\bsm:/.test(composer), "S7 composer: fixed unless desk (no width-only sm:)", composer);
+    ok(composer.includes("bottom-[var(--chat-kb-inset,0px)]") && /visualViewport/.test(client) && /--chat-kb-inset/.test(client), "S7 visualViewport inset lifts the composer above the keyboard");
+
+    // Replay guard: the same svix-id is processed once.
+    const { POST: whPOST } = await import("@/app/api/webhooks/clerk/route");
+    const u7 = "user_S7_replay";
+    await turn({ userId: u7, anonId: null }, null, "replay q");
+    const b7 = JSON.stringify({ type: "user.deleted", data: { id: u7, deleted: true } });
+    const id7 = `msg_${randomBytes(8).toString("hex")}`;
+    const ts7 = String(Math.floor(Date.now() / 1000));
+    const h7 = () => new Headers({ "svix-id": id7, "svix-timestamp": ts7, "svix-signature": `v1,${svixSign(WH_SECRET, id7, ts7, b7)}`, "content-type": "application/json" });
+    const first7 = (await (await whPOST(new Request("http://local/api/webhooks/clerk", { method: "POST", body: b7, headers: h7() }))).json()) as { deleted?: { threads?: number }; duplicate?: boolean };
+    const second7 = (await (await whPOST(new Request("http://local/api/webhooks/clerk", { method: "POST", body: b7, headers: h7() }))).json()) as { duplicate?: boolean };
+    ok(first7.deleted?.threads === 1 && !first7.duplicate && second7.duplicate === true, "replay guard: first delivery runs, the same svix-id again is acknowledged as a duplicate", JSON.stringify({ first7, second7 }));
+    const badSig = await whPOST(new Request("http://local/api/webhooks/clerk", { method: "POST", body: b7, headers: new Headers({ "svix-id": id7, "svix-timestamp": ts7, "svix-signature": "v1,AAAA" }) }));
+    ok(badSig.status === 401, "replay guard never skips the signature check (bad signature with a seen id → 401)");
+  }
+
   section("F9 no spend / zero-retention unchanged");
   {
     const diff = (p: string) => execSync(`git diff ${BASE} -- ${p}`, { cwd: ROOT }).toString();
@@ -656,13 +813,15 @@ async function main() {
     ok((await old.chatQuestionLog.count({ where: { isPrivate: false } })) === 1, "legacy: public row untouched");
     const { buildCorpus } = await import("@/lib/train-export");
     ok((await buildCorpus(old)).stats.optInWritten === 0, "legacy: export runs, public only");
-    // Apply the foundation migration as-is: additive, no backfill.
+    // Apply the foundation migrations as-is (r4 adds ChatAnonLink): additive, no backfill.
     const before = await old.chatThread.count();
-    const mig = path.join(ROOT, "prisma/migrations/20261114000000_chat_foundation/migration.sql");
     const x = new URL(prodlikeUrl);
-    execSync(`psql "${x.toString()}" -v ON_ERROR_STOP=1 -q -f ${mig}`, { stdio: "pipe" });
+    execSync(`psql "${x.toString()}" -v ON_ERROR_STOP=1 -q -f ${path.join(ROOT, "prisma/migrations/20261114000000_chat_foundation/migration.sql")}`, { stdio: "pipe" });
     S.resetFoundationCache();
-    ok(await S.foundationReady(old, { fresh: true }), "after the migration SQL: foundationReady true");
+    ok(!(await S.foundationReady(old, { fresh: true })), "first migration only: still the legacy path (ChatAnonLink missing)");
+    execSync(`psql "${x.toString()}" -v ON_ERROR_STOP=1 -q -f ${path.join(ROOT, "prisma/migrations/20261115000000_chat_anon_link/migration.sql")}`, { stdio: "pipe" });
+    S.resetFoundationCache();
+    ok(await S.foundationReady(old, { fresh: true }), "after both migration SQL files: foundationReady true");
     const rows = await old.$queryRawUnsafe<{ n: bigint; owned: bigint }[]>(`SELECT count(*) n, count("userId") + count("anonOwnerId") owned FROM "ChatThread"`);
     ok(Number(rows[0].n) === before && Number(rows[0].owned) === 0, "existing threads kept, none backfilled (all unowned)");
     const drift = (() => {

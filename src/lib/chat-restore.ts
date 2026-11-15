@@ -83,3 +83,15 @@ export function messagesFromThread(msgs: StoredMessage[] | null | undefined): Re
   }
   return out;
 }
+
+/**
+ * r4 (S4) "Try again": the list without the failed answer at `i` and the question right before it (when it is
+ * the same question), so the resend shows the question once.
+ */
+export function withoutFailedTurn<T extends { role: string; question?: string; failed?: boolean }>(msgs: T[], i: number): T[] {
+  const failed = msgs[i];
+  if (!failed?.failed) return msgs;
+  const asked = msgs[i - 1];
+  const dropQ = asked?.role === "user" && asked.question === failed.question;
+  return msgs.filter((_, j) => j !== i && !(dropQ && j === i - 1));
+}

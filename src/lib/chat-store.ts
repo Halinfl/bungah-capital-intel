@@ -16,7 +16,7 @@
  *   (foundationReady). Without them the chat keeps its old write path (legacyPersist), except that a private
  *   log row no longer links to its thread (A).
  */
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 type Db = PrismaClient;
@@ -40,6 +40,7 @@ const REQUIRED_COLUMNS: [table: string, column: string][] = [
   ["SavedItem", "threadId"],
   ["SavedItem", "messageId"],
   ["ChatUserPref", "trainOptIn"],
+  ["ChatAnonLink", "userId"],
 ];
 const READY_TTL_MS = 60_000;
 let readyCache: { at: number; value: boolean } | null = null;
@@ -55,7 +56,7 @@ export async function foundationReady(db: Db, opts: { fresh?: boolean } = {}): P
   try {
     const rows = await db.$queryRaw<{ table_name: string; column_name: string }[]>`
       SELECT table_name, column_name FROM information_schema.columns
-      WHERE table_schema = current_schema() AND table_name IN ('ChatThread', 'ChatMessage', 'SavedItem', 'ChatUserPref')`;
+      WHERE table_schema = current_schema() AND table_name IN ('ChatThread', 'ChatMessage', 'SavedItem', 'ChatUserPref', 'ChatAnonLink')`;
     const have = new Set(rows.map((r) => `${r.table_name}.${r.column_name}`));
     value = REQUIRED_COLUMNS.every(([t, c]) => have.has(`${t}.${c}`));
   } catch {
@@ -91,9 +92,27 @@ export type ResolvedThread =
   /** Foundation schema, but no owner to give the thread (signed out without an anon cookie secret): log row only. */
   | { mode: "log-only" }
   /** `existing`: append to this thread. `new`: create it with the answer. `claimed`: signed-out thread just claimed. */
-  | { mode: "owned"; threadId: string; status: "existing" | "new" | "claimed"; rejected?: "not-owner" | "not-found" | "claim-expired" };
+  | { mode: "owned"; threadId: string; status: "existing" | "new" | "claimed"; rejected?: "not-owner" | "claim-expired"; replay?: boolean }
+  /** r4 (S3): the client's thread no longer exists (deleted, purged): 404, and no new thread is minted. */
+  | { mode: "gone" };
 
 const THREAD_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
+/** r4 (S4): the client's per-question id (the same on "Try again"), so a late or repeated write lands once. */
+export const REQUEST_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
+export function validRequestId(v: unknown): string | null {
+  return typeof v === "string" && REQUEST_ID_RE.test(v) ? v : null;
+}
+function reqHash(owner: Owner, requestId: string): string {
+  return createHash("sha256").update(`${owner.userId ?? ""}|${owner.anonId ?? ""}|${requestId}`).digest("hex").slice(0, 32);
+}
+/** A new conversation's id for this owner + request id: a retry of the same first question finds the same thread. */
+export function threadIdForRequest(owner: Owner, requestId: string): string {
+  return `ct_${reqHash(owner, requestId)}`;
+}
+function messageIdsForRequest(owner: Owner, requestId: string): { user: string; assistant: string } {
+  const h = reqHash(owner, requestId);
+  return { user: `cm_${h}_u`, assistant: `cm_${h}_a` };
+}
 
 /**
  * Resolve the thread a turn belongs to (read-only except for a claim). A threadId from anyone but its owner,
@@ -101,13 +120,23 @@ const THREAD_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
  * A signed-out thread is claimed when the same browser (same anon cookie) sends it signed in within 24h,
  * once (F8): the claim moves ownership to the userId and clears anonOwnerId, so no other browser can claim it.
  */
-export async function resolveThread(db: Db, requestedId: unknown, owner: Owner, now = new Date()): Promise<ResolvedThread> {
+export async function resolveThread(db: Db, requestedId: unknown, owner: Owner, now = new Date(), opts: { requestId?: string | null } = {}): Promise<ResolvedThread> {
   if (!(await foundationReady(db))) return { mode: "legacy" };
   if (!owner.userId && !owner.anonId) return { mode: "log-only" };
   const id = typeof requestedId === "string" && THREAD_ID_RE.test(requestedId) ? requestedId : null;
-  if (!id) return { mode: "owned", threadId: newThreadId(), status: "new" };
+  const requestId = validRequestId(opts.requestId);
+  if (!id) {
+    if (!requestId) return { mode: "owned", threadId: newThreadId(), status: "new" };
+    // Retry of a first question whose answer never reached the client: the same thread, not a second one.
+    const rid = threadIdForRequest(owner, requestId);
+    const prior = await db.chatThread.findUnique({ where: { id: rid }, select: { userId: true, anonOwnerId: true } });
+    if (!prior) return { mode: "owned", threadId: rid, status: "new" };
+    if (ownsThread(prior, owner)) return { mode: "owned", threadId: rid, status: "existing", replay: true };
+    return { mode: "owned", threadId: newThreadId(), status: "new" };
+  }
   const t = await db.chatThread.findUnique({ where: { id }, select: { id: true, userId: true, anonOwnerId: true, createdAt: true, claimedAt: true } });
-  if (!t) return { mode: "owned", threadId: newThreadId(), status: "new", rejected: "not-found" };
+  // Deleted (or purged) while the client still had it, e.g. a Delete racing this request: say so, mint nothing.
+  if (!t) return { mode: "gone" };
   if (ownsThread(t, owner)) return { mode: "owned", threadId: t.id, status: "existing" };
   // Claim: a signed-in caller sending the signed-out thread its own browser started.
   if (owner.userId && owner.anonId && !t.userId && t.anonOwnerId === owner.anonId) {
@@ -191,37 +220,70 @@ export function logRowData(x: TurnInput, threadId: string | null): Prisma.ChatQu
 export async function createOwnedThread(db: Db, r: Extract<ResolvedThread, { mode: "owned" }>, owner: Owner, title: string): Promise<Extract<ResolvedThread, { mode: "owned" }>> {
   if (r.status !== "new") return r;
   if (!owner.userId && !owner.anonId) throw new Error("createOwnedThread: no owner");
-  await db.chatThread.create({
-    data: { id: r.threadId, title: title.slice(0, 80) || "Chat", userId: owner.userId, anonOwnerId: owner.userId ? null : owner.anonId },
-    select: { id: true },
+  // skipDuplicates: two copies of the same first request (same request id) create one thread.
+  await db.chatThread.createMany({
+    data: [{ id: r.threadId, title: title.slice(0, 80) || "Chat", userId: owner.userId, anonOwnerId: owner.userId ? null : owner.anonId }],
+    skipDuplicates: true,
   });
+  const t = await db.chatThread.findUnique({ where: { id: r.threadId }, select: { userId: true, anonOwnerId: true } });
+  if (!t || !ownsThread(t, owner)) throw new Error("createOwnedThread: thread not owned");
   return { ...r, status: "existing" };
 }
 
+/** Lock the thread row for the rest of the transaction; null when it is gone. Deletes take the same lock. */
+async function lockThread(tx: Prisma.TransactionClient, id: string): Promise<{ id: string; userId: string | null; anonOwnerId: string | null } | null> {
+  const rows = await tx.$queryRaw<{ id: string; userId: string | null; anonOwnerId: string | null }[]>`
+    SELECT "id", "userId", "anonOwnerId" FROM "ChatThread" WHERE "id" = ${id} FOR UPDATE`;
+  return rows[0] ?? null;
+}
+
+export type PersistResult = { threadId: string; logId: string; skipped?: undefined } | { threadId: string; logId: null; skipped: "gone" | "duplicate" };
+
 /**
- * Owned write (foundation schema): create the thread on its first turn, then the log row, then the two
- * messages pointing at the log row. Follow-ups append to the same thread (F1).
+ * Owned write (foundation schema), after the response: the log row, then the two messages pointing at it.
+ * Follow-ups append to the same thread (F1). One transaction holding the thread's row lock (r4):
+ * - S3: the thread must still exist and be this caller's; a Delete that won the race leaves nothing behind
+ *   (no log row, no messages, no new thread).
+ * - S4: with a request id the messages get ids derived from it, so a late write of a request the client
+ *   already retried (same id) is written once.
  */
-export async function persistOwnedTurn(db: Db, r: Extract<ResolvedThread, { mode: "owned" }>, owner: Owner, x: TurnInput): Promise<{ threadId: string; logId: string }> {
+export async function persistOwnedTurn(db: Db, r: Extract<ResolvedThread, { mode: "owned" }>, owner: Owner, x: TurnInput, opts: { requestId?: string | null } = {}): Promise<PersistResult> {
   const threadId = r.threadId;
   // Never create an unowned thread: the caller must have a userId or an anon id.
   if (!owner.userId && !owner.anonId) throw new Error("persistOwnedTurn: no owner");
-  if (r.status === "new") {
-    await db.chatThread.create({
-      data: { id: threadId, title: x.question.slice(0, 80) || "Chat", userId: owner.userId, anonOwnerId: owner.userId ? null : owner.anonId },
-      select: { id: true },
+  const requestId = validRequestId(opts.requestId);
+  return db.$transaction(async (tx) => {
+    if (r.status === "new") {
+      await tx.chatThread.createMany({
+        data: [{ id: threadId, title: x.question.slice(0, 80) || "Chat", userId: owner.userId, anonOwnerId: owner.userId ? null : owner.anonId }],
+        skipDuplicates: true,
+      });
+    }
+    const t = await lockThread(tx, threadId);
+    if (!t || !ownsThread(t, owner)) return { threadId, logId: null, skipped: "gone" as const };
+    const ids = requestId ? messageIdsForRequest(owner, requestId) : null;
+    if (ids && (await tx.chatMessage.count({ where: { id: ids.user } }))) return { threadId, logId: null, skipped: "duplicate" as const };
+    const log = await tx.chatQuestionLog.create({ data: logRowData(x, threadId), select: { id: true } });
+    const t0 = Date.now();
+    await tx.chatMessage.createMany({
+      data: [
+        { ...(ids ? { id: ids.user } : {}), threadId, role: "user", content: x.question, questionLogId: log.id, createdAt: new Date(t0) },
+        { ...(ids ? { id: ids.assistant } : {}), threadId, role: "assistant", content: x.answerText, citations: JSON.stringify(x.citations), questionLogId: log.id, createdAt: new Date(t0 + 1) },
+      ],
     });
-  }
-  const log = await db.chatQuestionLog.create({ data: logRowData(x, threadId), select: { id: true } });
-  const t0 = Date.now();
-  await db.chatMessage.createMany({
-    data: [
-      { threadId, role: "user", content: x.question, questionLogId: log.id, createdAt: new Date(t0) },
-      { threadId, role: "assistant", content: x.answerText, citations: JSON.stringify(x.citations), questionLogId: log.id, createdAt: new Date(t0 + 1) },
-    ],
+    await tx.chatThread.update({ where: { id: threadId }, data: { updatedAt: new Date() }, select: { id: true } });
+    return { threadId, logId: log.id };
   });
-  await db.chatThread.update({ where: { id: threadId }, data: { updatedAt: new Date() }, select: { id: true } });
-  return { threadId, logId: log.id };
+}
+
+/**
+ * r4 (S6): remember that this signed-in user used this browser's signed-out id, so deleting the account can
+ * also delete that browser's unclaimed signed-out threads. Idempotent; a no-op without both ids.
+ */
+export async function recordAnonLink(db: Db, owner: Owner): Promise<void> {
+  if (!owner.userId || !owner.anonId) return;
+  if (!(await foundationReady(db))) return;
+  await db.chatAnonLink.createMany({ data: [{ anonId: owner.anonId, userId: owner.userId }], skipDuplicates: true });
 }
 
 /**
@@ -328,9 +390,11 @@ async function dropThreadLogs(tx: Prisma.TransactionClient, threadIds: string[])
 export async function deleteThread(db: Db, threadId: string, owner: Owner) {
   if (!(await foundationReady(db))) return { ok: false as const };
   if (!THREAD_ID_RE.test(threadId)) return { ok: false as const };
-  const t = await db.chatThread.findUnique({ where: { id: threadId }, select: { id: true, userId: true, anonOwnerId: true } });
-  if (!t || !ownsThread(t, owner)) return { ok: false as const };
+  // The row lock (same as the after-response write) orders a Delete against an in-flight turn (S3): either the
+  // turn lands first and is deleted with the thread, or the Delete lands first and the turn writes nothing.
   return db.$transaction(async (tx) => {
+    const t = await lockThread(tx, threadId);
+    if (!t || !ownsThread(t, owner)) return { ok: false as const };
     const logs = await dropThreadLogs(tx, [threadId]);
     const saved = await tx.savedItem.deleteMany({ where: { threadId } });
     const messages = await tx.chatMessage.deleteMany({ where: { threadId } });
@@ -351,15 +415,23 @@ export async function deleteUserData(db: Db, userId: string) {
     return { ok: true as const, schema: "legacy", threads: 0, messages: 0, saved: 0, privateLogs: logs.count, publicUnlinked: 0, prefs: 0 };
   }
   return db.$transaction(async (tx) => {
-    const threads = await tx.chatThread.findMany({ where: { userId }, select: { id: true } });
-    const ids = threads.map((t) => t.id);
+    // S6: the signed-out browser ids this user signed in from; their unclaimed signed-out threads go too.
+    const anonIds = (await tx.chatAnonLink.findMany({ where: { userId }, select: { anonId: true } })).map((l) => l.anonId);
+    const owned = await tx.$queryRaw<{ id: string }[]>`SELECT "id" FROM "ChatThread" WHERE "userId" = ${userId} FOR UPDATE`;
+    const anonOwned = anonIds.length
+      ? await tx.$queryRaw<{ id: string }[]>`SELECT "id" FROM "ChatThread" WHERE "userId" IS NULL AND "anonOwnerId" = ANY(${anonIds}) FOR UPDATE`
+      : [];
+    const ids = [...owned, ...anonOwned].map((t) => t.id);
     const logs = await dropThreadLogs(tx, ids);
     const userLogs = await tx.chatQuestionLog.deleteMany({ where: { userId } });
-    const saved = await tx.savedItem.deleteMany({ where: { OR: [{ userId }, ...(ids.length ? [{ threadId: { in: ids } }] : [])] } });
+    const saved = await tx.savedItem.deleteMany({
+      where: { OR: [{ userId }, ...(ids.length ? [{ threadId: { in: ids } }] : []), ...(anonIds.length ? [{ anonOwnerId: { in: anonIds } }] : [])] },
+    });
     const messages = ids.length ? await tx.chatMessage.deleteMany({ where: { threadId: { in: ids } } }) : { count: 0 };
     const del = ids.length ? await tx.chatThread.deleteMany({ where: { id: { in: ids } } }) : { count: 0 };
     const prefs = await tx.chatUserPref.deleteMany({ where: { userId } });
-    return { ok: true as const, schema: "foundation", threads: del.count, messages: messages.count, saved: saved.count, privateLogs: logs.privateLogs + userLogs.count, publicUnlinked: logs.publicUnlinked, prefs: prefs.count };
+    const links = await tx.chatAnonLink.deleteMany({ where: { userId } });
+    return { ok: true as const, schema: "foundation", threads: del.count, anonThreads: anonOwned.length, messages: messages.count, saved: saved.count, privateLogs: logs.privateLogs + userLogs.count, publicUnlinked: logs.publicUnlinked, prefs: prefs.count, anonLinks: links.count };
   });
 }
 

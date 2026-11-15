@@ -11,12 +11,13 @@ import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/ch
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
-import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, recentOwnedMessages, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
+import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, recentOwnedMessages, recordAnonLink, resolveThread, validRequestId, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
 import { ANON_COOKIE, anonCookieOptions, anonFromRequest, mintAnon } from "@/lib/chat-anon";
 import { maybeSaveSignedOutIdea } from "@/lib/chat-ideas";
 
-/** Questions longer than this are cut (bounds per-request work). */
+/** r4 (S2): questions longer than this get a 400 that says so (never a silent cut). Same cap in the client. */
 const MAX_QUESTION = 1000;
+const NO_STORE = { "Cache-Control": "no-store" } as const;
 /**
  * ChatQuestionLog.source values; "tt-swipe": asked from a Tuesday Trends swipe card (Chat opened with ?via=tt-swipe);
  * "chip": an "other angle" chip under a no-repeat reply (src/lib/chat-followup.ts).
@@ -69,6 +70,8 @@ type LogInput = {
   /** Thread resolved before the response (null: resolution failed → log row only, no thread). */
   thread: ResolvedThread | null;
   owner: Owner;
+  /** r4 (S4): the client's per-question id; a repeat of the same request is written once. */
+  requestId: string | null;
 };
 
 /**
@@ -97,7 +100,10 @@ async function persist(x: LogInput): Promise<void> {
       source: x.source,
     };
     const r = x.thread;
-    if (r?.mode === "owned") await persistOwnedTurn(prisma, r, x.owner, turn);
+    if (r?.mode === "owned") {
+      const w = await persistOwnedTurn(prisma, r, x.owner, turn, { requestId: x.requestId });
+      if (w.skipped) console.log(`[chat-log] owned write skipped: ${w.skipped}`);
+    } else if (r?.mode === "gone") return;
     else if (r?.mode === "legacy") {
       if (PREVIEW) {
         console.log("[chat-log] preview without the foundation schema: nothing written");
@@ -140,6 +146,24 @@ export async function POST(req: Request) {
   try {
     // Clerk: signed-in = encrypted private workspace → never train-export bodies.
     // Signed-out public chat → trainEligible for internal LLM corpus.
+    let body: Record<string, unknown>;
+    try {
+      const parsed = await req.json();
+      body = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      return NextResponse.json({ error: "Type a question first.", code: "bad-request" }, { status: 400, headers: NO_STORE });
+    }
+    // r4 (S1, S2): no question → 400; over the cap → 400 that says so. Neither writes anything.
+    const rawQuestion = typeof body.question === "string" ? body.question : "";
+    if (!rawQuestion.trim()) return NextResponse.json({ error: "Type a question first.", code: "empty-question" }, { status: 400, headers: NO_STORE });
+    if (rawQuestion.length > MAX_QUESTION) {
+      return NextResponse.json(
+        { error: `Questions can be up to ${MAX_QUESTION.toLocaleString("en-US")} characters; this one is ${rawQuestion.length.toLocaleString("en-US")}. Shorten it and send again.`, code: "too-long", maxLength: MAX_QUESTION, length: rawQuestion.length },
+        { status: 400, headers: NO_STORE }
+      );
+    }
+    const requestId = validRequestId(body.requestId);
+
     const { userId } = await auth();
     const isPrivate = Boolean(userId);
     const trainEligible = !isPrivate;
@@ -147,7 +171,6 @@ export async function POST(req: Request) {
     let anonId = anonFromRequest(req);
     let mintedCookie: string | null = null;
 
-    const body = await req.json();
     // `detail: true` = the lazy "show the sections" fetch for an answer already on screen (same question,
     // scope and window). It is not a new question: not logged, and limited on its own, wider bucket.
     const detail = body.detail === true;
@@ -167,12 +190,11 @@ export async function POST(req: Request) {
       }
     }
 
+    const question = rawQuestion;
     const historyOwner: Owner = { userId: userId ?? null, anonId };
     const history = body.threadId
       ? await recentOwnedMessages(prisma, body.threadId, historyOwner).catch(() => [])
       : [];
-
-    const question = String(body.question ?? "").slice(0, MAX_QUESTION);
     const scope = parseScope(body.scope);
     const askedMarket =
       scope?.kind === "market"
@@ -293,14 +315,21 @@ export async function POST(req: Request) {
     let thread: ResolvedThread | null = null;
     if (shouldPersist()) {
       try {
-        thread = await resolveThread(prisma, body.threadId, owner);
+        thread = await resolveThread(prisma, body.threadId, owner, new Date(), { requestId });
       } catch (e) {
         console.error("[chat-log] thread resolve failed (log row only):", e instanceof Error ? e.message : e);
         thread = null;
       }
     }
+    // r4 (S3): the conversation was deleted (e.g. a Delete racing this request): 404, nothing written or minted.
+    if (thread?.mode === "gone") {
+      return NextResponse.json(
+        { error: "This conversation was deleted. Ask again to start a new one.", code: "thread-gone" },
+        { status: 404, headers: { ...NO_STORE, ...(TEST_TOGGLES ? { "x-chat-thread": "gone" } : {}) } }
+      );
+    }
     // A new conversation's thread is created now (one small insert), so an immediate follow-up finds it.
-    const threadStatus = thread ? (thread.mode === "owned" ? `${thread.status}${thread.rejected ? `; rejected:${thread.rejected}` : ""}` : thread.mode) : "none";
+    const threadStatus = thread ? (thread.mode === "owned" ? `${thread.status}${thread.rejected ? `; rejected:${thread.rejected}` : ""}${thread.replay ? "; replay" : ""}` : thread.mode) : "none";
     if (thread?.mode === "owned" && thread.status === "new" && !forceFailEarly) {
       try {
         thread = await createOwnedThread(prisma, thread, owner, question);
@@ -315,9 +344,11 @@ export async function POST(req: Request) {
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     const logged = answer;
     after(() => {
-      persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner });
+      persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner, requestId });
       if (!userId) void maybeSaveSignedOutIdea(prisma, question, threadId);
     });
+    // S6: a signed-in request carrying this browser's signed-out id links the two (for account deletion).
+    if (userId && anonId && shouldPersist()) after(() => recordAnonLink(prisma, owner).catch((e) => console.error("[chat-log] anon link failed:", e instanceof Error ? e.message : e)));
 
     const modelUsed = toModelUsed(answer.mode);
     const res = NextResponse.json(
