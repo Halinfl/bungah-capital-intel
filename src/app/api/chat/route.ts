@@ -11,6 +11,8 @@ import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/ch
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
+import { foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, resolveThread, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
+import { ANON_COOKIE, anonCookieOptions, anonFromRequest, mintAnon } from "@/lib/chat-anon";
 
 /** Questions longer than this are cut (bounds per-request work). */
 const MAX_QUESTION = 1000;
@@ -23,23 +25,22 @@ const SOURCES = new Set(["starter", "typed", "reask", "link", "tt-swipe", "chip"
 /**
  * Preview deployments share the production database: they answer but never write threads
  * or question logs. BUNGAH_CHAT_PERSIST=false turns writes off anywhere else too.
+ * Chat foundation: BUNGAH_CHAT_PERSIST_PREVIEW=true turns preview writes on, and only for the owned (foundation)
+ * path. Set it only where the Preview DATABASE_URL is a separate preview database; the production database has
+ * no foundation columns, so a mis-set flag still writes nothing there (previewWrites below).
  */
 function shouldPersist(): boolean {
-  if (process.env.VERCEL_ENV === "preview") return false;
+  if (process.env.VERCEL_ENV === "preview") return process.env.BUNGAH_CHAT_PERSIST_PREVIEW?.trim().toLowerCase() === "true";
   return process.env.BUNGAH_CHAT_PERSIST?.trim().toLowerCase() !== "false";
 }
+/** On a preview, only the foundation write path may run (never the legacy one-thread-per-answer path). */
+const PREVIEW = process.env.VERCEL_ENV === "preview";
 
 /** Test toggles (headers) are honoured only off production. */
 const TEST_TOGGLES = process.env.VERCEL_ENV !== "production";
 
 function toModelUsed(mode: string | undefined): "llm" | "memo" {
   return mode === "llm" ? "llm" : "memo";
-}
-
-function snippet(text: string, max = 240): string {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return t.slice(0, max - 1).trimEnd() + "…";
 }
 
 type Built = {
@@ -64,9 +65,16 @@ type LogInput = {
   source: string;
   scope: string | null;
   forceFail: boolean;
+  /** Thread resolved before the response (null: resolution failed → log row only, no thread). */
+  thread: ResolvedThread | null;
+  owner: Owner;
 };
 
-/** Thread + question-log write. Runs after the response is sent (next/server `after`); never throws. */
+/**
+ * Thread + question-log write. Runs after the response is sent (next/server `after`); never throws.
+ * Foundation schema: one owned thread per conversation (src/lib/chat-store.ts). A private log row never
+ * carries text or a threadId (Decision A). Older schema: the legacy write (one thread per answer).
+ */
 async function persist(x: LogInput): Promise<void> {
   const t0 = Date.now();
   try {
@@ -75,38 +83,28 @@ async function persist(x: LogInput): Promise<void> {
       console.log(`[chat-log] dry-run (writes off on this deployment) source=${x.source} intent=${x.answer.intent ?? "unknown"} item=${x.scope ?? x.marketSlug ?? "-"}`);
       return;
     }
-    const modelUsed = toModelUsed(x.answer.mode);
-    // Product thread always stores full Q&A (including private workspace).
-    const thread = await prisma.chatThread.create({
-      data: {
-        title: x.question.slice(0, 80) || "Chat",
-        messages: {
-          create: [
-            { role: "user", content: x.question },
-            { role: "assistant", content: x.answer.content, citations: JSON.stringify(x.answer.citations) },
-          ],
-        },
-      },
-    });
-    // Memory-loop log: public rows keep bodies for corpus; private rows omit
-    // answer/citation bodies so train export cannot leak them even if mis-filtered.
-    await prisma.chatQuestionLog.create({
-      data: {
-        question: x.isPrivate ? "[private]" : x.question,
-        marketSlug: x.answer.marketSlug ?? x.marketSlug,
-        intent: x.answer.intent ?? "unknown",
-        answerText: x.isPrivate ? null : x.answer.content,
-        answerSnippet: x.isPrivate ? null : snippet(x.answer.content),
-        citationsJson: x.isPrivate ? null : JSON.stringify(x.answer.citations),
-        answeredWell: x.answer.answeredWell,
-        modelUsed,
-        trainEligible: !x.isPrivate,
-        isPrivate: x.isPrivate,
-        userId: x.userId,
-        threadId: thread.id,
-        source: x.source,
-      },
-    });
+    const turn: TurnInput = {
+      question: x.question,
+      answerText: x.answer.content,
+      citations: x.answer.citations,
+      marketSlug: x.answer.marketSlug ?? x.marketSlug,
+      intent: x.answer.intent ?? "unknown",
+      answeredWell: x.answer.answeredWell,
+      modelUsed: toModelUsed(x.answer.mode),
+      isPrivate: x.isPrivate,
+      userId: x.userId,
+      source: x.source,
+    };
+    const r = x.thread;
+    if (r?.mode === "owned") await persistOwnedTurn(prisma, r, x.owner, turn);
+    else if (r?.mode === "legacy") {
+      if (PREVIEW) {
+        console.log("[chat-log] preview without the foundation schema: nothing written");
+        return;
+      }
+      await legacyPersist(prisma, turn);
+    } else if (await foundationReady(prisma)) await persistLogOnly(prisma, turn);
+    else if (!PREVIEW) await legacyPersist(prisma, turn);
   } catch (persistErr) {
     // A failed write never touches the answer: it was already sent.
     console.error(`[chat-log] write failed after response (answer already sent, ${Date.now() - t0}ms):`, persistErr instanceof Error ? persistErr.message : persistErr);
@@ -144,6 +142,9 @@ export async function POST(req: Request) {
     const { userId } = await auth();
     const isPrivate = Boolean(userId);
     const trainEligible = !isPrivate;
+    // Signed-out owner id (signed cookie); minted below for a signed-out question that has none.
+    let anonId = anonFromRequest(req);
+    let mintedCookie: string | null = null;
 
     const body = await req.json();
     // `detail: true` = the lazy "show the sections" fetch for an answer already on screen (same question,
@@ -272,21 +273,42 @@ export async function POST(req: Request) {
     // Only the bare repeat note is replaced; a decline or premise line on a repeat is kept as it is.
     if (repeatLine && /^That's the same answer/.test(answer.content)) answer = { ...answer, content: repeatLine };
 
+    // One conversation = one owned thread: accept the client's threadId only from its owner (else a new
+    // thread). Read-only except a same-browser claim after sign-in. Skipped when this deployment writes nothing.
+    if (!userId && !anonId && shouldPersist()) {
+      const minted = mintAnon();
+      if (minted) {
+        anonId = minted.id;
+        mintedCookie = minted.cookie;
+      }
+    }
+    const owner: Owner = { userId: userId ?? null, anonId };
+    let thread: ResolvedThread | null = null;
+    if (shouldPersist()) {
+      try {
+        thread = await resolveThread(prisma, body.threadId, owner);
+      } catch (e) {
+        console.error("[chat-log] thread resolve failed (log row only):", e instanceof Error ? e.message : e);
+        thread = null;
+      }
+    }
+    const threadId = thread?.mode === "owned" ? thread.threadId : null;
+
     // Log after the response is sent: a slow or failed write never delays or blocks the answer.
     const forceFail = TEST_TOGGLES && req.headers.get("x-bungah-test") === "fail-log";
     const logged = answer;
-    after(() => persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail }));
+    after(() => persist({ question, answer: logged, marketSlug, isPrivate, userId: userId ?? null, source, scope: scope ? `${scope.kind}:${scope.id}` : null, forceFail, thread, owner }));
 
     const modelUsed = toModelUsed(answer.mode);
-    return NextResponse.json(
+    const res = NextResponse.json(
       {
         // With a summary card the client renders only `brief`: `content` is the same sections again as one
         // markdown block (every URL in it is also in brief.sections), so it is not sent at all; citations and
         // sources come with the lazy detail fetch. Without a brief, `content` + sources are the answer.
         ...(answer.brief ? {} : { content: answer.content, citations: answer.citations, sources: answer.sources }),
         brief: wireBrief(answer.brief),
-        // The thread id is no longer known when the response goes out (the write runs after it).
-        threadId: null,
+        // The owned conversation's id (foundation schema), sent back on follow-ups; null on the legacy path.
+        threadId,
         intent: answer.intent,
         marketSlug: answer.marketSlug,
         // The card's fingerprint (the repeated card's on a no-repeat reply), sent back as prev.answerHash.
@@ -309,11 +331,14 @@ export async function POST(req: Request) {
           "x-chat-cache": cache,
           "x-chat-log": forceFail ? "deferred; forced-fail" : shouldPersist() ? "deferred" : "deferred; dry-run",
           ...(TEST_TOGGLES
-            ? { "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : "", fb ? (fb.national ? "cleared-market:national" : "cleared-market:which-market") : ""].filter(Boolean).join("; ") }
+            ? { "x-chat-thread": thread ? (thread.mode === "owned" ? `${thread.status}${thread.rejected ? `; rejected:${thread.rejected}` : ""}` : thread.mode) : "none", "x-chat-log-source": source, "x-chat-followup": [prev ? "prev" : "no-prev", route.inherited ? "inherited-market" : "", route.intent ? `intent:${route.intent}` : "", repeat ? "repeat-blocked" : "", opener ? `opener:${opener.kind}` : "", alternate ? "alternate" : "", prev?.cleared?.length ? `cleared:${prev.cleared.join(",")}` : "", fb ? (fb.national ? "cleared-market:national" : "cleared-market:which-market") : ""].filter(Boolean).join("; ") }
             : {}),
         },
       }
     );
+    // The cookie is set only when it owns a thread (never on the legacy path or a no-write deployment).
+    if (mintedCookie && thread?.mode === "owned") res.cookies.set(ANON_COOKIE, mintedCookie, anonCookieOptions());
+    return res;
   } catch (e) {
     console.error(e);
     // Never echo raw DB/driver errors (they can carry hostnames); give a friendly, retryable answer.
