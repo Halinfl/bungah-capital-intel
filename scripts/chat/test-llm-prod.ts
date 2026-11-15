@@ -195,8 +195,9 @@ test("disclosure copy is exact and wired into ChatClient and the privacy draft",
   assert.match(client, /data-chat-ai-disclosure/);
   assert.match(client, /data-chat-ai-label/);
   assert.match(client, /CHAT_PRIVACY_HREF/);
-  // r4 owns the composer focus ring — this branch must not change it.
-  assert.match(client, /focus:outline-none/);
+  // r4 (merged from chat-foundation): composer uses the 2px slate focus-visible ring, not focus:outline-none.
+  assert.match(client, /focus-visible:outline-2/);
+  assert.doesNotMatch(client, /focus:outline-none/);
   const privacy = readFileSync(resolve("src/app/privacy/page.tsx"), "utf8");
   assert.match(privacy, /Draft — under legal review/);
   assert.match(privacy, /sent to Groq, a US-based/);
