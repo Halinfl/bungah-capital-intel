@@ -46,6 +46,7 @@ const TIMEOUT_MS = 60_000;
 /** "Try again" ignores repeat taps inside this window, so one tap sends one request. */
 const RETRY_DEBOUNCE_MS = 2_000;
 const WORKING_MESSAGE = "Getting an answer…";
+const DELETE_FAIL_MESSAGE = "Couldn't delete this conversation. Try again in a moment.";
 
 /**
  * Read a /api/chat response without trusting its body: a Vercel timeout or edge error page is HTML or plain
@@ -130,6 +131,11 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
   const [carry, setCarry] = useState<ChatContext | null>(null);
   const [cleared, setCleared] = useState<ContextPart[]>([]);
   const clearedRef = useRef<ContextPart[]>([]);
+  /** Chat foundation: the owned conversation's id (from the first answer), sent back on every follow-up. */
+  const threadIdRef = useRef<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  /** "Delete conversation": idle → confirming → deleting; a failure keeps the conversation and says so. */
+  const [deleteStep, setDeleteStep] = useState<"idle" | "confirm" | "deleting">("idle");
 
   const isEmpty = messages.length === 0;
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -158,6 +164,9 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     sending.current = false;
     lastAnswer.current = null;
     seenHashes.current = [];
+    threadIdRef.current = null;
+    setThreadId(null);
+    setDeleteStep("idle");
     setCarry(null);
     setCleared([]);
     clearedRef.current = [];
@@ -223,6 +232,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       let reply: Msg;
       let nextPrev: PrevAnswer | null = null;
       let nextContext: ChatContext | null = null;
+      let nextThreadId: string | null = null;
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -233,6 +243,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
             ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
             ...(range !== "all" ? { range } : {}),
             ...(prev ? { prev } : {}),
+            ...(threadIdRef.current ? { threadId: threadIdRef.current } : {}),
             source: tagged,
           }),
           signal: controller.signal,
@@ -257,6 +268,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
               alternate: data.alternate && typeof (data.alternate as Alternate).question === "string" ? (data.alternate as Alternate) : undefined,
             };
             if (data.context && typeof data.context === "object") nextContext = data.context as ChatContext;
+            if (typeof data.threadId === "string" && data.threadId) nextThreadId = data.threadId;
             if (typeof data.answerHash === "string") {
               nextPrev = {
                 question: q.slice(0, 300),
@@ -284,6 +296,10 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
       if (seq !== requestSeq.current) return;
       inFlight.current = null;
       sending.current = false;
+      if (nextThreadId) {
+        threadIdRef.current = nextThreadId;
+        setThreadId(nextThreadId);
+      }
       // Failed or rate-limited replies leave the previous answer as the follow-up context.
       if (nextPrev) {
         lastAnswer.current = nextPrev;
@@ -327,6 +343,42 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     : [];
   /** A typed follow-up keeps the carried date window. */
   const typedRange: DateRange = carry?.period && !cleared.includes("period") ? carry.period.range : "all";
+
+  /** "Delete conversation" (owner only, server-checked): on success the screen starts a fresh thread. */
+  const deleteConversation = useCallback(async () => {
+    const id = threadIdRef.current;
+    if (!id || deleteStep === "deleting") return;
+    setDeleteStep("deleting");
+    let ok = false;
+    try {
+      const res = await fetch(`/api/chat/threads/${encodeURIComponent(id)}`, { method: "DELETE" });
+      // 404: already gone (or never stored); either way nothing of it is left to show.
+      ok = res.ok || res.status === 404;
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      setDeleteStep("confirm");
+      setAnnounce(DELETE_FAIL_MESSAGE);
+      return;
+    }
+    requestSeq.current += 1;
+    inFlight.current?.abort();
+    inFlight.current = null;
+    sending.current = false;
+    lastAnswer.current = null;
+    seenHashes.current = [];
+    threadIdRef.current = null;
+    setThreadId(null);
+    setCarry(null);
+    setCleared([]);
+    clearedRef.current = [];
+    setMessages([]);
+    setBusy(false);
+    setSlow(false);
+    setDeleteStep("idle");
+    setAnnounce("Conversation deleted.");
+  }, [deleteStep]);
 
   /** Remove the item chip: the chat goes back to general (fresh thread, general starters). */
   const clearScope = useCallback(() => {
@@ -500,6 +552,42 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
           ))}
           {busy ? <p className="text-sm text-slate-300">{slow ? SLOW_MESSAGE : WORKING_MESSAGE}</p> : null}
           {/* On phones the composer is fixed to the bottom: scroll the newest message clear of it. */}
+          {threadId && !busy ? (
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.06] pt-3 text-sm" data-delete-conversation>
+              {deleteStep === "idle" ? (
+                <button
+                  type="button"
+                  onClick={() => setDeleteStep("confirm")}
+                  className="inline-flex min-h-11 items-center rounded-full px-3 text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200"
+                >
+                  Delete conversation
+                </button>
+              ) : (
+                <>
+                  <span className="text-slate-200" id="chat-delete-confirm">
+                    {announce === DELETE_FAIL_MESSAGE ? DELETE_FAIL_MESSAGE : "Delete this conversation? This can't be undone."}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={deleteStep === "deleting"}
+                    onClick={() => void deleteConversation()}
+                    aria-describedby="chat-delete-confirm"
+                    className="inline-flex min-h-11 items-center rounded-full border border-white/45 px-4 text-slate-100 hover:border-white/60 hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                  >
+                    {deleteStep === "deleting" ? "Deleting…" : "Delete"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={deleteStep === "deleting"}
+                    onClick={() => setDeleteStep("idle")}
+                    className="inline-flex min-h-11 items-center rounded-full px-3 text-slate-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200 disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          ) : null}
           <div ref={endRef} style={{ ["--composer-h" as string]: `${composerH + 16}px` }} className="scroll-mb-[var(--composer-h)] sm:scroll-mb-0" />
           <div aria-hidden data-composer-spacer style={{ height: composerH + 16 }} className="sm:hidden" />
         </div>
