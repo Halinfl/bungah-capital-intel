@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
 import { SourceChip } from "@/components/SourceChip";
 import { SourceLinks } from "@/components/SourceLinks";
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { chatSourceFor } from "@/lib/tuesday-trends-swipe";
 import { chatLabel } from "@/lib/chat-label";
+import { parseInlineLinks } from "@/lib/inline-links";
 import type { Alternate, ChatContext, ContextPart, Opener } from "@/lib/chat-context";
 
 /** The item this chat is about ("Ask about this"), resolved on the server. */
@@ -687,18 +688,17 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
 
 /** Plain text with on-site markdown links ("[label](/path)") as real links; anything else stays text. */
 function InlineLinks({ text }: { text: string }) {
-  const out: ReactNode[] = [];
-  const re = /\[([^\]\n]+)\]\((\/[^)\s]*)\)/g;
-  let last = 0;
-  for (let m = re.exec(text); m; m = re.exec(text)) {
-    if (m.index > last) out.push(text.slice(last, m.index));
-    out.push(
-      <Link key={m.index} href={m[2]} className="text-white underline decoration-white/50 underline-offset-2 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200">
-        {m[1]}
-      </Link>
-    );
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) out.push(text.slice(last));
-  return <>{out}</>;
+  return (
+    <>
+      {parseInlineLinks(text).map((part, i) =>
+        typeof part === "string" ? (
+          part
+        ) : (
+          <Link key={i} href={part.href} className="text-white underline decoration-white/50 underline-offset-2 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-200">
+            {part.label}
+          </Link>
+        )
+      )}
+    </>
+  );
 }

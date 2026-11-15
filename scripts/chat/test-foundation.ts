@@ -126,6 +126,20 @@ async function main() {
   }
   ok((await S.resolveThread(db, null, { userId: null, anonId: null })).mode === "log-only", "signed out without an anon id → log row only (no unowned thread)");
 
+  section("inline links (on-site paths only)");
+  {
+    const { parseInlineLinks, isOnSitePath } = await import("@/lib/inline-links");
+    const p1 = parseInlineLinks("Markets: Nashville. Or [browse the markets we cover](/markets).");
+    ok(p1.length === 3 && typeof p1[1] === "object" && p1[1].href === "/markets" && p1[1].label === "browse the markets we cover" && p1[0] === "Markets: Nashville. Or " && p1[2] === ".", "single-slash on-site path → link", JSON.stringify(p1));
+    ok(isOnSitePath("/markets/nashville") && isOnSitePath("/chat?market=orlando") && isOnSitePath("/"), "on-site paths accepted");
+    for (const bad of ["//evil.example/x", "/\\evil.example", "https://evil.example", "http://x", "javascript:alert(1)", "JaVaScRiPt:alert(1)", "data:text/html,x", "mailto:a@b.c", "markets", "./markets", " /markets"]) {
+      const parts = parseInlineLinks(`See [here](${bad}) now`);
+      ok(parts.every((x) => typeof x === "string") && parts.join("") === `See [here](${bad}) now`, `rejected, left as text: ${bad}`);
+    }
+    const p2 = parseInlineLinks("[a](//x.com) and [b](/deals)");
+    ok(p2.length === 2 && p2[0] === "[a](//x.com) and " && typeof p2[1] === "object" && p2[1].href === "/deals", "a rejected link before a good one stays text", JSON.stringify(p2));
+  }
+
   section("F1 one thread per conversation");
   {
     const o = { userId: null, anonId: anon() };
