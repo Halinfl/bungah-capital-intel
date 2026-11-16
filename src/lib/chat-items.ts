@@ -277,7 +277,10 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     const label = short(f.factor);
     // r10: a "$48k per key vs $467k replacement cost" input leads with the deal's own per-key price (price ÷ keys,
     // computed), which is not on the HVS page; only the replacement-cost figure is checked there.
-    const fact = (fitFact(f.input_text!) ?? shortInput(f.input_text!)).replace(/^(\$[\d.,]+[kKM]? per key)(?= vs )/, "$1 (computed)").replace(/(\d+% (?:below|above))$/, "$1 (computed)");
+    const fact = (fitFact(f.input_text!) ?? shortInput(f.input_text!)).replace(/^(\$[\d.,]+[kKM]? per key)(?= vs )/, "$1 (computed)").replace(/(\d+% (?:below|above))(?! \(computed)/, "$1 (computed)")
+      // The spread is cap rate minus the 10-year close (a Treasury print, not on the deal filing): the read keeps the
+      // filed cap rate and labels the spread as computed.
+      .replace(/ vs \d+(?:\.\d+)?% 10-year(?: \([^()]*close\))?;\s*(\d+bp) spread/, "; $1 spread over the 10-year (computed)");
     const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${fact}`;
     return read(text, f.as_of, { kind: chipFor(f.source_uri!), label: publisherName(f.source_uri!) || label, url: f.source_uri!, title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200) });
   };

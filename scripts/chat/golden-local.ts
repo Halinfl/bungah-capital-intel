@@ -110,6 +110,7 @@ async function main() {
   let n = 0;
   for (const c of cases) {
     if (c.needs_llm || c.expect_http || c.overlong_chars) continue;
+    if (process.argv.includes("--starters") && !c.id.startsWith("starter-")) continue;
     const q = (c.question || "").trim();
     if (!q) continue;
     // r10: starter cases are POSTed the way the chip sends them: the exact string, its item scope and range.
