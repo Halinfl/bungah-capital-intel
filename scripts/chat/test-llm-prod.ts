@@ -22,7 +22,7 @@ import { serializeLlmPack, LLM_PACK_MAX_FACTS } from "../../src/lib/chat-llm-pac
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "../../src/lib/chat-llm-guard";
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "../../src/lib/chat-llm-disclosure";
 import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat-llm-citations";
-import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
+import { isYellowSource, withYellowBuckets, withoutYellowBrokerLists } from "../../src/lib/yellow-sources";
 import { formatSupplyPressureLead, formatSupplyPressureCard } from "../../src/lib/chat-supply-score";
 import { isLicensedAttributionUrl } from "../../src/lib/licensed-attribution";
 import { isLicensedLink, creditsLicensedSource, stripLicensed, withoutLicensedSources } from "../../src/lib/licensed-sources";
@@ -437,6 +437,28 @@ test("Miami Business / GMCVB / Lodging Magazine OCC-ADR reprints are Yellow and 
   assert.equal(rows[0]!.magnitude, "bucket: moderate band");
   assert.doesNotMatch(rows[0]!.body ?? "", /63\.6%|107\.60/);
   assert.doesNotMatch(rows[0]!.title ?? "", /63\.6%/);
+});
+
+test("public packs drop Implied rooms (STR market) and yellow broker hosts from source lists", () => {
+  const rows = withoutYellowBrokerLists([
+    {
+      title: "Los Angeles supply: Snapshot",
+      body: "Implied rooms (STR market): ~112,390 (Q2 supply room-nights ÷ 91, derived) · Q2 2026 | Metro opening in 2026: >1,400 · Feb 2026",
+      sourceLabel: "Cushman & Wakefield · pressdemocrat.com · LA Business Journal · sccai.org · Marcus & Millichap",
+      sourceUrls: [
+        { url: "https://www.cushmanwakefield.com/report.pdf", label: "Metro opening in 2026" },
+        { url: "https://www.marcusmillichap.com/research/hospitality-market-report", label: "Implied rooms (STR market)" },
+      ],
+    },
+  ]);
+  assert.equal(rows.length, 1);
+  assert.doesNotMatch(rows[0].body ?? "", /Implied rooms \(STR market\)/);
+  assert.doesNotMatch(rows[0].sourceLabel ?? "", /Marcus|Millichap|sccai/i);
+  assert.match(rows[0].sourceLabel ?? "", /Cushman & Wakefield/);
+  const urls = (rows[0].sourceUrls as { url?: string; label?: string }[]).map((l) => l.url ?? "");
+  assert.ok(!urls.some((u) => /marcusmillichap/i.test(u)));
+  assert.ok(urls.some((u) => /cushmanwakefield/i.test(u)));
+  assert.match(rows[0].body ?? "", />1,400/);
 });
 
 test("Matthews, Kidder, HVS, Wronka, Newmark, SCCAI, Marcus & Millichap, and Hawaii DBEDT hotel-performance are Yellow; tax PDFs and CMRE stay green", () => {

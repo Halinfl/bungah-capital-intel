@@ -3,7 +3,7 @@ import { withoutSocial } from "./social-sources";
 import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
-import { withYellowBuckets } from "./yellow-sources";
+import { withYellowBuckets, withoutYellowBrokerLists } from "./yellow-sources";
 import { withBungahSupplyScores } from "./chat-supply-score";
 import { withoutUnverifiedFigures } from "./licensed-attribution";
 import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
@@ -460,7 +460,9 @@ function taxLine(s: SignalRow): string {
  * brand-vs-brand framing of loan performance (brand-neutral.ts). Display layer only; DB rows unchanged.
  */
 function publicSafe<T extends { title: string; body: string; sourceLabel: string; sourceUrls?: unknown; magnitude?: string | null }>(rows: T[], extraLicensed: string[] = []): T[] {
-  return withNeutralBrands(withoutLicensedSources(withoutUnverifiedFigures(withBungahSupplyScores(withoutLeaks(rows))), extraLicensed));
+  return withoutYellowBrokerLists(
+    withNeutralBrands(withoutLicensedSources(withoutUnverifiedFigures(withBungahSupplyScores(withoutLeaks(rows))), extraLicensed))
+  );
 }
 
 /** National RevPAR gap line (r4): the national prints were licensed STR/CoStar data. */

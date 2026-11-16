@@ -11,6 +11,7 @@ import { getMsaRegistryEntry } from "@/data/msa-registry";
 import { publisherName, scrubInternal } from "./public-text";
 import { isBrandCompare } from "./brand-neutral";
 import { formatSupplyPressureLead } from "./chat-supply-score";
+import { isYellowSource } from "./yellow-sources";
 import { FED_POLICY, fedDate, fedDecisions, fedForecastLine, isFedForecastQuestion, isFedPolicyQuestion, pct as fedPct, rangeText, type FedPolicy } from "./fed-policy";
 import {
   chipKind,
@@ -331,7 +332,7 @@ export function citationsOf(reads: BriefRead[], signals: SignalLike[], extra: Ci
   for (const s of signals) out.push(...signalCites(s));
   for (const r of reads) out.push(readCite(r));
   out.push(...extra);
-  return out;
+  return out.filter((c) => !isYellowSource(c.label, c.url ?? c.label));
 }
 
 /** A read's own source, dated by the read's data period. */
@@ -791,7 +792,7 @@ function hasPublicMetricFigure(facts: Fact[], metric: "revpar" | "occ" | "adr" |
 
 /** Green (public) reads that can follow a coverage gap: airlift / visitors first, then supply or demand. */
 function greenSecondaryReads(facts: Fact[], n: number, used: Set<string> = new Set()): Fact[] {
-  const ok = (f: Fact) => Boolean(f.readable) && !isQualitativeBucketFact(f) && !used.has(f.text);
+  const ok = (f: Fact) => Boolean(f.readable) && !isQualitativeBucketFact(f) && !used.has(f.text) && !isYellowSource(f.source.label, f.source.url);
   const paxPrimary = /(?:\btotal pax\b|\benplanements\b|pax:|passengers?:)/i;
   const airPrimary = facts.filter((f) => ok(f) && paxPrimary.test(f.text));
   const air = facts.filter((f) => ok(f) && !airPrimary.includes(f) && /\b(pax|enplanements|passengers?|airlift)\b/i.test(f.text));

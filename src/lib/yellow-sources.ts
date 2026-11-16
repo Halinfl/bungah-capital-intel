@@ -105,3 +105,47 @@ export function withYellowBuckets<T extends Row>(rows: T[]): T[] {
     };
   });
 }
+
+const IMPLIED_ROOMS = /Implied rooms\s*\(\s*STR market\s*\)/i;
+
+function labelParts(label: string): string[] {
+  return label.split(/\s+·\s+/).map((p) => p.trim()).filter(Boolean);
+}
+
+/** Drop yellow broker names from a compound source label so they never appear on a public source list. */
+export function stripYellowLabelParts(label?: string | null): string {
+  if (!label) return "";
+  const kept = labelParts(label).filter((p) => !isYellowSource(p, p));
+  return kept.join(" · ");
+}
+
+function isYellowLink(l: { url?: string; label?: string } | string): boolean {
+  if (typeof l === "string") return isYellowSource(l, l);
+  return isYellowSource(l.label, l.url ?? l.label);
+}
+
+/**
+ * Remove internal "Implied rooms (STR market)" pack labels and yellow broker hosts
+ * from public source lists (Marcus & Millichap, Kidder, Matthews, and the rest of the yellow list).
+ */
+export function withoutYellowBrokerLists<T extends Row>(rows: T[]): T[] {
+  const out: T[] = [];
+  for (const r of rows) {
+    const title = IMPLIED_ROOMS.test(r.title ?? "") ? (r.title ?? "").replace(IMPLIED_ROOMS, "Implied rooms").trim() : (r.title ?? "");
+    const items = (r.body ?? "").split(/\s+\|\s+/);
+    const body = items.filter((it) => !IMPLIED_ROOMS.test(it)).join(" | ");
+    const links = Array.isArray(r.sourceUrls)
+      ? (r.sourceUrls as { url?: string; label?: string }[]).filter((l) => l && !IMPLIED_ROOMS.test(`${l.label ?? ""} ${l.url ?? ""}`) && !isYellowLink(l))
+      : r.sourceUrls;
+    const sourceLabel = stripYellowLabelParts((r.sourceLabel ?? "").replace(IMPLIED_ROOMS, "").replace(/\s{2,}/g, " ").replace(/^[·,;\s]+|[·,;\s]+$/g, ""));
+    if (!body.trim() && !title.trim()) continue;
+    out.push({
+      ...r,
+      title,
+      body,
+      sourceLabel,
+      ...(r.sourceUrls !== undefined ? { sourceUrls: links } : {}),
+    });
+  }
+  return out;
+}
