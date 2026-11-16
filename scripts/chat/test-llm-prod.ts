@@ -526,6 +526,19 @@ test("unverified LA OCC, NYC 5.875% wrapper rate, and Boston 6.5% wrapper rate a
       sourceLabel: "NYC Comptroller Quarterly Cash Report",
     },
     {
+      marketSlug: "new-york-city",
+      title: "New York City hotel occupancy tax, fiscal-year cash receipts — FY2025 (Jul 2024–Jun 2025)",
+      body: "Receipts: $801M. NYC hotel room occupancy tax 5.875% + $2.00/room-night.",
+      sourceLabel: "NYC Comptroller Quarterly Cash Report",
+    },
+    {
+      marketSlug: "new-york-city",
+      title: "NYC hotel room occupancy tax: 5.875% + $2.00/room/night",
+      body: "NYC hotel room occupancy tax: 5.875% + $2.00/room/night · NYC Dept of Finance",
+      sourceLabel: "NYC Dept of Finance",
+      sourceUrls: [{ url: "https://www.nyc.gov/site/finance/business/business-hotel-room-occupancy-tax.page" }],
+    },
+    {
       marketSlug: "boston",
       title: "Boston local room occupancy excise, annual — FY2025 (Jul 2024–Jun 2025)",
       body: "Amount: $147,088,220. Boston local room occupancy excise 6.5% (state 5.7% and 2.75% convention center fee not included; total 14.95%).",
@@ -536,9 +549,14 @@ test("unverified LA OCC, NYC 5.875% wrapper rate, and Boston 6.5% wrapper rate a
   assert.ok(la);
   assert.doesNotMatch(la!.body ?? "", /71\.6%|ADR \$196/);
   assert.match(la!.body ?? "", /49\.5M/);
-  const nyc = rows.find((r) => r.marketSlug === "new-york-city");
-  assert.ok(nyc);
-  assert.doesNotMatch(nyc!.body ?? "", /5\.875%/);
+  const nycRows = rows.filter((r) => r.marketSlug === "new-york-city");
+  const nycQcr = nycRows.find((r) => /quarterly cash receipts/.test(r.title ?? ""));
+  const nycFy = nycRows.find((r) => /fiscal-year cash receipts/.test(r.title ?? ""));
+  const nycDof = nycRows.find((r) => /Dept of Finance/.test(r.sourceLabel ?? ""));
+  assert.ok(nycQcr && nycFy && nycDof);
+  assert.doesNotMatch(nycQcr!.body ?? "", /5\.875%/);
+  assert.doesNotMatch(nycFy!.body ?? "", /5\.875%/);
+  assert.match(nycDof!.body ?? "", /5\.875%/);
   const bos = rows.find((r) => r.marketSlug === "boston");
   assert.ok(bos);
   assert.doesNotMatch(bos!.body ?? "", /6\.5%/);

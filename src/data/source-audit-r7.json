@@ -521,13 +521,19 @@
     },
     {
       "marketSlug": "new-york-city",
-      "title": "New York City hotel occupancy tax, quarterly cash receipts",
+      "title": "New York City hotel occupancy tax,",
       "figure": "5.875%",
       "kind": "tax"
     },
     {
       "marketSlug": "boston",
       "title": "Boston local room occupancy excise, annual",
+      "figure": "6.5%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Lodging tax stack",
       "figure": "6.5%",
       "kind": "tax"
     }
