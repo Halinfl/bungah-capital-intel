@@ -298,7 +298,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     if (!grade || grade.overall == null) return null;
     answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
     // r10: the grade and its headline are Bungah's own rubric output (computed from the cited factor inputs below).
-    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)} (computed from the graded factor inputs)`, label: "Bungah", period: null, derived: true });
+    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)}`.replace(/\$?\d[\d,.]*\s?(?:%|[KMB]\b)?/g, (m) => `${m} (computed)`), label: "Bungah", period: null, derived: true });
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);
