@@ -998,6 +998,77 @@ async function runMarketMetricGapTests() {
       else process.env.GROQ_API_KEY = prevKey;
     }
   });
+
+  // r10 (Eric r9): featured starters, REIT guidance, national debt, Simpleview, Miami/PBI, Hobby, NYC 5.875%.
+  await test("r10: REIT guidance / national debt / market overlays never call Groq (LLM on, fetch blocked)", async () => {
+    const prevLlm = process.env.BUNGAH_USE_LLM;
+    const prevKey = process.env.GROQ_API_KEY;
+    process.env.BUNGAH_USE_LLM = "true";
+    process.env.GROQ_API_KEY = "gsk_test_not_a_real_key";
+    let groqCalls = 0;
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (/groq/i.test(url)) groqCalls += 1;
+      throw new Error(`test must not call the network (${url})`);
+    }) as typeof fetch;
+    try {
+      const host = await answerChat("What did Host Hotels guide on the Q2 2026 call?");
+      assert.equal(host.mode, "deterministic");
+      assert.equal(host.intent, "reit_call");
+      assert.ok(host.citations.length > 0 && host.citations.every((c) => c.trim()), "Host guide citations must be non-empty labels");
+      assert.ok((host.sources ?? []).some((x) => /hst-ex991\.htm$/.test(x.url)), "Host guide must cite exhibit 99.1");
+      assert.match(blobOf(host), /4\.75%–5\.25%/);
+      assert.doesNotMatch(blobOf(host), /earnings digest, .Q2.|content\/earnings/i);
+      for (const q of ["What did Pebblebrook guide on the Q2 2026 call?", "What's Park Hotels' outlook for 2026?", "How did RLJ do last quarter?", "What's the national hotel debt and refinancing picture?", "Where are hotel CMBS delinquencies heading?"]) {
+        const out = await answerChat(q);
+        assert.equal(out.mode, "deterministic", q);
+        assert.notEqual(out.intent, "unknown", q);
+      }
+      const debt = await answerChat("What's the national hotel debt and refinancing picture?");
+      assert.ok((debt.sources ?? []).length > 0 && (debt.sources ?? []).every((x) => /^https?:\/\//.test(x.url)), "national debt cites URLs");
+      for (const q of ["What's happening with hotel debt here?", "Is labor a risk to the thesis here?"]) {
+        const out = await answerChat(q, { scope: { kind: "market", id: "chicago" } });
+        assert.equal(out.mode, "deterministic", `chicago ${q}`);
+      }
+      assert.equal(groqCalls, 0);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevLlm === undefined) delete process.env.BUNGAH_USE_LLM;
+      else process.env.BUNGAH_USE_LLM = prevLlm;
+      if (prevKey === undefined) delete process.env.GROQ_API_KEY;
+      else process.env.GROQ_API_KEY = prevKey;
+    }
+  });
+
+  await test("r10: Miami airport traffic never leads with Palm Beach (PBI) or Simpleview", async () => {
+    const out = await answerChat("How is Miami and Fort Lauderdale airport traffic?");
+    assert.equal(out.marketSlug, "miami");
+    assert.doesNotMatch(headOf(out), /Palm Beach|480,992|Simpleview/i);
+    assert.doesNotMatch(JSON.stringify(out.brief ?? {}), /clients\/pbi|simpleview/i);
+    const pbi = await answerChat("How is Palm Beach airport traffic?");
+    assert.doesNotMatch(headOf(pbi), /Simpleview/i);
+  });
+
+  await test("r10: Boston occupancy excise carries no Simpleview link or label", async () => {
+    const out = await answerChat("What's Boston's occupancy-excise?");
+    assert.doesNotMatch(JSON.stringify(out), /simpleview/i);
+  });
+
+  await test("r10: Houston Hobby / NASA question leads with the July print at its July link", async () => {
+    const out = await answerChat("What's hotel occupancy in Houston Hobby / NASA?");
+    assert.match(headOf(out), /Hobby \/ NASA: OCC 65% \(\+6%\) · Jul 2026/);
+    const lead = out.brief?.leadSources?.[0];
+    assert.match(lead?.url ?? "", /solid-rates-and-demand-in-july/);
+    assert.doesNotMatch(headOf(out), /Aug 2026/);
+  });
+
+  await test("r10: NYC 5.875% cites the current NYC-HTX return, not the 2021 EO page", async () => {
+    const out = await answerChat("What is the NYC hotel occupancy-tax rate?");
+    const line = out.content.split("\n").find((l) => /5\.875% \+ \$2\.00/.test(l)) ?? "";
+    assert.match(line, /nyc-htx_2025\.pdf/);
+    assert.doesNotMatch(line, /business-hotel-room-occupancy-tax\.page|accessed/);
+  });
 }
 
 // typography test is sync and already registered; run the fixture cases before the summary.

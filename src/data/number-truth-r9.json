@@ -362,6 +362,11 @@
     "find": " (room ≥$40/night)",
     "replace": "",
     "why": "heading figure with no cited link"
+   },
+   {
+    "find": "NYC hotel room occupancy tax: 5.875% + $2.00/room/night · NYC Dept of Finance · accessed 2026-10-11",
+    "replace": "NYC hotel room occupancy tax: 5.875% + $2.00/room/night · Form NYC-HTX 2025 (NYC Dept of Finance)",
+    "why": "r10: the rate is dated by the current return that prints it, not by an access stamp"
    }
   ],
   "w1c-phoenix-tax-lodging-tax-stack": [
@@ -441,5 +446,15 @@
    "re": "^(?:[^|]*?\\.\\s+)?HVS/CBRE\\b[^|]*no public read",
    "why": "names HVS/CBRE with no public figure (Eric r8)"
   }
- ]
+ ],
+ "relink": {
+  "w1c-new-york-city-tax-lodging-tax-stack": [
+   {
+    "from": "https://www.nyc.gov/site/finance/business/business-hotel-room-occupancy-tax.page",
+    "url": "https://home4.nyc.gov/assets/finance/downloads/pdf/25pdf/business_tax_forms/nyc-htx_2025.pdf",
+    "label": "NYC hotel room occupancy tax — Form NYC-HTX 2025 (NYC Dept of Finance)",
+    "why": "r10 (Eric r9): the DOF business page prints 5.875 only in a May 2021 EO; the current NYC-HTX 2025 return prints Additional Tax 5.875% and $2.00 per room per day ($40+ rents). Checked 2026-11-16."
+   }
+  ]
+ }
 }

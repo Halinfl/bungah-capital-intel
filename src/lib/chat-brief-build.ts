@@ -828,6 +828,21 @@ function metricGapLine(short: string, metric: MarketFigure): string {
   return `${short}: no public market-wide or county ${METRIC_GAP_WORD[metric]} on file.`;
 }
 
+/** r10: the cited performance row for a submarket the question names ("Hobby", "Uptown", "Medical Center"). */
+function namedSubmarketFact(perf: Fact[], question: string | undefined, short: string): Fact | undefined {
+  if (!question) return undefined;
+  const q = question.toLowerCase();
+  const own = short.toLowerCase();
+  for (const f of perf) {
+    if (!f.readable || !f.source.url || !f.period) continue;
+    const label = /^([^:]{3,48}):\s/.exec(f.text)?.[1];
+    if (!label) continue;
+    const parts = label.split(/\s*\/\s*|\s*&\s*|,\s*/).map((x) => x.trim().toLowerCase()).filter((x) => x.length >= 4 && x !== own && !/^(downtown|metro|market|county|city|total|houston monthly pulse.*)$/.test(x));
+    if (parts.some((x) => new RegExp(`\\b${x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(q))) return f;
+  }
+  return undefined;
+}
+
 export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: BriefOpts = {}): ChatBrief {
   const lens = lensFor(intent);
   const facts = marketFacts(m);
@@ -901,7 +916,13 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     const anyRevpar = longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text) && !isSpot(f)))[0] ?? longestFirst(perf.filter((f) => REVPAR_FIGURE.test(f.text)))[0];
     const adrHead = asksAdr ? longestFirst(perf.filter((f) => ADR_FIGURE.test(f.text) && !isSpot(f)))[0] : undefined;
     const gapMetric = metric === "supply" ? "revpar" : metric;
-    if (!metrics && !hasPublicMetricFigure(facts, gapMetric) ) {
+    // r10 (Eric r9): a question that names a submarket with its own cited print ("Houston Hobby / NASA") leads with
+    // that submarket's row, at its own period and link (Hobby: OCC 65% (+6%) · Jul 2026, the July Houston First release).
+    const namedSub = namedSubmarketFact(perf, opts.question, short);
+    if (namedSub) {
+      answer = hl("demand", namedSub);
+      reads = perfReads(facts, n, new Set([namedSub.text]));
+    } else if (!metrics && !hasPublicMetricFigure(facts, gapMetric) ) {
       const gap = metricGapLine(short, gapMetric);
       if (slice && gapMetric === "revpar") {
         answer = `${gap} The closest public read is a REIT portfolio slice, not the market: ${hl("demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;

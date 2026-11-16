@@ -23,6 +23,9 @@ type Overlay = {
   snapshotUrls?: Record<string, { url: string; label?: string; checked?: string }>;
   stripUrls?: string[];
   dropItemPatterns?: { re: string; why?: string }[];
+  /** r10: { "<rowId>": [{ from, url, label, why }] } a row's link replaced by the page that actually prints the figure
+   *  (checked by the number-truth gate), e.g. NYC 5.875% → Form NYC-HTX 2025, not the 2021 EO page. */
+  relink?: Record<string, { from: string; url: string; label: string; why?: string }[]>;
 };
 
 const O = data as unknown as Overlay;
@@ -105,8 +108,23 @@ function withoutStrippedUrls<T extends Row>(rows: T[]): T[] {
   return withoutOrphanedFigures(rows as never, survivors as never) as unknown as T[];
 }
 
+/** r10: a row's links after the overlay's relinks (same order; the replaced link takes the old one's place). */
+export function relinked<L extends { url?: string; label?: string }>(id: string | undefined, links: L[]): L[] {
+  const rl = (id && O.relink?.[id]) || [];
+  if (!rl.length) return links;
+  return links.map((l) => {
+    const hit = rl.find((x) => x.from === l?.url);
+    return hit ? ({ ...l, url: hit.url, label: hit.label } as L) : l;
+  });
+}
+
+function withRelinks<T extends Row>(rows: T[]): T[] {
+  if (!O.relink) return rows;
+  return rows.map((r) => (r.id && O.relink![r.id] && Array.isArray(r.sourceUrls) ? ({ ...r, sourceUrls: relinked(r.id, r.sourceUrls as { url?: string }[]) } as T) : r));
+}
+
 export function withNumberTruth<T extends Row>(rows0: T[]): T[] {
-  const rows = withoutStrippedUrls(rows0);
+  const rows = withoutStrippedUrls(withRelinks(rows0));
   const out: T[] = [];
   for (const r of rows) {
     const id = r.id ?? "";
