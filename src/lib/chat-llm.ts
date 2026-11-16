@@ -970,6 +970,8 @@ async function answerChatIn(
   const fallback: ChatAnswer & { brief?: ChatBrief } = await answerFromGraph(question, opts);
   const graphBrief = briefForGraph(question, ctx, digestMemo && ctx.matched ? issuerDigests(question, corpus) : [], range);
   if (graphBrief) fallback.brief = graphBrief;
+  // r10: national debt / rates answers cite exactly their brief's sources, each with its URL.
+  if (graphBrief && !ctx.matched && (ctx.intent === "debt_overlay" || ctx.intent === "rates")) Object.assign(fallback, citedOf(graphBrief));
   // A Fed policy answer cites exactly what it shows (FRED, the FOMC statements, the 10-year row), not the debt memo's list.
   if (graphBrief && ctx.intent === "rates" && isFedPolicyQuestion(question)) fallback.citations = [...new Set((graphBrief.cited ?? []).map((c) => c.label))];
   // A named issuer alongside a market: one memo with a REIT section, not a second answer.

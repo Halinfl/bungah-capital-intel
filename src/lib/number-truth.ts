@@ -41,6 +41,23 @@ function stripPrefix(item: string): string {
 const DROP_RE = (O.dropItemPatterns ?? []).map((d) => new RegExp(d.re, "i"));
 const STRIP = (O.stripUrls ?? []).map((u) => u.toLowerCase());
 const stripped = (u: unknown) => typeof u === "string" && STRIP.some((p) => u.toLowerCase().startsWith(p));
+/** r10: a link the overlay strips (never cited anywhere, including the answer's sources list). */
+export function isStrippedUrl(u: unknown): boolean {
+  return stripped(u);
+}
+const hostOf = (u: string) => {
+  try {
+    return new URL(u).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+};
+/** r10: hosts whose every link in this row was stripped ("simpleviewinc.com"): their name leaves the row's label too. */
+function goneHosts(links: { url?: string }[]): string[] {
+  const hosts = new Set(links.filter((l) => stripped(l?.url)).map((l) => hostOf(l.url!)).filter(Boolean));
+  for (const l of links) if (!stripped(l?.url) && typeof l?.url === "string") hosts.delete(hostOf(l.url));
+  return [...hosts];
+}
 
 function withoutStrippedUrls<T extends Row>(rows: T[]): T[] {
   if (!STRIP.length) return rows;
@@ -57,12 +74,31 @@ function withoutStrippedUrls<T extends Row>(rows: T[]): T[] {
     const body = r.body ?? "";
     const named = STRIP.some((p) => body.toLowerCase().includes(p));
     const sl = r.sourceLabel;
-    const slHit = typeof sl === "string" && STRIP.some((p) => sl.toLowerCase().includes(p));
+    const gone = goneHosts(links);
+    // A label segment names a gone host by its full host or registrable domain ("simpleviewinc.com" for assets.simpleviewinc.com).
+    const named2 = (seg: string, h: string) => {
+      const x = seg.toLowerCase().trim();
+      const reg = h.split(".").slice(-2).join(".");
+      return x.includes(h) || x.includes(reg);
+    };
+    const slGone = (seg: string) => STRIP.some((p) => seg.toLowerCase().includes(p)) || gone.some((h) => named2(seg, h));
+    const slHit = typeof sl === "string" && (STRIP.some((p) => sl.toLowerCase().includes(p)) || gone.some((h) => named2(sl, h)));
     if (keep.length === links.length && !named && !relabeled && !slHit) return r;
     const items = body.split(/\s+\|\s+/);
     const kept = items.filter((it) => !STRIP.some((p) => it.toLowerCase().includes(p)));
     if (items.length && !kept.length) return null;
-    const sourceLabel = slHit ? sl!.split(/;\s*/).filter((seg) => !STRIP.some((p) => seg.toLowerCase().includes(p))).join("; ") : sl;
+    // r10: label segments are split on ";" and " · " ("City of Boston · Commonwealth of Massachusetts · simpleviewinc.com").
+    const sourceLabel = slHit
+      ? sl!
+          .split(/;\s*/)
+          .map((part) => {
+            const tail = part.match(/\s*\((?:accessed|as of)[^)]*\)\s*$/i)?.[0] ?? "";
+            const segs = part.slice(0, part.length - tail.length).split(/\s+·\s+/).filter((seg) => !slGone(seg));
+            return segs.length ? segs.join(" · ") + tail : "";
+          })
+          .filter((x) => x.trim())
+          .join("; ")
+      : sl;
     return { ...r, sourceUrls: keep, body: kept.join(" | "), ...(sl !== undefined ? { sourceLabel } : {}) } as T;
   });
   const survivors = after.filter((r): r is T => r !== null && (!Array.isArray(r.sourceUrls) || (r.sourceUrls as unknown[]).length > 0));

@@ -6,7 +6,7 @@ import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sour
 import { withYellowBuckets, withoutYellowBrokerLists } from "./yellow-sources";
 import { itemLinks, withoutOrphanedFigures } from "./source-provenance";
 import { withVerifiedYoY } from "./tax-yoy";
-import { withNumberTruth } from "./number-truth";
+import { withNumberTruth, isStrippedUrl } from "./number-truth";
 import { withBungahSupplyScores } from "./chat-supply-score";
 import { withoutUnverifiedFigures } from "./licensed-attribution";
 import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
@@ -1359,7 +1359,8 @@ export async function sourcesForAnswer(
   for (const r of rows) {
     if (!content.includes(`**${r.title}**`)) continue;
     for (const l of parseSourceUrls(r.sourceUrls)) {
-      if (seen.has(l.url)) continue;
+      // r10 (Eric r9): an overlay-stripped link (Boston TDMD Simpleview PDF) never reaches the answer's sources.
+      if (seen.has(l.url) || isStrippedUrl(l.url)) continue;
       seen.add(l.url);
       out.push({ ...l, signal: r.title });
     }

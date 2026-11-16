@@ -78,6 +78,9 @@ type Case = {
   followup?: boolean;
   send_prev?: boolean;
   needs_llm?: boolean;
+  /** r10 starter cases: "market:chicago", "reit:HST", "deal:<slug>" (null = plain /chat). */
+  scope?: string | null;
+  range?: "90d" | "12m" | "all";
   expect_http?: number;
   overlong_chars?: number;
 };
@@ -85,6 +88,7 @@ type Case = {
 async function main() {
   installGraphFixture();
   const { answerChat } = await import("@/lib/chat-llm");
+  const { parseScope } = await import("@/lib/chat-scope");
   const spec = JSON.parse(readFileSync("/workspace/bungah-audit/chat-foundation-qa/recheck/golden.json", "utf8"));
   const cases: Case[] = [...(spec.cases || [])];
   const markets: string[] = spec.markets || [];
@@ -108,7 +112,10 @@ async function main() {
     if (c.needs_llm || c.expect_http || c.overlong_chars) continue;
     const q = (c.question || "").trim();
     if (!q) continue;
-    const out = await answerChat(q, { marketSlug: c.market || null, intent: undefined });
+    // r10: starter cases are POSTed the way the chip sends them: the exact string, its item scope and range.
+    const out = c.scope !== undefined
+      ? await answerChat(q, { scope: parseScope(c.scope), range: c.range ?? "all" })
+      : await answerChat(q, { marketSlug: c.market || null, intent: undefined });
     writeFileSync(join(OUT, `${c.id}.json`), JSON.stringify(out, null, 2));
     n += 1;
   }

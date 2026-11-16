@@ -139,6 +139,10 @@ async function main() {
     dropped,
   };
   fs.writeFileSync(OUT, JSON.stringify(result, null, 1) + "\n");
+  // r10: a fingerprint of the offered starters, so a build's list can be compared with the committed file.
+  const { createHash } = await import("node:crypto");
+  const offered = JSON.stringify({ general, market, reit, deal });
+  console.log(`[verify-starters] offered sha256 ${createHash("sha256").update(offered).digest("hex").slice(0, 16)}`);
   const count = (t: Record<string, unknown[]>) => Object.values(t).reduce((n, v) => n + v.length, 0);
   const empty = [...Object.entries(market), ...Object.entries(reit), ...Object.entries(deal)].filter(([, v]) => !v.length).map(([k]) => k);
   console.log(

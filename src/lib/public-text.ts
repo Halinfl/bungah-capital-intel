@@ -411,6 +411,12 @@ const PATH_PUBLISHERS: [RegExp, string][] = [
   [/^https?:\/\/assets\.ctfassets\.net\/2pnrhs9eukyp\//, "Harry Reid International Airport"],
   [/^https?:\/\/assets\.ctfassets\.net\/m2p70vmwc019\//, "DFW Airport"],
   [/^https?:\/\/assets\.simpleviewcms\.com\/simpleview\/image\/upload\/v1\/clients\/lasvegas\//, "LVCVA"],
+  // r10 (Eric r9): Simpleview is a CMS host, never the publisher. Name the client whose document it is.
+  [/^https?:\/\/assets\.simpleviewinc\.com\/[^/]+\/image\/upload\/v1\/clients\/pbi\//, "Palm Beach County Department of Airports"],
+  [/^https?:\/\/assets\.simpleviewinc\.com\/[^/]+\/image\/upload\/v1\/clients\/hawaii\//, "Hawaii Tourism Authority"],
+  [/^https?:\/\/assets\.simpleviewinc\.com\/[^/]+\/image\/upload\/v1\/clients\/orlandofl\//, "Visit Orlando"],
+  [/^https?:\/\/assets\.simpleviewinc\.com\/[^/]+\/image\/upload\/v1\/clients\/phoenix\//, "Visit Phoenix"],
+  [/^https?:\/\/assets\.simpleviewinc\.com\/[^/]+\/image\/upload\/v1\/clients\/boston\//, "Meet Boston"],
 ];
 
 /** Real publisher name for a URL (falls back to the registrable domain). Social posts are never sources: a social URL

@@ -224,6 +224,9 @@ const NAME_TO_SLUG: Record<string, string> = {
   "los-angeles": "los-angeles",
 };
 
+/** Row markets that are their own covered market and must never ride along with a neighbor's slug. */
+const OTHER_MARKET_ROW = /^(palm-beach|west-palm-beach|fort-lauderdale|broward)$/;
+
 function isNational(row: AirliftSignal): boolean {
   const m = norm(row.market || "");
   const scope = (row.scope || "").toLowerCase();
@@ -238,9 +241,13 @@ function marketMatches(row: AirliftSignal, slug?: string | null, name?: string |
   const n = norm(name ?? "");
   const sMapped = NAME_TO_SLUG[s] || s;
   const nMapped = NAME_TO_SLUG[n] || n;
+  // r10 (Eric r9 Miami/FLL/PBI): a row belongs to exactly one market. Its market must BE this market (slug, mapped
+  // name, or the first segment of the market's name, e.g. "Miami" for "Miami–Fort Lauderdale–West Palm Beach MSA"),
+  // never a substring of it: a "Palm Beach" (PBI) row must not attach to the Miami MSA because the MSA name lists it.
+  const firstOf = (x: string) => x.split("-msa")[0];
   return Boolean(
-    (s && (mapped === s || mapped === sMapped || m.includes(s) || s.includes(m))) ||
-      (n && (mapped === n || mapped === nMapped || m.includes(n) || n.includes(m)))
+    (s && (mapped === s || mapped === sMapped || (m.length >= 4 && s.startsWith(m + "-") && !OTHER_MARKET_ROW.test(m)))) ||
+      (n && (mapped === n || mapped === nMapped || firstOf(n) === mapped || (m.length >= 4 && n.startsWith(m + "-"))))
   );
 }
 
