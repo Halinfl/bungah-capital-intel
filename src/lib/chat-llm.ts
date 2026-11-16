@@ -138,6 +138,52 @@ export function stripLeadingPunctuation(text: string): string {
     .trimStart();
 }
 
+const CITED_MISS_PREFIX = /^\s*I couldn't find a cited source right now\.?\s*/i;
+
+/** Drop the canned cited-source-miss sentence from the start of an answer. */
+export function stripCitedMissPreface(text: string): string {
+  return text.replace(CITED_MISS_PREFIX, "").trimStart();
+}
+
+/**
+ * Meaning / definition asks ("what does ADR mean", "what is RevPAR", "define cap rate"),
+ * not figure or market-trend questions ("What is RevPAR doing in Miami?").
+ */
+export function isDefinitionalQuestion(question: string): boolean {
+  let q = question.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ");
+  if (!q) return false;
+  q = q
+    .replace(/^(please |can you |could you |would you )/i, "")
+    .replace(/^in (one|a|two|three|\d+) sentences?,?\s+/i, "")
+    .replace(/^in a few words,?\s+/i, "")
+    .replace(/[,;]?\s+in (one|a|two|three|\d+) sentences?$/i, "")
+    .replace(/[,;]?\s+in a few words$/i, "")
+    .replace(/\s+in (hotels?|hospitality|lodging|real estate)\b/gi, "")
+    .replace(/[?.!,;:]+$/g, "")
+    .trim();
+  if (!q) return false;
+  if (
+    /\b(doing|trend|latest|ytd|yoy|compared|versus|\bvs\b|how (much|many|is|are|has|have)|read for|picture|collections?|visitation|traffic|passengers?)\b/i.test(
+      q
+    )
+  ) {
+    return false;
+  }
+  if (
+    /\b(nyc|n\.?y\.?c\.?|new york|miami|dallas|houston|nashville|chicago|boston|atlanta|orlando|seattle|honolulu|phoenix|tampa|los angeles|san francisco|denver|austin|washington|fll|pbi)\b/i.test(
+      q
+    )
+  ) {
+    return false;
+  }
+  return /^(what does .+ (mean|stand for)|what(?:'s| is| are) (?:a |an |the )?.+|what's .+|define(?: the)? .+|definition of(?: the)? .+|meaning of(?: the)? .+)$/i.test(
+    q
+  );
+}
+
+const DEFINITIONAL_INSTRUCTIONS =
+  "This is a definitional question. Answer the definition plainly in ordinary language. Do not start with 'I couldn't find a cited source right now.' If the answer carries no figures, it needs no citation. Do not invent numbers, dates, or sources.";
+
 export function isNoMarketMemo(content: string): boolean {
   return /didn't match a market we cover/i.test(content);
 }
@@ -820,7 +866,7 @@ async function answerChatIn(
     // Current-fact questions: run open search BEFORE the first LLM call so a pack timeout
     // cannot fall through to the canned no-market memo without searching.
     let live: Awaited<ReturnType<typeof freeLiveSearch>> = null;
-    const wantSearchFirst = isWebSearchEnabled() && needsCurrentFacts(question) && !packHasFacts;
+    const wantSearchFirst = isWebSearchEnabled() && needsCurrentFacts(question) && !packHasFacts && !isDefinitionalQuestion(question);
     if (wantSearchFirst) {
       const capS = checkSearchCap(opts.llmSubject ?? "anon");
       if (capS.ok) {
@@ -847,7 +893,9 @@ async function answerChatIn(
             "",
           ].join("\n")
         : "=== ALLOWED AUTHORED CORPUS ===\n(none matched this question)\n=== END CORPUS ===\n",
-      "Answer the visitor now. If the pack has the facts, lead with them (From our cited data). If you used cited open sources, start with From cited open sources and follow the license rules. If this is a general or conversational question, just answer helpfully without inventing figures.",
+      isDefinitionalQuestion(question)
+        ? DEFINITIONAL_INSTRUCTIONS
+        : "Answer the visitor now. If the pack has the facts, lead with them (From our cited data). If you used cited open sources, start with From cited open sources and follow the license rules. If this is a general or conversational question, just answer helpfully without inventing figures.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -869,7 +917,7 @@ async function answerChatIn(
       if (used) reconcileLlmTokens(used, estimated);
       let content = stripLeadingPunctuation(stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim())));
       let citations = citationsUsedInAnswer(content, sourceList);
-      const packHasAnswer = packHasFacts && citations.length > 0 && !live;
+      const packHasAnswer = packHasFacts && citations.length > 0 && !live && !isDefinitionalQuestion(question);
       // If the pack-first call (no pre-search) still lacks a cited current-fact answer, search now and retry once.
       if (
         isWebSearchEnabled() &&
@@ -902,6 +950,9 @@ async function answerChatIn(
       }
       const fail = inspectLlmAnswer(content);
       if (content && !fail) {
+        if (isDefinitionalQuestion(question)) {
+          content = stripCitedMissPreface(content);
+        }
         if (packHasAnswer && !/^from our cited data/i.test(content) && !/^from cited open sources/i.test(content)) {
           content = `From our cited data:\n\n${content}`;
         }
@@ -929,7 +980,7 @@ async function answerChatIn(
       const { text: bg } = await generateText({
         model: model as Parameters<typeof generateText>[0]["model"],
         system: SYSTEM_PROMPT,
-        prompt: [historyBlock, `User question: ${question}`, "", "I couldn't complete a fully cited answer. Start with exactly: I couldn't find a cited source right now. Then give brief general background. Do not invent figures, dates, or sources."].join("\n"),
+        prompt: [historyBlock, `User question: ${question}`, "", isDefinitionalQuestion(question) ? DEFINITIONAL_INSTRUCTIONS : "I couldn't complete a fully cited answer. Start with exactly: I couldn't find a cited source right now. Then give brief general background. Do not invent figures, dates, or sources."].join("\n"),
         maxOutputTokens: 400,
         abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
@@ -937,7 +988,11 @@ async function answerChatIn(
       // Last-resort background must not invent figures (cap rates, percents, dollar amounts).
       const inventedBg = /\$[\d,]+|\b\d+(?:\.\d+)?\s*%|\bcap rates?\b|\bprice per key\b|\bmid-single digits?\b/i.test(bgContent);
       if (bgContent && !inspectLlmAnswer(bgContent) && !isNoMarketMemo(bgContent) && !inventedBg) {
-        const content = bgContent.toLowerCase().includes("couldn't find a cited source") ? bgContent : softCitedMiss(bgContent);
+        const content = isDefinitionalQuestion(question)
+          ? stripCitedMissPreface(bgContent)
+          : bgContent.toLowerCase().includes("couldn't find a cited source")
+            ? bgContent
+            : softCitedMiss(bgContent);
         return withNote(
           finalize(
             { content, citations: [], intent: ctx.intent, marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null, mode: "llm" },
@@ -947,6 +1002,14 @@ async function answerChatIn(
       }
     } catch {
       // static miss below
+    }
+    if (isDefinitionalQuestion(question)) {
+      return withNote(
+        finalize(
+          { content: "I couldn't complete a definition just now. Please try again. I won't invent figures.", citations: [], intent: ctx.intent, marketSlug: ctx.matched?.slug ?? opts?.marketSlug ?? null, mode: "llm" },
+          false
+        )
+      );
     }
     if (history.length || !/\b(revpar|occupancy|adr|pipeline|supply|demand|hotel tax|how is\b.{0,40}\bdoing)\b/i.test(question)) {
       return withNote(
@@ -1016,7 +1079,7 @@ async function answerChatIn(
     mode: "deterministic",
   };
   // Never return the canned "we don't cover that market" memo for a general question or a follow-up.
-  if (isNoMarketMemo(answer.content) && ((opts.history && opts.history.length > 0) || !wantsMarketData)) {
+  if (isNoMarketMemo(answer.content) && ((opts.history && opts.history.length > 0) || !wantsMarketData) && !isDefinitionalQuestion(question)) {
     answer.content = softCitedMiss();
     answer.brief = undefined;
     answer.citations = [];

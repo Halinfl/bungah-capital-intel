@@ -31,7 +31,7 @@ import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFacts
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "../../src/lib/chat-str";
 import { buildGdeltQuery, isCurrentEventsQuestion, needsCurrentFacts } from "../../src/lib/chat-web-search";
-import { CITED_SOURCE_MISS, isNoMarketMemo, stripLeadingPunctuation } from "../../src/lib/chat-llm";
+import { CITED_SOURCE_MISS, isDefinitionalQuestion, isNoMarketMemo, stripCitedMissPreface, stripLeadingPunctuation } from "../../src/lib/chat-llm";
 import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
@@ -427,6 +427,20 @@ test("r10d: stripLeadingPunctuation drops a leftover leading comma from LLM text
   assert.equal(stripLeadingPunctuation("ADR is the average revenue earned per occupied room per day."), "ADR is the average revenue earned per occupied room per day.");
   assert.equal(stripLeadingPunctuation("From cited open sources:, the FAA issued a nationwide ground stop"), "From cited open sources: the FAA issued a nationwide ground stop");
   assert.equal(stripLeadingPunctuation(""), "");
+});
+
+test("r10d: definitional questions are recognized and the cited-source miss preface is stripped", () => {
+  for (const q of ["what does ADR mean", "What does ADR mean in hotels, in one sentence?", "what is RevPAR", "what's RevPAR?", "define cap rate", "definition of cap rate", "In two sentences, what is a hotel ground lease?", "What is a hotel occupancy rate, in a few words?"]) {
+    assert.equal(isDefinitionalQuestion(q), true, q);
+  }
+  for (const q of ["What is RevPAR doing in Miami?", "What's the RevPAR and occupancy read for Nashville?", "What is the NYC hotel occupancy-tax rate?", "How is Miami and FLL airport traffic and visitation?", "What's the latest ADR in Miami?"]) {
+    assert.equal(isDefinitionalQuestion(q), false, q);
+  }
+  assert.equal(stripCitedMissPreface("I couldn't find a cited source right now. ADR (Average Daily Rate) is the average revenue earned per occupied room per day."), "ADR (Average Daily Rate) is the average revenue earned per occupied room per day.");
+  assert.equal(stripCitedMissPreface("ADR is the average revenue per occupied room."), "ADR is the average revenue per occupied room.");
+  const src = readFileSync(resolve("src/lib/chat-llm.ts"), "utf8");
+  assert.match(src, /DEFINITIONAL_INSTRUCTIONS/);
+  assert.match(src, /isDefinitionalQuestion\(question\)/);
 });
 
 test("r10d: the chat route caches deterministic answers even when Groq is on, never LLM or personal content", () => {
