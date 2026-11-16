@@ -132,10 +132,24 @@ export const CITED_SOURCE_MISS = "I couldn't find a cited source right now.";
 
 /** Drop leftover leading commas/colons/dots (e.g. the FAA answer that started with ","). */
 export function stripLeadingPunctuation(text: string): string {
-  return text
+  const stripped = text
     .replace(/^[\s,;:.·•…]+/u, "")
     .replace(/^(From (?:our cited data|cited open sources):\s*)[,;:.·•…]+/i, "$1")
     .trimStart();
+  return capitalizeFirstLetter(stripped);
+}
+
+/**
+ * Upper-case the first letter of the answer (and of the text right after a "From …:" lead-in), so a
+ * stripped ", the FAA imposed…" reads "The FAA imposed…". Only a lower-case first letter changes;
+ * tokens that should stay lower-case at the start (URLs, "iPhone"-style brands, numbers) are left alone.
+ */
+export function capitalizeFirstLetter(text: string): string {
+  const cap = (s: string) =>
+    /^(?:[a-z][a-z0-9+.-]*:\/\/|www\.)/i.test(s) ? s : s.replace(/^([a-z])(?=[a-z\s'’,-])/u, (m) => m.toUpperCase());
+  const lead = /^(From (?:our cited data|cited open sources):\s*)/i.exec(text);
+  if (lead) return lead[1] + cap(text.slice(lead[1].length));
+  return cap(text);
 }
 
 const CITED_MISS_PREFIX = /^\s*I couldn't find a cited source right now\.?\s*/i;

@@ -422,10 +422,14 @@ test("the canned no-market memo is recognized, and the soft fallback never uses 
 });
 
 test("r10d: stripLeadingPunctuation drops a leftover leading comma from LLM text", () => {
-  assert.equal(stripLeadingPunctuation(", the FAA issued a nationwide ground stop"), "the FAA issued a nationwide ground stop");
+  assert.equal(stripLeadingPunctuation(", the FAA issued a nationwide ground stop"), "The FAA issued a nationwide ground stop");
   assert.equal(stripLeadingPunctuation("  ;:…  Recovery was slow"), "Recovery was slow");
   assert.equal(stripLeadingPunctuation("ADR is the average revenue earned per occupied room per day."), "ADR is the average revenue earned per occupied room per day.");
-  assert.equal(stripLeadingPunctuation("From cited open sources:, the FAA issued a nationwide ground stop"), "From cited open sources: the FAA issued a nationwide ground stop");
+  assert.equal(stripLeadingPunctuation("From cited open sources:, the FAA issued a nationwide ground stop"), "From cited open sources: The FAA issued a nationwide ground stop");
+  assert.equal(stripLeadingPunctuation("the FAA imposed ground stops"), "The FAA imposed ground stops");
+  assert.equal(stripLeadingPunctuation("eBay-style brand"), "eBay-style brand");
+  assert.equal(stripLeadingPunctuation("https://www.faa.gov lists it"), "https://www.faa.gov lists it");
+  assert.equal(stripLeadingPunctuation("12,462 flights were cancelled"), "12,462 flights were cancelled");
   assert.equal(stripLeadingPunctuation(""), "");
 });
 
