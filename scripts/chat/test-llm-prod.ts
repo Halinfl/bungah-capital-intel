@@ -25,7 +25,7 @@ import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat
 import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
 import { formatSupplyPressureLead, formatSupplyPressureCard } from "../../src/lib/chat-supply-score";
 import { isLicensedAttributionUrl } from "../../src/lib/licensed-attribution";
-import { isLicensedLink, creditsLicensedSource } from "../../src/lib/licensed-sources";
+import { isLicensedLink, creditsLicensedSource, stripLicensed, withoutLicensedSources } from "../../src/lib/licensed-sources";
 
 import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFactsFor } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
@@ -487,6 +487,61 @@ test("Nashville supply-pressure lead is a Bungah score with no LE counts or cred
   const card = formatSupplyPressureCard(sig);
   assert.match(card.title, /Bungah supply-pressure score 4\/5/);
   assert.doesNotMatch(card.body, /122|16,281|lodgingeconometrics/i);
+});
+
+test("generic LE abbreviations and mixed LE rollups are licensed and dropped", () => {
+  assert.equal(creditsLicensedSource("Total pipeline (LE MSA): 122 · 16,281"), true);
+  assert.equal(creditsLicensedSource("Stage rollup (LE Q2 2026 public)"), true);
+  const row = {
+    title: "Nashville pipeline: Stage rollup",
+    body: "Total pipeline (LE MSA): 122 · 16,281 | Start next 12 mo: 49 · 6,623 | Downtown UC (NDP): 1,515.",
+    sourceLabel: "Lodging Econometrics · ctycms.com",
+    sourceUrls: [
+      { url: "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/", label: "Lodging Econometrics" },
+      { url: "https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf", label: "ctycms.com" },
+    ],
+  };
+  assert.equal(stripLicensed(row), null);
+  const kept = withoutLicensedSources([row]);
+  assert.equal(kept.length, 0);
+});
+
+test("unverified LA OCC, NYC 5.875% wrapper rate, and Boston 6.5% wrapper rate are dropped", async () => {
+  const { withoutUnverifiedFigures } = await import("../../src/lib/licensed-attribution");
+  const rows = withoutUnverifiedFigures([
+    {
+      marketSlug: "los-angeles",
+      title: "Los Angeles visitation / demand volume",
+      body: "Visitors 2025: 49.5M (Discover Los Angeles) | Hotel OCC 2025 (thru Nov): 71.6%; ADR $196; RevPAR flat YoY (2026 (secondary); source: https://www.hotel-online.com/news/hotel-market-outlook-2026-a-market-by-market-analysis)",
+      sourceLabel: "Discover Los Angeles · Hotel Online",
+      sourceUrls: [
+        { url: "https://www.discoverlosangeles.com/visitors-to-los-angeles-generated-426-billion-in-business-sales-and-supported-more-than-530000-jobs" },
+        { url: "https://www.hotel-online.com/news/hotel-market-outlook-2026-a-market-by-market-analysis" },
+      ],
+    },
+    {
+      marketSlug: "new-york-city",
+      title: "New York City hotel occupancy tax, quarterly cash receipts — Jan–Mar 2026 (FY2026 Q3)",
+      body: "Receipts: $194M. NYC hotel room occupancy tax 5.875% + $2.00/room-night.",
+      sourceLabel: "NYC Comptroller Quarterly Cash Report",
+    },
+    {
+      marketSlug: "boston",
+      title: "Boston local room occupancy excise, annual — FY2025 (Jul 2024–Jun 2025)",
+      body: "Amount: $147,088,220. Boston local room occupancy excise 6.5% (state 5.7% and 2.75% convention center fee not included; total 14.95%).",
+      sourceLabel: "City of Boston budget",
+    },
+  ]);
+  const la = rows.find((r) => r.marketSlug === "los-angeles");
+  assert.ok(la);
+  assert.doesNotMatch(la!.body ?? "", /71\.6%|ADR \$196/);
+  assert.match(la!.body ?? "", /49\.5M/);
+  const nyc = rows.find((r) => r.marketSlug === "new-york-city");
+  assert.ok(nyc);
+  assert.doesNotMatch(nyc!.body ?? "", /5\.875%/);
+  const bos = rows.find((r) => r.marketSlug === "boston");
+  assert.ok(bos);
+  assert.doesNotMatch(bos!.body ?? "", /6\.5%/);
 });
 
 test("a fake DOI question is refused before market routing", async () => {

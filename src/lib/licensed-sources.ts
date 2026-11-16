@@ -62,6 +62,12 @@ const LICENSED_CREDIT = new RegExp(
     String.raw`sources?:\s*STR,?\s*Inc`,
     String.raw`source:\s*STR\b(?![\s-]*(?:units?|listings?|rentals?|ordinance|permits?|TOT|tax|registry|remit))`,
     String.raw`\blodging econometrics\b`,
+    // Abbreviated LE credits on stage-rollup rows ("LE MSA", "LE Q2 2026 public", "(LE Q2)").
+    String.raw`\bLE\s+Q[1-4]\b`,
+    String.raw`\bLE\s+MSA\b`,
+    String.raw`\bLE\s+top-\d`,
+    String.raw`\(LE\s+(?:Q[1-4]|MSA|top-\d)`,
+    String.raw`stage rollup \(LE`,
     String.raw`according to (?:data (?:provided by|from|firm) )?co-?star`,
     String.raw`costar results`,
   ].join("|"),
@@ -124,11 +130,19 @@ export function stripLicensed<T extends Row>(r: T, fp: Set<string> = new Set(), 
   return res;
 }
 
+function isLodgingEconometricsRow(r: Row, links: Link[], label: string): boolean {
+  const blob = `${r.title ?? ""} ${r.body ?? ""} ${label} ${r.magnitude ?? ""}`;
+  if (/lodging econometrics/i.test(blob) || /lodgingeconometrics\.com/i.test(blob)) return true;
+  return links.some((l) => /lodgingeconometrics\.com/i.test(l.url ?? "") || /lodging econometrics/i.test(l.label ?? ""));
+}
+
 function stripLicensedInner<T extends Row>(r: T, hasFp: (t: string | null | undefined) => boolean, removedOut?: string[]): T | null {
   const links: Link[] = Array.isArray(r.sourceUrls) ? (r.sourceUrls as Link[]) : [];
   const licLinks = links.filter(isLicensedLink);
   const label = r.sourceLabel ?? "";
   const labelLicensed = isLicensedText(label) || LICENSED_URL.test(label);
+  // LE pipeline counts are licensed. A mixed row that also cites a public PDF must not keep the counts.
+  if (isLodgingEconometricsRow(r, links, label)) return null;
   const body = r.body ?? "";
   const touched = licLinks.length > 0 || labelLicensed || isLicensedText(body) || isLicensedText(r.title) || isLicensedText(r.magnitude) || hasFp(body) || hasFp(r.title);
   if (!touched) return r;

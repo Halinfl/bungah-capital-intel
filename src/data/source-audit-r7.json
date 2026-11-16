@@ -512,6 +512,24 @@
       "title": "Nashville hotel occupancy tax \u2014 FY2026 YTD Jul 2025\u2013Feb 2026, tourism-promotion share",
       "figure": "$2.50/room",
       "kind": "tax"
+    },
+    {
+      "marketSlug": "los-angeles",
+      "title": "Los Angeles visitation / demand volume",
+      "figure": "71.6%",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts",
+      "figure": "5.875%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston local room occupancy excise, annual",
+      "figure": "6.5%",
+      "kind": "tax"
     }
   ]
 }

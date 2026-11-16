@@ -30,7 +30,7 @@ async function main() {
   for (const t of ["Dallas STR ordinance upheld", "STR TOT (3114): $3,342,998", "STR revenue $540M = 21% of lodging revenue", "hotel vs STR remit scope varies", "city hotel tax $18.24M + STR hotel tax $3.59M", "(STR/short-term rental share 8.7%)", "STR listings ~+80%, STR OCC ~−20%", "Aerolux (121) is an STR-unit building", "Los Angeles city TOT (hotel + STR)", "oversupply was STR, not hotel keys", "Cottage/STR is the primary bed-base", "Underwrite against STR competition", "streets", "STRATEGY", "sources: City Controller, STR registry", "source: STR permits data"])
     check(!isLicensedText(t), `not licensed (short-term rental / other): ${t}`);
   check(isLicensedLink({ url: "https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/x" }) && isLicensedLink({ url: "https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf" }) && !isLicensedLink({ url: "https://roadgenius.com/x", label: "County YTD" }), "licensed links");
-  for (const t of ["By the Numbers / Source: CoStar Group, Inc.", "Data Sources: STR, CoStar, and Kidder Mathews Valuation.", "© 2026 CoStar Group - Licensed to Wronka, Ltd. Commercial Real Estate.", "Source: CoSTAR.", "relying on CoStar data", "Source: STR, Inc.", "Sources: BLS; CoStar Group, Inc.; Real Capital Analytics.", "Source: Kalibri Labs, Newmark", "HotStats occupancy report", "Pipeline Trend Report from Lodging Econometrics"]) {
+  for (const t of ["By the Numbers / Source: CoStar Group, Inc.", "Data Sources: STR, CoStar, and Kidder Mathews Valuation.", "© 2026 CoStar Group - Licensed to Wronka, Ltd. Commercial Real Estate.", "Source: CoSTAR.", "relying on CoStar data", "Source: STR, Inc.", "Sources: BLS; CoStar Group, Inc.; Real Capital Analytics.", "Source: Kalibri Labs, Newmark", "HotStats occupancy report", "Pipeline Trend Report from Lodging Econometrics", "Total pipeline (LE MSA): 122 · 16,281", "Atlanta pipeline: Stage rollup (LE Q2 2026 public)"]) {
     check(creditsLicensedSource(t) && isLicensedText(t), `credits licensed: ${t}`);
   }
   const pulse = stripLicensed({
@@ -43,6 +43,16 @@ async function main() {
   check(pulse?.body === "Nashville — Latest pulse (D2). County YTD: OCC 69.4% | Event weekends 2026: CMA Fest 89.4%. Decision support." && pulse?.sourceLabel === "roadgenius.com · fort-nash.com (accessed 2026-10-11)" && (pulse?.sourceUrls as unknown[]).length === 2 && pulse?.magnitude === "2 rows", `pulse strip: ${JSON.stringify(pulse)}`);
   check(stripLicensed({ title: "Nashville Q2 2026 (C&W MarketBeat, STR/CoStar): OCC 71.7%", body: "x", sourceLabel: "C&W", sourceUrls: [] }) === null, "STR/CoStar title row dropped");
   check(stripLicensed({ title: "Miami August", body: "OCC 63.6%; week RevPAR −8.5%.", sourceLabel: "Miami Business; Lodging Magazine (CoStar)", sourceUrls: [{ url: "https://miamibusiness.com/a", label: "Miami Business" }, { url: "https://lodgingmagazine.com/costar-u-s-hotel", label: "Lodging Magazine" }] }) === null, "CoStar-cited row with no separable item dropped");
+  const leRollup = stripLicensed({
+    title: "Nashville pipeline: Stage rollup",
+    body: "Nashville — Stage rollup. Total pipeline (LE MSA): 122 · 16,281 | Start next 12 mo: 49 · 6,623 | Downtown UC (NDP): 1,515.",
+    sourceLabel: "Lodging Econometrics · ctycms.com (accessed 2026-10-11)",
+    sourceUrls: [
+      { url: "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/", label: "Lodging Econometrics" },
+      { url: "https://ctycms.com/tn-nashville/docs/2026-market-conditions-report-q2-1.pdf", label: "ctycms.com" },
+    ],
+  });
+  check(leRollup === null, "LE stage-rollup mixed row dropped whole (no leftover 6,623)");
   // A licensed print republished by another publisher (same market's rows) goes too, rounded or not.
   const rep = withoutLicensedSources([
     { title: "Chicago supply: Latest pulse", body: "Chicago — Latest pulse (D2). CoStar wk ending Aug 8: ADR +15.2% to $206.21 | Other: x", sourceLabel: "CoStar", sourceUrls: [{ url: "https://costar.com/a", label: "CoStar wk ending Aug 8" }, { url: "https://x.org", label: "Other" }] },

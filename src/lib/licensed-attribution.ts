@@ -102,8 +102,9 @@ function dropToken(text: string, token: string): string {
     .map((item) => {
       if (!item.includes(token)) return item;
       const next = item.replace(new RegExp(escapeRe(token), "g"), "").replace(/\s{2,}/g, " ").replace(/[·,:;/]\s*$/g, "").trim();
-      // If the clause was essentially just this figure, drop it.
-      return /\d/.test(next) && next.length >= 24 ? next : "";
+      // If the clause was essentially just this figure, or only a year remains, drop it.
+      const onlyYears = !/\d/.test(next.replace(/\b20\d{2}\b/g, ""));
+      return /\d/.test(next) && next.length >= 24 && !onlyYears ? next : "";
     })
     .filter(Boolean);
   return kept.join(" | ");
