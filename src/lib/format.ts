@@ -120,7 +120,7 @@ export function citedOnly<T extends SeedCheckable>(rows: T[]): T[] {
 export function publicRows<T extends SeedCheckable & { kind?: string | null; sourceLabel?: string | null }>(rows: T[]): T[] {
   // No STR/CoStar-cited figure and no brand-vs-brand loan framing on a public page (Hal, Nov 13 2026).
   const base = withoutRules(citedOnly(rows));
-  return withNumberTruth(withVerifiedYoY(withoutOrphanedFigures(
+  return withVerifiedYoY(withNumberTruth(withoutOrphanedFigures(
     base as never,
     withYellowBuckets(
       withNeutralBrands(

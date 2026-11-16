@@ -171,6 +171,10 @@
    {
     "match": "Jul 2026 total pax: 9,760,810",
     "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (atl.com 403)"
+   },
+   {
+    "match": "Spirit: 503,941 YTD pax",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (atl.com 403)"
    }
   ],
   "w1p-atlanta-named-projects": [
@@ -219,6 +223,14 @@
    {
     "match": "Bay Area UC (2025)",
     "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (hotel-online.com 403)"
+   },
+   {
+    "match": "SF city UC (2025 / 2024)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (hotel-online.com 403)"
+   },
+   {
+    "match": "Bay Area UC (2024)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (hotel-online.com 403)"
    }
   ],
   "w1s-san-francisco-bay-snapshot": [
@@ -241,6 +253,36 @@
    {
     "match": "FLL international: Aug 425,608",
     "why": "shown against the MIA report (not its own source)"
+   },
+   {
+    "match": "FLL carrier mix",
+    "why": "shown against the MIA report (not its own source)"
+   }
+  ],
+  "w1p-san-diego-named-projects": [
+   {
+    "match": "Tru + Home2 Suites, 5th & Ash",
+    "why": "value not on the cited page (133 + 130; Apr 2026)"
+   },
+   {
+    "match": "Le Méridien San Diego Pinnacle",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (sandiego.org 403)"
+   }
+  ],
+  "w1t-san-diego-3-2-pre-open-risk-named-openings": [
+   {
+    "match": "Tru + Home2 Suites, 5th & Ash",
+    "why": "period not on the cited page (Apr 2026 forecast)"
+   },
+   {
+    "match": "Le Méridien San Diego Pinnacle",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (sandiego.org 403)"
+   }
+  ],
+  "w1c-san-diego-tax-lodging-tax-stack": [
+   {
+    "match": "City TOT after Measure C",
+    "why": "value not on the cited page (59% / 41% / 10% split)"
    }
   ]
  },
@@ -360,6 +402,20 @@
     "find": " = 45.4%",
     "replace": "",
     "why": "value not on the cited page (computed share)"
+   }
+  ],
+  "w1d-seattle-d6": [
+   {
+    "find": "52,715,181 (record; +0.08%)",
+    "replace": "52,715,181 (record)",
+    "why": "value not on the cited page (+0.08%)"
+   }
+  ],
+  "w1d-atlanta-d3": [
+   {
+    "find": "1.15M out-of-state visitors",
+    "replace": "1.15M out-of-state attendance",
+    "why": "re-worded to the page: \"out-of-state attendance of 1.15 million\""
    }
   ]
  },

@@ -902,7 +902,7 @@ export async function retrieveGraphContext(
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
     const base = withoutRules(withoutSocial(citedOnly(m.signals)));
     // r9: a figure leaves with the source it came from; never re-pointed at a surviving link.
-    m.signals = withNumberTruth(withVerifiedYoY(withoutOrphanedFigures(base, withoutYellowBrokerLists(withYellowBuckets(publicSafe(base, [snapLabels.get(m.id) ?? ""]))))));
+    m.signals = withVerifiedYoY(withNumberTruth(withoutOrphanedFigures(base, withoutYellowBrokerLists(withYellowBuckets(publicSafe(base, [snapLabels.get(m.id) ?? ""]))))));
     m.assets = citedOnly(m.assets);
   }
   const nationalBase = withoutRules(withoutSocial(citedOnly(
