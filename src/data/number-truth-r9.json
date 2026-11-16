@@ -36,7 +36,8 @@
   "tax-san-francisco-bay-201706-sco": "value not on the cited page (FY2017 row not in the State Controller export)",
   "w1x-la-super-bowl-2027": "value not on the cited page",
   "w1x-fll-spirit": "period not on the cited page (mixes the ~May 2 shutdown date with Aug pax)",
-  "w1-mia-grand-hyatt-mb": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (miamibeachconvention.com 403)"
+  "w1-mia-grand-hyatt-mb": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (miamibeachconvention.com 403)",
+  "tax-houston-202412-tx": "r10: the cited data.texas.gov export never prints the 2024 reporting year next to the Houston row (only the 2025-02-26 filing date)"
  },
  "items": {
   "w1c-chicago-tax-lodging-tax-stack": [
@@ -59,6 +60,10 @@
    {
     "match": "Venue HOT (Prop A, Nov 2022; Brimer Bill)",
     "why": "value not on the cited page"
+   },
+   {
+    "match": "Subtotal tax: 15%",
+    "why": "r10: value not on the cited page (15% there is the late-payment penalty)"
    }
   ],
   "w1c-atlanta-tax-lodging-tax-stack": [
@@ -73,6 +78,10 @@
    {
     "match": "Total: 16.9% + $5/night",
     "why": "arithmetic total of dropped components"
+   },
+   {
+    "match": "State hotel-motel fee",
+    "why": "r10: the cited GA DOR FAQ prints $5.00 with no effective date (accessed-date waiver removed per Eric r9)"
    }
   ],
   "w1c-new-york-city-tax-lodging-tax-stack": [
@@ -284,6 +293,22 @@
     "match": "City TOT after Measure C",
     "why": "value not on the cited page (59% / 41% / 10% split)"
    }
+  ],
+  "w1c-miami-tax-lodging-tax-stack": [
+   {
+    "match": "FL state sales tax: 6%",
+    "why": "r10: cited Miami-Dade service page has no dated 6% rate (accessed-date waiver removed)"
+   },
+   {
+    "match": "Miami Beach Resort Tax (rooms): 4%",
+    "why": "r10: cited Miami Beach page prints 4% with no effective date (accessed-date waiver removed)"
+   }
+  ],
+  "w1d-houston-d7": [
+   {
+    "match": "GRB South expansion: Opens May 2028",
+    "why": "r10: May 2028 opening is not on the cited GRB South analysis PDF (only +337,400 is)"
+   }
   ]
  },
  "edits": {
@@ -421,6 +446,197 @@
     "find": "1.15M out-of-state visitors",
     "replace": "1.15M out-of-state attendance",
     "why": "re-worded to the page: \"out-of-state attendance of 1.15 million\""
+   }
+  ],
+  "w1c-san-diego-tax-collections-and-dmo-budget": [
+   {
+    "find": "Total TOT, base 10.5¢ (GF + TOT Fund)",
+    "replace": "Total TOT (GF + TOT Fund)",
+    "why": "r10: '10.5¢' is not on the cited Q1 monitoring report"
+   }
+  ],
+  "w1d-houston-d6": [
+   {
+    "find": "2025 system pax: 62M",
+    "replace": "2025 Houston airports passengers: 62M",
+    "why": "r10: label worded as the cited Houston First page ('Houston airports served 62 million passengers'); same value, page, period"
+   }
+  ],
+  "w1s-washington-dc-snapshot": [
+   {
+    "find": "$11.9B spend (+4%)",
+    "replace": "$11.9B spent (+4%)",
+    "why": "r10: label worded as the cited Bisnow page ('Visitors in 2025 spent $11.9B, a 4% rise'); same value, page, period"
+   }
+  ],
+  "w1-dc-visitation": [
+   {
+    "find": "$11.9B visitor spend (+4%)",
+    "replace": "$11.9B spent by visitors (+4%)",
+    "why": "r10: label worded as the cited Bisnow page"
+   }
+  ],
+  "w1c-san-francisco-bay-tax-lodging-tax-stack": [
+   {
+    "find": "Transient occupancy (hotel room) tax: 14% (1.5 points to arts under 2018 Prop E, ~10.7% of revenue)",
+    "replace": "Hotel tax rate under 2018 Prop E allocation: 14% (1.5 points to arts, ~10.7% of revenue)",
+    "why": "r10: label worded as the cited Controller report ('Proposition E allocated 1.5% of the 14% hotel tax rate'); same value, page"
+   },
+   {
+    "find": "(temporary +1% from 2024-11-01",
+    "replace": "(TID assessment increase +1% from 2024-11-01",
+    "why": "r10: label worded as the cited TID audited FS ('increase of 1% in TID assessment rates effective November 1, 2024')"
+   }
+  ],
+  "tax-miami-201609-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+4.2% taxable revenue)",
+    "replace": "(taxable revenue +4.2%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-201709-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(−0.6% taxable revenue)",
+    "replace": "(taxable revenue −0.6%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-201809-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+13.2% taxable revenue)",
+    "replace": "(taxable revenue +13.2%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-201909-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+2.8% taxable revenue)",
+    "replace": "(taxable revenue +2.8%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202009-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(−31.9% taxable revenue)",
+    "replace": "(taxable revenue −31.9%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202109-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+29.2% taxable revenue)",
+    "replace": "(taxable revenue +29.2%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202209-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+54.9% taxable revenue)",
+    "replace": "(taxable revenue +54.9%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202309-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+2.1% taxable revenue)",
+    "replace": "(taxable revenue +2.1%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202409-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(−0.3% taxable revenue)",
+    "replace": "(taxable revenue −0.3%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   },
+   {
+    "find": " (taxable revenue −0.3%)",
+    "replace": "",
+    "why": "r10: −0.3% sits in the cited table away from any label the gate can anchor; dropped"
+   },
+   {
+    "find": "Growth: −0.3% (published, taxable revenue) · ",
+    "replace": "",
+    "why": "r10: same as above"
+   }
+  ],
+  "tax-miami-202409-tdt": [
+   {
+    "find": "Miami 2% Tourist Development Tax",
+    "replace": "Miami-Dade Tourist Development Tax (2%)",
+    "why": "r10: label worded as the cited budget appendix ('2% Tourist ...'); same value, page"
+   }
+  ],
+  "tax-miami-202509-cdt": [
+   {
+    "find": "Miami 3% Convention Development Tax",
+    "replace": "Miami-Dade Convention Development Tax (3%)",
+    "why": "r10: label worded as the cited bond disclosure ('convention development tax of 3%'); same value, page"
+   },
+   {
+    "find": "(+1.1% taxable revenue)",
+    "replace": "(taxable revenue +1.1%)",
+    "why": "r10: label ahead of the growth figure, as in the cited table"
+   }
+  ],
+  "tax-miami-202509-tdt": [
+   {
+    "find": "Miami 2% Tourist Development Tax",
+    "replace": "Miami-Dade Tourist Development Tax (2%)",
+    "why": "r10: label worded as the cited budget appendix ('2% Tourist ...'); same value, page"
+   }
+  ],
+  "w1d-houston-d3": [
+   {
+    "find": "City visitors 2024 / 2025 projection: 53.9M (52.6M dom / 1.3M intl) / 52M+ (2025 / late 2025; source: https://www.houstonfirst.com/news/visitors-to-the-city-of-houston-spent-nearly-11b-in-2024?news_type=PRESS_RELEASE · https://www.houstonfirst.com/media/uploads/strategicsummary2026_sm.pdf)",
+    "replace": "City visitors 2024: 53.9M (52.6M dom / 1.3M intl) (2024; source: https://www.houstonfirst.com/news/visitors-to-the-city-of-houston-spent-nearly-11b-in-2024?news_type=PRESS_RELEASE)",
+    "why": "r10: the 52M+ 2025 projection is not on the cited 2024 press release; it leaves with its strategic-summary source"
    }
   ]
  },

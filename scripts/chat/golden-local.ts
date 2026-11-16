@@ -111,6 +111,8 @@ async function main() {
   for (const c of cases) {
     if (c.needs_llm || c.expect_http || c.overlong_chars) continue;
     if (process.argv.includes("--starters") && !c.id.startsWith("starter-")) continue;
+    // r10: GOLDEN_IDS=a,b,c regenerates only those fixtures (fast iteration; the full gate always runs all).
+    if (process.env.GOLDEN_IDS && !process.env.GOLDEN_IDS.split(",").includes(c.id)) continue;
     const q = (c.question || "").trim();
     if (!q) continue;
     // r10: starter cases are POSTed the way the chip sends them: the exact string, its item scope and range.
