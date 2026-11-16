@@ -1,13 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse, after } from "next/server";
-import { answerChat, isLlmEnabled } from "@/lib/chat-llm";
+import { answerChat } from "@/lib/chat-llm";
 import { prisma } from "@/lib/prisma";
 import { scrubSeedCitations } from "@/lib/format";
 import { sourcesForAnswer } from "@/lib/chat";
 import { scrubInternal, cleanSourceLabel, guardPublic } from "@/lib/public-text";
 import { parseRange, type ChatBrief, type Citation } from "@/lib/chat-brief";
 import { parseScope } from "@/lib/chat-scope";
-import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/chat-cache";
+import { answerKey, cachedAnswer, dataVersion, lookupCachedAnswer, type CacheStatus } from "@/lib/chat-cache";
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
@@ -233,15 +233,23 @@ export async function POST(req: Request) {
       });
     };
 
-    // Deterministic answers are shared (src/lib/chat-cache.ts). Model answers (spend-locked off) never are.
-    // The key is the question, item, routed market and intent, and window only: the thread's answer
-    // fingerprints (prev.answerHash / prev.seen) never enter it; the repeat check runs after the lookup.
-    const useCache = !isLlmEnabled() && !(TEST_TOGGLES && req.headers.get("x-bungah-test") === "no-cache");
+    // Deterministic, non-personal answers are shared (src/lib/chat-cache.ts), including when Groq is on.
+    // LLM output, signed-in requests, and answers that used prior thread turns are never stored. The key
+    // is the question, item, routed market and intent, and window only: the thread's answer fingerprints
+    // (prev.answerHash / prev.seen) never enter it; the repeat check runs after the lookup.
+    const noCacheToggle = TEST_TOGGLES && req.headers.get("x-bungah-test") === "no-cache";
+    const personal = isPrivate || history.length > 0;
+    const useCache = !noCacheToggle && !personal;
     const version = useCache ? await dataVersion() : "";
     const cardFor = async (q: string, rng: typeof range, rt: { marketSlug: string | null; intent: typeof route.intent }): Promise<{ value: Built; status: CacheStatus }> => {
       if (!useCache) return { value: await build(q, rng, rt)(), status: "bypass" };
       const key = answerKey({ version, question: q, scope, marketSlug: rt.marketSlug, range: rng, intent: rt.intent });
-      return cachedAnswer(key, build(q, rng, rt));
+      const hit = await lookupCachedAnswer<Built>(key);
+      if (hit) return hit;
+      const value = await build(q, rng, rt)();
+      // Never write model output into the shared cache; key and TTL/invalidation stay as they are.
+      if (value.mode === "llm") return { value, status: "bypass" };
+      return cachedAnswer(key, async () => value);
     };
     const r0 = await cardFor(question, range, route);
     let answer: Built = r0.value;

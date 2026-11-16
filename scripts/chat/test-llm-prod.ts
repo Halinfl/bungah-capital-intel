@@ -421,6 +421,36 @@ test("the canned no-market memo is recognized, and the soft fallback never uses 
   assert.ok(LLM_TIMEOUT_MS >= 12000, `timeout floor should be >= 12s, got ${LLM_TIMEOUT_MS}`);
 });
 
+test("r10d: the chat route caches deterministic answers even when Groq is on, never LLM or personal content", () => {
+  const routeSrc = readFileSync(resolve("src/app/api/chat/route.ts"), "utf8");
+  assert.doesNotMatch(routeSrc, /useCache\s*=\s*!isLlmEnabled\(\)/);
+  assert.match(routeSrc, /lookupCachedAnswer/);
+  assert.match(routeSrc, /personal = isPrivate \|\| history\.length > 0/);
+  assert.match(routeSrc, /value\.mode === "llm"/);
+  const call = routeSrc.match(/answerKey\(\{[^}]*\}\)/g) ?? [];
+  assert.equal(call.length, 1);
+  assert.doesNotMatch(call[0] ?? "", /prev|seen/);
+});
+
+test("r10d: lookupCachedAnswer hits L1 after a stored deterministic build", async () => {
+  const { cachedAnswer, lookupCachedAnswer } = await import("../../src/lib/chat-cache");
+  const key = `r10d-test-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  let builds = 0;
+  const first = await cachedAnswer(key, async () => {
+    builds += 1;
+    return { mode: "deterministic", n: 7 };
+  });
+  assert.equal(first.value.n, 7);
+  assert.equal(builds, 1);
+  const hit = await lookupCachedAnswer<{ mode: string; n: number }>(key);
+  assert.ok(hit, "expected an L1 or L2 hit");
+  assert.equal(hit!.value.n, 7);
+  assert.equal(hit!.status === "hit-mem" || hit!.status === "hit-shared", true, hit!.status);
+  assert.equal(builds, 1);
+  const miss = await lookupCachedAnswer(key + "-absent");
+  assert.equal(miss, null);
+});
+
 test("Miami Business / GMCVB / Lodging Magazine OCC-ADR reprints are Yellow and bucketed", () => {
   assert.equal(isYellowSource("Miami Business", [{ url: "https://miamibusiness.com/miami-hospitality-industry-report-august-2026/" }]), true);
   assert.equal(isYellowSource("GMCVB June 2026 SOTI", [{ url: "https://www.miamiandbeaches.com/getmedia/x/2026_June_3_State_of_the_Industry.pdf" }]), true);

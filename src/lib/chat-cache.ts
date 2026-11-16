@@ -14,7 +14,8 @@
  * soon as that hourly re-read sees added/edited rows, which changes every key; revalidateTag("db") (radar runs)
  * purges L2 and the version at once;
  * a new deployment changes the key.
- * LLM answers are never cached here (BUNGAH_USE_LLM stays unset; if it were set the route bypasses this).
+ * LLM answers are never stored here. The chat route still looks this cache up when Groq is on, but it
+ * only writes deterministic, non-personal answers (never model output, signed-in, or thread-history content).
  */
 import { createHash } from "node:crypto";
 import { unstable_cache } from "next/cache";
@@ -97,6 +98,50 @@ export function answerKey(parts: {
   const qh = createHash("sha256").update(nq).digest("hex").slice(0, 16);
   const key = ["v1", deployment, parts.version, etDay(), intent, item, parts.range, qh];
   return key.join("|");
+}
+
+class ChatCacheMiss extends Error {
+  constructor() {
+    super("CHAT_CACHE_MISS");
+    this.name = "CHAT_CACHE_MISS";
+  }
+}
+
+function isChatCacheMiss(e: unknown): boolean {
+  if (e instanceof ChatCacheMiss) return true;
+  if (e instanceof Error && (e.name === "CHAT_CACHE_MISS" || e.message === "CHAT_CACHE_MISS")) return true;
+  return e instanceof Error && /CHAT_CACHE_MISS/.test(e.message);
+}
+
+/**
+ * Read a previously stored answer without filling a miss. L1 first, then L2 (unstable_cache): a miss
+ * throws ChatCacheMiss inside the cache callback so the empty result is not written (Next does not
+ * cache thrown errors). Used when Groq is on: look up, then build outside the cache, then store only
+ * if the answer is deterministic.
+ */
+export async function lookupCachedAnswer<T>(key: string): Promise<{ value: T; status: Extract<CacheStatus, "hit-mem" | "hit-shared"> } | null> {
+  const now = Date.now();
+  const hit = L1.get(key);
+  if (hit && hit.exp > now) return { value: JSON.parse(hit.value) as T, status: "hit-mem" };
+  if (hit) L1.delete(key);
+
+  try {
+    const ttl = answerTtlSeconds();
+    const shared = unstable_cache(
+      async () => {
+        throw new ChatCacheMiss();
+      },
+      ["chat-answer", key],
+      { revalidate: ttl, tags: [DB_TAG, CHAT_CACHE_TAG] }
+    );
+    const json = await shared();
+    if (L1.size >= L1_MAX) L1.delete(L1.keys().next().value as string);
+    L1.set(key, { exp: now + Math.min(L1_MAX_MS, ttl * 1000), value: json });
+    return { value: JSON.parse(json) as T, status: "hit-shared" };
+  } catch (e) {
+    if (isChatCacheMiss(e)) return null;
+    throw e;
+  }
 }
 
 /**
