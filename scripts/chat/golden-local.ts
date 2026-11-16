@@ -111,11 +111,13 @@ async function main() {
   for (const c of cases) {
     if (c.needs_llm || c.expect_http || c.overlong_chars) continue;
     if (process.argv.includes("--starters") && !c.id.startsWith("starter-")) continue;
+    if (process.argv.includes("--typed") && !c.id.startsWith("typed-")) continue;
     // r10: GOLDEN_IDS=a,b,c regenerates only those fixtures (fast iteration; the full gate always runs all).
     if (process.env.GOLDEN_IDS && !process.env.GOLDEN_IDS.split(",").includes(c.id)) continue;
     const q = (c.question || "").trim();
     if (!q) continue;
     // r10: starter cases are POSTed the way the chip sends them: the exact string, its item scope and range.
+    // typed-* cases (excluded starters typed by hand + paraphrases) carry scope too (null = plain /chat).
     const out = c.scope !== undefined
       ? await answerChat(q, { scope: parseScope(c.scope), range: c.range ?? "all" })
       : await answerChat(q, { marketSlug: c.market || null, intent: undefined });

@@ -28,6 +28,11 @@ function linksOf(v: unknown): Link[] {
   return Array.isArray(v) ? (v as Link[]).filter((l) => l && typeof l === "object") : [];
 }
 
+/** r10b: the canonical form itemOrigins() returns (for comparing a row's links with item origins). */
+export function canonUrl(u?: string): string {
+  return canon(u);
+}
+
 function canon(u?: string): string {
   if (!u) return "";
   try {

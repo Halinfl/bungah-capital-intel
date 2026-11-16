@@ -21,6 +21,7 @@ import {
 } from "./chat-brief";
 import { publisherName } from "./public-text";
 import type { LeadSource } from "./chat-brief-build";
+import ntOverlay from "@/data/number-truth-r9.json";
 
 export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade" | "advice_declined"; marketSlug: string | null };
 
@@ -246,6 +247,8 @@ export function dealLens(question: string): DealLens | null {
   const q = question.toLowerCase();
   if (/\b(grade[ds]?|grading|score[ds]?|rubric|rated|rating|why)\b/.test(q)) return "grade";
   if (/\b(pa(y|id)|price[ds]?|per key|per room|cost|compare[ds]?|comparison|cap rate|valuation|worth|bought|buyer|seller|terms?)\b/.test(q)) return "price";
+  // r10b: the deal's size ("How many keys is this?") is on the sale card (it fell through to Groq).
+  if (/\b(keys|rooms|how many|how big|size)\b/.test(q)) return "price";
   return null;
 }
 
@@ -257,6 +260,33 @@ function chipFor(url: string): ChipKind {
 /** Drop parentheticals from a factor's input text so it fits a read (the full text stays in the table). */
 function shortInput(t: string): string {
   return t.replace(/\s*\([^()]*\)/g, "").replace(/\s+;/g, ";").trim();
+}
+
+/**
+ * r10 follow-up (number-truth on typed deal questions): src/data/number-truth-r9.json "deals" lists, per sale slug,
+ *   keys: "drop"                          the key count is printed on none of the deal's cited pages: no keys, no per key
+ *   keys: { url, label, period }         the key count is printed on this page of the deal's own filing (same filing)
+ *   factors: { <factorId>: "drop" }      the factor's input can't be checked on a saved copy of its cited page
+ * Chat-only (the deal pages keep the grade record as filed).
+ */
+type DealNT = { keys?: "drop" | { url: string; label: string; period?: string }; factors?: Record<string, "drop"> };
+const DEAL_NT = ((ntOverlay as unknown as { deals?: Record<string, DealNT> }).deals ?? {}) as Record<string, DealNT>;
+const dealNT = (slug: string): DealNT => DEAL_NT[slug] ?? {};
+/** Keys shown in chat for this sale (null when the overlay drops them). */
+const chatKeys = (sale: Sale): number | null => (dealNT(sale.slug).keys === "drop" ? null : sale.keys ?? null);
+/** A factor read shown in chat: not when the overlay drops it, and not replacement cost when the keys (its per key) are dropped. */
+const chatFactorOk = (sale: Sale, factor: string): boolean => {
+  const nt = dealNT(sale.slug);
+  if (nt.factors?.[factor] === "drop") return false;
+  if (factor === "replacement_cost" && nt.keys === "drop") return false;
+  return true;
+};
+/** Our own arithmetic on the source's figures ("our calculation", or a change computed from "$A vs $B"): the
+ *  read's first figure is labeled computed (the parenthetical that said so is shortened away in a read). */
+function computedLead(input: string, fact: string): string {
+  if (/\(computed\)/.test(fact.split(/;/)[0])) return fact;
+  if (!/our calculation/i.test(input) && !/\$[\d,.]+[KMB]?\s+vs\s+\$[\d,.]+/.test(input)) return fact;
+  return fact.replace(/([+−-]?\$?\d[\d,.]*(?:%|bp\b|[kKMB]\b)?)(?![\d,.])/, "$1 (computed)");
 }
 
 export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
@@ -273,7 +303,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
   const factorRead = (id: string, withScore: boolean) => {
     const f = factors.find((x) => x.factor === id);
-    if (!f) return null;
+    if (!f || !chatFactorOk(sale, f.factor)) return null;
     const label = short(f.factor);
     // r10: a "$48k per key vs $467k replacement cost" input leads with the deal's own per-key price (price ÷ keys,
     // computed), which is not on the HVS page; only the replacement-cost figure is checked there.
@@ -281,7 +311,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
       // The spread is cap rate minus the 10-year close (a Treasury print, not on the deal filing): the read keeps the
       // filed cap rate and labels the spread as computed.
       .replace(/ vs \d+(?:\.\d+)?% 10-year(?: \([^()]*close\))?;\s*(\d+bp) spread/, "; $1 spread over the 10-year (computed)");
-    const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${fact}`;
+    const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${computedLead(f.input_text!, fact)}`;
     return read(text, f.as_of, { kind: chipFor(f.source_uri!), label: publisherName(f.source_uri!) || label, url: f.source_uri!, title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200) });
   };
   for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
@@ -293,9 +323,18 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     // r10: the price is checked on the filing / report that confirmed it; per key is computed (price ÷ keys).
     const confirmUrl = sale.price_confirmed_on && sale.close_report?.date === sale.price_confirmed_on ? sale.close_report.url : undefined;
     const priceUrl = confirmUrl ?? mainUrl;
-    dealLeads.push({ text: `${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys` : ""}`, label: main ? `${main.publisher}: ${main.title}` : "Sale filing", ...(priceUrl ? { url: priceUrl } : {}), period: dealDate(sale.price_confirmed_on ?? sale.announced_on) });
-    if (sale.keys) dealLeads.push({ text: `${fmtPerKey(sale.price_per_key)} (computed: price ÷ keys)`, label: "Bungah", period: null, derived: true });
-    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)}${sale.price_confirmed_on ? `, price first confirmed ${dealDate(sale.price_confirmed_on)}` : ""} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
+    // r10 follow-up: keys only when a cited page prints them (overlay "deals"); a keys count printed on another page
+    // of the same filing (the 8-K's EX-99.1) is its own lead with that page's URL.
+    const keys = chatKeys(sale);
+    const kSrc = dealNT(sale.slug).keys;
+    const keysPage = kSrc && kSrc !== "drop" ? kSrc : null;
+    dealLeads.push({ text: `${fmtPrice(sale.price)}${keys && !keysPage ? ` for ${keys.toLocaleString("en-US")} keys` : ""}`, label: main ? `${main.publisher}: ${main.title}` : "Sale filing", ...(priceUrl ? { url: priceUrl } : {}), period: dealDate(sale.price_confirmed_on ?? sale.announced_on) });
+    if (keys && keysPage) {
+      dealLeads.push({ text: `${keys.toLocaleString("en-US")} keys`, label: keysPage.label, url: keysPage.url, period: keysPage.period ?? dealDate(sale.announced_on) });
+      cites.push(cite(keysPage.url, keysPage.label, sale.announced_on));
+    }
+    if (keys) dealLeads.push({ text: `${fmtPerKey(sale.price_per_key)} (computed: price ÷ keys)`, label: "Bungah", period: null, derived: true });
+    answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${keys ? ` for ${keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)}${sale.price_confirmed_on ? `, price first confirmed ${dealDate(sale.price_confirmed_on)}` : ""} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).${!keys && sale.keys ? " The key count isn't printed on the cited filings, so no per-key price is shown." : ""}`;
     for (const id of ["replacement_cost", "spread", "demand"]) {
       const x = factorRead(id, false);
       if (x) reads.push(x);
@@ -373,7 +412,8 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
   }
   const price = salePrice(sale);
   if (mainUrl) {
-    const keys = sale.keys ? `${sale.keys.toLocaleString("en-US")} keys` : "";
+    const k = chatKeys(sale);
+    const keys = k ? `${k.toLocaleString("en-US")} keys` : "";
     const priceText =
       sale.price != null
         ? `Price ${price}${keys ? ` for ${keys}${sale.price_per_key ? `, ${fmtPerKey(sale.price_per_key)}` : ""}` : ""}, ${sale.price_confirmed_on ? `first confirmed ${dealDate(sale.price_confirmed_on)} (announced ${dealDate(sale.announced_on)})` : `announced ${dealDate(sale.announced_on)}`}`
@@ -389,9 +429,9 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
   }
   const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
   for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
-  for (const f of [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0)).slice(0, 2)) {
+  for (const f of [...factors].filter((x) => chatFactorOk(sale, x.factor)).sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0)).slice(0, 2)) {
     const label = short(f.factor);
-    const r = read(`${label} ${f.score}/5: ${fitFact(f.input_text!) ?? shortInput(f.input_text!)}`, f.as_of, {
+    const r = read(`${label} ${f.score}/5: ${computedLead(f.input_text!, fitFact(f.input_text!) ?? shortInput(f.input_text!))}`, f.as_of, {
       kind: chipFor(f.source_uri!),
       label: publisherName(f.source_uri!) || label,
       url: f.source_uri!,

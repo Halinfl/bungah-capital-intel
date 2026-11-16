@@ -37,7 +37,8 @@
   "w1x-la-super-bowl-2027": "value not on the cited page",
   "w1x-fll-spirit": "period not on the cited page (mixes the ~May 2 shutdown date with Aug pax)",
   "w1-mia-grand-hyatt-mb": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (miamibeachconvention.com 403)",
-  "tax-houston-202412-tx": "r10: the cited data.texas.gov export never prints the 2024 reporting year next to the Houston row (only the 2025-02-26 filing date)"
+  "tax-houston-202412-tx": "r10: the cited data.texas.gov export never prints the 2024 reporting year next to the Houston row (only the 2025-02-26 filing date)",
+  "w1x-chi-rsna-labor": "r10b: the 46-hotel / 7,000-worker dispute figures are cited to the RSNA exhibits page, which prints neither (they are the Sun-Times'); row dropped, not re-pointed"
  },
  "items": {
   "w1c-chicago-tax-lodging-tax-stack": [
@@ -308,6 +309,114 @@
    {
     "match": "GRB South expansion: Opens May 2028",
     "why": "r10: May 2028 opening is not on the cited GRB South analysis PDF (only +337,400 is)"
+   }
+  ],
+  "w1t-boston-1-wage-floor": [
+   {
+    "match": "Massachusetts minimum wage: $15.00/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (mass.gov)"
+   },
+   {
+    "match": "UNITE HERE Local 26 citywide contracts",
+    "why": "r10b: period not on the cited page (Dec 2024 row date) and $1,000 not printed (Boston Globe)"
+   }
+  ],
+  "w1t-dallas-1-wage-floor": [
+   {
+    "match": "Texas / federal minimum: $7.25/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (dol.gov)"
+   },
+   {
+    "match": "Texas reference union rate",
+    "why": "r10b: period not on the cited page (Oct 2025 not on the cited UNITE HERE release)"
+   }
+  ],
+  "w1t-honolulu-1-wage-floor": [
+   {
+    "match": "Local 5 — DoubleTree Alana",
+    "why": "r10b: value not on the cited page (100% ratified not on the cited Local 5 page)"
+   }
+  ],
+  "w1t-houston-1-wage-floor": [
+   {
+    "match": "Hilton Americas-Houston (Local 23",
+    "why": "r10b: value not on the cited page (~400 workers; Sep 1 start not on the cited Houston Public Media page)"
+   },
+   {
+    "match": "Texas / Houston minimum wage: $7.25/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (dol.gov)"
+   }
+  ],
+  "w1c-miami-debt-cmbs-balance-sheet-loans": [
+   {
+    "match": "Hotel Breakwater (940/960 Ocean Dr",
+    "why": "r10b: period not on the cited page (Sep 2025 default month not on the cited TRD page)"
+   }
+  ],
+  "w1t-new-york-city-1-wage-floor": [
+   {
+    "match": "IWA economics",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (hoteldive.com)"
+   },
+   {
+    "match": "Ratification: 6,050 yes",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (hoteldive.com)"
+   }
+  ],
+  "w1t-phoenix-1-wage-floor": [
+   {
+    "match": "Arizona minimum wage: $15.15/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (azica.gov PDF)"
+   },
+   {
+    "match": "Tipped cash wage: $12.15",
+    "why": "r10b: period not on the cited page (azleg.gov statute prints no 2026 rate)"
+   }
+  ],
+  "w1t-san-diego-1-wage-floor": [
+   {
+    "match": "UNITE HERE Local 30 — Hilton San Diego Bayfront",
+    "why": "r10b: period not on the cited page (Sep–Oct 2024 row date)"
+   }
+  ],
+  "w1c-san-francisco-bay-debt-cmbs-balance-sheet-loans": [
+   {
+    "match": "Inn at Market (1400",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (bizjournals.com)"
+   },
+   {
+    "match": "The Barnes SF: $68M",
+    "why": "r10b: value only appears on the cited page away from its label (token collision); not checkable"
+   }
+  ],
+  "w1t-san-francisco-bay-1-wage-floor": [
+   {
+    "match": "San Francisco minimum wage: $19.61/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (mcguirewoods.com 520)"
+   },
+   {
+    "match": "Oakland hotel minimum (Measure Z",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (oaklandca.gov)"
+   }
+  ],
+  "w1c-washington-dc-debt-cmbs-balance-sheet-loans": [
+   {
+    "match": "The Line DC (220 keys)",
+    "why": "r10b: value only appears on the cited page away from its label (token collision); not checkable"
+   },
+   {
+    "match": "Capital Hilton (Braemar 75% JV)",
+    "why": "r10b: period not on the cited page (Oct 2026 update not on the cited 2024 loan release)"
+   },
+   {
+    "match": "Waldorf Astoria DC leasehold",
+    "why": "r10b: value not on the cited page (~$253M not on the cited Bisnow page)"
+   }
+  ],
+  "w1t-washington-dc-1-wage-floor": [
+   {
+    "match": "DC tipped base wage",
+    "why": "r10b: value only appears on the cited page away from its label (token collision); not checkable (75% / 2034)"
    }
   ]
  },
@@ -638,6 +747,27 @@
     "replace": "City visitors 2024: 53.9M (52.6M dom / 1.3M intl) (2024; source: https://www.houstonfirst.com/news/visitors-to-the-city-of-houston-spent-nearly-11b-in-2024?news_type=PRESS_RELEASE)",
     "why": "r10: the 52M+ 2025 projection is not on the cited 2024 press release; it leaves with its strategic-summary source"
    }
+  ],
+  "w1c-boston-debt-cmbs-sasb-loans": [
+   {
+    "find": " + $90M mezz outside the trust",
+    "replace": "",
+    "why": "r10b: value not on the cited page ($90M mezz not on the cited DBRS page)"
+   }
+  ],
+  "w1t-los-angeles-1-wage-floor": [
+   {
+    "find": "Ord. 188944, ",
+    "replace": "",
+    "why": "r10b: value not on the cited page (ordinance number not on the cited clerk PDF; the steps and dates are)"
+   }
+  ],
+  "w1c-los-angeles-debt-cmbs-sasb-loans": [
+   {
+    "find": "; 327 keys",
+    "replace": "",
+    "why": "r10b: value not on the cited page (327 keys not on the cited TRD page)"
+   }
   ]
  },
  "snapshotUrls": {
@@ -672,5 +802,43 @@
     "why": "r10 (Eric r9): the DOF business page prints 5.875 only in a May 2021 EO; the current NYC-HTX 2025 return prints Additional Tax 5.875% and $2.00 per room per day ($40+ rents). Checked 2026-11-16."
    }
   ]
+ },
+ "deals": {
+  "_note": "r10b: per deal slug. keys 'drop' = the key count is printed on none of the deal's cited pages (no keys and no per key in chat); keys {url,label,period} = printed on that page of the deal's own filing. factors {id: 'drop'} = the factor input (a Bungah-computed YoY) has no saved copy of its cited page showing either base figure. Inputs that are our own arithmetic ('our calculation', or a change from '$A vs $B') are labeled computed in code.",
+  "grande-lakes-orlando": {
+   "keys": {
+    "url": "https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_ex99-1.htm",
+    "label": "Ryman Hospitality Properties 8-K Exhibit 99.1 (Aug 10, 2026)",
+    "period": "Aug 10, 2026",
+    "why": "1,592 rooms (1,010 + 582) printed in EX-99.1 of the same 8-K (accession 0001104659-26-092958); the 8-K cover page prints no room count"
+   },
+   "factors": {
+    "demand": "drop"
+   },
+   "why": "demand: occompt.com 403, no archive copy; $404,587,100 / $374,402,700 not checkable"
+  },
+  "embassy-suites-las-vegas": {
+   "keys": "drop",
+   "why": "220 keys printed on none of the cited AHT 8-K pages"
+  },
+  "four-seasons-scottsdale-troon-north": {
+   "keys": "drop",
+   "factors": {
+    "demand": "drop"
+   },
+   "why": "210 keys printed on neither the BHR 8-K nor the Oct 8 portfolio release; demand: archived Scottsdale PDF has no text copy"
+  },
+  "fairmont-scottsdale-princess": {
+   "factors": {
+    "demand": "drop"
+   },
+   "why": "archived Scottsdale PDF has no text copy (Wayback blocks the fetch)"
+  },
+  "tideline-palm-beach": {
+   "factors": {
+    "demand": "drop"
+   },
+   "why": "archived Palm Beach County TDT PDF has no text copy (Wayback blocks the fetch)"
+  }
  }
 }

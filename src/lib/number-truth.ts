@@ -13,7 +13,7 @@
  *         OCC / ADR and period were found on the snapshot (same source as its label; not a retarget)
  */
 import data from "@/data/number-truth-r9.json";
-import { withoutOrphanedFigures } from "./source-provenance";
+import { withoutOrphanedFigures, itemOrigins, canonUrl } from "./source-provenance";
 
 type Row = { id?: string; title?: string | null; body?: string | null; magnitude?: string | null; sourceUrls?: unknown; sourceLabel?: string | null };
 type Overlay = {
@@ -123,6 +123,35 @@ function withRelinks<T extends Row>(rows: T[]): T[] {
   return rows.map((r) => (r.id && O.relink![r.id] && Array.isArray(r.sourceUrls) ? ({ ...r, sourceUrls: relinked(r.id, r.sourceUrls as { url?: string }[]) } as T) : r));
 }
 
+/**
+ * r10b (row-level citation lists): after the overlay drops or rewrites a row's items, a link that some original item
+ * came from (its label prefix, inline "source:" URL, or a URL named in the item) and that no kept item comes from
+ * leaves the row's sourceUrls, so the answer's sources list never names a page whose figures were all dropped
+ * (e.g. Houston First's strategic summary PDF on Houston visitation). Links no item was attributed to stay.
+ */
+function prunedLinks(r: Row, body: string, title: string | null | undefined): unknown {
+  const links = Array.isArray(r.sourceUrls) ? (r.sourceUrls as { url?: string; label?: string }[]) : null;
+  if (!links || links.length < 2) return r.sourceUrls;
+  const named = (txt: string) => (txt.match(/https?:\/\/[^\s);·|]+/g) ?? []).map((u) => canonUrl(u.replace(/[.,]+$/, "")));
+  const used = (txt: string) => {
+    const set = new Set<string>();
+    for (const o of itemOrigins(txt, links)) {
+      if (o.origin) set.add(o.origin);
+      for (const u of named(o.item)) set.add(u);
+    }
+    return set;
+  };
+  const before = used(r.body ?? "");
+  for (const u of named(r.title ?? "")) before.add(u);
+  const after = used(body);
+  for (const u of named(title ?? "")) after.add(u);
+  const keep = links.filter((l) => {
+    const c = canonUrl(l?.url);
+    return !c || !before.has(c) || after.has(c);
+  });
+  return keep.length === links.length || !keep.length ? r.sourceUrls : keep;
+}
+
 export function withNumberTruth<T extends Row>(rows0: T[]): T[] {
   const rows = withoutStrippedUrls(withRelinks(rows0));
   const out: T[] = [];
@@ -166,7 +195,8 @@ export function withNumberTruth<T extends Row>(rows0: T[]): T[] {
       }
     }
     if (!body.trim()) continue;
-    out.push({ ...r, body, ...(r.title !== undefined ? { title } : {}), ...(r.magnitude !== undefined ? { magnitude } : {}) });
+    const sourceUrls = prunedLinks(r, body, title);
+    out.push({ ...r, body, ...(r.title !== undefined ? { title } : {}), ...(r.magnitude !== undefined ? { magnitude } : {}), ...(sourceUrls !== r.sourceUrls ? { sourceUrls } : {}) });
   }
   return out;
 }

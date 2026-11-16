@@ -14,8 +14,7 @@ Clearest public Same-Property RevPAR / ADR / OCC package among {PEB, RHP, APLE, 
 - **company release (IR):** Pebblebrook Hotel Trust Reports Second Quarter 2026 Results  
   https://investor.pebblebrookhotels.com/news-1/news-releases/news-details/2026/Pebblebrook-Hotel-Trust-Reports-Second-Quarter-2026-Results/default.aspx (`company release`)  
   Mirrored: `_raw/PEB_Q2_2026_release.html`
-- **EDGAR:** CIK 1474098 — seek companion 8-K Item 2.02 / Ex. 99.1 filed ~2026-07-29 (`8-K`)  
-  https://www.sec.gov/cgi-bin/browse-edgar?CIK=1474098
+- **8-K Item 2.02:** https://www.sec.gov/Archives/edgar/data/1474098/000147409826000056/a8kq2-2026erex991.htm (`8-K` exhibit 99.1, earnings release, filed 2026-07-29) — the same release as the IR page; Same-Property RevPAR $259 / +6.5%, the four urban San Diego hotels −9.1%, Q2 buybacks (0.5M @ $14.77, $8.0M; 1H 0.9M @ $13.62) and the FY 2026 Same-Property Total RevPAR outlook +4.1% to +5.3% are all printed in it (r10 number-truth re-cite; was the EDGAR browse page, which prints none of them)
 - **Org dossier:** orgs/pebblebrook.md (capital lens only — no STR invented)
 - **Transcript:** not opened (call replay may be on IR webcast archive)
 

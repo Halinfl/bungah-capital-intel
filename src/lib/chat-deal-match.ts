@@ -36,7 +36,8 @@ export function dealAliases(property: string): string[] {
 
 let INDEX: { slug: string; alias: string }[] | null = null;
 function index() {
-  if (!INDEX) INDEX = sales().flatMap((s) => dealAliases(s.property).map((alias) => ({ slug: s.slug, alias })));
+  // r10b: the sale's slug words are an alias too ("Grande Lakes Orlando", "Four Seasons Scottsdale Troon North").
+  if (!INDEX) INDEX = sales().flatMap((s) => [...new Set([...dealAliases(s.property), ...dealAliases(s.slug.replace(/-/g, " "))])].map((alias) => ({ slug: s.slug, alias })));
   return INDEX;
 }
 

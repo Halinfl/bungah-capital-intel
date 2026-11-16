@@ -105,6 +105,9 @@ const RULES: Rule[] = [
       /\bcmbs\b/.test(q) ||
       /\bmaturit(y|ies)\b/.test(q) ||
       /\brefinanc/.test(q) ||
+      // r10b: "Any hotel loan defaults in Boston?" is a debt question (it fell through to Groq).
+      /\b(loans?|lenders?|mortgages?)\b/.test(q) && /\b(defaults?|defaulted|foreclos\w*|special servicing|distress\w*|delinquen\w*|refi\w*|matur\w*)\b/.test(q) ||
+      /\b(foreclosures?|special servicing|delinquen\w*)\b/.test(q) ||
       /\b\bdy\b/.test(q) ||
       /\bdebt[- ]wall\b/.test(q),
   },
