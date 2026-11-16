@@ -1,7 +1,7 @@
 /**
  * Brief builders per answer path (deterministic; see chat-brief.ts for the format and rules).
  */
-import { numberTruthSnapshotUrl } from "./number-truth";
+import { numberTruthSnapshotUrl, reitTxPrice } from "./number-truth";
 import { isBareRates, ROOM_RATE_WORDS, type ChatIntent } from "./chat-intent";
 import type { MarketRow } from "./chat";
 import type { DigestHit } from "./chat-retrieve";
@@ -1493,7 +1493,7 @@ export function propertyBrief(p: PropertyMatch, market: MarketRow | null, opts: 
       title: "Recorded transactions",
       count: p.comps.length,
       markdown: p.comps
-        .map((c) => `- ${fmtAsOf(c.date)} · ${c.kind}${c.pending ? " (pending)" : ""} · ${c.hotel}${c.priceUsdM != null ? ` · $${c.priceUsdM}M` : ""}${c.rooms ? ` · ${c.rooms} rooms` : ""}${c.counterparty ? ` · counterparty ${c.counterparty}` : ""} · Filing: [${c.source}](${c.url})`)
+        .map((c) => `- ${fmtAsOf(c.date)} · ${c.kind}${c.pending ? " (pending)" : ""} · ${c.hotel}${reitTxPrice(c) != null ? ` · $${reitTxPrice(c)}M` : ""}${c.rooms ? ` · ${c.rooms} rooms` : ""}${c.counterparty ? ` · counterparty ${c.counterparty}` : ""} · Filing: [${c.source}](${c.url})`)
         .join("\n"),
     });
   }

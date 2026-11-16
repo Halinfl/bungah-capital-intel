@@ -22,6 +22,7 @@ import {
 import { publisherName } from "./public-text";
 import type { LeadSource } from "./chat-brief-build";
 import ntOverlay from "@/data/number-truth-r9.json";
+import { reitTxPrice } from "./number-truth";
 
 export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade" | "advice_declined"; marketSlug: string | null };
 
@@ -99,7 +100,7 @@ function txSource(t: Transaction): string {
 
 function txLine(t: Transaction): string {
   const where = [t.city, t.state].filter(Boolean).join(", ");
-  return `${t.kind === "acquisition" ? "Bought" : "Sold"} ${t.hotel}${where ? ` (${where})` : ""}${t.priceUsdM != null ? ` for ${money(t.priceUsdM)}M` : ""}${t.pending ? ", pending" : ""}`;
+  return `${t.kind === "acquisition" ? "Bought" : "Sold"} ${t.hotel}${where ? ` (${where})` : ""}${reitTxPrice(t) != null ? ` for ${money(reitTxPrice(t)!)}M` : ""}${t.pending ? ", pending" : ""}`;
 }
 
 /** Within the capital lens: what the question is really about, so the headline leads with it. */

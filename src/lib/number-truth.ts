@@ -214,3 +214,11 @@ export function numberTruthSnapshotUrl(slug: string, sourceLabel?: string | null
   if (hit.label && sourceLabel && !sourceLabel.toLowerCase().startsWith(hit.label.toLowerCase())) return undefined;
   return hit.url;
 }
+
+/** r10c: a REIT transaction price its cited filing does not print (src/data/number-truth-r9.json "reitTxPrice"):
+ *  the price leaves the chat line; the sale itself stays on its filing. */
+const TX_PRICE_DROP = ((O as unknown as { reitTxPrice?: Record<string, string> }).reitTxPrice ?? {}) as Record<string, string>;
+export function reitTxPrice(t: { url?: string | null; hotel?: string | null; priceUsdM?: number | null }): number | null {
+  if (t.priceUsdM == null) return null;
+  return TX_PRICE_DROP[`${t.url ?? ""}|${t.hotel ?? ""}`] ? null : t.priceUsdM;
+}

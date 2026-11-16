@@ -823,8 +823,8 @@
   "w1d-washington-dc-d7": [
    {
     "find": "Events DC citywides FY2027 booked: 19 (as of May 2026)",
-    "replace": "Events DC citywides booked for FY2027, count at May 2026: 19",
-    "why": "r10c: the count's date (May 2026) now governs the 19, as the cited certification prints it ('As of May 2026 ... booked 19 city-wide events for FY 2027')"
+    "replace": "Events DC citywides FY2027 booked as of May 2026: 19",
+    "why": "r10c: the count's date (May 2026) now governs the 19, as the cited certification prints it ('As of May 2026, Events DC had booked 19 city-wide events for FY 2027'); item keeps its label head so it stays on its own link"
    }
   ]
  },
@@ -898,5 +898,9 @@
    },
    "why": "archived Palm Beach County TDT PDF has no text copy (Wayback blocks the fetch)"
   }
+ },
+ "reitTxPrice": {
+  "_note": "r10c: REIT transaction prices the cited filing does not print. The price leaves the chat line; the sale stays on its filing. No re-pointing.",
+  "https://www.sec.gov/Archives/edgar/data/1617406/000161740626000042/pk-20260630.htm|Hilton Seattle Airport & Conference Center": "r10c: Park's Q2 2026 10-Q lists the April 2026 sale with no price ($31M gross for two hotels); its only $18 million is an impairment on two other hotels (token collision found while tightening the gate). The ~$18.0M came from Park's Q1 release, not this filing."
  }
 }
