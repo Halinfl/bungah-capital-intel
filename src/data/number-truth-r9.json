@@ -345,6 +345,10 @@
    {
     "match": "Texas / Houston minimum wage: $7.25/hr",
     "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (dol.gov)"
+   },
+   {
+    "match": "Aggregate: ~700 unionized hospitality workers",
+    "why": "r10b: the item names no source of its own (it resolved to the row's first link, dol.gov, which prints neither figure)"
    }
   ],
   "w1c-miami-debt-cmbs-balance-sheet-loans": [
@@ -417,6 +421,16 @@
    {
     "match": "DC tipped base wage",
     "why": "r10b: value only appears on the cited page away from its label (token collision); not checkable (75% / 2034)"
+   },
+   {
+    "match": "UNITE HERE Local 25 master contract",
+    "why": "r10b: value only appears on the cited page away from its label (token collision); not checkable (>25% / +$7) and +$1.50 not on the cited WJLA page"
+   }
+  ],
+  "w1t-los-angeles-1-wage-floor": [
+   {
+    "match": "Hotel minimum steps (Ord. 188944",
+    "why": "r10b: value not on the cited page (Ord. 188944 not on the cited clerk motion PDF)"
    }
   ]
  },
@@ -753,13 +767,6 @@
     "find": " + $90M mezz outside the trust",
     "replace": "",
     "why": "r10b: value not on the cited page ($90M mezz not on the cited DBRS page)"
-   }
-  ],
-  "w1t-los-angeles-1-wage-floor": [
-   {
-    "find": "Ord. 188944, ",
-    "replace": "",
-    "why": "r10b: value not on the cited page (ordinance number not on the cited clerk PDF; the steps and dates are)"
    }
   ],
   "w1c-los-angeles-debt-cmbs-sasb-loans": [

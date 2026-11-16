@@ -133,9 +133,11 @@ function prunedLinks(r: Row, body: string, title: string | null | undefined): un
   const links = Array.isArray(r.sourceUrls) ? (r.sourceUrls as { url?: string; label?: string }[]) : null;
   if (!links || links.length < 2) return r.sourceUrls;
   const named = (txt: string) => (txt.match(/https?:\/\/[^\s);·|]+/g) ?? []).map((u) => canonUrl(u.replace(/[.,]+$/, "")));
-  const used = (txt: string) => {
+  const used = (txt: string, after = false) => {
     const set = new Set<string>();
     for (const o of itemOrigins(txt, links)) {
+      // A kept item with no link of its own and no figure ("Boston city hotel wage ordinance: None found") holds no link.
+      if (after && !o.specific && !/\d/.test(o.item.replace(/^[^|]{0,120}?\s—\s[^|]{0,120}?\.\s+/, ""))) continue;
       if (o.origin) set.add(o.origin);
       for (const u of named(o.item)) set.add(u);
     }
@@ -143,7 +145,7 @@ function prunedLinks(r: Row, body: string, title: string | null | undefined): un
   };
   const before = used(r.body ?? "");
   for (const u of named(r.title ?? "")) before.add(u);
-  const after = used(body);
+  const after = used(body, true);
   for (const u of named(title ?? "")) after.add(u);
   const keep = links.filter((l) => {
     const c = canonUrl(l?.url);

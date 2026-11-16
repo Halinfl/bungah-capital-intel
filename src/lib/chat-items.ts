@@ -314,7 +314,8 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${computedLead(f.input_text!, fact)}`;
     return read(text, f.as_of, { kind: chipFor(f.source_uri!), label: publisherName(f.source_uri!) || label, url: f.source_uri!, title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200) });
   };
-  for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
+  // r10b: a factor whose read chat drops (overlay) does not name its source in the answer's citations either.
+  for (const f of factors) if (chatFactorOk(sale, f.factor)) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
 
   let answer: string;
   const dealLeads: LeadSource[] = [];
@@ -428,7 +429,8 @@ export function dealAdviceBrief(slug: string, decline: string): ItemAnswer | nul
     if (r) reads.push(r);
   }
   const factors = (grade?.factor_scores ?? []).filter((f) => f.graded && f.input_text && f.source_uri);
-  for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
+  // r10b: a factor whose read chat drops (overlay) does not name its source in the answer's citations either.
+  for (const f of factors) if (chatFactorOk(sale, f.factor)) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
   for (const f of [...factors].filter((x) => chatFactorOk(sale, x.factor)).sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0)).slice(0, 2)) {
     const label = short(f.factor);
     const r = read(`${label} ${f.score}/5: ${computedLead(f.input_text!, fitFact(f.input_text!) ?? shortInput(f.input_text!))}`, f.as_of, {
