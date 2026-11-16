@@ -4,7 +4,7 @@ import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
 import { withYellowBuckets, withoutYellowBrokerLists } from "./yellow-sources";
-import { withoutOrphanedFigures } from "./source-provenance";
+import { itemLinks, withoutOrphanedFigures } from "./source-provenance";
 import { withBungahSupplyScores } from "./chat-supply-score";
 import { withoutUnverifiedFigures } from "./licensed-attribution";
 import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
@@ -262,6 +262,33 @@ type SignalRow = MarketRow["signals"][number];
 /** One signal bullet (seed rows are filtered out before formatting). */
 function signalLine(s: SignalRow): string {
   return `- **${s.title}** (${s.magnitude ?? "—"}${s.asOf ? `, ${s.asOf}` : ""}) — ${s.body}`;
+}
+
+function linkHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "source";
+  }
+}
+
+/**
+ * r9 number-truth: a related row in a memo shows one line per item with the link that item came from. An item
+ * carrying a figure with no link of its own is not shown (never borrowed from another item's source).
+ */
+function linkedSignalLine(s: SignalRow, body: string = s.body): string {
+  const links = parseSourceUrls(s.sourceUrls);
+  const restated = new RegExp(`^${s.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\s*`, "i");
+  const items = itemLinks(body, links)
+    .map((x) => ({ ...x, text: x.text.replace(restated, "").trim() }))
+    .filter((x) => x.text && !/^no public read/i.test(x.text) && !/:\s*no public read\b/i.test(x.text));
+  const lines: string[] = [];
+  for (const x of items) {
+    if (/\d/.test(x.text) && !x.link) continue;
+    lines.push(`  - ${x.text}${x.link ? ` — [${linkHost(x.link.url)} ↗](${x.link.url})` : ""}`);
+  }
+  if (!lines.length) return "";
+  return [`- **${s.title}**${s.asOf ? ` (${s.asOf})` : ""}`, ...lines].join("\n");
 }
 
 /**
@@ -555,7 +582,7 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const relatedRow = (s: SignalRow) => (saysSelf ? { ...s, body: unSelf(s.body) } : s);
   const relatedLine = (s0: SignalRow) => {
     const s = relatedRow(s0);
-    return own && hasAreaTags(market.slug) ? signalLine({ ...s, body: tagRows(market.slug, s, own) }) : signalLine(s);
+    return own && hasAreaTags(market.slug) ? linkedSignalLine(s, tagRows(market.slug, s, own)) : linkedSignalLine(s);
   };
   const relatedNoSeries = figures.length ? { rows: related, caveat: "" } : caveatsOut(related);
   const lines: string[] = figures.length
@@ -566,13 +593,13 @@ export function formatTaxMemo(market: MarketRow): ChatAnswer {
         ...(caveat ? ["", `_Basis & caveats:_ ${caveat}`] : []),
         ...gaps.map((g) => `\n_Gaps:_ ${g.body.replace(/^[^:]*:\s*/, "").replace(/\s*Decision support\.?$/, "")}`),
         // Own blocks (blank lines between): a phone shows the heading, then one row per line (Eric QA r5).
-        ...(related.length ? ["", "Related tax / CVB signals:", "", ...related.map(relatedLine)] : []),
+        ...(related.map(relatedLine).filter(Boolean).length ? ["", "Related tax / CVB signals:", "", ...related.map(relatedLine).filter(Boolean)] : []),
       ]
     : [
         `**${related.length ? own ?? market.name : market.name} — hotel-tax signals (newest first)**`,
         "",
-        ...(related.length
-          ? relatedNoSeries.rows.map(signalLine)
+        ...(relatedNoSeries.rows.map((r) => linkedSignalLine(r)).filter(Boolean).length
+          ? relatedNoSeries.rows.map((r) => linkedSignalLine(r)).filter(Boolean)
           : ["_No published hotel-tax collection series loaded for this market yet._"]),
         // Same block as Dallas / Houston (Eric r6b QA: Austin, San Antonio): the rows' "Caveats:" move here, said once.
         ...(relatedNoSeries.caveat ? ["", `_Basis & caveats:_ ${relatedNoSeries.caveat}`] : []),

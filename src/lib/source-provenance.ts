@@ -153,3 +153,31 @@ export function withoutOrphanedFigures<T extends Row>(before: T[], after: T[]): 
   }
   return out;
 }
+
+/**
+ * r9: each " | " item of a row with the one link it came from (never a fallback to another item's link when
+ * the row cites several and the item names none). Used to show one cited link per figure in memos.
+ */
+export function itemLinks(body: string, links: Link[]): { item: string; text: string; link: { url: string; label?: string } | null }[] {
+  const origins = itemOrigins(body, links);
+  return origins.map((o) => {
+    const text = stripRowPrefix(o.item)
+      .replace(/\s*Decision support[^|]*$/i, "")
+      .replace(/\s*\((?:[^()]*?;\s*)?source:[^)]*\)/gi, "")
+      .replace(/\s*\(source:[^)]*\)/gi, "")
+      .replace(/\.$/, "")
+      .trim();
+    let link: { url: string; label?: string } | null = null;
+    if (o.origin) {
+      const hit = links.find((l) => canon(l.url) === o.origin);
+      if (hit?.url) link = { url: hit.url, label: hit.label };
+      else {
+        const inline = o.item.match(/source:\s*(?:same\s*→\s*)?(https?:\/\/[^\s);·]+)/i);
+        if (inline && canon(inline[1]) === o.origin) link = { url: inline[1] };
+      }
+    }
+    // A row citing several links: an item that names none of them is not tied to the first by default.
+    if (!o.specific && links.length > 1) link = null;
+    return { item: o.item, text, link };
+  });
+}
