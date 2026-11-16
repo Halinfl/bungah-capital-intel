@@ -114,6 +114,35 @@ function marketLabel(slug: string): string {
   return slug.replaceAll("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/**
+ * r9 (Eric r8, signed-in Delete-to-top ended at scrollY 113): the smooth scroll started in the same tick as the
+ * state reset, so the answers unmounting (and the signed-in starters mounting) moved the layout under it and the
+ * browser stopped short. Scroll after the cleared screen has painted, then settle at the top once the smooth scroll
+ * should be done, unless the reader has scrolled on their own since.
+ */
+function scrollToTopAfterClear(): void {
+  if (typeof window === "undefined") return;
+  const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let userMoved = false;
+  const mark = () => {
+    userMoved = true;
+  };
+  window.addEventListener("wheel", mark, { passive: true, once: true });
+  window.addEventListener("touchmove", mark, { passive: true, once: true });
+  window.addEventListener("keydown", mark, { once: true });
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      window.setTimeout(() => {
+        window.removeEventListener("wheel", mark);
+        window.removeEventListener("touchmove", mark);
+        window.removeEventListener("keydown", mark);
+        if (!userMoved && window.scrollY > 0) window.scrollTo({ top: 0, behavior: "auto" });
+      }, reduce ? 50 : 650);
+    }),
+  );
+}
+
 export function ChatClient({ scope = null, starters = [], signedIn = false }: { scope?: ChatScopeProp; starters?: StarterProp[]; signedIn?: boolean }) {
   const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -561,8 +590,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     writeMarker(null);
     setAnnounce("Conversation deleted.");
     // r2 (Eric QA): back to the top so the page heading and the fresh start are in view.
-    const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    scrollToTopAfterClear();
   }, [deleteStep, writeMarker]);
 
   /** r4 "New chat": a fresh screen; the conversation stays on the server and no longer comes back on reload. */
@@ -584,8 +612,7 @@ export function ChatClient({ scope = null, starters = [], signedIn = false }: { 
     setDeleteStep("idle");
     writeMarker(null);
     setAnnounce("New chat.");
-    const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    scrollToTopAfterClear();
     inputRef.current?.focus({ preventScroll: true });
   }, [writeMarker]);
 
