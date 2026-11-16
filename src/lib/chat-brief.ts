@@ -792,16 +792,34 @@ export function expandMonthlyReleaseItem(text: string, months: string[]): string
   const withPrefix = (bit: string) => (prefix && !bit.startsWith(prefix) && !new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").test(bit) ? `${prefix} ${bit}` : bit);
   const out: string[] = [];
   let monthIdx = 0;
+  // r9 (Eric r8): one OCC/ADR/RevPAR print followed by a note naming its month ("Hobby / NASA: OCC 65% (+6%) ·
+  // Highest Jul OCC") is that month's print, not the first release month.
+  const perfBits = bits.filter((b) => PERF_BIT_RE.test(b));
+  let noteMonth: string | undefined;
+  if (perfBits.length === 1) {
+    for (const b of bits) {
+      if (PERF_BIT_RE.test(b)) continue;
+      const hit = months.find((m) => new RegExp(`\\b${m.slice(0, 3)}\\b`, "i").test(b));
+      if (hit) {
+        noteMonth = hit;
+        break;
+      }
+    }
+  }
   for (const bit of bits) {
     const dated = monthsIn(bit);
     const isPerf = PERF_BIT_RE.test(bit);
     const isNote = !isPerf && dated.length === 0;
     if (isNote && out.length) {
-      out[out.length - 1] = `${out[out.length - 1]} · ${bit}`;
+      // A note naming another release month ("Weakest Aug trend") does not ride on a different month's print.
+      const last = out[out.length - 1];
+      const other = months.find((m) => new RegExp(`\\b${m.slice(0, 3)}\\b`, "i").test(bit) && !last.includes(m));
+      if (other) continue;
+      out[out.length - 1] = `${last} · ${bit}`;
       continue;
     }
     let item = withPrefix(bit);
-    const mon = dated[0] ?? (isPerf && monthIdx < months.length ? months[monthIdx] : undefined);
+    const mon = dated[0] ?? (isPerf && noteMonth ? noteMonth : isPerf && monthIdx < months.length ? months[monthIdx] : undefined);
     if (isPerf) monthIdx += 1;
     if (mon && !item.includes(mon) && !monthsIn(item).length) item = `${item} · ${mon}`;
     out.push(item);
@@ -822,7 +840,8 @@ function rawItems(s: SignalLike): string[] {
   parts[0] = stripRestatedTitle(s.title, parts[0]);
   const months = releaseMonths(s);
   if (!isMonthlyReleaseSignal(s)) return parts.map((p) => p.replace(/\.$/, ""));
-  return parts.flatMap((p) => expandMonthlyReleaseItem(p.replace(/\.$/, ""), months));
+  // r9: Houston First's releases say "Uptown", not the pack's "Uptown / Galleria" alias.
+  return parts.flatMap((p) => expandMonthlyReleaseItem(p.replace(/\.$/, "").replace(/^Uptown \/ Galleria:/, "Uptown:"), months));
 }
 
 /** Items a date window kept for a windowed copy of a signal. */

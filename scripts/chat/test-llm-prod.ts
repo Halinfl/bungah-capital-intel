@@ -660,6 +660,47 @@ test("Houston First monthly prints split so an opening date does not label OCC/A
   assert.ok(parts.some((p) => /OCC 45%/.test(p) && /Dec 2025/.test(p) && !/opened Apr 2026/.test(p)), blob);
 });
 
+test("r9: a figure leaves with its dropped source and is never re-pointed at a surviving link", async () => {
+  const { withoutOrphanedFigures, itemOrigins } = await import("../../src/lib/source-provenance");
+  const row = {
+    id: "w1s-dallas-snapshot",
+    title: "Dallas supply: Snapshot",
+    body: "Dallas — Snapshot. DFW room inventory (submarket table sum): ~111,285 rooms · Q3 2025 | City of Dallas tax-registry rooms: 38,733 (−30 YoY) · 2026 filings | Rooms under construction (DFW): 4,600 rooms / 38 projects · Q3 2025 (source: Same). Decision support.",
+    magnitude: "3 rows",
+    sourceUrls: [
+      { url: "https://cms.matthews.com/wp-content/uploads/2025/10/Q325-DFW-Hospitality.pdf", label: "DFW room inventory (submarket table sum)" },
+      { url: "https://www.texashotelsearch.com/markets/dallas", label: "City of Dallas tax-registry rooms" },
+    ],
+  };
+  const origins = itemOrigins(row.body, row.sourceUrls).map((x) => x.origin);
+  assert.match(origins[0], /matthews/);
+  assert.match(origins[1], /texashotelsearch/);
+  assert.match(origins[2], /texashotelsearch/, "(source: Same) inherits the previous item");
+  const dropped = { ...row, sourceUrls: [row.sourceUrls[1]] };
+  const [out] = withoutOrphanedFigures([row], [dropped]);
+  assert.ok(out, "row with a surviving public item stays");
+  assert.doesNotMatch(out.body, /111,285/);
+  assert.match(out.body, /38,733/);
+  // Unlabeled item whose fallback origin was the dropped first link goes too.
+  const row2 = { ...row, id: "x2", body: "DFW room inventory (submarket table sum): ~111,285 rooms · Q3 2025 | Rooms under construction (DFW): 4,600 rooms / 38 projects · Q3 2025 | City of Dallas tax-registry rooms: 38,733" };
+  const [out2] = withoutOrphanedFigures([row2], [{ ...row2, sourceUrls: [row.sourceUrls[1]] }]);
+  assert.doesNotMatch(out2.body, /4,600|111,285/);
+  assert.match(out2.body, /38,733/);
+  // Every link gone: the row goes.
+  assert.equal(withoutOrphanedFigures([row], [{ ...row, sourceUrls: [] }]).length, 0);
+  // Qualitative band from a yellow source is not shown as the survivor's.
+  const band = { ...row, id: "x3", body: "Hotel performance is in a qualitative band only; this source republishes STR-derived occupancy and ADR, so raw figures are not shown. (as-of 2026-10-11)" };
+  assert.equal(withoutOrphanedFigures([row], [{ ...band, id: row.id, sourceUrls: [row.sourceUrls[1]] }]).length, 0);
+});
+
+test("r9: Houston Hobby / NASA 65% is the July print; Uptown is not 'Uptown / Galleria'", async () => {
+  const { expandMonthlyReleaseItem } = await import("../../src/lib/chat-brief");
+  const hobby = expandMonthlyReleaseItem("Hobby / NASA: OCC 65% (+6%) · Highest Jul OCC", ["Aug 2026", "Jul 2026", "Dec 2025"]);
+  assert.ok(hobby.some((p) => /65%/.test(p) && /Jul 2026/.test(p) && !/Aug 2026/.test(p)), hobby.join(" | "));
+  const up = expandMonthlyReleaseItem("Uptown: OCC 54% (−7%), RevPAR $85 (−5%) · OCC 56%, RevPAR $93 · Weakest Aug trend", ["Aug 2026", "Jul 2026", "Dec 2025"]);
+  assert.ok(up.some((p) => /\$93/.test(p) && /Jul 2026/.test(p) && !/Aug/.test(p)), up.join(" | "));
+});
+
 const GRAPH_FIXTURE = process.env.BUNGAH_GRAPH_FIXTURE || "/workspace/backups/bungah-db/latest";
 
 async function runMarketMetricGapTests() {
@@ -788,6 +829,31 @@ async function runMarketMetricGapTests() {
       assert.match(blob, /Jul 2026/);
     }
     assert.doesNotMatch(head, /\(Apr 2026, houstonfirst\.com\)/i);
+  });
+
+  await test("r9: Dallas supply / RevPAR never quote the Matthews inventory retargeted to texashotelsearch", async () => {
+    for (const q of ["What's the hotel supply picture in Dallas?", "What's RevPAR in Dallas?", "And supply there?"]) {
+      const out = await answerChat(q, { marketSlug: "dallas" } as never);
+      const blob = `${headOf(out)}\n${readsOf(out)}`;
+      assert.doesNotMatch(blob, /111,285|111K|4,600 rooms|38 projects/, `${q}: ${blob}`);
+      for (const r of out.brief?.reads ?? []) {
+        const rr = r as { text?: string; source?: { url?: string } };
+        if (/texashotelsearch/.test(rr.source?.url ?? "")) assert.match(rr.text ?? "", /38,733|tax-registry/, rr.text);
+      }
+    }
+  });
+
+  await test("r9: Houston Hobby / NASA 65% is dated Jul 2026 and cites the July article", async () => {
+    const out = await answerChat("What is RevPAR doing in Houston?");
+    for (const r of out.brief?.reads ?? []) {
+      const rr = r as { text?: string; source?: { url?: string } };
+      if (/Hobby/.test(rr.text ?? "")) {
+        assert.match(rr.text ?? "", /Jul 2026/);
+        assert.doesNotMatch(rr.text ?? "", /Aug 2026/);
+        assert.match(rr.source?.url ?? "", /july/);
+      }
+    }
+    assert.doesNotMatch(blobOf(out).split("\n").slice(0, 4).join("\n"), /Uptown \/ Galleria/);
   });
 
   await test("Dallas visitation / HOT and NYC occupancy-tax stay deterministic and never reconstruct dropped figures via Groq", async () => {

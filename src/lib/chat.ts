@@ -4,6 +4,7 @@ import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
 import { withYellowBuckets, withoutYellowBrokerLists } from "./yellow-sources";
+import { withoutOrphanedFigures } from "./source-provenance";
 import { withBungahSupplyScores } from "./chat-supply-score";
 import { withoutUnverifiedFigures } from "./licensed-attribution";
 import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
@@ -870,16 +871,19 @@ export async function retrieveGraphContext(
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = withoutYellowBrokerLists(withYellowBuckets(publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""])));
+    const base = withoutRules(withoutSocial(citedOnly(m.signals)));
+    // r9: a figure leaves with the source it came from; never re-pointed at a surviving link.
+    m.signals = withoutOrphanedFigures(base, withoutYellowBrokerLists(withYellowBuckets(publicSafe(base, [snapLabels.get(m.id) ?? ""]))));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withoutYellowBrokerLists(withYellowBuckets(withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
+  const nationalBase = withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  )))))));
+  )));
+  const nationalSignals = withoutOrphanedFigures(nationalBase, withoutYellowBrokerLists(withYellowBuckets(withDataLayerRates(publicSafe(nationalBase)))));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
