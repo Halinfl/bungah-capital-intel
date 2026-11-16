@@ -12,6 +12,10 @@
  * Exit 1 if any item ends up with zero starters while candidates exist and STARTERS_STRICT=1.
  */
 process.env.BUNGAH_NO_NEXT_CACHE = "1";
+// Starters are verified against deterministic memos only. Preview/prod builds
+// pass BUNGAH_USE_LLM=true as a build env, which would otherwise call Groq for
+// every candidate and can fail the build when the free daily cap is reached.
+process.env.BUNGAH_USE_LLM = "false";
 import fs from "node:fs";
 import path from "node:path";
 
