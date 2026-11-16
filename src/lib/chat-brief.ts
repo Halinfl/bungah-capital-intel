@@ -801,7 +801,7 @@ export function expandMonthlyReleaseItem(text: string, months: string[]): string
       continue;
     }
     let item = withPrefix(bit);
-    let mon = dated[0] ?? (isPerf && monthIdx < months.length ? months[monthIdx] : undefined);
+    const mon = dated[0] ?? (isPerf && monthIdx < months.length ? months[monthIdx] : undefined);
     if (isPerf) monthIdx += 1;
     if (mon && !item.includes(mon) && !monthsIn(item).length) item = `${item} · ${mon}`;
     out.push(item);
