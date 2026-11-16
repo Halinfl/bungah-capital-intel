@@ -1,0 +1,517 @@
+{
+  "generatedFrom": "source-audit-2026-11-15 analysis.json + fetch-index.json (c36995e). Display-layer only.",
+  "licensedUrls": [
+    "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_ec37a28f-3d6e-4138-b9b2-24b8b6b0d425.pdf",
+    "https://assets.simpleviewinc.com/sv-boston/image/upload/v1/clients/boston/TDMD_District_Plan_6_15_21_769aa23c-7168-44a7-8375-dbf72470cf35.pdf",
+    "https://bankerandtradesman.com/after-upgrades-woburn-hotel-sold-for-39-4m/",
+    "https://bankerandtradesman.com/boston-lodging-industry-covets-canadian-comeback/",
+    "https://bankerandtradesman.com/for-boston-hotels-2026-is-a-year-of-cautious-optimism/",
+    "https://cdn.choosechicago.com/uploads/2026/01/Hotel-Performance-2025.pdf",
+    "https://cms.matthews.com/wp-content/uploads/2025/10/Q325-DFW-Hospitality.pdf",
+    "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance/Hotel-performance-2026-07.pdf",
+    "https://hta.hawaii.gov/wp-content/uploads/2026/09/Hawaii_HTA2026_AccommodationsPanel_v2.pdf",
+    "https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2025-4q.pdf",
+    "https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf",
+    "https://labusinessjournal.com/special-reports/hospitality-luxury-styles/",
+    "https://lodgingeconometrics.com/dallas-pheonix-top-us-hotel-pipeline-q1-2026/",
+    "https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/",
+    "https://miamibusiness.com/miami-hospitality-industry-report-august-2026/",
+    "https://miamifinancereview.com/miami-hotel-market-2026/",
+    "https://nmrk.imgix.net/uploads/documents/hotel-nsights/Newmark_VA_Hotel-Nsights-Report_Atlanta_GA.PDF",
+    "https://therealdeal.com/chicago/2026/05/19/hotel-of-presidents-sold-to-vinayaka-hospitality-for-43m/",
+    "https://therealdeal.com/texas/houston/2025/05/14/distressed-houston-hotel-sells-for-fraction-of-appraised-value/",
+    "https://washington.org/press/destination-dc-announces-sales-and-marketing-strategies-meet-moment",
+    "https://washington.org/research",
+    "https://www.caliberco.com/assets/hyatt-studios-tsmc-fundco-llc/",
+    "https://www.gwcca.org/wp-content/uploads/2025/12/12-09-2025-Board-Presentation_FINALFINAL.pdf",
+    "https://www.houstonchronicle.com/business/real-estate/article/downtown-hotel-staybridge-holiday-inn-express-open-22220406.php",
+    "https://www.houstonchronicle.com/business/real-estate/article/moran-citycentre-hotel-metronational-west-houston-22240238.php",
+    "https://www.htrends.com/trends-detail-sid-142497.html",
+    "https://www.hvs.com/article/10529-how-the-2026-fifa-world-cup-changed-us-hotel-markets",
+    "https://www.marcusmillichap.com/-/media/Files/MM/Research%20Reports/Market%20Reports/2026/2026%20Hospitality%20Market%20Reports/Los%20Angeles%20Hospitality%20Market%20Report%20pdf.pdf?rev=06f22dbd0a954227bdcb346770f35d55",
+    "https://www.matthews.com/insights/dallas-fort-worth-tx-hospitality-market-report-q3-2025",
+    "https://www.miamiandbeaches.com/getmedia/b4f3673d-c9b4-4f06-bd2f-7321e223b822/2025_dec_Miami-Dade_Industry_Updates.pdf",
+    "https://www.miamitodaynews.com/2026/05/27/more-rooms-in-miami-pipeline-as-nation-cuts-back-hotel-construction/",
+    "https://www.mmcginvest.com/post/seattle-hotel-development-pipeline-outlook",
+    "https://www.nasdaq.com/press-release/apple-hospitality-reit-acquires-motto-hilton-nashville-downtown-2025-12-22",
+    "https://www.osc.ny.gov/files/reports/osdc/2026/pdf/nyc-hotel-industry-report-july-2026.pdf",
+    "https://www.sccai.org/wp-content/uploads/2026/06/Hotel-Motel-Market-Overview.pdf",
+    "https://www.wronkaltd.com/wp-content/uploads/2026/01/Boston-MA-USA-Hospitality-Market-January-3-2026.pdf",
+    "https://hawaiihotelhui.com/wp-content/uploads/HHH-August-2026-Market-Intelligence-Report.pdf",
+    "https://www.nashville.gov/sites/default/files/2026-05/Tourism-and-Convention-Commission-Minutes-030326.pdf",
+    "https://www.matthews.com/insights/q125-hospitality-market-report-dallas-tx",
+    "https://www.newschannel5.com/news/nashville-tourism-hits-record-11-6-billion-in-visitor-spending-in-2025"
+  ],
+  "licensedHosts": [
+    "lodgingeconometrics.com"
+  ],
+  "attributionByUrl": {
+    "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_ec37a28f-3d6e-4138-b9b2-24b8b6b0d425.pdf": [
+      "Source: STR, Inc"
+    ],
+    "https://assets.simpleviewinc.com/sv-boston/image/upload/v1/clients/boston/TDMD_District_Plan_6_15_21_769aa23c-7168-44a7-8375-dbf72470cf35.pdf": [
+      "STR data"
+    ],
+    "https://bankerandtradesman.com/after-upgrades-woburn-hotel-sold-for-39-4m": [
+      "according to CoStar"
+    ],
+    "https://bankerandtradesman.com/boston-lodging-industry-covets-canadian-comeback": [
+      "according to industry officials. According to CoStar",
+      "according to CoStar"
+    ],
+    "https://bankerandtradesman.com/for-boston-hotels-2026-is-a-year-of-cautious-optimism": [
+      "According to CoStar"
+    ],
+    "https://cdn.choosechicago.com/uploads/2026/01/Hotel-Performance-2025.pdf": [
+      "Source: STR Inc"
+    ],
+    "https://cms.matthews.com/wp-content/uploads/2025/10/Q325-DFW-Hospitality.pdf": [
+      "Source: CoStar Group"
+    ],
+    "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance/Hotel-performance-2026-07.pdf": [
+      "data compiled by STR, Inc",
+      "Source: STR, Inc"
+    ],
+    "https://hta.hawaii.gov/wp-content/uploads/2026/09/Hawaii_HTA2026_AccommodationsPanel_v2.pdf": [
+      "Source: STR",
+      "Source: C oStar / STR",
+      "Source: Hawai\u02bbi Tourism Authority Hotel Performance Report, J une 2026 (STR"
+    ],
+    "https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2025-4q.pdf": [
+      "Data Sources: STR"
+    ],
+    "https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf": [
+      "Data Sources: STR"
+    ],
+    "https://labusinessjournal.com/special-reports/hospitality-luxury-styles": [
+      "according to CoStar"
+    ],
+    "https://miamibusiness.com/miami-hospitality-industry-report-august-2026": [
+      "According to STR",
+      "CoStar data",
+      "STR data"
+    ],
+    "https://miamifinancereview.com/miami-hotel-market-2026": [
+      "STR data",
+      "according to the GMCVB report using STR"
+    ],
+    "https://nmrk.imgix.net/uploads/documents/hotel-nsights/Newmark_VA_Hotel-Nsights-Report_Atlanta_GA.PDF": [
+      "Source: Kalibri Labs",
+      "Source: CoSTAR"
+    ],
+    "https://therealdeal.com/chicago/2026/05/19/hotel-of-presidents-sold-to-vinayaka-hospitality-for-43m": [
+      "according to CoStar"
+    ],
+    "https://therealdeal.com/texas/houston/2025/05/14/distressed-houston-hotel-sells-for-fraction-of-appraised-value": [
+      "according to the Greater Houston Partnership, using data from CoStar"
+    ],
+    "https://washington.org/press/destination-dc-announces-sales-and-marketing-strategies-meet-moment": [
+      "according to STR",
+      "According to hotel data company STR"
+    ],
+    "https://washington.org/research": [
+      "Source: CoStar"
+    ],
+    "https://caliberco.com/assets/hyatt-studios-tsmc-fundco-llc": [
+      "Source: CoStar"
+    ],
+    "https://gwcca.org/wp-content/uploads/2025/12/12-09-2025-Board-Presentation_FINALFINAL.pdf": [
+      "Source: STR",
+      "Data source: CoStar"
+    ],
+    "https://houstonchronicle.com/business/real-estate/article/downtown-hotel-staybridge-holiday-inn-express-open-22220406.php": [
+      "according to real estate and hospitality data firm CoStar",
+      "according to CoStar"
+    ],
+    "https://houstonchronicle.com/business/real-estate/article/moran-citycentre-hotel-metronational-west-houston-22240238.php": [
+      "according to data firm CoStar"
+    ],
+    "https://htrends.com/trends-detail-sid-142497.html": [
+      "According to CoStar"
+    ],
+    "https://hvs.com/article/10529-how-the-2026-fifa-world-cup-changed-us-hotel-markets": [
+      "relying on CoStar",
+      "Sources: CoStar"
+    ],
+    "https://marcusmillichap.com/-/media/Files/MM/Research%20Reports/Market%20Reports/2026/2026%20Hospitality%20Market%20Reports/Los%20Angeles%20Hospitality%20Market%20Report%20pdf.pdf": [
+      "Sources: BLS; CoStar Group"
+    ],
+    "https://matthews.com/insights/dallas-fort-worth-tx-hospitality-market-report-q3-2025": [
+      "Source: CoStar Group"
+    ],
+    "https://miamiandbeaches.com/getmedia/b4f3673d-c9b4-4f06-bd2f-7321e223b822/2025_dec_Miami-Dade_Industry_Updates.pdf": [
+      "Sources: MIA, FLL, PortMiami, Lighthouse, STR",
+      "Source: STR"
+    ],
+    "https://miamitodaynews.com/2026/05/27/more-rooms-in-miami-pipeline-as-nation-cuts-back-hotel-construction": [
+      "according to data provided to Miami Today by the CoStar"
+    ],
+    "https://mmcginvest.com/post/seattle-hotel-development-pipeline-outlook": [
+      "CoStar data"
+    ],
+    "https://nasdaq.com/press-release/apple-hospitality-reit-acquires-motto-hilton-nashville-downtown-2025-12-22": [
+      "According to data provided by STR",
+      "reported by STR"
+    ],
+    "https://osc.ny.gov/files/reports/osdc/2026/pdf/nyc-hotel-industry-report-july-2026.pdf": [
+      "Sources: New York City Tourism + Conventions; CoStar",
+      "Sources: Tourism Economics; CoStar"
+    ],
+    "https://sccai.org/wp-content/uploads/2026/06/Hotel-Motel-Market-Overview.pdf": [
+      "Source: STR",
+      "Source: AHG 2025 Hotel Development Survey | STR",
+      "Source: AHG Research | STR"
+    ],
+    "https://wronkaltd.com/wp-content/uploads/2026/01/Boston-MA-USA-Hospitality-Market-January-3-2026.pdf": [
+      "\u00a9 2026 CoStar Group"
+    ]
+  },
+  "extraLicensedUrls": [
+    "https://hawaiihotelhui.com/wp-content/uploads/HHH-August-2026-Market-Intelligence-Report.pdf",
+    "https://www.nashville.gov/sites/default/files/2026-05/Tourism-and-Convention-Commission-Minutes-030326.pdf",
+    "https://www.matthews.com/insights/q125-hospitality-market-report-dallas-tx",
+    "https://www.newschannel5.com/news/nashville-tourism-hits-record-11-6-billion-in-visitor-spending-in-2025"
+  ],
+  "unreachableUrls": [
+    "http://amp.azcentral.com/story/news/local/phoenix/2025/11/17/new-york-firm-buys-sheraton-phoenix-downtown/87326770007/",
+    "http://www.houstonfirst.com/news/houston-hotel-market-posts-record-breaking-q1?news_type=PRESS_RELEASE",
+    "https://discoveratlanta.com/acvb/",
+    "https://flynashville.com/news/press-releases/fy26-mnaa-marks-transformative-year",
+    "https://g20.org/location/",
+    "https://greenstreetnews.com/article/owner-of-recently-upgraded-nashville-hotel-seeks-new-loan/",
+    "https://pro.groundbreak.city/atlanta/projects/6b966062-12a2-48af-8d9b-26994fb64061",
+    "https://professional.heart.org/en/meetings/resuscitation-science-symposium",
+    "https://tradersunion.com/news/financial-news/show/1943691-kbra-affirms-sdal-2025-dal-cmbs-ratings/",
+    "https://united.mediaroom.com/2026-06-29-United-Announces-New-Nonstop-Flights-from-Houston-and-Washington",
+    "https://www.atl.com/wp-content/uploads/2026/08/ATL-ATR-2607.pdf",
+    "https://www.atl.com/wp-content/uploads/2026/09/ATL-ATR-2608_revA.pdf",
+    "https://www.azcentral.com/story/travel/arizona/2026/07/21/denu-hotel-downtown-phoenix-opening-september/90949505007/",
+    "https://www.bizjournals.com/pacific/news/2025/09/03/waikiki-oasis-hotel-sale-investors.html",
+    "https://www.bizjournals.com/houston/news/2025/12/12/hilton-houston-post-oak-for-sale-industry-struggle.html",
+    "https://www.bizjournals.com/houston/news/2024/09/13/aloft-galleria-delinquent-loan.html",
+    "https://www.bizjournals.com/houston/news/2026/09/18/convention-center-expansion-early-economic-benefit.html",
+    "https://www.bizjournals.com/sanfrancisco/news/2026/08/05/new-central-hotel-mid-market-default-patel.html",
+    "https://www.bizjournals.com/washington/news/2025/09/03/marriott-metro-center-hotel.html",
+    "https://www.bizjournals.com/washington/news/2026/07/10/hotel-harrington-khp-capital-sale.html",
+    "https://www.businesswire.com/news/home/20250519761096/en/",
+    "https://www.businesswire.com/news/home/20250916046053/en/",
+    "https://www.businesswire.com/news/home/20260528102534/en/Portman-Hospitality-Fund-I-LP-Announces-Acquisition-of-the-Westin-Peachtree-Plaza",
+    "https://www.dallas-lovefield.com/airport-info/airport-news/passenger-statistics",
+    "https://www.federalregister.gov/documents/2026/06/23/2026-12589/operating-limitations-at-newark-liberty-international-airport",
+    "https://www.flychicago.com/business/CDA/factsfigures/Pages/airtraffic.aspx",
+    "https://www.globenewswire.com/news-release/2025/11/18/3189784/19716/en/Crestline-to-Manage-the-Hoya-Hotel-at-Georgetown.html",
+    "https://www.groundbreak.city/atlanta/virgin-hotels-atlanta-under-construction-centennial-yards",
+    "https://www.homesteadmiamispeedway.com/2025/05/06/2026-nascar-championship-weekend-moves-to-homestead-miami-speedway-on-nov-6-8/",
+    "https://www.hotel-online.com/index.php/news/2026-lodging-forecast-san-diego",
+    "https://www.hotel-online.com/news/frontier-development-hospitality-group-opens-new-hyatt-house-in-downtown-washington-d-c",
+    "https://www.hotel-online.com/news/hotel-market-outlook-2026-a-market-by-market-analysis",
+    "https://www.hotel-online.com/news/lw-hospitality-advisors-lwha-q2midyear-2026-major-us-hotel-sales-survey-lodging-sector-overview",
+    "https://www.hotel-online.com/news/hotel-development-plummets-in-bay-area-as-lodging-uncertainties-linger",
+    "https://www.hotel-online.com/news/q1-2026-major-us-hotel-sales-survey-lodging-sector-overview",
+    "https://www.hotel-online.com/news/scenic-capital-advisors-acquires-embassy-suites-by-hilton-dallas-love-field",
+    "https://www.hoteldive.com/news/brookfield-acquires-sheraton-phoenix-downtown/805884/",
+    "https://www.hoteldive.com/news/saddlebrook-acquires-st-regis-houston/809460/",
+    "https://www.hotelinvestmenttoday.com/Deals/Mergers-and-Acquistions/Price-of-Gencom-NYC-deal-another-PMG-tower-in-Miami-new-COO-at-Park-Hotels",
+    "https://www.hotelinvestmenttoday.com/Development/Owners/Inside-the-Grand-Hyatt-Miami-Beach-construction-loan",
+    "https://www.hotelinvestmenttoday.com/Forecasts/NYC-leads-projections-for-new-US-hotels-in-2026",
+    "https://www.hotelmanagement.net/transactions/apple-hospitality-acquires-opens-tennessee-motto-98m",
+    "https://www.hotelmanagement.net/transactions/braemar-sell-arizona-four-seasons-372m",
+    "https://www.massport.com/logan-airport/about-logan/airport-statistics",
+    "https://www.massport.com/sites/default/files/2026-10/0926-Air-Traffic-Report.pdf",
+    "https://www.mass.gov/info-details/tourism-destination-marketing-district-tdmd-fund-faqs",
+    "https://www.miamibeachconvention.com/center-info/press/grand-hyatt-miami-beach-topping-off",
+    "https://www.miamibeachconvention.com/center-info/grand-hyatt-miami-beach",
+    "https://www.miamibeachconvention.com/events/hospitality-show-2026",
+    "https://www.mpea.com/wp-content/uploads/2025/04/Financial-Plan_FY26-FY27-FY28.pdf",
+    "https://www.newhotels.io/hotels/fairmont-phoenix",
+    "https://www.newhotels.io/hotels/strider-hotel-boston",
+    "https://www.prweb.com/releases/introducing-the-potomac-hotel-autograph-collection-a-new-chapter-for-washington-dcs-acclaimed-waterfront-destination-302843372.html",
+    "https://www.sandiego.org/about/san-diego-tourism-fast-facts",
+    "https://www.sandiego.org/members/le-meridien-pinnacle-san-diego/7952",
+    "https://www.sandiego.org/sites/default/files/2025-07/San%20Diego%20Lodging%20Forecast%20-%20July%202025_0.pdf",
+    "https://www.sftravel.com/media/press-release/san-francisco-travel-forecasts-third-straight-year-growth-2027",
+    "https://www.sftravel.com/sites/default/files/2026-07/sft%202025%20annual%20report.pdf",
+    "https://www.sftravel.com/media/press-release/san-francisco-travel-reports-visitor-spending-milestone-projects-continued",
+    "https://www.visitmusiccity.com/about/nashville-developments-renovations",
+    "https://www.washingtontimes.com/news/2026/may/6/dc-20000-tourists-2025-generating-24-billion-revenue/",
+    "https://www.yourvalley.net/tempe-independent/stories/phoenix-group-pays-72m-for-five-arizona-hotels"
+  ],
+  "unverifiedFigures": [
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City supply: Latest pulse",
+      "figure": "0.9%",
+      "kind": "supply"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City supply: Latest pulse",
+      "figure": "3.0%",
+      "kind": "supply"
+    },
+    {
+      "marketSlug": "san-francisco-bay",
+      "title": "SF Bay Area supply: Snapshot",
+      "figure": "34.3%",
+      "kind": "supply"
+    },
+    {
+      "marketSlug": "san-francisco-bay",
+      "title": "SF Bay Area supply: Submarket basemap (v0)",
+      "figure": "15.6%",
+      "kind": "supply"
+    },
+    {
+      "marketSlug": "san-francisco-bay",
+      "title": "SF Bay Area supply-pressure score 1/5",
+      "figure": "34.3%",
+      "kind": "supply"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "7%",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "2%",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "$79.31",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "$23.87",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "los-angeles",
+      "title": "Los Angeles visitation / demand volume",
+      "figure": "ADR $196",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City visitation / demand volume",
+      "figure": "$11.777",
+      "kind": "visitation"
+    },
+    {
+      "marketSlug": "los-angeles",
+      "title": "Los Angeles: Super Bowl LXI, Feb 2027 (SoFi) \u2014 normalization flag",
+      "figure": "3.74%",
+      "kind": "event"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Lodging tax stack (City of Boston)",
+      "figure": "16.45%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Collections and DMO budget",
+      "figure": "$144.6",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Collections and DMO budget",
+      "figure": "$148.8",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Collections and DMO budget",
+      "figure": "$33.34",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Collections and DMO budget",
+      "figure": "$10.52",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston tax & CVB: Collections and DMO budget",
+      "figure": "$2.44",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Lodging tax stack (Davidson County / Metro Nashville)",
+      "figure": "2.75%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Lodging tax stack (Davidson County / Metro Nashville)",
+      "figure": "16.75%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Lodging tax stack (Davidson County / Metro Nashville)",
+      "figure": "15.25%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Collections and DMO budget",
+      "figure": "$127.47",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Collections and DMO budget",
+      "figure": "$114.57",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Collections and DMO budget",
+      "figure": "$27.34",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville tax & CVB: Collections and DMO budget",
+      "figure": "$35.61",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City tax & CVB: Lodging tax stack (room \u2265$40/night)",
+      "figure": "4.0%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City tax & CVB: Lodging tax stack (room \u2265$40/night)",
+      "figure": "4.5%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City tax & CVB: Lodging tax stack (room \u2265$40/night)",
+      "figure": "0.375%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City tax & CVB: Lodging tax stack (room \u2265$40/night)",
+      "figure": "14.75%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City tax & CVB: Lodging tax stack (room \u2265$40/night)",
+      "figure": "$3.50/room",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "washington-dc",
+      "title": "Washington DC tax & CVB: Lodging tax stack (District of Columbia)",
+      "figure": "$0.80",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Jan\u2013Mar 2024 (FY2024 Q3)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Jul\u2013Sep 2024 (FY2025 Q1)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Oct\u2013Dec 2024 (FY2025 Q2)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Oct\u2013Dec 2024 (FY2025 Q2)",
+      "figure": "$801",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Jan\u2013Mar 2025 (FY2025 Q3)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Jul\u2013Sep 2025 (FY2026 Q1)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Oct\u2013Dec 2025 (FY2026 Q2)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Oct\u2013Dec 2025 (FY2026 Q2)",
+      "figure": "$801",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "new-york-city",
+      "title": "New York City hotel occupancy tax, quarterly cash receipts \u2014 Jan\u2013Mar 2026 (FY2026 Q3)",
+      "figure": "$770",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston local room occupancy excise, annual \u2014 FY2024 (Jul 2023\u2013Jun 2024)",
+      "figure": "11.9%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "boston",
+      "title": "Boston local room occupancy excise, annual \u2014 FY2025 (Jul 2024\u2013Jun 2025)",
+      "figure": "1.7%",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville hotel occupancy tax \u2014 FY2025, total hotel-tax collections (Jul 2024\u2013Jun 2025)",
+      "figure": "$2.50/room",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville hotel occupancy tax \u2014 FY2025, tourism-promotion share (Jul 2024\u2013Jun 2025)",
+      "figure": "$2.50/room",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville hotel occupancy tax \u2014 FY2026 YTD Jul 2025\u2013Feb 2026, total",
+      "figure": "$2.50/room",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "nashville",
+      "title": "Nashville hotel occupancy tax \u2014 FY2026 YTD Jul 2025\u2013Feb 2026, tourism-promotion share",
+      "figure": "$2.50/room",
+      "kind": "tax"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { coverageInProgressLine, isSeedMarket } from "./format";
 import { getMsaRegistryEntry } from "@/data/msa-registry";
 import { publisherName, scrubInternal } from "./public-text";
 import { isBrandCompare } from "./brand-neutral";
+import { formatSupplyPressureLead } from "./chat-supply-score";
 import { FED_POLICY, fedDate, fedDecisions, fedForecastLine, isFedForecastQuestion, isFedPolicyQuestion, pct as fedPct, rangeText, type FedPolicy } from "./fed-policy";
 import {
   chipKind,
@@ -896,8 +897,9 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     answer = metricGapLine(short, "supply");
     reads = greenSecondaryReads(facts, n);
   } else if (lens === "supply" && scoreSig) {
+    // Cited pipeline counts first; the 1–5 score is Bungah's, never attributed to Lodging Econometrics.
     const head = withArea(m.slug, signalFacts(scoreSig as SignalLike)[0]);
-    answer = headLine(short, "supply", { ...head, text: scrubInternal(scoreSig.title).replace(new RegExp(`^${short}\\s*`, "i"), "") });
+    answer = formatSupplyPressureLead(short, scoreSig);
     reads = pickReads(facts, "supply", 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
   } else {
     // A demand headline never leads with a single week or event print; it stays a labeled bullet below.

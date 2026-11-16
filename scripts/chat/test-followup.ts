@@ -30,7 +30,7 @@ async function main() {
   const { installGraphFixture } = await import("./graph-fixture");
   installGraphFixture();
   const { answerChat } = await import("@/lib/chat-llm");
-  const { answerHash, applyNoRepeat, parsePrev, parseSeen, resolveFollowUp, NO_REPEAT_LINE, NO_REPEAT_EARLIER_LINE, CARD_ABOVE_LINE, PREV_MAX_QUESTION, SEEN_MAX } = await import("@/lib/chat-followup");
+  const { answerHash, applyNoRepeat, parsePrev, parseSeen, prevFromThreadRecords, resolveFollowUp, NO_REPEAT_LINE, NO_REPEAT_EARLIER_LINE, CARD_ABOVE_LINE, PREV_MAX_QUESTION, SEEN_MAX } = await import("@/lib/chat-followup");
   // A repeat is the bare note, or (when the repeated card carried a decline or premise line) that line + CARD_ABOVE_LINE.
   const EXTRA_NOTE = /^(We don't give buy or sell recommendations\b[^]*|Mixed: [^]*|(?:Occupancy|RevPAR|ADR) is [^]*) The full cited card is above\.$/;
   const isNote = (c: string) => c === NO_REPEAT_LINE || c === NO_REPEAT_EARLIER_LINE || EXTRA_NOTE.test(c);
@@ -1043,6 +1043,58 @@ async function main() {
   check(long?.question?.length === PREV_MAX_QUESTION && long.intent === "revpar_metrics" && long.marketSlug === "nashville" && long.answerHash === "0123456789abcdef", `parsePrev caps: ${JSON.stringify(long)?.slice(0, 120)}`);
   check(parsePrev({ marketSlug: "x".repeat(200) }) === null, "parsePrev accepted a 200-char slug");
   check(parsePrev({ intent: "revpar_metrics", extra: { deep: [1, 2, 3] } })?.intent === "revpar_metrics", "parsePrev dropped a valid intent next to junk");
+
+  const owned = { userId: "user_eric", anonId: null };
+  const rebuilt = prevFromThreadRecords({
+    thread: { userId: "user_eric", anonOwnerId: null },
+    owner: owned,
+    lastUser: { content: "What is RevPAR doing in Nashville?", questionLogId: "log_1" },
+    log: { marketSlug: "nashville", intent: "revpar_metrics", question: "What is RevPAR doing in Nashville?" },
+  });
+  check(rebuilt?.marketSlug === "nashville" && rebuilt?.intent === "revpar_metrics" && /RevPAR doing in Nashville/.test(rebuilt?.question ?? ""), `owned thread rebuilds prev: ${JSON.stringify(rebuilt)}`);
+  check(
+    prevFromThreadRecords({
+      thread: { userId: "user_eric", anonOwnerId: null },
+      owner: { userId: "user_other", anonId: null },
+      lastUser: { content: "What is RevPAR doing in Nashville?", questionLogId: "log_1" },
+      log: { marketSlug: "nashville", intent: "revpar_metrics", question: "What is RevPAR doing in Nashville?" },
+    }) === null,
+    "foreign signed-in owner does not inherit prev"
+  );
+  check(
+    prevFromThreadRecords({
+      thread: { userId: "user_eric", anonOwnerId: null },
+      owner: { userId: null, anonId: "anon_abc" },
+      lastUser: { content: "What is RevPAR doing in Nashville?", questionLogId: "log_1" },
+      log: { marketSlug: "nashville", intent: "revpar_metrics" },
+    }) === null,
+    "signed-out caller does not inherit a signed-in thread"
+  );
+  const anonRebuilt = prevFromThreadRecords({
+    thread: { userId: null, anonOwnerId: "anon_abc" },
+    owner: { userId: null, anonId: "anon_abc" },
+    lastUser: { content: "What is RevPAR doing in Dallas?", questionLogId: "log_priv" },
+    log: { marketSlug: "dallas", intent: "revpar_metrics", question: "What is RevPAR doing in Dallas?" },
+  });
+  check(anonRebuilt?.marketSlug === "dallas" && anonRebuilt?.intent === "revpar_metrics", `owned anon thread rebuilds prev: ${JSON.stringify(anonRebuilt)}`);
+  check(
+    prevFromThreadRecords({
+      thread: { userId: null, anonOwnerId: "anon_abc" },
+      owner: { userId: null, anonId: "anon_other" },
+      lastUser: { content: "What is RevPAR doing in Dallas?", questionLogId: "log_priv" },
+      log: { marketSlug: "dallas", intent: "revpar_metrics" },
+    }) === null,
+    "foreign anon owner does not inherit prev"
+  );
+  check(
+    prevFromThreadRecords({
+      thread: { userId: null, anonOwnerId: null },
+      owner: owned,
+      lastUser: { content: "What is RevPAR doing in Nashville?", questionLogId: "log_1" },
+      log: { marketSlug: "nashville", intent: "revpar_metrics" },
+    }) === null,
+    "unowned legacy thread does not inherit prev"
+  );
 
   console.log(`no-repeat replies by chip count: ${JSON.stringify(chipCounts)}`);
   console.log(`follow-up test: ${checks - fails.length}/${checks} checks pass`);

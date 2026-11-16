@@ -18,6 +18,7 @@
  */
 import { createHash, randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { prevFromThreadRecords, type Prev } from "./chat-followup";
 
 type Db = PrismaClient;
 
@@ -359,6 +360,40 @@ export async function getOwnedThread(db: Db, threadId: string, owner: Owner) {
  * thread; signed out → this browser's (anon cookie's) most recent thread, if the purge hasn't removed it.
  * Nobody else's thread can come back: the lookup is by the caller's own owner id only.
  */
+
+/**
+ * Rebuild prev from a stored thread the caller already owns. A foreign threadId returns null
+ * (no market/intent inheritance). The question log is reached via the owned message's questionLogId,
+ * including private logs whose threadId is null.
+ */
+export async function prevFromOwnedThread(db: Db, threadId: unknown, owner: Owner): Promise<Prev | null> {
+  if (typeof threadId !== "string" || !THREAD_ID_RE.test(threadId)) return null;
+  if (!(await foundationReady(db))) return null;
+  const t = await db.chatThread.findUnique({
+    where: { id: threadId },
+    select: {
+      userId: true,
+      anonOwnerId: true,
+      messages: {
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: 30,
+        select: { role: true, content: true, questionLogId: true },
+      },
+    },
+  });
+  if (!t) return null;
+  const lastUser = t.messages.find((m) => m.role === "user") ?? null;
+  let log: { marketSlug: string | null; intent: string | null; question: string | null } | null = null;
+  if (lastUser?.questionLogId) {
+    const row = await db.chatQuestionLog.findUnique({
+      where: { id: lastUser.questionLogId },
+      select: { marketSlug: true, intent: true, question: true },
+    });
+    if (row) log = row;
+  }
+  return prevFromThreadRecords({ thread: t, owner, lastUser, log });
+}
+
 export async function getCurrentThread(db: Db, owner: Owner) {
   if (!(await foundationReady(db))) return null;
   const where: Prisma.ChatThreadWhereInput | null = owner.userId

@@ -4,6 +4,8 @@ import { withDataLayerRates } from "./fed-policy";
 import { withoutRules } from "./rule-rows";
 import { withoutLicensedSnapshot, withoutLicensedSources } from "./licensed-sources";
 import { withYellowBuckets } from "./yellow-sources";
+import { withBungahSupplyScores } from "./chat-supply-score";
+import { withoutUnverifiedFigures } from "./licensed-attribution";
 import { airliftFactsFor, asSignalRow, isAirliftQuestion } from "./chat-airlift";
 import { withNeutralBrands } from "./brand-neutral";
 import { cleanSourceLabel, dropNoSourceCitations, publisherName, stripLeaks } from "./public-text";
@@ -458,7 +460,7 @@ function taxLine(s: SignalRow): string {
  * brand-vs-brand framing of loan performance (brand-neutral.ts). Display layer only; DB rows unchanged.
  */
 function publicSafe<T extends { title: string; body: string; sourceLabel: string; sourceUrls?: unknown; magnitude?: string | null }>(rows: T[], extraLicensed: string[] = []): T[] {
-  return withNeutralBrands(withoutLicensedSources(withoutLeaks(rows), extraLicensed));
+  return withNeutralBrands(withoutLicensedSources(withoutUnverifiedFigures(withBungahSupplyScores(withoutLeaks(rows))), extraLicensed));
 }
 
 /** National RevPAR gap line (r4): the national prints were licensed STR/CoStar data. */
@@ -1536,9 +1538,9 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
   const content = dedupeBlank([
     `**Covered markets ranked by supply pressure (${light ? "lightest" : "heaviest"} first)**`,
     "",
-    "No publisher reports pipeline against existing rooms on one basis for every market, so this ranks by each market's supply-pressure score (1–5), built from its cited pipeline rows: rooms under construction, starts against history, openings and conversions. On each score row, 4–5 is heavy pressure, 3 is mixed (read by submarket) and 1–2 is a supply tailwind. Where a source states under-construction rooms as a share of inventory, the share is quoted as published.",
+    "No publisher reports pipeline against existing rooms on one basis for every market, so this ranks by each market's Bungah supply-pressure score (1–5), derived from its cited pipeline rows: rooms under construction, starts against history, openings and conversions. The score is Bungah's, not a figure published by Lodging Econometrics or another pipeline source. On each score row, 4–5 is heavy pressure, 3 is mixed (read by submarket) and 1–2 is a supply tailwind. Where a source states under-construction rooms as a share of inventory, the share is quoted as published.",
     "",
-    "| Rank | Market | Score | Under construction (as cited) | Source |",
+    "| Rank | Market | Bungah score | Under construction (as cited) | Counts source |",
     "| --- | --- | --- | --- | --- |",
     ...table,
     "",
@@ -1568,7 +1570,7 @@ export function formatSupplyRanking(markets: MarketRow[], question: string): Cha
   // Short answer: top two score tiers in the answer line; the first three ranked rows as reads.
   const short = (m: MarketRow) => m.name.split(/[–—]/)[0].replace(/\s+MSA$/, "").trim();
   const tiers = [...new Set(rows.map((r) => r.score))].slice(0, 2);
-  const answerLine = `${light ? "Lightest" : "Heaviest"} supply pressure among ${rows.length} scored markets (cited 1–5 score): ${tiers
+  const answerLine = `${light ? "Lightest" : "Heaviest"} supply pressure among ${rows.length} scored markets (Bungah's 1–5 score, derived from cited pipeline counts): ${tiers
     .map((t) => `${rows.filter((r) => r.score === t).map((r) => `[${short(r.m)}](/markets/${r.m.slug})`).join(", ")} ${t}/5`)
     .join("; ")}.`;
   const reads: BriefRead[] = rows.slice(0, 3).flatMap((r) => {

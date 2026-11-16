@@ -37,11 +37,44 @@ const COSTAR = /\bco-?star\b|\bstr\.com\b/i;
 
 export function isLicensedText(t: string | null | undefined): boolean {
   if (!t) return false;
-  return COSTAR.test(t) || LICENSED_CS.test(t);
+  return COSTAR.test(t) || LICENSED_CS.test(t) || creditsLicensedSource(t);
+}
+
+/**
+ * Generic credit rule: a source's own text that attributes figures to CoStar, STR, Kalibri, HotStats, or Lodging Econometrics is licensed,
+ * even when the URL is a broker or CVB reprint (e.g. "Source: CoStar Group, Inc.",
+ * "Data Sources: STR, CoStar", "© 2026 CoStar Group — Licensed to …").
+ * Short-term-rental "STR" wording is not a credit (same exclusions as LICENSED_TEXT).
+ */
+const LICENSED_CREDIT = new RegExp(
+  [
+    String.raw`sources?:\s*[^\n]{0,80}co-?star`,
+    String.raw`data sources?:\s*[^\n]{0,80}(?:co-?star|\bSTR\b(?![\s-]*(?:units?|listings?|rentals?|ordinance|permits?|TOT|tax|registry|remit)))`,
+    String.raw`\bco-?star group\b`,
+    String.raw`©\s*20\d{2}\s+co-?star`,
+    String.raw`relying on co-?star`,
+    String.raw`co-?star[- ]defined`,
+    String.raw`co-?star data`,
+    String.raw`licensed to [^\n]{0,60}co-?star`,
+    String.raw`co-?star group[^\n]{0,40}licensed`,
+    String.raw`\bkalibri(?:\s+labs)?\b`,
+    String.raw`\bhotstats\b`,
+    String.raw`sources?:\s*STR,?\s*Inc`,
+    String.raw`source:\s*STR\b(?![\s-]*(?:units?|listings?|rentals?|ordinance|permits?|TOT|tax|registry|remit))`,
+    String.raw`\blodging econometrics\b`,
+    String.raw`according to (?:data (?:provided by|from|firm) )?co-?star`,
+    String.raw`costar results`,
+  ].join("|"),
+  "i"
+);
+
+export function creditsLicensedSource(t: string | null | undefined): boolean {
+  if (!t) return false;
+  return LICENSED_CREDIT.test(t);
 }
 
 /** Links to STR / CoStar, or to the C&W national hospitality MarketBeat (its hotel figures are STR/CoStar data). */
-const LICENSED_URL = /costar|(?:^|[/.])str\.com\b|str-benchmark|national-hospitality-marketbeat/i;
+const LICENSED_URL = /costar|(?:^|[/.])str\.com\b|str-benchmark|national-hospitality-marketbeat|(?:^|[/.])lodgingeconometrics\.com\b/i;
 
 type Link = { url?: string; label?: string; secondary?: boolean };
 
@@ -63,17 +96,29 @@ type Row = { title?: string | null; body?: string | null; sourceLabel?: string |
 
 /** Result of the licensed-source pass for one row: the cleaned row, or null when it is dropped. */
 /** Distinctive figures (dollar amounts with cents, "$206.21") that identify a licensed print republished elsewhere. */
-const FIG = /\$\d{1,3}(?:,\d{3})*\.\d{2}\b/g;
 const FIG_ANY = /\$\d{1,3}(?:,\d{3})*\.\d{1,2}\b/g;
-const figuresIn = (s: string | null | undefined): string[] => (s ?? "").match(FIG) ?? [];
 const figuresAny = (s: string | null | undefined): string[] => (s ?? "").match(FIG_ANY) ?? [];
+
+/** Exact OCC/ADR/RevPAR tokens from licensed reprints (Eric r7). Used to catch mixed-row back doors without stripping unrelated x.x% figures. */
+const LICENSED_REPRINT_TOKENS = [
+  "63.0%", "$124.87", "$78.55",
+  "66.9%", "$134.10", "$89.66",
+  "68.6%", "70.7%", "69.0%",
+  "80.0%", "$277.89", "$222.27", "75.4%", "$382.08", "$288.19",
+  "79.2%", "$294.58", "$233.37", "87.8%", "$307.45", "$270.04",
+  "69.2%", "$243.10", "$168.15",
+  "84.1%", "$333.71", "$280.71", "84.2%", "82.2%",
+  "66.5%", "$173.29", "$115.27", "72.3%", "72.5%",
+  "+$43.76", "+$32.80",
+];
+
 
 /**
  * fp: figures from STR/CoStar items elsewhere in the same set of rows; an item quoting one ("Week Aug 2–8: ADR +15.2%
  * to $206.21", republished from the CoStar weekly) goes too. removedOut collects the text that was taken out.
  */
 export function stripLicensed<T extends Row>(r: T, fp: Set<string> = new Set(), removedOut?: string[]): T | null {
-  const hasFp = (t: string | null | undefined) => figuresAny(t).some((x) => fp.has(x));
+  const hasFp = (t: string | null | undefined) => figuresAny(t).some((x) => fp.has(x)) || LICENSED_REPRINT_TOKENS.some((x) => (t ?? "").includes(x));
   const res = stripLicensedInner(r, hasFp, removedOut);
   if (res === null) removedOut?.push(`${r.title ?? ""} ${r.body ?? ""} ${r.magnitude ?? ""} ${r.sourceLabel ?? ""}`);
   return res;
@@ -171,7 +216,7 @@ export function withoutLicensedSources<T extends Row>(rows: T[], extraLicensed: 
   const removed: string[] = extraLicensed.filter((x): x is string => typeof x === "string" && isLicensedText(x));
   for (const r of rows) stripLicensed(r, new Set(), removed);
   // Each figure also in its one-decimal rounding ("$293.67" is republished as "$293.7").
-  const fp = new Set(removed.flatMap(figuresIn).flatMap((x) => [x, `$${(Math.round(Number(x.slice(1).replace(/,/g, "")) * 10) / 10).toFixed(1)}`]));
+  const fp = new Set([...LICENSED_REPRINT_TOKENS, ...removed.flatMap(figuresAny).flatMap((x) => [x, `$${(Math.round(Number(x.slice(1).replace(/,/g, "")) * 10) / 10).toFixed(1)}`])]);
   const out: T[] = [];
   for (const r of rows) {
     const k = stripLicensed(r, fp);

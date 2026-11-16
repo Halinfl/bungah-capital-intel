@@ -14,6 +14,7 @@ import { SignalCard } from "@/components/SignalCard";
 import { splitTaxSeries } from "@/lib/tax-series";
 import { SourceNote } from "@/components/SourceNote";
 import { scrubInternal, briefLine } from "@/lib/public-text";
+import { formatSupplyPressureCard, SUPPLY_SCORE_TITLE } from "@/lib/chat-supply-score";
 import { isOwnSource, withoutOwnLinks } from "@/lib/rule-rows";
 import { isLicensedText, withoutLicensedSnapshot } from "@/lib/licensed-sources";
 import {
@@ -169,7 +170,8 @@ export default async function MarketDetailPage({
     const links = withoutOwnLinks(parseSourceUrls(s.sourceUrls));
     const labelUrl = s.sourceLabel.match(URL_RE)?.[0];
     const primary = links[0]?.url ?? (labelUrl && isOriginalUrl(labelUrl) ? labelUrl : null);
-    const title = scrubInternal(s.title);
+    const scoreCard = SUPPLY_SCORE_TITLE.test(s.title) ? formatSupplyPressureCard(s) : null;
+    const title = scrubInternal(scoreCard?.title ?? s.title);
     const npr = !links.length && /no public read/i.test(s.body) && !labelUrl;
     return (
       <SignalCard
@@ -191,7 +193,7 @@ export default async function MarketDetailPage({
           </>
         }
       >
-        <p className="mt-1 line-clamp-2 text-sm text-slate-300">{glueText(briefLine(title, s.body))}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-slate-300">{glueText(scoreCard ? scoreCard.body : briefLine(title, s.body))}</p>
         <div className="mt-2">
           {links.length ? (
             <SourceLinks links={links} limit={3} />

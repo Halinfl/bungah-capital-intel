@@ -11,7 +11,7 @@ import { answerKey, cachedAnswer, dataVersion, type CacheStatus } from "@/lib/ch
 import { checkRateLimit, clientIp, LIMIT, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { answerHash, applyNoRepeat, clearedMarketFallback, followUpExtras, parsePrev, resolveFollowUp, shownHashes, type FollowUpChip } from "@/lib/chat-followup";
 import type { ChatIntent } from "@/lib/chat-intent";
-import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, recentOwnedMessages, recordAnonLink, resolveThread, validRequestId, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
+import { createOwnedThread, foundationReady, legacyPersist, persistLogOnly, persistOwnedTurn, prevFromOwnedThread, recentOwnedMessages, recordAnonLink, resolveThread, validRequestId, type Owner, type ResolvedThread, type TurnInput } from "@/lib/chat-store";
 import { ANON_COOKIE, anonCookieOptions, anonFromRequest, mintAnon } from "@/lib/chat-anon";
 import { maybeSaveSignedOutIdea } from "@/lib/chat-ideas";
 
@@ -204,7 +204,7 @@ export async function POST(req: Request) {
           ? body.marketSlug.trim().toLowerCase().slice(0, 81)
           : null;
     // The answer on screen (src/lib/chat-followup.ts): validated and capped; anything malformed is dropped.
-    const prev = parsePrev(body.prev);
+    const prev = parsePrev(body.prev) ?? (body.threadId ? await prevFromOwnedThread(prisma, body.threadId, historyOwner).catch(() => null) : null);
     // A follow-up that names no market (and has no item chip) keeps the previous answer's market; a time
     // comparison ("how does that compare to last year?") keeps its topic instead of asking for two markets.
     const route = await resolveFollowUp({ question, scope, marketSlug: askedMarket, prev });

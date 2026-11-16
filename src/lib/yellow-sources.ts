@@ -8,13 +8,35 @@
  *   "STR data reported through the Greater Miami Convention & Visitors Bureau" (GMCVB).
  * - miamiandbeaches.com / GMCVB industry updates and State of the Industry decks republish STR hotel metrics.
  * - lodgingmagazine.com: the CoStar weekly hotel-performance reprints (e.g. week of Aug 2–8).
+ * - matthews.com: DFW hospitality "By the Numbers" (OCC / ADR / RevPAR) is labeled "Source: CoStar Group, Inc."
+ * - kidder.com: Seattle hotel-market PDFs list "Data Sources: STR, CoStar, and Kidder Mathews Valuation."
+ * - hvs.com / hvi.hvs.com: the World Cup market analysis relies on "CoStar data" for OCC / ADR / RevPAR.
+ * - marcusmillichap.com: hospitality market reports cite "CoStar Group, Inc." among sources.
+ * - wronkaltd.com: the Boston hospitality market PDF is a CoStar Group extract ("Licensed to Wronka").
+ * - Newmark (nmrk.imgix.net): Hotel-Nsights charts labeled "Source: CoSTAR."
+ * - sccai.org: the Inland Empire Hotel-Motel Market Overview reprints STR RevPAR and supply-pipeline figures.
+ * - Hawaii DBEDT hotel-performance PDFs: "Source: STR, Inc."
  * Raw OCC/ADR/RevPAR from these hosts is reduced to a qualitative bucket. Other text is left alone.
  */
+import { isLicensedAttributionUrl } from "./licensed-attribution";
+
 export const YELLOW_HOSTS = [
   "roadgenius.com",
   "miamibusiness.com",
   "miamiandbeaches.com",
   "lodgingmagazine.com",
+  "matthews.com",
+  "kidder.com",
+  "hvs.com",
+  "marcusmillichap.com",
+  "wronkaltd.com",
+  "nmrk.imgix.net",
+  "sccai.org",
+];
+
+/** Path-specific reprints whose host also publishes unrelated public documents (tax, etc.). */
+export const YELLOW_URL_RE = [
+  /files\.hawaii\.gov\/dbedt\/economic\/tourism\/hotel-performance/i,
 ];
 
 /** Labels that mark the same reprint sources even when the URL is missing from the row. */
@@ -23,12 +45,29 @@ export const YELLOW_LABELS = [
   "gmcvb",
   "greater miami convention",
   "lodging magazine",
+  "matthews",
+  "kidder mathews",
+  "hvs",
+  "marcus millichap",
+  "marcus & millichap",
+  "wronka",
+  "newmark",
+  "sccai",
 ];
 
 export function isYellowSource(label?: string | null, urls?: unknown): boolean {
   const blob = `${label ?? ""} ${typeof urls === "string" ? urls : JSON.stringify(urls ?? "")}`.toLowerCase();
   if (YELLOW_HOSTS.some((h) => blob.includes(h))) return true;
   if (YELLOW_LABELS.some((s) => blob.includes(s))) return true;
+  if (YELLOW_URL_RE.some((re) => re.test(blob))) return true;
+  // A cited page whose own text credits STR / CoStar / Kalibri / HotStats is yellow for OCC / ADR / RevPAR.
+  // Lodging Econometrics is licensed-stripped (counts are not quoted), not yellow-bucketed.
+  const links = Array.isArray(urls) ? urls : [];
+  for (const l of links) {
+    const url = typeof l === "string" ? l : l && typeof l === "object" ? (l as { url?: string }).url : undefined;
+    if (url && isLicensedAttributionUrl(url) && !/lodgingeconometrics\.com/i.test(url)) return true;
+  }
+  if (typeof urls === "string" && isLicensedAttributionUrl(urls) && !/lodgingeconometrics\.com/i.test(urls)) return true;
   return false;
 }
 

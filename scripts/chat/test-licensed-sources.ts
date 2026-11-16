@@ -15,7 +15,7 @@ process.env.BUNGAH_NO_NEXT_CACHE = "1";
 process.env.BUNGAH_USE_LLM = "";
 
 async function main() {
-  const { isLicensedText, isLicensedLink, stripLicensed, withoutLicensedSources } = await import("@/lib/licensed-sources");
+  const { isLicensedText, isLicensedLink, stripLicensed, withoutLicensedSources, creditsLicensedSource } = await import("@/lib/licensed-sources");
   const { neutralBrandText, isBrandCompare, BRAND_COMPARE } = await import("@/lib/brand-neutral");
   const fails: string[] = [];
   let checks = 0;
@@ -30,6 +30,9 @@ async function main() {
   for (const t of ["Dallas STR ordinance upheld", "STR TOT (3114): $3,342,998", "STR revenue $540M = 21% of lodging revenue", "hotel vs STR remit scope varies", "city hotel tax $18.24M + STR hotel tax $3.59M", "(STR/short-term rental share 8.7%)", "STR listings ~+80%, STR OCC ~−20%", "Aerolux (121) is an STR-unit building", "Los Angeles city TOT (hotel + STR)", "oversupply was STR, not hotel keys", "Cottage/STR is the primary bed-base", "Underwrite against STR competition", "streets", "STRATEGY", "sources: City Controller, STR registry", "source: STR permits data"])
     check(!isLicensedText(t), `not licensed (short-term rental / other): ${t}`);
   check(isLicensedLink({ url: "https://costar-na-prod.acquia.dshrp.com/products/str-benchmark/x" }) && isLicensedLink({ url: "https://www.cushmanwakefield.com/-/media/cw/marketbeat-pdfs/2026/q2/us-reports/national/national-hospitality-marketbeat-q2-2026.pdf" }) && !isLicensedLink({ url: "https://roadgenius.com/x", label: "County YTD" }), "licensed links");
+  for (const t of ["By the Numbers / Source: CoStar Group, Inc.", "Data Sources: STR, CoStar, and Kidder Mathews Valuation.", "© 2026 CoStar Group - Licensed to Wronka, Ltd. Commercial Real Estate.", "Source: CoSTAR.", "relying on CoStar data", "Source: STR, Inc.", "Sources: BLS; CoStar Group, Inc.; Real Capital Analytics.", "Source: Kalibri Labs, Newmark", "HotStats occupancy report", "Pipeline Trend Report from Lodging Econometrics"]) {
+    check(creditsLicensedSource(t) && isLicensedText(t), `credits licensed: ${t}`);
+  }
   const pulse = stripLicensed({
     title: "Nashville supply: Latest pulse",
     body: "Nashville — Latest pulse (D2). County YTD: OCC 69.4% | C&W Q2 2026 (STR/CoStar): RevPAR $133 | CoStar wk ending 2026-08-08: ADR −4.1% | Event weekends 2026: CMA Fest 89.4%. Decision support.",
@@ -137,7 +140,7 @@ async function main() {
   check(Boolean(natB?.reads?.some((r) => /by brand flag/.test(r.text) && /Hilton-flagged 11\.73%, Marriott-flagged 7\.23%/.test(r.text))), `brand-flag read kept lower, neutral: ${natB?.reads?.map((r) => r.text).join(" | ")}`);
   const nash = await answerChat("What's the RevPAR and occupancy read for Nashville?");
   const nashB = nash.brief as { answer?: string } | null;
-  check(Boolean(nashB?.answer && /county|roadgenius/i.test(nashB.answer) && !/STR|CoStar|C&W/.test(nashB.answer)), `Nashville leads with county/public numbers: ${nashB?.answer}`);
+  check(Boolean(nashB?.answer && /^Nashville: no public market-wide or county (RevPAR|occupancy) on file/.test(nashB.answer) && !/~67%|STR|CoStar|C&W/.test(nashB.answer)), `Nashville RevPAR gaps and does not quote the Metro/CoSTAR ~67% briefing: ${nashB?.answer}`);
   // r4 (Eric QA r3): the hotel-performance blocks never show an STR / CoStar-credited row; the JSON keeps them.
   const { hotelPerf, hotelPerfSlugs, headlinePerf, hotelPerfLicensedHidden } = await import("@/lib/hotel-performance");
   const perfBad: string[] = [];
@@ -156,7 +159,7 @@ async function main() {
   const chi = (await answerChat("What's the RevPAR for Chicago?")).brief as { answer?: string } | null;
   check(Boolean(chi?.answer && /^Chicago: no public market-wide or county RevPAR on file\. The closest public read is a REIT portfolio slice, not the market: Host Hotels Chicago comparable RevPAR/.test(chi.answer)), `Chicago RevPAR gap + labeled slice: ${chi?.answer}`);
   const mia = (await answerChat("What's the RevPAR for Miami?")).brief as { answer?: string; reads?: { text: string }[] } | null;
-  check(Boolean(mia?.answer && !/Host Hotels/.test(mia.answer) && (mia.reads ?? []).every((r) => !/comparable RevPAR/.test(r.text) || /^REIT portfolio slice, not the market:/.test(r.text))), `Miami REIT slice labeled: ${mia?.answer} | ${mia?.reads?.map((r) => r.text).join(" | ")}`);
+  check(Boolean(mia?.answer && /^Miami: no public market-wide or county RevPAR on file/.test(mia.answer) && (mia.reads ?? []).every((r) => !/comparable RevPAR/.test(r.text) || /^REIT portfolio slice, not the market:/.test(r.text))), `Miami REIT slice labeled: ${mia?.answer} | ${mia?.reads?.map((r) => r.text).join(" | ")}`);
   // National RevPAR: the gap line without "didn't match", and chips to markets with public reads.
   const natP = await answerChat("What's the national RevPAR?");
   check(/^There's no national RevPAR, occupancy or ADR read on file from a public source\./.test(natP.content) && !/didn't match/.test(natP.content), `national RevPAR gap: ${natP.content.slice(0, 160)}`);

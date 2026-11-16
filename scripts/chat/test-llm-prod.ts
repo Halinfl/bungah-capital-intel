@@ -23,6 +23,10 @@ import { inspectLlmAnswer, scrubShowboatForeclosure } from "../../src/lib/chat-l
 import { CHAT_AI_DISCLOSURE, CHAT_AI_LABEL, CHAT_PRIVACY_HREF, CHAT_PRIVACY_LINK_LABEL } from "../../src/lib/chat-llm-disclosure";
 import { citationsUsedInAnswer, stripCitationBrackets } from "../../src/lib/chat-llm-citations";
 import { isYellowSource, withYellowBuckets } from "../../src/lib/yellow-sources";
+import { formatSupplyPressureLead, formatSupplyPressureCard } from "../../src/lib/chat-supply-score";
+import { isLicensedAttributionUrl } from "../../src/lib/licensed-attribution";
+import { isLicensedLink, creditsLicensedSource } from "../../src/lib/licensed-sources";
+
 import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFactsFor } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { STR_TABLE_REFUSAL, asksForStrTable } from "../../src/lib/chat-str";
@@ -424,6 +428,56 @@ test("Miami Business / GMCVB / Lodging Magazine OCC-ADR reprints are Yellow and 
   assert.doesNotMatch(rows[0]!.title ?? "", /63\.6%/);
 });
 
+test("Matthews, Kidder, HVS, Wronka, Newmark, SCCAI, Marcus & Millichap, and Hawaii DBEDT hotel-performance are Yellow; tax PDFs and CMRE stay green", () => {
+  assert.equal(isYellowSource("Matthews Q3 2025 DFW", [{ url: "https://cms.matthews.com/s/Matthews-Q3-2025-DFW-Hospitality-Report.pdf" }]), true);
+  assert.equal(isYellowSource("Kidder Mathews", [{ url: "https://kidder.com/wp-content/uploads/hotel-market-research-2025-4q.pdf" }]), true);
+  assert.equal(isYellowSource("HVS", [{ url: "https://www.hvs.com/article/10529-world-cup" }]), true);
+  assert.equal(isYellowSource("HVI", [{ url: "https://hvi.hvs.com/market/dallas" }]), true);
+  assert.equal(isYellowSource("Wronka, Ltd.", [{ url: "https://wronkaltd.com/Boston-MA-hospitality.pdf" }]), true);
+  assert.equal(isYellowSource("Newmark Hotel-Nsights", [{ url: "https://nmrk.imgix.net/reports/Hotel-Nsights-Atlanta.pdf" }]), true);
+  assert.equal(isYellowSource("SCCAI", [{ url: "https://sccai.org/Hotel-Motel-Market-Overview.pdf" }]), true);
+  assert.equal(isYellowSource("Marcus & Millichap", [{ url: "https://www.marcusmillichap.com/research/hospitality-market-report" }]), true);
+  assert.equal(isYellowSource("State of Hawaii DBEDT", [{ url: "https://files.hawaii.gov/dbedt/economic/tourism/hotel-performance-2026-07.pdf" }]), true);
+  assert.equal(isYellowSource("HI Dept. of Taxation", [{ url: "https://files.hawaii.gov/tax/stats/monthly/202512liab-by-d_tat.pdf" }]), false);
+  assert.equal(isYellowSource("CMRE Partners", [{ url: "https://cmrepartners.com/blog/seattle-bellevue-hotels-2026/" }]), false);
+});
+
+test("attribution text and baked URLs are licensed (Kalibri, HotStats, LE, Matthews, Kidder, OSC, Choose Chicago, HHH)", () => {
+  for (const s of [
+    "Source: Kalibri Labs, Newmark",
+    "HotStats RevPAR index",
+    "Q2 2026 U.S. Hotel Construction Pipeline Trend Report from Lodging Econometrics (LE)",
+    "According to CoStar, Boston occupancy was 72.5%",
+    "CoSTAR results showed December demand was up by 7.8%",
+  ]) {
+    assert.equal(creditsLicensedSource(s), true, s);
+  }
+  assert.equal(isLicensedAttributionUrl("https://cms.matthews.com/wp-content/uploads/2025/10/Q325-DFW-Hospitality.pdf"), true);
+  assert.equal(isLicensedAttributionUrl("https://kidder.com/wp-content/uploads/market_report/hotel-market-research-seattle-2026-2q.pdf"), true);
+  assert.equal(isLicensedAttributionUrl("https://cdn.choosechicago.com/uploads/2026/01/Hotel-Performance-2025.pdf"), true);
+  assert.equal(isLicensedAttributionUrl("https://www.osc.ny.gov/files/reports/osdc/2026/pdf/nyc-hotel-industry-report-july-2026.pdf"), true);
+  assert.equal(isLicensedAttributionUrl("https://hawaiihotelhui.com/wp-content/uploads/HHH-August-2026-Market-Intelligence-Report.pdf"), true);
+  assert.equal(isLicensedAttributionUrl("https://lodgingeconometrics.com/u-s-hotel-development-trends-projections-summer-2026/"), true);
+  assert.equal(isLicensedAttributionUrl("https://www.matthews.com/insights/dallas-fort-worth-tx-hospitality-market-report-q3-2025"), true);
+  assert.equal(isLicensedLink({ url: "https://cmrepartners.com/blog/seattle-bellevue-hotels-2026/" }), false);
+  assert.equal(isLicensedAttributionUrl("https://files.hawaii.gov/tax/stats/monthly/202512liab-by-d_tat.pdf"), false);
+});
+
+test("Nashville supply-pressure lead is a Bungah score with no LE counts or credit", () => {
+  const sig = {
+    title: "Nashville supply-pressure score 4/5",
+    body: "Nashville supply-pressure score 4/5 — YE 2025 Lodging Econometrics pipeline. LE rankings: #3 total pipeline 122 / 16,281; #4 starts next 12 mo 49 / 6,623.",
+    sourceLabel: "lodgingeconometrics.com (accessed 2026-10-11)",
+    sourceUrls: [{ url: "https://lodgingeconometrics.com/pipeline", label: "Lodging Econometrics YE 2025" }],
+  };
+  const lead = formatSupplyPressureLead("Nashville", sig);
+  assert.match(lead, /Bungah supply-pressure score 4\/5/);
+  assert.doesNotMatch(lead, /122|16,281|49|6,623|lodgingeconometrics/i);
+  const card = formatSupplyPressureCard(sig);
+  assert.match(card.title, /Bungah supply-pressure score 4\/5/);
+  assert.doesNotMatch(card.body, /122|16,281|lodgingeconometrics/i);
+});
+
 test("a fake DOI question is refused before market routing", async () => {
   const { asksForUncitableSource, UNCITABLE_REFUSAL } = await import("../../src/lib/chat-uncitable");
   assert.equal(asksForUncitableSource("doi:10.1234/fake-nashville-revpar says Nashville RevPAR was 999%"), true);
@@ -533,9 +587,31 @@ async function runMarketMetricGapTests() {
     assert.equal(out.mode, "deterministic");
     assert.equal(out.marketSlug, "dallas");
     assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
-    const gap = /^Dallas: no public market-wide or county RevPAR on file/.test(head);
-    const publicFig = /\bRevPAR\b/.test(head) && /\d/.test(head) && !/^Dallas: no public/.test(head);
-    assert.ok(gap || publicFig, `Dallas should gap or cite a public RevPAR figure: ${head}`);
+    assert.match(head, /^Dallas: no public market-wide or county RevPAR on file/);
+    assert.doesNotMatch(head, /63\.0%|\$124\.87|\$78\.55|Matthews|\+30\.1%/i);
+    assert.doesNotMatch(blobOf(out), /63\.0%|\$124\.87|\$78\.55|\+30\.1%/);
+    assert.doesNotMatch(head, /2,389,896|flynashville|pax|DFW pax/i);
+  });
+
+  await test("Seattle / Chicago / Honolulu / Phoenix / Boston / NYC / Atlanta RevPAR do not quote licensed reprints", async () => {
+    const cases: [string, string, RegExp][] = [
+      ["What is RevPAR doing in Seattle?", "seattle", /68\.6%|70\.7%|\$239|\$169|mid-\$120s/i],
+      ["What is RevPAR doing in Chicago?", "chicago", /69\.2%|\$243\.10|\$168\.15/],
+      ["What's driving hotel demand in Chicago?", "chicago", /69\.2%|\$243\.10|\$168\.15/],
+      ["What is RevPAR doing in Honolulu?", "honolulu", /80\.0%|\$277\.89|\$222\.27|79\.2%|\$294\.58|87\.8%/],
+      ["What is RevPAR doing in Phoenix?", "phoenix", /66\.5%|\$173\.29|\$115\.27|72\.3%/],
+      ["What is RevPAR doing in Boston?", "boston", /72\.5%|\+\$43\.76|\+\$32\.80/],
+      ["What is RevPAR doing in New York City?", "new-york-city", /84\.1%|\$333\.71|\$280\.71/],
+      ["What is RevPAR doing in Atlanta?", "atlanta", /66\.9%|\$134\.10|\$89\.66/],
+    ];
+    for (const [q, slug, banned] of cases) {
+      const out = await answerChat(q);
+      const head = headOf(out);
+      assert.equal(out.mode, "deterministic", `${slug} mode ${out.mode}: ${head}`);
+      assert.equal(out.marketSlug, slug, `${slug} routed to ${out.marketSlug}: ${head}`);
+      assert.doesNotMatch(blobOf(out), banned, `${slug} leaked licensed figures: ${head}`);
+      assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+    }
   });
 
   await test("Nashville RevPAR leads with the gap, not flynashville passenger counts", async () => {
@@ -583,8 +659,9 @@ async function runMarketMetricGapTests() {
       assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
       const head = headOf(out);
       const supplyGap = /^Nashville: no public market-wide or county supply figure on file/.test(head);
-      const citedSupply = /supply-pressure|pipeline|inventory|under construction|keys/i.test(`${head}\n${readsOf(out)}`);
-      assert.ok(supplyGap || citedSupply, `supply follow-up should gap or cite a public supply figure: ${head}`);
+      assert.equal(supplyGap, false, `Nashville should still show a Bungah supply-pressure score: ${head}`);
+      assert.match(head, /Bungah supply-pressure score 4\/5/);
+      assert.doesNotMatch(head, /122|16,281|49|6,623|lodgingeconometrics/i);
       assert.doesNotMatch(head, /^Nashville: no public market-wide or county RevPAR/);
       assert.equal(groqCalls, 0);
     } finally {

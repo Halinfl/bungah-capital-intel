@@ -79,6 +79,37 @@ export function parsePrev(v: unknown): Prev | null {
 }
 
 /**
+ * Rebuild `prev` from an already-owned thread (SHOULD 1): a follow-up POST with only threadId
+ * and no `prev` body stays on the last turn's market and intent. Ownership is checked first;
+ * a foreign or unowned thread returns null (no inheritance). The question log is loaded
+ * through the owned message's questionLogId, which is safe for private logs.
+ */
+export function prevFromThreadRecords(args: {
+  thread: { userId: string | null; anonOwnerId: string | null } | null;
+  owner: { userId: string | null; anonId: string | null };
+  lastUser: { content: string; questionLogId?: string | null } | null;
+  log?: { marketSlug: string | null; intent: string | null; question?: string | null } | null;
+}): Prev | null {
+  const { thread, owner, lastUser, log } = args;
+  if (!thread) return null;
+  if (thread.userId) {
+    if (!owner.userId || thread.userId !== owner.userId) return null;
+  } else if (thread.anonOwnerId) {
+    if (owner.userId || !owner.anonId || thread.anonOwnerId !== owner.anonId) return null;
+  } else {
+    return null;
+  }
+  if (!lastUser) return null;
+  const raw = (log?.question || lastUser.content || "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
+  const question = raw ? raw.slice(0, PREV_MAX_QUESTION) : null;
+  const intent = typeof log?.intent === "string" && log.intent.length <= 40 && INTENTS.has(log.intent) ? (log.intent as ChatIntent) : null;
+  const slug = typeof log?.marketSlug === "string" ? log.marketSlug.trim().toLowerCase() : "";
+  const marketSlug = slug.length <= 81 && SLUG_RE.test(slug) ? slug : null;
+  if (!question && !intent && !marketSlug) return null;
+  return { question, intent, marketSlug, answerHash: null, seen: [] };
+}
+
+/**
  * The prev used for routing: parts the visitor removed from the carry-over chip are not carried
  * (× on the market: no market inheritance; × on the topic: no topic carry-over). The original prev still
  * feeds the "what changed" opener, so it can say what was dropped.

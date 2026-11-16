@@ -16,6 +16,7 @@ import type { DigestHit } from "./chat-retrieve";
 import { canonicalizeCiteUrl, parseSourceUrls, type SourceLink } from "./source-links";
 import CITATION_OVERLAY from "@/data/citation-overlay.json";
 import { cleanSourceLabel, publisherName, scrubInternal } from "./public-text";
+import { formatSupplyPressureCard, SUPPLY_SCORE_TITLE } from "./chat-supply-score";
 
 export type ChipKind = "Filing" | "Press" | "Record" | "Data";
 /**
@@ -1151,17 +1152,19 @@ export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefi
     const blocks = list.map((s) => {
       const links = linksOf(s);
       const items = signalItems(s);
-      const title = scrubInternal(s.title);
+      const scoreCard = SUPPLY_SCORE_TITLE.test(s.title) ? formatSupplyPressureCard(s) : null;
+      const title = scrubInternal(scoreCard?.title ?? s.title);
       const rp = rowPeriod(s);
       const date = rp && !title.includes(rp.label) && !(s.magnitude ?? "").includes(rp.label) ? rp.label : null;
       if (!items.length) {
         count += 1;
-        const body = dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
+        const body = scoreCard ? scoreCard.body : dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
         const src = sourceFrom(links[0], s.sourceLabel);
+        const srcKind = scoreCard ? "counts source" : src.kind;
         return [
           `**${title}**${s.magnitude && !/^(rule|—)$/i.test(s.magnitude) ? ` (${s.magnitude}${date ? `, ${date}` : ""})` : date ? ` (${date})` : ""}`,
           "",
-          `- ${plain(body)} · ${src.kind}: ${src.url ? `[${src.label}](${src.url})` : src.label}`,
+          `- ${plain(body)} · ${srcKind}: ${src.url ? `[${src.label}](${src.url})` : src.label}`,
         ].join("\n");
       }
       // "(2026-09; source: same → <url>)" / "(source: Same)": provenance shorthand for the block's own source.
@@ -1170,8 +1173,9 @@ export function signalSections(signals: SignalLike[], lens: Lens | null, idPrefi
         .map((it) => ({ ...it, text: it.text.replace(/\s*\(([^()]*?);\s*source:\s*same\b[^)]*\)/gi, " ($1)").replace(/\s*\(source:\s*same\b[^)]*\)/gi, "") }));
       count += shown.length;
       const primary = sourceFrom(links[0], s.sourceLabel);
+      const srcKind = scoreCard ? "counts source" : primary.kind;
       return [
-        `**${title}**${date ? ` (${date})` : ""} · ${primary.kind}: ${primary.url ? `[${primary.label}](${primary.url})` : primary.label}`,
+        `**${title}**${date ? ` (${date})` : ""} · ${srcKind}: ${primary.url ? `[${primary.label}](${primary.url})` : primary.label}`,
         "",
         ...shown.map((it) => {
           const own = specificLink(it.text, links);
