@@ -152,6 +152,7 @@ export function stripCitedMissPreface(text: string): string {
 export function isDefinitionalQuestion(question: string): boolean {
   let q = question.trim().toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ");
   if (!q) return false;
+  q = q.replace(/[?.!,;:]+$/g, "").trim();
   q = q
     .replace(/^(please |can you |could you |would you )/i, "")
     .replace(/^in (one|a|two|three|\d+) sentences?,?\s+/i, "")

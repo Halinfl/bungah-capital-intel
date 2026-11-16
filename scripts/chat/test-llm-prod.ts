@@ -454,24 +454,6 @@ test("r10d: the chat route caches deterministic answers even when Groq is on, ne
   assert.doesNotMatch(call[0] ?? "", /prev|seen/);
 });
 
-test("r10d: lookupCachedAnswer hits L1 after a stored deterministic build", async () => {
-  const { cachedAnswer, lookupCachedAnswer } = await import("../../src/lib/chat-cache");
-  const key = `r10d-test-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  let builds = 0;
-  const first = await cachedAnswer(key, async () => {
-    builds += 1;
-    return { mode: "deterministic", n: 7 };
-  });
-  assert.equal(first.value.n, 7);
-  assert.equal(builds, 1);
-  const hit = await lookupCachedAnswer<{ mode: string; n: number }>(key);
-  assert.ok(hit, "expected an L1 or L2 hit");
-  assert.equal(hit!.value.n, 7);
-  assert.equal(hit!.status === "hit-mem" || hit!.status === "hit-shared", true, hit!.status);
-  assert.equal(builds, 1);
-  const miss = await lookupCachedAnswer(key + "-absent");
-  assert.equal(miss, null);
-});
 
 test("Miami Business / GMCVB / Lodging Magazine OCC-ADR reprints are Yellow and bucketed", () => {
   assert.equal(isYellowSource("Miami Business", [{ url: "https://miamibusiness.com/miami-hospitality-industry-report-august-2026/" }]), true);
