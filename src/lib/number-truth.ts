@@ -7,17 +7,22 @@
  *   rows:  { "<rowId>": "why" }                         drop the whole row
  *   items: { "<rowId>": [{ "match": "...", "why" }] }   drop each " | " item of the body containing match
  *   edits: { "<rowId>": [{ "find": "...", "replace": "", "why" }] }  remove a clause (title / body / magnitude)
+ *   stripUrls: ["<url prefix>"]                           never cited: the link leaves the row, and every item that
+ *         came from it (or names it inline) leaves with it (Eric r8: simpleviewinc.com Boston TDMD / Phoenix PDFs)
  *   snapshotUrls: { "<market slug>": { "url", "label", "checked" } }  the market snapshot's own page, where its
  *         OCC / ADR and period were found on the snapshot (same source as its label; not a retarget)
  */
 import data from "@/data/number-truth-r9.json";
+import { withoutOrphanedFigures } from "./source-provenance";
 
-type Row = { id?: string; title?: string | null; body?: string | null; magnitude?: string | null };
+type Row = { id?: string; title?: string | null; body?: string | null; magnitude?: string | null; sourceUrls?: unknown };
 type Overlay = {
   rows?: Record<string, string>;
   items?: Record<string, { match: string; why?: string }[]>;
   edits?: Record<string, { find: string; replace?: string; why?: string }[]>;
   snapshotUrls?: Record<string, { url: string; label?: string; checked?: string }>;
+  stripUrls?: string[];
+  dropItemPatterns?: { re: string; why?: string }[];
 };
 
 const O = data as unknown as Overlay;
@@ -33,12 +38,35 @@ function stripPrefix(item: string): string {
   return item.replace(/^[^|]{0,120}?\s—\s[^|]{0,120}?\.\s+(?=\S)/, "").trim();
 }
 
-export function withNumberTruth<T extends Row>(rows: T[]): T[] {
+const DROP_RE = (O.dropItemPatterns ?? []).map((d) => new RegExp(d.re, "i"));
+const STRIP = (O.stripUrls ?? []).map((u) => u.toLowerCase());
+const stripped = (u: unknown) => typeof u === "string" && STRIP.some((p) => u.toLowerCase().startsWith(p));
+
+function withoutStrippedUrls<T extends Row>(rows: T[]): T[] {
+  if (!STRIP.length) return rows;
+  const after = rows.map((r) => {
+    const links = Array.isArray(r.sourceUrls) ? (r.sourceUrls as { url?: string }[]) : [];
+    const keep = links.filter((l) => !stripped(l?.url));
+    const body = r.body ?? "";
+    const named = STRIP.some((p) => body.toLowerCase().includes(p));
+    if (keep.length === links.length && !named) return r;
+    const items = body.split(/\s+\|\s+/);
+    const kept = items.filter((it) => !STRIP.some((p) => it.toLowerCase().includes(p)));
+    if (items.length && !kept.length) return null;
+    return { ...r, sourceUrls: keep, body: kept.join(" | ") } as T;
+  });
+  const survivors = after.filter((r): r is T => r !== null && (!Array.isArray(r.sourceUrls) || (r.sourceUrls as unknown[]).length > 0));
+  return withoutOrphanedFigures(rows as never, survivors as never) as unknown as T[];
+}
+
+export function withNumberTruth<T extends Row>(rows0: T[]): T[] {
+  const rows = withoutStrippedUrls(rows0);
   const out: T[] = [];
   for (const r of rows) {
     const id = r.id ?? "";
     if (id && O.rows?.[id]) continue;
-    const drops = (id && O.items?.[id]) || [];
+    const drops = [...((id && O.items?.[id]) || [])];
+    if (DROP_RE.length) for (const it of (r.body ?? "").split(/\s+\|\s+/)) if (DROP_RE.some((re) => re.test(it))) drops.push({ match: it });
     const eds = (id && O.edits?.[id]) || [];
     if (!drops.length && !eds.length) {
       out.push(r);

@@ -430,5 +430,16 @@
    "label": "Visit Orlando Data & Trends",
    "checked": "2026-11-16: '2025 Year End Results' · 132,685 rooms · OCC 71.4% · ADR $202.71"
   }
- }
+ },
+ "stripUrls": [
+  "https://assets.simpleviewinc.com/sv-boston/image/upload/v1/clients/boston/BCTDMD_Plan_2025",
+  "https://assets.simpleviewinc.com/sv-boston/image/upload/v1/clients/boston/TDMD_District_Plan",
+  "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394"
+ ],
+ "dropItemPatterns": [
+  {
+   "re": "^(?:[^|]*?\\.\\s+)?HVS/CBRE\\b[^|]*no public read",
+   "why": "names HVS/CBRE with no public figure (Eric r8)"
+  }
+ ]
 }

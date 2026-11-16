@@ -693,6 +693,50 @@ test("r9: a figure leaves with its dropped source and is never re-pointed at a s
   assert.equal(withoutOrphanedFigures([row], [{ ...band, id: row.id, sourceUrls: [row.sourceUrls[1]] }]).length, 0);
 });
 
+test("r9 number-truth overlay: unverified figures drop, never retarget; simpleview / HVS placeholders gone", async () => {
+  const { withNumberTruth, numberTruthSnapshotUrl } = await import("../../src/lib/number-truth");
+  const overlay = JSON.parse(readFileSync(resolve("src/data/number-truth-r9.json"), "utf8"));
+  assert.ok(Object.keys(overlay.rows).length > 0 && Object.keys(overlay.items).length > 0);
+  // Every overlay entry is a drop or a clause removal: no entry carries a replacement URL.
+  assert.doesNotMatch(JSON.stringify(overlay.items) + JSON.stringify(overlay.edits), /"(?:url|newUrl)"\s*:/);
+  const houston = { id: "w1s-houston-snapshot", title: "Houston supply: Snapshot", magnitude: "2 rows", sourceUrls: [{ url: "https://www.texashotelsearch.com/markets/houston" }],
+    body: 'Houston — Snapshot. Metro inventory: ">100,000 rooms" (Woodlands to Texas City) · 2026 | City tax-registry rooms: 68,260 · 2026. Decision support.' };
+  const [h] = withNumberTruth([houston]);
+  assert.doesNotMatch(h.body, /100,000/);
+  assert.match(h.body, /^Houston — Snapshot\. City tax-registry rooms: 68,260/);
+  assert.equal(h.magnitude, "1 rows");
+  assert.equal(withNumberTruth([{ id: "tax-orlando-202608-m", title: "x", body: "y", magnitude: "$24.83M" }]).length, 0, "occompt 403 row dropped");
+  const dallas = { id: "w1c-dallas-debt-market-level-reads", title: "t", sourceUrls: [{ url: "https://example.gov/a" }],
+    body: "Dallas — debt & deals: Market-level reads. Arlington June 2026 HOT: $31M (+39%, all-time record) · Jun 2026 | HVS/CBRE Dallas cap read, lodging DQ cut: no public read (source: no public read). Decision support." };
+  assert.doesNotMatch(withNumberTruth([dallas])[0].body, /HVS\/CBRE/);
+  const phx = { id: "w1d-phoenix-d3", title: "Phoenix demand", sourceUrls: [{ url: "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf" }, { url: "https://www.visitphoenix.com/a" }],
+    body: "Phoenix (D3). FY25/26 bookings: 671 meetings (source: https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf) | Visitors 2025: 21M (source: https://www.visitphoenix.com/a)" };
+  const [p] = withNumberTruth([phx]);
+  assert.doesNotMatch(JSON.stringify(p), /simpleviewinc/);
+  assert.match(p.body, /21M/);
+  assert.equal(numberTruthSnapshotUrl("las-vegas", "LVCVA FAQ YE 2025 (updated 06/2026)"), "https://www.lvcva.com/research/faqs/");
+  assert.equal(numberTruthSnapshotUrl("las-vegas", "Some other source"), undefined, "a snapshot is only re-cited to the page its own label names");
+});
+
+test("r9: YoY label is idempotent on cached rows; headline-news questions never use Wikipedia", async () => {
+  const { withVerifiedYoY } = await import("../../src/lib/tax-yoy");
+  const rows = [
+    { id: "a", title: "NYC tax — FY2026 (Jul 2025–Jun 2026)", body: "Collections: $847M · YoY: +5.7% (computed)", magnitude: "$847M (+5.7% YoY) · cash" },
+    { id: "b", title: "NYC tax — FY2025 (Jul 2024–Jun 2025)", body: "Collections: $801M", magnitude: "$801M · cash" },
+  ];
+  const once = withVerifiedYoY(rows);
+  const twice = withVerifiedYoY(withVerifiedYoY(once));
+  assert.equal(twice[0].magnitude, once[0].magnitude);
+  assert.equal((twice[0].magnitude?.match(/Bungah calc\./g) ?? []).length <= 1, true, twice[0].magnitude ?? "");
+  const { isHeadlineNewsQuestion } = await import("../../src/lib/chat-web-search");
+  assert.equal(isHeadlineNewsQuestion("What are the top U.S. news headlines today?"), true);
+  assert.equal(isHeadlineNewsQuestion("What's a recent news headline about the 2026 United States midterm elections?"), true);
+  assert.equal(isHeadlineNewsQuestion("Who won last night's World Cup qualifying match that everyone is talking about?"), false);
+  assert.equal(isHeadlineNewsQuestion("What is RevPAR doing in Miami?"), false);
+  const src = readFileSync(resolve("src/lib/chat-web-search.ts"), "utf8");
+  assert.match(src, /headlines \? \[\] : wiki/);
+});
+
 test("r9: Houston Hobby / NASA 65% is the July print; Uptown is not 'Uptown / Galleria'", async () => {
   const { expandMonthlyReleaseItem } = await import("../../src/lib/chat-brief");
   const hobby = expandMonthlyReleaseItem("Hobby / NASA: OCC 65% (+6%) · Highest Jul OCC", ["Aug 2026", "Jul 2026", "Dec 2025"]);

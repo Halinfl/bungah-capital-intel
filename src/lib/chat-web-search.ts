@@ -61,6 +61,13 @@ export function isCurrentEventsQuestion(question: string): boolean {
   return false;
 }
 
+const HEADLINE_NEWS = /\b(news|headlines?|breaking)\b/i;
+
+/** "What are today's top news headlines?": news-only sources (GDELT / gov feeds), never encyclopedia pages. */
+export function isHeadlineNewsQuestion(question: string): boolean {
+  return HEADLINE_NEWS.test(question) && isCurrentEventsQuestion(question);
+}
+
 export const SEARCH_DAILY_CAP = Number(process.env.BUNGAH_SEARCH_DAILY_CAP || 40);
 export const SEARCH_USER_DAILY_CAP = Number(process.env.BUNGAH_SEARCH_USER_DAILY_CAP || 8);
 export const SEARCH_TIMEOUT_MS = Number(process.env.BUNGAH_SEARCH_TIMEOUT_MS || 8_000);
@@ -355,7 +362,10 @@ export async function freeLiveSearch(question: string): Promise<LiveSearchHit | 
       : Promise.resolve([] as LiveSourceFact[]),
     govRssFacts(question).catch(() => [] as LiveSourceFact[]),
   ]);
-  const facts = [...wiki, ...gov, ...news].filter((f) => f.text && f.url && !isBlockedSearchHost(f.url));
+  // r9 (Eric r8): a headline-news question is answered only from news sources (GDELT or a government news feed).
+  // Wikipedia pages (biographies, topic intros) are not headlines; with no news hit it is the honest miss.
+  const headlines = isHeadlineNewsQuestion(question);
+  const facts = [...(headlines ? [] : wiki), ...gov, ...news].filter((f) => f.text && f.url && !isBlockedSearchHost(f.url));
   if (!facts.length) return null;
   const asOf = retrievedOn();
   const lines = facts.map((f) => {

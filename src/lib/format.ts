@@ -129,7 +129,7 @@ export function publicRows<T extends SeedCheckable & { kind?: string | null; sou
         )
       )
     ) as never
-  ) as never)) as never;
+  ) as never) as never) as never;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
