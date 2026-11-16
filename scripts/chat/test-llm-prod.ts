@@ -33,6 +33,9 @@ import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicen
 import { buildGdeltQuery, isCurrentEventsQuestion, needsCurrentFacts } from "../../src/lib/chat-web-search";
 import { CITED_SOURCE_MISS, isDefinitionalQuestion, isNoMarketMemo, stripCitedMissPreface, stripLeadingPunctuation } from "../../src/lib/chat-llm";
 import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
+import { packVersion } from "../../src/lib/chat-cache";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
 import { SIGNED_OUT_LOG_RETENTION_DAYS, signedOutLogPurgeWhere } from "../../src/lib/chat-store";
@@ -431,6 +434,26 @@ test("r10d: stripLeadingPunctuation drops a leftover leading comma from LLM text
   assert.equal(stripLeadingPunctuation("https://www.faa.gov lists it"), "https://www.faa.gov lists it");
   assert.equal(stripLeadingPunctuation("12,462 flights were cancelled"), "12,462 flights were cancelled");
   assert.equal(stripLeadingPunctuation(""), "");
+});
+
+test("r10e: packVersion changes when a runtime airlift pack file changes (dataVersion includes it)", () => {
+  const dir = mkdtempSync(resolve(tmpdir(), "bci-pack-"));
+  const prev = process.env.BUNGAH_AIRLIFT_DIR;
+  process.env.BUNGAH_AIRLIFT_DIR = dir;
+  try {
+    const f = resolve(dir, "airlift-signals-test.json");
+    writeFileSync(f, JSON.stringify([{ market: "x", headline: "a", fact: "1", source: "s", url: "https://example.gov", as_of: "2026" }]));
+    let t = 1e12;
+    const v1 = packVersion((t += 120_000));
+    assert.match(v1, /^[0-9a-f]{12}$/);
+    assert.equal(packVersion(t + 1), v1, "memoized within a minute");
+    writeFileSync(f, JSON.stringify([{ market: "x", headline: "a", fact: "2", source: "s", url: "https://example.gov", as_of: "2026" }]));
+    const v2 = packVersion((t += 120_000));
+    assert.notEqual(v2, v1, "an edited pack file changes the version");
+  } finally {
+    if (prev === undefined) delete process.env.BUNGAH_AIRLIFT_DIR;
+    else process.env.BUNGAH_AIRLIFT_DIR = prev;
+  }
 });
 
 test("r10d: definitional questions are recognized and the cited-source miss preface is stripped", () => {

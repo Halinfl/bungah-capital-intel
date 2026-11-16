@@ -10,7 +10,8 @@
  *   L1 per-instance memory (Fluid compute serves many requests per instance), up to 10 min, 500 entries.
  *   L2 Next Data Cache (unstable_cache → Vercel Data Cache, regional, shared by instances; preview and
  *      production never share it), TTL = the graph refresh (1 h), cut short at 2:00 AM ET (answerTtlSeconds).
- * Invalidation: the data version (a tiny aggregate over the graph tables, re-read hourly) changes as
+ * Invalidation: the data version (a tiny aggregate over the graph tables, re-read hourly, plus a hash of the
+ * pack/overlay JSON, re-hashed each minute) changes as
  * soon as that hourly re-read sees added/edited rows, which changes every key; revalidateTag("db") (radar runs)
  * purges L2 and the version at once;
  * a new deployment changes the key.
@@ -24,6 +25,11 @@ import { cachedQuery, DB_TAG, GRAPH_REFRESH_S } from "./db-safe";
 import { classifyIntent, type ChatIntent } from "./chat-intent";
 import type { DateRange } from "./chat-brief";
 import { scopeKey, type ChatScope } from "./chat-scope";
+import { readFileSync } from "node:fs";
+import { airliftPackFiles } from "./chat-airlift";
+import CITATION_OVERLAY from "@/data/citation-overlay.json";
+import NT_OVERLAY from "@/data/number-truth-r9.json";
+import STARTERS from "@/data/chat-starters.json";
 
 export const CHAT_CACHE_TAG = "chat-answers";
 const L1_MAX = 500;
@@ -57,8 +63,42 @@ export function etDay(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(now);
 }
 
-/** Cheap fingerprint of the graph tables (counts, newest rows, text length): changes when the data does. */
+/** Bundled pack/overlay JSON (fixed per build; hashed once per process). */
+const STATIC_PACK_HASH = createHash("sha256")
+  .update(JSON.stringify([CITATION_OVERLAY, NT_OVERLAY, STARTERS]))
+  .digest("hex")
+  .slice(0, 12);
+const PACK_MEMO_MS = 60_000;
+let packMemo: { exp: number; value: string } | null = null;
+
+/**
+ * Fingerprint of the pack/overlay JSON behind deterministic answers: the bundled overlays plus the airlift
+ * pack files read from disk at runtime (re-hashed at most once a minute). A pack edit changes every key at
+ * once, so a long-lived process never serves a stale pack answer until the TTL runs out.
+ */
+export function packVersion(now = Date.now()): string {
+  if (packMemo && packMemo.exp > now) return packMemo.value;
+  const h = createHash("sha256").update(STATIC_PACK_HASH);
+  for (const f of airliftPackFiles().sort()) {
+    h.update(f);
+    try {
+      h.update(readFileSync(f));
+    } catch {
+      h.update("missing");
+    }
+  }
+  const value = h.digest("hex").slice(0, 12);
+  packMemo = { exp: now + PACK_MEMO_MS, value };
+  return value;
+}
+
+/** Cache key data version: graph tables fingerprint + pack/overlay JSON fingerprint. */
 export async function dataVersion(): Promise<string> {
+  return `${await graphVersion()}.${packVersion()}`;
+}
+
+/** Cheap fingerprint of the graph tables (counts, newest rows, text length): changes when the data does. */
+export async function graphVersion(): Promise<string> {
   const r = await cachedQuery(
     ["chat-data-version"],
     async () => {

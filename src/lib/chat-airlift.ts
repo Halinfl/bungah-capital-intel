@@ -136,7 +136,8 @@ function asRows(raw: unknown): AirliftSignal[] {
   return out;
 }
 
-export function loadAirliftSignals(): AirliftSignal[] {
+/** Every airlift pack file the loader reads at runtime (shipped, env dir, audit dir), de-duplicated. */
+export function airliftPackFiles(): string[] {
   const dirs = [SHIPPED_DIR, process.env.BUNGAH_AIRLIFT_DIR?.trim() || "", AUDIT_DIR].filter(Boolean);
   const files: string[] = [];
   const seenPath = new Set<string>();
@@ -147,6 +148,11 @@ export function loadAirliftSignals(): AirliftSignal[] {
       files.push(f);
     }
   }
+  return files;
+}
+
+export function loadAirliftSignals(): AirliftSignal[] {
+  const files = airliftPackFiles();
   const seen = new Set<string>();
   const out: AirliftSignal[] = [];
   for (const file of files) {
