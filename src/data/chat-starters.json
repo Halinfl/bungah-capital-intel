@@ -1,5 +1,5 @@
 {
- "verifiedAt": "2026-11-16T07:31:09.612Z",
+ "verifiedAt": "2026-11-16T07:39:11.985Z",
  "basis": "graph dump 20261116T064453Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
@@ -606,7 +606,7 @@
   {
    "scope": "market:atlanta",
    "q": "Is labor a risk to the thesis here?",
-   "reason": "0 key reads"
+   "reason": "no-figure card (\"Atlanta: no dated, cited labor figure on file yet; the cited rows we h\")"
   },
   {
    "scope": "market:atlanta",
@@ -1426,12 +1426,12 @@
   {
    "scope": "market:nashville",
    "q": "What's happening with hotel debt here?",
-   "reason": "0 key reads"
+   "reason": "no-figure card (\"Nashville: no dated, cited debt figure on file yet; the cited rows we \")"
   },
   {
    "scope": "market:nashville",
    "q": "Is labor a risk to the thesis here?",
-   "reason": "0 key reads"
+   "reason": "no-figure card (\"Nashville: no dated, cited labor figure on file yet; the cited rows we\")"
   },
   {
    "scope": "market:nashville",
