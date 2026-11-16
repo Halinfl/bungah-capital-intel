@@ -24,6 +24,7 @@ import {
   answerFromGraph,
   decisionSupportFooter,
   formatMarketMemo,
+  formatTaxMemo,
   formatSupplyRanking,
   inMentionOrder,
   isCoveredMarketPhrase,
@@ -67,6 +68,9 @@ import {
   digestReads,
   marketBrief,
   askedMarketMetric,
+  askedMarketFigure,
+  hasPublicTaxFigure,
+  isMarketFigureQuestion,
   nationalDebtBrief,
   ratesBrief,
   propertyBrief,
@@ -241,6 +245,10 @@ function cleanLegacy(content: string): string {
  * With a brief, the stored text is the brief's own markdown (same facts, same order).
  */
 function finalize(answer0: ChatAnswer & { brief?: ChatBrief }, answeredWell: boolean): FinalAnswer {
+  // "From our cited data" is only honest when the figures come from the brief.
+  if (!answer0.brief?.answer && typeof answer0.content === "string" && /from our cited data/i.test(answer0.content)) {
+    answer0 = { ...answer0, content: answer0.content.replace(/^\s*From our cited data:?\s*/i, "").trimStart() };
+  }
   // Render-time leak guard (public-text.ts guardPublic): no file path, dataset ID label or internal code in any string.
   const answer = guardPublic(answer0);
   // A one-line prompt with chips ("Which two markets should I compare?") is shown as is, without the footer.
@@ -656,9 +664,30 @@ async function answerChatIn(
   }
 
 
-  // Covered-market RevPAR / OCC / ADR / supply questions: use the deterministic brief (Chicago-style
-  // gap when the licensed / yellow strip left no public figure). Do not call Groq for unsourced market color.
-  if (ctx.matched && askedMarketMetric(question, ctx.intent)) {
+  // Covered-market figure questions (RevPAR / OCC / ADR / supply / tax / visitation and other
+  // market intents): use the deterministic brief or tax memo. When licensed or unverified strips
+  // left no public figure, lead with the Chicago-style gap. Never call Groq for market figures
+  // or unsourced color, and never say "From our cited data" for a reconstructed amount.
+  if (ctx.matched && isMarketFigureQuestion(question, ctx.intent)) {
+    if (ctx.intent === "tax_collections" || askedMarketFigure(question, ctx.intent) === "tax") {
+      if (hasPublicTaxFigure(ctx.matched)) {
+        return withNote(finalize({ ...formatTaxMemo(ctx.matched) }, true));
+      }
+      const taxBrief = marketBrief(ctx.matched, "tax_collections", { question, range });
+      return withNote(
+        finalize(
+          {
+            content: "",
+            brief: taxBrief,
+            citations: [...new Set((taxBrief.cited ?? []).map((c) => c.label))],
+            intent: "tax_collections",
+            marketSlug: ctx.matched.slug,
+            mode: "deterministic",
+          },
+          true
+        )
+      );
+    }
     const graphBrief = briefForGraph(question, ctx, issuerDigests(question, corpus), range);
     if (graphBrief) {
       return withNote(

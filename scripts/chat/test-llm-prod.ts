@@ -620,15 +620,21 @@ async function runMarketMetricGapTests() {
   const { installGraphFixture } = await import("./graph-fixture");
   assert.equal(installGraphFixture(GRAPH_FIXTURE), true);
   const { answerChat } = await import("../../src/lib/chat-llm");
-  const { askedMarketMetric } = await import("../../src/lib/chat-brief-build");
+  const { askedMarketMetric, askedMarketFigure, isMarketFigureQuestion } = await import("../../src/lib/chat-brief-build");
   const { resolveFollowUp } = await import("../../src/lib/chat-followup");
 
   assert.equal(askedMarketMetric("What is RevPAR doing in Miami?", "revpar_metrics"), "revpar");
   assert.equal(askedMarketMetric("And supply there?", "supply_pipeline"), "supply");
   assert.equal(askedMarketMetric("What's demand doing in Miami?", "demand_visitation"), null);
+  assert.equal(askedMarketFigure("What's demand doing in Miami?", "demand_visitation"), "visitation");
+  assert.equal(askedMarketFigure("How is Dallas visitation and hotel occupancy tax collections?", "tax_collections"), "tax");
+  assert.equal(isMarketFigureQuestion("How is Dallas visitation and hotel occupancy tax collections?", "tax_collections"), true);
+  assert.equal(isMarketFigureQuestion("What is the NYC hotel occupancy-tax rate?", "tax_collections"), true);
 
   const headOf = (a: { content: string; brief?: { answer?: string; reads?: { text?: string }[] } | null }) =>
     a.brief?.answer ?? a.content.split("\n")[0];
+  const hasPublicTaxLeft = (a: { content: string; brief?: { answer?: string } | null }) =>
+    !/: no public market-wide or county hotel-tax figure on file/.test(headOf(a));
   const readsOf = (a: { brief?: { reads?: { text?: string }[] } | null }) =>
     (a.brief?.reads ?? []).map((r) => r.text ?? "").join("\n");
   const blobOf = (a: { content: string; brief?: { answer?: string; reads?: { text?: string }[] } | null }) =>
@@ -695,6 +701,46 @@ async function runMarketMetricGapTests() {
       assert.equal(out.marketSlug, slug, `${slug} routed to ${out.marketSlug}: ${head}`);
       assert.doesNotMatch(blobOf(out), banned, `${slug} leaked licensed figures: ${head}`);
       assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+    }
+  });
+
+  await test("Dallas visitation / HOT and NYC occupancy-tax stay deterministic and never reconstruct dropped figures via Groq", async () => {
+    const prevLlm = process.env.BUNGAH_USE_LLM;
+    const prevKey = process.env.GROQ_API_KEY;
+    process.env.BUNGAH_USE_LLM = "true";
+    process.env.GROQ_API_KEY = "gsk_test_not_a_real_key";
+    let groqCalls = 0;
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (/groq/i.test(url)) groqCalls += 1;
+      throw new Error(`test must not call the network (${url})`);
+    }) as typeof fetch;
+    try {
+      const dallas = await answerChat("How is Dallas visitation and hotel occupancy tax collections?");
+      assert.equal(dallas.mode, "deterministic", `Dallas tax mode ${dallas.mode}: ${headOf(dallas)}`);
+      assert.equal(dallas.intent, "tax_collections");
+      assert.equal(dallas.marketSlug, "dallas");
+      assert.doesNotMatch(blobOf(dallas), /From our cited data/i);
+      assert.doesNotMatch(blobOf(dallas), /\$79\.3\s*m|\$23\.9\s*m|\$80\.6|\$24\.3|\$89\s*m(?:illion)?/i);
+      assert.doesNotMatch(blobOf(dallas), /I couldn't find a cited source right now/i);
+      if (!hasPublicTaxLeft(dallas)) {
+        assert.match(headOf(dallas), /^Dallas: no public market-wide or county hotel-tax figure on file/);
+      }
+
+      const nyc = await answerChat("What is the NYC hotel occupancy-tax rate?");
+      assert.equal(nyc.mode, "deterministic", `NYC tax mode ${nyc.mode}: ${headOf(nyc)}`);
+      assert.equal(nyc.intent, "tax_collections");
+      assert.equal(nyc.marketSlug, "new-york-city");
+      assert.doesNotMatch(blobOf(nyc), /From our cited data/i);
+      assert.doesNotMatch(blobOf(nyc), /I couldn't find a cited source right now/i);
+      assert.equal(groqCalls, 0);
+    } finally {
+      globalThis.fetch = origFetch;
+      if (prevLlm === undefined) delete process.env.BUNGAH_USE_LLM;
+      else process.env.BUNGAH_USE_LLM = prevLlm;
+      if (prevKey === undefined) delete process.env.GROQ_API_KEY;
+      else process.env.GROQ_API_KEY = prevKey;
     }
   });
 

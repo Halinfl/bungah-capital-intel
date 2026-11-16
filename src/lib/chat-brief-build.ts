@@ -721,12 +721,24 @@ export function isQualitativeBucketFact(f: Fact): boolean {
   return QUALITATIVE_BAND.test(`${f.text} ${f.title ?? ""}`);
 }
 
-const METRIC_GAP_WORD: Record<"revpar" | "occ" | "adr" | "supply", string> = {
+const METRIC_GAP_WORD: Record<"revpar" | "occ" | "adr" | "supply" | "tax" | "visitation", string> = {
   revpar: "RevPAR",
   occ: "occupancy",
   adr: "ADR",
   supply: "supply figure",
+  tax: "hotel-tax figure",
+  visitation: "visitation figure",
 };
+
+export type MarketFigure = "revpar" | "occ" | "adr" | "supply" | "tax" | "visitation";
+
+const TAX_PUBLIC_FIG = /\$\s?\d|\d{1,3}(?:\.\d+)?\s?%|\d+(?:\.\d+)?\s*(?:million|billion|\bm\b|\bbn\b)/i;
+
+/** A published hotel-tax rate or collections print still on file after licensed / unverified strips. */
+export function hasPublicTaxFigure(m: MarketRow): boolean {
+  const rows = m.signals.filter((s) => s.kind === "tax" || /\b(hotel|occupancy|lodging|room|bed|tourist|transient).{0,24}tax|\b(TDT|TOT|TAT|HOT|CDT|HMT)\b|\bexcise\b/i.test(`${s.title ?? ""} ${s.body ?? ""}`));
+  return rows.some((s) => !/gaps?$/i.test(s.id ?? "") && TAX_PUBLIC_FIG.test(`${s.magnitude ?? ""} ${s.body ?? ""} ${s.title ?? ""}`));
+}
 
 /**
  * The market-performance or supply metric a question is asking for, or null when it is not a
@@ -742,6 +754,27 @@ export function askedMarketMetric(question: string | undefined, intent?: ChatInt
     return "revpar";
   }
   return null;
+}
+
+/**
+ * Market-figure questions that must stay on the deterministic path (Chicago-style gap when
+ * nothing public remains). Covers tax collections, visitation, and the RevPAR / OCC / ADR / supply metrics.
+ */
+export function askedMarketFigure(question: string | undefined, intent?: ChatIntent | null): MarketFigure | null {
+  const metric = askedMarketMetric(question, intent);
+  if (metric) return metric;
+  if (intent === "tax_collections") return "tax";
+  if (intent === "demand_visitation") return "visitation";
+  const q = question ?? "";
+  if (/\b(hotel|occupancy|lodging|room|bed|tourist|transient|accommodations?|excise).{0,24}(tax|excise)|\b(HOT|TOT|TAT|TDT)\b|\btax (collections?|receipts?|revenue)\b/i.test(q)) return "tax";
+  if (/\b(visitors?|visitation)\b/i.test(q)) return "visitation";
+  return null;
+}
+
+/** Covered-market figure questions never fall through to Groq. */
+export function isMarketFigureQuestion(question: string | undefined, intent?: ChatIntent | null): boolean {
+  if (intent === "tax_collections" || intent === "demand_visitation" || intent === "supply_pipeline" || intent === "supply_ranking" || intent === "revpar_metrics") return true;
+  return askedMarketFigure(question, intent) != null;
 }
 
 function publicPerfFacts(facts: Fact[]): Fact[] {
@@ -777,7 +810,7 @@ function greenSecondaryReads(facts: Fact[], n: number, used: Set<string> = new S
   return out;
 }
 
-function metricGapLine(short: string, metric: "revpar" | "occ" | "adr" | "supply"): string {
+function metricGapLine(short: string, metric: MarketFigure): string {
   return `${short}: no public market-wide or county ${METRIC_GAP_WORD[metric]} on file.`;
 }
 
@@ -805,6 +838,24 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
     answer = headLine(short, "debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
+  } else if (intent === "tax_collections" || askedMarketFigure(opts.question, intent) === "tax") {
+    // Tax collections / HOT / occupancy-excise: Chicago-style gap when licensed or unverified
+    // strips left no public rate or collections print. Never invent nearby dollar amounts.
+    const n = 3 - (opts.extraReads?.length ?? 0);
+    if (!hasPublicTaxFigure(m)) {
+      answer = metricGapLine(short, "tax");
+      reads = greenSecondaryReads(facts, n);
+    } else {
+      const taxFacts = facts.filter((f) => f.kind === "tax" || /\b(tax|HOT|TOT|TDT|TAT|CDT|excise|collections?)\b/i.test(`${f.text} ${f.title ?? ""}`));
+      const head = longestFirst(taxFacts.filter((f) => f.readable && TAX_PUBLIC_FIG.test(f.text)))[0];
+      if (head) {
+        answer = headLine(short, "demand", head);
+        reads = taxFacts.filter((f) => f !== head && !sameFact(f, head)).slice(0, n);
+      } else {
+        answer = metricGapLine(short, "tax");
+        reads = greenSecondaryReads(facts, n);
+      }
+    }
   } else if (intent === "revpar_metrics" || askedMarketMetric(opts.question, intent) === "revpar" || askedMarketMetric(opts.question, intent) === "occ" || askedMarketMetric(opts.question, intent) === "adr") {
     // Performance questions. "How has RevPAR moved": the longest-period cited RevPAR change leads (T12, YTD,
     // quarter, month), never a single week or event print; else the snapshot level; else any RevPAR print.
