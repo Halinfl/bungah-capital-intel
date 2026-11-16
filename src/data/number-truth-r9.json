@@ -793,6 +793,39 @@
     "replace": "",
     "why": "r10b: value not on the cited page (327 keys not on the cited TRD page)"
    }
+  ],
+  "w1c-chicago-tax-lodging-tax-stack": [
+   {
+    "find": "Composite: 17.39% (~17.4%) · 2026-05",
+    "replace": "Composite: 17.39% (~17.4%) · Jan 1, 2026",
+    "why": "r10c: period = the cited Civic Federation table date ('as of January 1, 2026'), printed above the 17.39% row; '2026-05' was the upload folder"
+   }
+  ],
+  "tax-nashville-202406-fy2": [
+   {
+    "find": "1% stadium hotel occupancy tax (Jul 2023–Jun 2024)",
+    "replace": "stadium hotel occupancy tax (Jul 2023–Jun 2024)",
+    "why": "r10c: 1% rate dropped from the label (printed under 'FY24 Collections' but the gate cannot date it: file-name rule; see r10c-eric-notes.md)"
+   }
+  ],
+  "cmvopbcek003oa0ghv957czf1": [
+   {
+    "find": "additional 5.875% tax due $691,908",
+    "replace": "additional tax due $691,908",
+    "why": "r10c: rate moved out of the Tax Year 2024 dollar clause (the page dates the 5.875% rate Mar 1, 2009)"
+   },
+   {
+    "find": "Rate structure: flat daily fee by rent band + 5.875% of rent",
+    "replace": "Rate structure since Mar 1, 2009: flat daily fee by rent band + 5.875% of rent",
+    "why": "r10c: period = what the cited report prints for the rate ('increased ... to 5.875 percent on March 1, 2009')"
+   }
+  ],
+  "w1d-washington-dc-d7": [
+   {
+    "find": "Events DC citywides FY2027 booked: 19 (as of May 2026)",
+    "replace": "Events DC citywides booked for FY2027, count at May 2026: 19",
+    "why": "r10c: the count's date (May 2026) now governs the 19, as the cited certification prints it ('As of May 2026 ... booked 19 city-wide events for FY 2027')"
+   }
   ]
  },
  "snapshotUrls": {

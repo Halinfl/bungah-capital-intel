@@ -1,0 +1,18 @@
+{
+  "_note": "r10c (Eric r10b should-fix 1): FLL passenger counts from Broward County Aviation Department's own FLL traffic report (the same browardcdn.org PDF the Miami D6 row named inline). A Miami + FLL airport question answers FLL from this page, never from the MIA report.",
+  "signals": [
+    {
+      "id": "airlift-fll-001",
+      "scope": "market",
+      "market": "Fort Lauderdale",
+      "airport_code": "FLL",
+      "category": "passengers",
+      "date": "2026-08-31",
+      "headline": "Fort Lauderdale-Hollywood (FLL) August passengers fell 5.8% to 2,375,538; year-to-date is down 0.8%",
+      "fact": "Broward County Aviation Department's FLL traffic report (updated for August 2026) shows 2,375,538 total passengers (arriving + departing) in August 2026, down 5.8% from August 2025, and 21,757,164 year-to-date, down 0.8%.",
+      "source": "Broward County Aviation Department, FLL traffic report (August 2026)",
+      "url": "https://www.browardcdn.org/api/public/content/b2853a1460f1436d9a8319d32d140323?v=50854f0e",
+      "as_of": "Aug 2026"
+    }
+  ]
+}

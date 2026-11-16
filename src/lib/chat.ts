@@ -110,7 +110,7 @@ const MARKET_ALIASES: Record<string, string[]> = {
   "myrtle-beach": ["myrtle beach", "myrtle"],
   "florida-keys": ["key west", "florida keys"],
   "palm-beach": ["palm beach", "west palm", "west palm beach"],
-  "fort-lauderdale": ["fort lauderdale"],
+  "fort-lauderdale": ["fort lauderdale", "fll"],
   "anaheim-orange-county": ["anaheim", "orange county", "disneyland"],
   "palm-springs": ["palm springs", "coachella"],
   "reno-tahoe": ["reno", "tahoe", "lake tahoe"],

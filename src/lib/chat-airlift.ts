@@ -57,6 +57,7 @@ export const AIRPORT_ALIASES: Record<string, string[]> = {
   DTW: ["detroit metro", "wayne county"],
   MSP: ["minneapolis saint paul", "minneapolis-st paul", "minneapolis-st. paul"],
   PBI: ["palm beach international"],
+  FLL: ["fort lauderdale-hollywood", "fort lauderdale hollywood", "fort lauderdale airport", "fort lauderdale international"],
 };
 
 export function airportMentionedIn(question: string, code?: string | null): boolean {
