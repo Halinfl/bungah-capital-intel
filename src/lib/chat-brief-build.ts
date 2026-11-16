@@ -733,7 +733,7 @@ const METRIC_GAP_WORD: Record<"revpar" | "occ" | "adr" | "supply" | "tax" | "vis
 
 export type MarketFigure = "revpar" | "occ" | "adr" | "supply" | "tax" | "visitation";
 
-const TAX_PUBLIC_FIG = /\$\s?\d|\d{1,3}(?:\.\d+)?\s?%|\d+(?:\.\d+)?\s*(?:million|billion|\bm\b|\bbn\b)/i;
+const TAX_PUBLIC_FIG = /\$\s?\d/;
 
 /** A published hotel-tax rate or collections print still on file after licensed / unverified strips. */
 export function hasPublicTaxFigure(m: MarketRow): boolean {

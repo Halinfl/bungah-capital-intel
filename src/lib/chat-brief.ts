@@ -774,10 +774,16 @@ export function expandMonthlyReleaseItem(text: string, months: string[]): string
   if (!hasMany && !OPENING_CLAUSE_RE.test(text)) return [text];
   let rest = text.replace(/\.$/, "").trim();
   let opening = "";
-  const openM = rest.match(OPENING_CLAUSE_RE);
-  if (openM) {
-    opening = openM[1].replace(/^[. ]+/, "").trim();
-    rest = rest.slice(0, openM.index).trim().replace(/[.,; ]+$/, "");
+  const openSplit = rest.split(/(?<=\.)\s+(?=(?:New |A )?.{0,80}?\b(?:opened|opening|broke ground|delivered)\s+(?:in\s+)?(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+20\d{2}\.?$)/i);
+  if (openSplit.length === 2) {
+    rest = openSplit[0].trim();
+    opening = openSplit[1].trim();
+  } else {
+    const openM = rest.match(OPENING_CLAUSE_RE);
+    if (openM) {
+      opening = openM[1].replace(/^[. ]+/, "").trim();
+      rest = rest.slice(0, openM.index).trim().replace(/[.,; ]+$/, "");
+    }
   }
   const bits = rest.split(/\s+·\s+/).map((b) => b.trim()).filter(Boolean);
   if (bits.length < 2 && !opening) return [text];
@@ -804,12 +810,18 @@ export function expandMonthlyReleaseItem(text: string, months: string[]): string
   return out.length ? out : [text];
 }
 
+function isMonthlyReleaseSignal(s: SignalLike): boolean {
+  const blob = `${s.title} ${s.sourceLabel ?? ""} ${JSON.stringify(s.sourceUrls ?? "")}`;
+  return /monthly releases/i.test(s.title) || /houston first/i.test(blob) && /houstonfirst\.com/i.test(blob) && releaseMonths(s).length >= 2;
+}
+
 function rawItems(s: SignalLike): string[] {
   const body = dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
   const parts = body.split(/\s+\|\s+/).map((x) => x.trim()).filter(Boolean);
   if (parts.length < 2) return [];
   parts[0] = stripRestatedTitle(s.title, parts[0]);
   const months = releaseMonths(s);
+  if (!isMonthlyReleaseSignal(s)) return parts.map((p) => p.replace(/\.$/, ""));
   return parts.flatMap((p) => expandMonthlyReleaseItem(p.replace(/\.$/, ""), months));
 }
 

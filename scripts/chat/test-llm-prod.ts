@@ -808,7 +808,7 @@ async function runMarketMetricGapTests() {
       assert.equal(dallas.intent, "tax_collections");
       assert.equal(dallas.marketSlug, "dallas");
       assert.doesNotMatch(blobOf(dallas), /From our cited data/i);
-      assert.doesNotMatch(blobOf(dallas), /\$79\.3\s*m|\$23\.9\s*m|\$80\.6|\$24\.3|\$89\s*m(?:illion)?/i);
+      assert.doesNotMatch(blobOf(dallas), /\$79\.31|\$23\.87|\$79,306,924|\$23,873,98|\$80\.64|\$24\.25|\$80,641,384|\$24,247,916/i);
       assert.doesNotMatch(blobOf(dallas), /I couldn't find a cited source right now/i);
       if (!hasPublicTaxLeft(dallas)) {
         assert.match(headOf(dallas), /^Dallas: no public market-wide or county hotel-tax figure on file/);

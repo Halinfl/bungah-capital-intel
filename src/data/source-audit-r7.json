@@ -536,6 +536,96 @@
       "title": "Boston tax & CVB: Lodging tax stack",
       "figure": "6.5%",
       "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$79.31",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$23.87",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$79,306,924.38",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$23,873,983.58",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$23,873,984",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$80.64",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$24.25",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$80,641,384.89",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas city HOT, annual (Texas Comptroller)",
+      "figure": "$24,247,916.23",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas local HOT FY2025",
+      "figure": "$79.31",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas local HOT FY2025",
+      "figure": "$23.87",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas local HOT FY2025",
+      "figure": "$79,306,924",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas local HOT FY2025",
+      "figure": "$23,873,984",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "$79,306,924",
+      "kind": "tax"
+    },
+    {
+      "marketSlug": "dallas",
+      "title": "Dallas visitation / demand volume",
+      "figure": "$23,873,984",
+      "kind": "tax"
     }
   ]
 }

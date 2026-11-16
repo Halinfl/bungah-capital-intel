@@ -460,9 +460,7 @@ function taxLine(s: SignalRow): string {
  * brand-vs-brand framing of loan performance (brand-neutral.ts). Display layer only; DB rows unchanged.
  */
 function publicSafe<T extends { title: string; body: string; sourceLabel: string; sourceUrls?: unknown; magnitude?: string | null }>(rows: T[], extraLicensed: string[] = []): T[] {
-  return withoutYellowBrokerLists(
-    withNeutralBrands(withoutLicensedSources(withoutUnverifiedFigures(withBungahSupplyScores(withoutLeaks(rows))), extraLicensed))
-  );
+  return withNeutralBrands(withoutLicensedSources(withoutUnverifiedFigures(withBungahSupplyScores(withoutLeaks(rows))), extraLicensed));
 }
 
 /** National RevPAR gap line (r4): the national prints were licensed STR/CoStar data. */
@@ -540,7 +538,7 @@ function caveatsOut(rows: SignalRow[]): { rows: SignalRow[]; caveat: string } {
 /** Hotel-tax answer for one market: the published series newest first, each row linked to its source. */
 export function formatTaxMemo(market: MarketRow): ChatAnswer {
   const { other, tax } = splitTaxSeries(market.signals);
-  const figures = tax.filter((s) => !/gaps$/.test(s.id));
+  const figures = tax.filter((s) => !/gaps$/.test(s.id) && /\$\s?\d/.test(`${s.magnitude ?? ""} ${s.body ?? ""}`));
   const gaps = tax.filter((s) => /gaps$/.test(s.id));
   const related = other.filter((s) => s.kind === "tax" || TAX_TEXT.test(`${s.title} ${s.body}`));
   const latest = figures.find((s) => primaryLink(s));
@@ -872,16 +870,16 @@ export async function retrieveGraphContext(
   // Seed / illustrative rows stay in the DB but never reach an answer.
   for (const m of markets) {
     // LinkedIn / social posts are never sources (src/lib/social-sources.ts); display-layer only, DB unchanged.
-    m.signals = withYellowBuckets(publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""]));
+    m.signals = withoutYellowBrokerLists(withYellowBuckets(publicSafe(withoutRules(withoutSocial(citedOnly(m.signals))), [snapLabels.get(m.id) ?? ""])));
     m.assets = citedOnly(m.assets);
   }
-  const nationalSignals = withYellowBuckets(withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
+  const nationalSignals = withoutYellowBrokerLists(withYellowBuckets(withDataLayerRates(publicSafe(withoutRules(withoutSocial(citedOnly(
     (await cachedQuery(["chat-national-signals"], () =>
       prisma.signal.findMany({
         where: { marketId: null },
         orderBy: { createdAt: "desc" },
       }), [], GRAPH_MEMO)).data
-  ))))));
+  )))))));
   const radars = (
     await cachedQuery(["chat-radars"], () =>
       prisma.radar.findMany({
