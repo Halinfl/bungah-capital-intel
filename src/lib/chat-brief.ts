@@ -31,6 +31,8 @@ export type ChatBrief = {
   /** Fixed decline for buy/sell or staff-cut requests, shown above the answer. */
   decline?: string;
   answer: string;
+  /** r9: the source, URL and period behind each figure in the answer line (number-truth gate). */
+  leadSources?: { text: string; label: string; url?: string; period: string | null; derived?: boolean }[];
   /**
    * The premise check the answer opens with ("Mixed: occupancy is down 0.2% … but up 3.2% …"), when there is one.
    * Framing about the question, not the card: left out of the repeat fingerprint (chat-followup.ts answerHash).
@@ -1453,6 +1455,7 @@ export function makeBrief(
     ...(b.window ? { window: b.window } : {}),
     decline: b.decline ? scrubInternal(b.decline) : undefined,
     answer: balanceParens(scrubInternal(b.answer)),
+    ...(b.leadSources?.length ? { leadSources: b.leadSources.filter((l) => l.text).map((l) => ({ ...l, text: scrubInternal(l.text), label: scrubInternal(l.label) })) } : {}),
     ...(b.premise ? { premise: balanceParens(scrubInternal(b.premise)) } : {}),
     // Three key reads by default; the Fed card carries four (range, two decisions, the 10-year; Eric r6b QA).
     reads: b.reads.slice(0, b.maxReads ?? 3).map((r) => ({

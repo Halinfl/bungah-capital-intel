@@ -358,6 +358,18 @@ function snapshotCite(m: MarketRow): Citation[] {
 
 const LENS_WORD: Record<Lens, string> = { demand: "", supply: "supply", debt: "debt", talent: "labor" };
 
+export type LeadSource = { text: string; label: string; url?: string; period: string | null; derived?: boolean };
+
+function dedupeLeads(leads: LeadSource[]): LeadSource[] {
+  const seen = new Set<string>();
+  return leads.filter((l) => {
+    const k = `${l.text}\u0000${l.url ?? l.label}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 function headLine(scope: string, lens: Lens, f: Fact): string {
   const date = f.period ? dateShown(f.text, f.period) : f.asOf && !f.text.includes(f.asOf) ? fmtAsOf(f.asOf) : null;
   // "Orlando: Orlando week ending…" → "Orlando: week ending…" (the fact's own wording otherwise unchanged).
@@ -821,20 +833,30 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
 
   let answer = "";
   let reads: Fact[];
+  // r9 number-truth: the source and period behind every figure in the answer line (golden.py checks each one).
+  const leads: LeadSource[] = [];
+  const hl = (lens: Lens, f: Fact) => {
+    leads.push({ text: cleanFactText(f.text), label: flatSource(f.source.label), ...(f.source.url ? { url: f.source.url } : {}), period: f.period?.label ?? f.source.date ?? null });
+    return headLine(short, lens, f);
+  };
+  const snapLead = () => {
+    leads.push({ text: metricsLine(m, true) ?? "", label: flatSource(snap.label), ...(snap.url ? { url: snap.url } : {}), period: snap.date ?? null, derived: /OCC×ADR/.test(metricsLine(m) ?? "") });
+    return flatSource(snap.label);
+  };
   const scoreSig = m.signals.find((s) => /supply-pressure score\s*\d\s*\/\s*5/i.test(s.title));
   const rateRow = lens === "debt" ? (opts.rateLead ?? []).filter((s) => /\b(10-year|10Y)\b/i.test(s.title)).map((s) => ({ s, f: signalFacts(s)[0] })).filter((x) => x.f?.period).sort((a, b) => b.f.key - a.f.key)[0] : undefined;
   const strHead = opts.question && SHORT_TERM_Q.test(opts.question) ? longestFirst(facts.filter((f) => f.readable !== false && SHORT_TERM_FACT.test(`${f.title ?? ""} ${f.text}`)))[0] : undefined;
   if (strHead) {
     // r4 (Eric QA): "How are short-term rentals doing?": the cited short-term-rental read leads (Nashville's STR
     // revenue share), then the market's demand reads.
-    answer = headLine(short, "demand", strHead);
+    answer = hl("demand", strHead);
     reads = [
       ...facts.filter((f) => f !== strHead && !sameFact(f, strHead) && SHORT_TERM_FACT.test(`${f.title ?? ""} ${f.text}`)),
       ...demandReads(facts, 3, strHead).filter((f) => !sameFact(f, strHead)),
     ].slice(0, 3 - (opts.extraReads?.length ?? 0));
   } else if (rateRow) {
     // Refinancing: the 10-year Treasury leads, then the market's own debt reads (market proper first).
-    answer = headLine(short, "debt", rateRow.f);
+    answer = hl("debt", rateRow.f);
     reads = pickReads(facts, "debt", 3 - (opts.extraReads?.length ?? 0));
   } else if (intent === "tax_collections" || askedMarketFigure(opts.question, intent) === "tax") {
     // Tax collections / HOT / occupancy-excise: Chicago-style gap when licensed or unverified
@@ -847,7 +869,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       const taxFacts = facts.filter((f) => f.kind === "tax" || /\b(tax|HOT|TOT|TDT|TAT|CDT|excise|collections?)\b/i.test(`${f.text} ${f.title ?? ""}`));
       const head = longestFirst(taxFacts.filter((f) => f.readable && TAX_PUBLIC_FIG.test(f.text)))[0];
       if (head) {
-        answer = headLine(short, "demand", head);
+        answer = hl("demand", head);
         reads = taxFacts.filter((f) => f !== head && !sameFact(f, head)).slice(0, n);
       } else {
         answer = metricGapLine(short, "tax");
@@ -878,36 +900,36 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     if (!metrics && !hasPublicMetricFigure(facts, gapMetric) ) {
       const gap = metricGapLine(short, gapMetric);
       if (slice && gapMetric === "revpar") {
-        answer = `${gap} The closest public read is a REIT portfolio slice, not the market: ${headLine(short, "demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
+        answer = `${gap} The closest public read is a REIT portfolio slice, not the market: ${hl("demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
         reads = [slice, ...greenSecondaryReads(facts, n, new Set([slice.text]))].slice(0, n);
       } else {
         answer = gap;
         reads = greenSecondaryReads(facts, n);
       }
     } else if (!perf.length && slice && !metrics) {
-      answer = `${short}: no public market-wide or county RevPAR on file. The closest public read is a REIT portfolio slice, not the market: ${headLine(short, "demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
+      answer = `${short}: no public market-wide or county RevPAR on file. The closest public read is a REIT portfolio slice, not the market: ${hl("demand", slice).replace(new RegExp(`^${short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:\\s*`), "")}`;
       reads = perfReads(facts, n, new Set([slice.text]));
     } else if (adrHead) {
-      answer = headLine(short, "demand", adrHead);
+      answer = hl("demand", adrHead);
       reads = perfReads(facts, n, new Set([adrHead.text]));
     } else if (asksRevpar && move) {
-      answer = headLine(short, "demand", { ...move, text: revparFirstText(move.text) });
+      answer = hl("demand", { ...move, text: revparFirstText(move.text) });
       reads = perfReads(facts, n, new Set([move.text]));
     } else if (metrics && fresherThanSnapshot(m, perf)) {
       // The snapshot is a past full year (YE 2025) and a newer month / quarter print is cited: the new print
       // leads, and the full-year level follows as context.
       const head = fresherThanSnapshot(m, perf)!;
-      answer = `${headLine(short, "demand", { ...head, text: revparFirstText(head.text) }).replace(/\.$/, "")}. Full-year level: ${metricsLine(m, asksRevpar)} (${flatSource(snap.label)}).`;
+      answer = `${hl("demand", { ...head, text: revparFirstText(head.text) }).replace(/\.$/, "")}. Full-year level: ${metricsLine(m, asksRevpar)} (${snapLead()}).`;
       reads = perfReads(facts, n, new Set([head.text]));
     } else if (metrics) {
-      answer = `${short}: ${metricsLine(m, asksRevpar)} (${flatSource(snap.label)}).`;
+      answer = `${short}: ${metricsLine(m, asksRevpar)} (${snapLead()}).`;
       reads = perfReads(facts, n, new Set());
     } else if (asksRevpar && anyRevpar) {
-      answer = headLine(short, "demand", { ...anyRevpar, text: revparFirstText(anyRevpar.text) });
+      answer = hl("demand", { ...anyRevpar, text: revparFirstText(anyRevpar.text) });
       reads = perfReads(facts, n, new Set([anyRevpar.text]));
     } else {
       const head = occRate ?? longestFirst(perf)[0] ?? slice!;
-      answer = headLine(short, "demand", head);
+      answer = hl("demand", head);
       if (asksRevpar && !anyRevpar && slice) answer = `${answer.replace(/\.$/, "")}. No public market-wide RevPAR on file; the REIT figure below is a portfolio slice.`;
       reads = perfReads(facts, n, new Set([head.text]));
     }
@@ -923,7 +945,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     // "How many visitors does Dallas get?": the latest full-period visitor count leads; the newest event print
     // (a World Cup week) stays as a labeled bullet.
     const head = visitorHead(facts)!;
-    answer = headLine(short, "demand", head);
+    answer = hl("demand", head);
     const n = 3 - (opts.extraReads?.length ?? 0);
     reads = demandReads(facts, n, head).filter((f) => !sameFact(f, head));
     const ev = facts.filter((f) => f.readable && spotLabel(f)?.startsWith("Event")).sort((a, b) => b.key - a.key)[0];
@@ -935,10 +957,10 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
     const stateLead = (f?: Fact) => Boolean(f && isStateFigure(f) && VISITOR_FIG.test(f.text));
     // A state-level visitor count never leads a market's demand card: the market's own visitor count does.
     const head = stateLead(drivers[0]) ? (visitorHead(facts) ?? drivers.find((f) => !stateLead(f)) ?? drivers[0]) : drivers[0];
-    answer = headLine(short, "demand", head);
+    answer = hl("demand", head);
     reads = demandReads(facts, 3 - (opts.extraReads?.length ?? 0), head);
   } else if (lens === "demand" && metrics) {
-    answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
+    answer = `${short}: ${metrics} (${snapLead()}).`;
     reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
   } else if (lens === "supply" && !hasPublicMetricFigure(facts, "supply", scoreSig)) {
     // Licensed / yellow strip left no public supply or pipeline figure: Chicago-style gap, green cites only.
@@ -958,10 +980,10 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
       answer = `${short}: no full-period demand figure on file; the cited event and single-week reads are below.`;
       reads = ranked.slice(0, 3 - (opts.extraReads?.length ?? 0));
     } else if (head) {
-      answer = headLine(short, lens, head);
+      answer = hl(lens, head);
       reads = pickReads(facts, lens, 3 - (opts.extraReads?.length ?? 0), new Set([head.text]));
     } else if (metrics) {
-      answer = `${short}: ${metrics} (${flatSource(snap.label)}).`;
+      answer = `${short}: ${metrics} (${snapLead()}).`;
       reads = pickReads(facts, "demand", 3 - (opts.extraReads?.length ?? 0));
     } else {
       answer = `${short}: no dated, cited ${LENS_WORD[lens] || "performance"} figure${inWindowWord(m)}; the cited rows we have are below.`;
@@ -1006,6 +1028,7 @@ export function marketBrief(m: MarketRow, intent: ChatIntent | undefined, opts: 
   const cites = citationsOf(readList, [...(m.signals as SignalLike[]), ...(opts.nationalOverlay ? [opts.nationalOverlay] : []), ...(rateRow ? [rateRow.s] : [])], [...snapshotCite(m), ...(opts.extraCites ?? [])]);
   const range = windowOf(m)?.range ?? opts.range ?? "all";
   return makeBrief({
+    leadSources: dedupeLeads(leads),
     decline: opts.decline,
     answer,
     ...(premise ? { premise: premise.line } : {}),
