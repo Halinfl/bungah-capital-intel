@@ -609,6 +609,18 @@ test("Chat typography, tap target, and visitor-facing copy meet the QA bar", () 
 });
 
 
+test("Houston First monthly prints split so an opening date does not label OCC/ADR/RevPAR", async () => {
+  const { expandMonthlyReleaseItem } = await import("../../src/lib/chat-brief");
+  const downtown =
+    "Downtown / CBD: OCC 52%, ADR $191, RevPAR $100 · OCC 53%, ADR $205, RevPAR $108 (+17%) · Dec 2025: OCC 45% on supply growth while demand rose 1.7%. New 275-key HIE/Staybridge opened Apr 2026.";
+  const parts = expandMonthlyReleaseItem(downtown, ["Aug 2026", "Jul 2026", "Dec 2025"]);
+  const blob = parts.join("\n");
+  assert.ok(parts.some((p) => /RevPAR \$100/.test(p) && /Aug 2026/.test(p) && !/Apr 2026/.test(p)), blob);
+  assert.ok(parts.some((p) => /RevPAR \$108/.test(p) && /Jul 2026/.test(p) && !/Apr 2026/.test(p)), blob);
+  assert.ok(parts.some((p) => /opened Apr 2026/.test(p) && !/RevPAR \$100/.test(p)), blob);
+  assert.ok(parts.some((p) => /OCC 45%/.test(p) && /Dec 2025/.test(p) && !/opened Apr 2026/.test(p)), blob);
+});
+
 const GRAPH_FIXTURE = process.env.BUNGAH_GRAPH_FIXTURE || "/workspace/backups/bungah-db/latest";
 
 async function runMarketMetricGapTests() {
@@ -702,6 +714,23 @@ async function runMarketMetricGapTests() {
       assert.doesNotMatch(blobOf(out), banned, `${slug} leaked licensed figures: ${head}`);
       assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
     }
+  });
+
+  await test("Houston Downtown RevPAR is dated Aug 2026 and Jul 2026 from Houston First, not Apr 2026", async () => {
+    const out = await answerChat("What is RevPAR doing in Houston?");
+    const head = headOf(out);
+    assert.equal(out.mode, "deterministic");
+    assert.equal(out.marketSlug, "houston");
+    assert.doesNotMatch(head, /Apr 2026/);
+    const blob = blobOf(out);
+    if (/RevPAR \$100|OCC 52%|ADR \$191/.test(blob)) {
+      assert.match(blob, /Aug 2026/);
+      assert.doesNotMatch(head, /RevPAR \$100[\s\S]{0,80}Apr 2026/);
+    }
+    if (/RevPAR \$108|OCC 53%|ADR \$205/.test(blob)) {
+      assert.match(blob, /Jul 2026/);
+    }
+    assert.doesNotMatch(head, /\(Apr 2026, houstonfirst\.com\)/i);
   });
 
   await test("Dallas visitation / HOT and NYC occupancy-tax stay deterministic and never reconstruct dropped figures via Groq", async () => {

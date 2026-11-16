@@ -703,12 +703,114 @@ function stripRestatedTitle(title: string, body: string): string {
   return m ? after.slice(m[0].length) : body;
 }
 
+const MONTH_NAME = "(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)";
+const MONTH_YEAR_RE = new RegExp(String.raw`\b${MONTH_NAME}\.?\s+20\d{2}\b`, "gi");
+const OPENING_CLAUSE_RE = new RegExp(
+  String.raw`(?:^|[. ]+)((?:New |A )?.{0,90}?\b(?:opened|opening|broke ground|delivered|completes?)\s+(?:in\s+)?(?:${MONTH_NAME})\.?\s+20\d{2}\.?)$`,
+  "i"
+);
+const PERF_BIT_RE = /\b(?:OCC|occupancy|ADR|RevPAR)\b[^·|]{0,90}?\d/i;
+const MONTH_FROM_URL: [RegExp, string][] = [
+  [/in-august|\baugust\b/, "Aug"],
+  [/in-july|\bjuly\b/, "Jul"],
+  [/in-june|\bjune\b/, "Jun"],
+  [/in-may|\bmay\b/, "May"],
+  [/in-april|\bapril\b/, "Apr"],
+  [/in-march|\bmarch\b/, "Mar"],
+  [/in-february|\bfebruary\b/, "Feb"],
+  [/in-january|\bjanuary\b/, "Jan"],
+  [/in-december|finished-20(\d{2})|occupancy-finished-20(\d{2})|\bdecember\b/, "Dec"],
+  [/in-november|\bnovember\b/, "Nov"],
+  [/in-october|\boctober\b/, "Oct"],
+  [/in-september|\bseptember\b/, "Sep"],
+];
+
+function normMonthYear(raw: string): string {
+  const m = raw.match(new RegExp(String.raw`(${MONTH_NAME})\.?\s+(20\d{2})`, "i"));
+  if (!m) return raw.trim();
+  return `${m[1].slice(0, 3).charAt(0).toUpperCase()}${m[1].slice(1, 3).toLowerCase()} ${m[2]}`;
+}
+
+function monthsIn(text: string | null | undefined): string[] {
+  if (!text) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const m of text.matchAll(new RegExp(MONTH_YEAR_RE.source, "gi"))) {
+    const label = normMonthYear(m[0]);
+    if (seen.has(label)) continue;
+    seen.add(label);
+    out.push(label);
+  }
+  return out;
+}
+
+/** Release months named in the signal title ("Aug 2026: · Jul 2026: · Dec 2025 notes:"), not opening dates in the items. */
+function releaseMonths(s: SignalLike): string[] {
+  return monthsIn(s.title);
+}
+
+function monthFromUrl(url: string, yearHint?: string): string | null {
+  const u = url.toLowerCase();
+  for (const [re, mon] of MONTH_FROM_URL) {
+    const m = u.match(re);
+    if (!m) continue;
+    const year = (m[1] || m[2] || yearHint || (u.match(/20\d{2}/) || [])[0] || "").slice(-4);
+    if (/^20\d{2}$/.test(year)) return `${mon} ${year}`;
+    if (mon === "Dec" && /finished-20\d{2}|occupancy-finished/.test(u)) {
+      const y = (u.match(/finished-?(20\d{2})/) || [])[1];
+      if (y) return `Dec ${y}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Split a mashed monthly-release item so each OCC/ADR/RevPAR print keeps its own month
+ * and an "opened Apr 2026" pipeline note never dates the operating figures.
+ */
+export function expandMonthlyReleaseItem(text: string, months: string[]): string[] {
+  if (!PERF_BIT_RE.test(text)) return [text];
+  const hasMany = /\s+·\s+/.test(text) && (PERF_BIT_RE.test(text.split(/\s+·\s+/)[1] ?? "") || months.length >= 2);
+  if (!hasMany && !OPENING_CLAUSE_RE.test(text)) return [text];
+  let rest = text.replace(/\.$/, "").trim();
+  let opening = "";
+  const openM = rest.match(OPENING_CLAUSE_RE);
+  if (openM) {
+    opening = openM[1].replace(/^[. ]+/, "").trim();
+    rest = rest.slice(0, openM.index).trim().replace(/[.,; ]+$/, "");
+  }
+  const bits = rest.split(/\s+·\s+/).map((b) => b.trim()).filter(Boolean);
+  if (bits.length < 2 && !opening) return [text];
+  const prefixM = bits[0].match(/^([^:]{1,80}:)\s*/);
+  const prefix = prefixM ? prefixM[1].trim() : "";
+  const withPrefix = (bit: string) => (prefix && !bit.startsWith(prefix) && !new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").test(bit) ? `${prefix} ${bit}` : bit);
+  const out: string[] = [];
+  let monthIdx = 0;
+  for (const bit of bits) {
+    const dated = monthsIn(bit);
+    const isPerf = PERF_BIT_RE.test(bit);
+    const isNote = !isPerf && dated.length === 0;
+    if (isNote && out.length) {
+      out[out.length - 1] = `${out[out.length - 1]} · ${bit}`;
+      continue;
+    }
+    let item = withPrefix(bit);
+    let mon = dated[0] ?? (isPerf && monthIdx < months.length ? months[monthIdx] : undefined);
+    if (isPerf) monthIdx += 1;
+    if (mon && !item.includes(mon) && !monthsIn(item).length) item = `${item} · ${mon}`;
+    out.push(item);
+  }
+  if (opening) out.push(prefix ? `${prefix} ${opening}` : opening);
+  return out.length ? out : [text];
+}
+
 function rawItems(s: SignalLike): string[] {
   const body = dropOffLimitsSentences(stripDecisionBoilerplate(scrubInternal(s.body)));
   const parts = body.split(/\s+\|\s+/).map((x) => x.trim()).filter(Boolean);
   if (parts.length < 2) return [];
   parts[0] = stripRestatedTitle(s.title, parts[0]);
-  return parts.map((p) => p.replace(/\.$/, ""));
+  const months = releaseMonths(s);
+  return parts.flatMap((p) => expandMonthlyReleaseItem(p.replace(/\.$/, ""), months));
 }
 
 /** Items a date window kept for a windowed copy of a signal. */
@@ -799,6 +901,12 @@ export function linkText(l: { url: string; label: string }): string {
 }
 
 function specificLink(item: string, links: SourceLink[]): SourceLink | undefined {
+  const mon = monthsIn(item)[0];
+  if (mon) {
+    const year = mon.slice(-4);
+    const byMonth = links.find((l) => monthFromUrl(l.url, year) === mon || monthFromUrl(l.label, year) === mon);
+    if (byMonth) return byMonth;
+  }
   const it = item.toLowerCase();
   for (const l of links) {
     const head = l.label.split(/\s+—\s+|:\s/)[0].toLowerCase().trim();
