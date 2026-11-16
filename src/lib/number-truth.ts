@@ -15,7 +15,7 @@
 import data from "@/data/number-truth-r9.json";
 import { withoutOrphanedFigures } from "./source-provenance";
 
-type Row = { id?: string; title?: string | null; body?: string | null; magnitude?: string | null; sourceUrls?: unknown };
+type Row = { id?: string; title?: string | null; body?: string | null; magnitude?: string | null; sourceUrls?: unknown; sourceLabel?: string | null };
 type Overlay = {
   rows?: Record<string, string>;
   items?: Record<string, { match: string; why?: string }[]>;
@@ -45,15 +45,25 @@ const stripped = (u: unknown) => typeof u === "string" && STRIP.some((p) => u.to
 function withoutStrippedUrls<T extends Row>(rows: T[]): T[] {
   if (!STRIP.length) return rows;
   const after = rows.map((r) => {
-    const links = Array.isArray(r.sourceUrls) ? (r.sourceUrls as { url?: string }[]) : [];
-    const keep = links.filter((l) => !stripped(l?.url));
+    const links = Array.isArray(r.sourceUrls) ? (r.sourceUrls as { url?: string; label?: string }[]) : [];
+    // A link label that lists several hosts + URLs ("a.com https://a…; simpleviewinc.com https://assets…") loses the stripped one.
+    const relabel = (l: { url?: string; label?: string }) => {
+      if (typeof l?.label !== "string" || !STRIP.some((p) => l.label!.toLowerCase().includes(p))) return l;
+      const label = l.label.split(/;\s*/).filter((seg) => !STRIP.some((p) => seg.toLowerCase().includes(p))).join("; ");
+      return { ...l, label };
+    };
+    const keep = links.filter((l) => !stripped(l?.url)).map(relabel);
+    const relabeled = keep.some((l, i) => l !== links.filter((x) => !stripped(x?.url))[i]);
     const body = r.body ?? "";
     const named = STRIP.some((p) => body.toLowerCase().includes(p));
-    if (keep.length === links.length && !named) return r;
+    const sl = r.sourceLabel;
+    const slHit = typeof sl === "string" && STRIP.some((p) => sl.toLowerCase().includes(p));
+    if (keep.length === links.length && !named && !relabeled && !slHit) return r;
     const items = body.split(/\s+\|\s+/);
     const kept = items.filter((it) => !STRIP.some((p) => it.toLowerCase().includes(p)));
     if (items.length && !kept.length) return null;
-    return { ...r, sourceUrls: keep, body: kept.join(" | ") } as T;
+    const sourceLabel = slHit ? sl!.split(/;\s*/).filter((seg) => !STRIP.some((p) => seg.toLowerCase().includes(p))).join("; ") : sl;
+    return { ...r, sourceUrls: keep, body: kept.join(" | "), ...(sl !== undefined ? { sourceLabel } : {}) } as T;
   });
   const survivors = after.filter((r): r is T => r !== null && (!Array.isArray(r.sourceUrls) || (r.sourceUrls as unknown[]).length > 0));
   return withoutOrphanedFigures(rows as never, survivors as never) as unknown as T[];

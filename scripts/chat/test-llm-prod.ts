@@ -709,7 +709,7 @@ test("r9 number-truth overlay: unverified figures drop, never retarget; simplevi
   const dallas = { id: "w1c-dallas-debt-market-level-reads", title: "t", sourceUrls: [{ url: "https://example.gov/a" }],
     body: "Dallas — debt & deals: Market-level reads. Arlington June 2026 HOT: $31M (+39%, all-time record) · Jun 2026 | HVS/CBRE Dallas cap read, lodging DQ cut: no public read (source: no public read). Decision support." };
   assert.doesNotMatch(withNumberTruth([dallas])[0].body, /HVS\/CBRE/);
-  const phx = { id: "w1d-phoenix-d3", title: "Phoenix demand", sourceUrls: [{ url: "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf" }, { url: "https://www.visitphoenix.com/a" }],
+  const phx = { id: "w1d-phoenix-d3", title: "Phoenix demand", sourceUrls: [{ url: "https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf" }, { url: "https://www.visitphoenix.com/a", label: "visitphoenix.com https://www.visitphoenix.com/a; simpleviewinc.com https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf" }],
     body: "Phoenix (D3). FY25/26 bookings: 671 meetings (source: https://assets.simpleviewinc.com/simpleview/image/upload/v1/clients/phoenix/SV_08449394_compressed_x.pdf) | Visitors 2025: 21M (source: https://www.visitphoenix.com/a)" };
   const [p] = withNumberTruth([phx]);
   assert.doesNotMatch(JSON.stringify(p), /simpleviewinc/);
