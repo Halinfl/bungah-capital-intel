@@ -151,7 +151,12 @@ function prunedLinks(r: Row, body: string, title: string | null | undefined): un
     const c = canonUrl(l?.url);
     return !c || !before.has(c) || after.has(c);
   });
-  return keep.length === links.length || !keep.length ? r.sourceUrls : keep;
+  if (keep.length === links.length || !keep.length) return r.sourceUrls;
+  // With one link left, a kept figure that names no link of its own would read as that link's (memos attribute a
+  // lone link to every item): that is a retarget, so the row keeps its links instead.
+  if (keep.length === 1 && itemOrigins(body, links).some((o) => !o.specific && /\d/.test(o.item.replace(/^[^|]{0,120}?\s—\s[^|]{0,120}?\.\s+/, "").replace(/\s·\s(?:accessed\s)?20\d{2}-\d{2}-\d{2}.*$/, ""))))
+    return r.sourceUrls;
+  return keep;
 }
 
 export function withNumberTruth<T extends Row>(rows0: T[]): T[] {
