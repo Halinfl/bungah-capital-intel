@@ -1,0 +1,4 @@
+{
+ "_note": "r10: starters dropped because their answer failed the number-truth gate (QA recheck/number_truth.py). verify-starters.ts never offers these; remove an entry once its answer passes.",
+ "excluded": []
+}

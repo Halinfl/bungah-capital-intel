@@ -277,7 +277,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     const label = short(f.factor);
     // r10: a "$48k per key vs $467k replacement cost" input leads with the deal's own per-key price (price ÷ keys,
     // computed), which is not on the HVS page; only the replacement-cost figure is checked there.
-    const fact = (fitFact(f.input_text!) ?? shortInput(f.input_text!)).replace(/^(\$[\d.,]+[kKM]? per key)(?= vs )/, "$1 (computed)");
+    const fact = (fitFact(f.input_text!) ?? shortInput(f.input_text!)).replace(/^(\$[\d.,]+[kKM]? per key)(?= vs )/, "$1 (computed)").replace(/(\d+% (?:below|above))$/, "$1 (computed)");
     const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${fact}`;
     return read(text, f.as_of, { kind: chipFor(f.source_uri!), label: publisherName(f.source_uri!) || label, url: f.source_uri!, title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200) });
   };
@@ -301,7 +301,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     if (!grade || grade.overall == null) return null;
     answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
     // r10: the grade and its headline are Bungah's own rubric output (computed from the cited factor inputs below).
-    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)}`.replace(/\$?\d[\d,.]*(?:%|[KMB]\b)?(?![\d,.-])/g, (m) => `${m} (computed)`), label: "Bungah", period: null, derived: true });
+    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)}`.replace(/\$?\d[\d,.]*(?:%|bp\b|[KMB]\b)?(?![\d,.-])/g, (m) => `${m} (computed)`), label: "Bungah", period: null, derived: true });
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);

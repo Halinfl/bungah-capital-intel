@@ -58,8 +58,18 @@ async function main() {
   // The headline minus its "<Market> debt: " / "<Market>: " prefix: the topic is checked on what it says.
   const body = (head: string) => head.replace(/^[^:]{1,60}?(\s(supply|debt|labor))?:\s+/, "");
   const NO_FIGURE = /no dated, cited .* on file|^Limited recent data/i;
+  // r10 (Eric r9): starters whose answer failed the number-truth gate (a figure not on its cited page, or for
+  // another period) are listed in src/data/starter-exclusions.json and never offered. The gate itself is Python
+  // (QA recheck/number_truth.py), so its verdicts are committed here and re-checked every round.
+  const EXCL_PATH = path.join(process.cwd(), "src/data/starter-exclusions.json");
+  const exclusions: { scope: string; q: string; reason: string }[] = fs.existsSync(EXCL_PATH) ? JSON.parse(fs.readFileSync(EXCL_PATH, "utf8")).excluded ?? [] : [];
   async function check(c: Cand, scope: Scope | null, kept: Card[] = []): Promise<boolean> {
     const where = scope ? `${scope.kind}:${scope.id}` : "general";
+    const ex = exclusions.find((x) => x.scope === where && x.q === c.q);
+    if (ex) {
+      dropped.push({ scope: where, q: c.q, reason: `number-truth gate: ${ex.reason}` });
+      return false;
+    }
     try {
       const a = await answerChat(c.q, { scope, range: c.range ?? "all" });
       const reads = a.brief?.reads ?? [];

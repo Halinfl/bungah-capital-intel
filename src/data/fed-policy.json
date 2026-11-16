@@ -46,13 +46,13 @@
     }
   ],
   "tenYear": {
-    "value": 4.98,
-    "asOf": "2026-10-29",
+    "value": 5.1,
+    "asOf": "2026-11-12",
     "series": "DGS10",
     "source": "FRED, Federal Reserve Bank of St. Louis (DGS10, from the Fed's H.15 release)",
     "url": "https://fred.stlouisfed.org/series/DGS10",
-    "checkedAt": "2026-11-02",
-    "note": "Market rate, not Fed policy. Latest DGS10 print on fred.stlouisfed.org when checked (updated Oct 30, 2026; next release Nov 2, 2026)."
+    "checkedAt": "2026-11-16",
+    "note": "Market rate, not Fed policy. Latest DGS10 print on fred.stlouisfed.org when checked (2026-11-12: 5.10; updated Nov 13, 2026; next release Nov 16, 2026). Same close on the Treasury daily par yield curve CSV (11/12/2026, 10 Yr 5.10). r10: was 4.98% (2026-10-29), which no longer appears on the series page."
   },
   "sofr": {
     "value": 3.94,

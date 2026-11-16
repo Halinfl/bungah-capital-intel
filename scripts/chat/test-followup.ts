@@ -848,9 +848,9 @@ async function main() {
       // r6c (Eric r6b QA): the Sep 16 decision is a bullet again, with its vote; the 10-year is the latest FRED DGS10 print
       // (4.98%, Oct 29, 2026; data layer) and its date is shown once, as the as-of tag; no bullet repeats its date.
       check(/^FOMC Sep 16, 2026: raised the target range 0\.25 point to 3\.75–4\.00% \(vote 12–0\)$/.test(reads[2] ?? ""), `r6c Sep 16 bullet: ${reads[2]}`);
-      check(reads[3] === "Market rate, not Fed policy: US 10-year Treasury 4.98% (FRED DGS10)", `r6c 10-year: ${reads[3]}`);
+      check(reads[3] === "Market rate, not Fed policy: US 10-year Treasury 5.10% (FRED DGS10)", `r6c 10-year: ${reads[3]}`);
       const rr = (f.brief?.reads ?? []) as { text: string; asOf: string | null; source?: { url?: string } }[];
-      check(rr[3]?.asOf === "Oct 29, 2026" && rr[3]?.source?.url === "https://fred.stlouisfed.org/series/DGS10", `r6c 10-year as-of / link: ${rr[3]?.asOf} ${rr[3]?.source?.url}`);
+      check(rr[3]?.asOf === "Nov 12, 2026" && rr[3]?.source?.url === "https://fred.stlouisfed.org/series/DGS10", `r6c 10-year as-of / link: ${rr[3]?.asOf} ${rr[3]?.source?.url}`);
       check(rr.every((r) => !r.asOf || !String(r.text).includes(r.asOf)), `r6c a bullet shows its date twice: ${rr.map((r) => `${r.text} · ${r.asOf}`).join(" | ")}`);
       check(!/Debt & deals/.test(f.content) && ((f.brief as { sections?: { title: string }[] } | null)?.sections ?? []).every((x) => x.title === "Sources"), "r6b Fed card carries no Debt & deals section");
       check(!/We don't forecast/.test(f.content) || /^Will/.test(q), `r6b no-forecast line only on forecast questions (${q})`);
