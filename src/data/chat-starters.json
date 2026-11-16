@@ -1,6 +1,6 @@
 {
- "verifiedAt": "2026-11-16T06:44:46.076Z",
- "basis": "graph dump 20261115T063832Z",
+ "verifiedAt": "2026-11-16T06:59:10.093Z",
+ "basis": "graph dump 20261116T064453Z",
  "marketLabels": {
   "anaheim-orange-county": "Anaheim / Orange County (Disney corridor)",
   "aspen-vail": "Aspen / Vail",
@@ -84,12 +84,6 @@
   "baltimore": [],
   "boston": [
    {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
     "q": "What's demand doing here?"
    }
   ],
@@ -97,9 +91,6 @@
   "charleston-sc": [],
   "charlotte": [],
   "chicago": [
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
    {
     "q": "What's the RevPAR and occupancy read here?"
    },
@@ -113,9 +104,6 @@
   "dallas": [
    {
     "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
    }
   ],
   "denver": [],
@@ -126,12 +114,6 @@
    {
     "q": "How has RevPAR moved here over the last 12 months?",
     "range": "12m"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
    }
   ],
   "indianapolis": [],
@@ -148,12 +130,6 @@
   ],
   "los-angeles": [
    {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
     "q": "What's the RevPAR and occupancy read here?"
    },
    {
@@ -163,9 +139,6 @@
   "miami": [
    {
     "q": "How much new supply is coming?"
-   },
-   {
-    "q": "What's happening with hotel debt here?"
    },
    {
     "q": "What's demand doing here?"
@@ -180,11 +153,7 @@
    }
   ],
   "new-orleans": [],
-  "new-york-city": [
-   {
-    "q": "Is labor a risk to the thesis here?"
-   }
-  ],
+  "new-york-city": [],
   "orlando": [
    {
     "q": "How much new supply is coming?"
@@ -198,9 +167,6 @@
     "q": "How much new supply is coming?"
    },
    {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
     "q": "What's demand doing here?"
    }
   ],
@@ -212,21 +178,12 @@
   "san-antonio": [],
   "san-diego": [
    {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
     "q": "What's demand doing here?"
    }
   ],
   "san-francisco-bay": [
    {
     "q": "How much new supply is coming?"
-   },
-   {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
    },
    {
     "q": "What's the RevPAR and occupancy read here?"
@@ -249,9 +206,6 @@
     "q": "What's happening with hotel debt here?"
    },
    {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
     "q": "What's the RevPAR and occupancy read here?"
    },
    {
@@ -262,15 +216,6 @@
   "washington-dc": [
    {
     "q": "How much new supply is coming?"
-   },
-   {
-    "q": "What's happening with hotel debt here?"
-   },
-   {
-    "q": "Is labor a risk to the thesis here?"
-   },
-   {
-    "q": "What's demand doing here?"
    }
   ],
   "palm-beach": [],
@@ -377,9 +322,6 @@
   ],
   "PEB": [
    {
-    "q": "What did they guide on the last call?"
-   },
-   {
     "q": "Where are they putting capital?"
    },
    {
@@ -481,9 +423,6 @@
   ],
   "embassy-suites-las-vegas": [
    {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
     "q": "Why did this grade the way it did?"
    },
    {
@@ -492,57 +431,22 @@
   ],
   "four-seasons-scottsdale-troon-north": [
    {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
     "q": "What's demand doing in this market?"
    }
   ],
   "the-wade-chicago": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
    {
     "q": "What's demand doing in this market?"
    }
   ],
   "tideline-palm-beach": [
    {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
     "q": "Why did this grade the way it did?"
    }
   ],
-  "embassy-suites-dulles-airport": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   },
-   {
-    "q": "What's demand doing in this market?"
-   }
-  ],
-  "embassy-suites-philadelphia-airport": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
-   {
-    "q": "Why did this grade the way it did?"
-   }
-  ],
+  "embassy-suites-dulles-airport": [],
+  "embassy-suites-philadelphia-airport": [],
   "grande-lakes-orlando": [
-   {
-    "q": "What did the buyer pay per key, and how does that compare?"
-   },
    {
     "q": "Why did this grade the way it did?"
    }
@@ -731,6 +635,16 @@
   },
   {
    "scope": "market:boston",
+   "q": "What's happening with hotel debt here?",
+   "reason": "number-truth gate: number-truth: + $90M (lead, 2018) — value not on the cited page [https://dbrs.morningstar.com/research/481321/morningstar-dbrs-confirms-credit-ratings-on-a]"
+  },
+  {
+   "scope": "market:boston",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: $15.00 (lead, 2026) — cited page has no snapshot (unreachable 403) [https://www.mass.gov/info-details/massachusetts-law-about-minimum-wage]"
+  },
+  {
+   "scope": "market:boston",
    "q": "What's the RevPAR and occupancy read here?",
    "reason": "off-topic card (\"Boston: no public market-wide or county RevPAR on file.\"; no key read on topic)"
   },
@@ -860,6 +774,11 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:chicago",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: 46 (read, Nov 29–Dec 3) — value not on the cited page [https://www.rsna.org/news/2026/october/rsna-2026-technical-exhibits]"
+  },
+  {
    "scope": "market:cincinnati",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -973,6 +892,11 @@
    "scope": "market:dallas",
    "q": "How much new supply is coming?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "market:dallas",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: $7.25 (lead, 2026) — cited page has no snapshot (unreachable 403) [https://www.dol.gov/agencies/whd/minimum-wage/state]"
   },
   {
    "scope": "market:dallas",
@@ -1138,6 +1062,16 @@
    "scope": "market:houston",
    "q": "What's happening with hotel debt here?",
    "reason": "no-figure card (\"Houston: no dated, cited debt figure on file yet; the cited rows we ha\")"
+  },
+  {
+   "scope": "market:houston",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: $7.25 (read, 2026) — cited page has no snapshot (unreachable 403) [https://www.dol.gov/agencies/whd/minimum-wage/state]"
+  },
+  {
+   "scope": "market:houston",
+   "q": "What's demand doing here?",
+   "reason": "number-truth gate: number-truth: 62M (read, 2025) — value on the cited page only away from its label (system): token collision [https://www.houstonfirst.com/news/houston-visitor-economy-continues-growth-as-global-touri]"
   },
   {
    "scope": "market:indianapolis",
@@ -1310,9 +1244,24 @@
    "reason": "0 key reads"
   },
   {
+   "scope": "market:los-angeles",
+   "q": "What's happening with hotel debt here?",
+   "reason": "number-truth gate: number-truth: 327 (read, 2024) — value not on the cited page [https://therealdeal.com/la/2026/09/30/goldman-buys-slatkins-loan-on-santa-monica-hotels/]"
+  },
+  {
+   "scope": "market:los-angeles",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: 188944 (read, Jul 1 2026) — value not on the cited page [https://cityclerk.lacity.org/onlinedocs/2025/25-1466_misc_26A_Amd%20Mot%20MHD-Lee_5-19-26.]"
+  },
+  {
    "scope": "market:miami",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "off-topic card (\"Miami: no public market-wide or county RevPAR on file.\"; no key read on topic)"
+  },
+  {
+   "scope": "market:miami",
+   "q": "What's happening with hotel debt here?",
+   "reason": "number-truth gate: number-truth: 100 (lead, Sep 2025) — period not on the cited page (month sep missing; year ok) [https://therealdeal.com/miami/2025/10/02/south-beach-breakwater-hotel-defaults-on-loan/]"
   },
   {
    "scope": "market:miami",
@@ -1516,6 +1465,11 @@
   },
   {
    "scope": "market:new-york-city",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: +$21.20 (lead, ~May 22, 2026) — cited page has no snapshot (unreachable 403) [https://www.hoteldive.com/news/nyc-hotel-workers-ratify-historic-wage-contract/820972/]"
+  },
+  {
+   "scope": "market:new-york-city",
    "q": "What's the RevPAR and occupancy read here?",
    "reason": "off-topic card (\"New York: no public market-wide or county RevPAR on file.\"; no key read on topic)"
   },
@@ -1676,6 +1630,11 @@
   },
   {
    "scope": "market:phoenix",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: $15.15 (lead, 2026-01-01) — cited page has no snapshot (unreachable 403) [https://www.azica.gov/sites/default/files/2025-10/2026%20Minimum%20Wage.pdf]"
+  },
+  {
+   "scope": "market:phoenix",
    "q": "What's the RevPAR and occupancy read here?",
    "reason": "0 key reads"
   },
@@ -1911,6 +1870,11 @@
   },
   {
    "scope": "market:san-diego",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: 30 (read, ~Sep–Oct 2024) — period not on the cited page (row date Sep–Oct 2024) [https://timesofsandiego.com/business/2024/10/09/workers-at-hilton-san-diego-bayfront-agree]"
+  },
+  {
+   "scope": "market:san-diego",
    "q": "What's the RevPAR and occupancy read here?",
    "reason": "off-topic card (\"San Diego: no public market-wide or county RevPAR on file.\"; no key read on topic)"
   },
@@ -1923,6 +1887,21 @@
    "scope": "market:san-francisco-bay",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "off-topic card (\"San Francisco: no public market-wide or county RevPAR on file.\"; no key read on topic)"
+  },
+  {
+   "scope": "market:san-francisco-bay",
+   "q": "What's happening with hotel debt here?",
+   "reason": "number-truth gate: number-truth: 1400 (lead, 2026-08-05) — cited page has no snapshot (unreachable 403) [https://www.bizjournals.com/sanfrancisco/news/2026/08/05/new-central-hotel-mid-market-defa]"
+  },
+  {
+   "scope": "market:san-francisco-bay",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: $19.61 (lead, 2026-07-01) — cited page has no snapshot (unreachable 520) [https://www.mcguirewoods.com/client-resources/alerts/2026/6/san-francisco-hourly-minimum-w]"
+  },
+  {
+   "scope": "market:san-francisco-bay",
+   "q": "What's demand doing here?",
+   "reason": "same card as \"What's the RevPAR and occupancy read here?\""
   },
   {
    "scope": "market:savannah",
@@ -2100,6 +2079,11 @@
    "reason": "off-topic card (\"Urban Honolulu MSA / Oahu: no public market-wide or county supply figu\"; no key read on topic)"
   },
   {
+   "scope": "market:honolulu",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: 100% (lead, 2026-06-13) — value not on the cited page [https://www.unitehere5.org/over-1800-hotel-workers-strike-hawaiis-largest-hotel-and-worlds]"
+  },
+  {
    "scope": "market:virginia-beach-norfolk",
    "q": "How has RevPAR moved here over the last 12 months?",
    "reason": "0 key reads"
@@ -2141,6 +2125,16 @@
   },
   {
    "scope": "market:washington-dc",
+   "q": "What's happening with hotel debt here?",
+   "reason": "number-truth gate: number-truth: $86M (lead, Dec 2024) — value on the cited page only away from its label (Line, keys): token collision [https://www.bisnow.com/news/washington-dc/hotel/dcs-line-hotel-scheduled-for-auction-by-le]"
+  },
+  {
+   "scope": "market:washington-dc",
+   "q": "Is labor a risk to the thesis here?",
+   "reason": "number-truth gate: number-truth: 75% (read, 2034) — value on the cited page only away from its label (stepping): token collision [https://oag.dc.gov/worker-rights/wage-and-hour-laws]"
+  },
+  {
+   "scope": "market:washington-dc",
    "q": "What's the RevPAR and occupancy read here?",
    "reason": "off-topic card (\"Washington: no public market-wide or county RevPAR on file.\"; no key read on topic)"
   },
@@ -2148,6 +2142,11 @@
    "scope": "market:washington-dc",
    "q": "What's the latest occupancy and rate read here?",
    "reason": "off-topic card (\"Washington: no public market-wide or county occupancy on file.\")"
+  },
+  {
+   "scope": "market:washington-dc",
+   "q": "What's demand doing here?",
+   "reason": "number-truth gate: number-truth: 19 (lead, FY2027) — period not on the cited page (year 2027 only in the file name; page dates the value 2026/2027) [https://eventsdc.com/sites/default/files/2026-07/FY2027%20Events%20DC%20Revenue%20Sufficie]"
   },
   {
    "scope": "market:palm-beach",
@@ -2236,6 +2235,11 @@
   },
   {
    "scope": "reit:PEB",
+   "q": "What did they guide on the last call?",
+   "reason": "number-truth gate: number-truth: $259 (lead, Q2 2025) — value not on the cited page [https://www.sec.gov/cgi-bin/browse-edgar?CIK=1474098]"
+  },
+  {
+   "scope": "reit:PEB",
    "q": "What debt is coming due?",
    "reason": "off-topic card (\"Pebblebrook Hotel Trust (PEB) capital moves on file: 8 hotel transacti\")"
   },
@@ -2275,14 +2279,74 @@
    "reason": "no summary card"
   },
   {
+   "scope": "deal:embassy-suites-las-vegas",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: 220 (lead, ~Oct 1, 2026) — value not on the cited page [https://www.sec.gov/Archives/edgar/data/1232582/000123258226000199/aht-20260925.htm]"
+  },
+  {
+   "scope": "deal:four-seasons-scottsdale-troon-north",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: 210 (lead, ~Sep 29, 2026) — value not on the cited page [https://www.sec.gov/Archives/edgar/data/1574085/000157408526000146/bhr-20260923.htm]"
+  },
+  {
+   "scope": "deal:four-seasons-scottsdale-troon-north",
+   "q": "Why did this grade the way it did?",
+   "reason": "number-truth gate: number-truth: 6.75% (read, ~Aug 5, 2026) — value not on the cited page [https://www.sec.gov/Archives/edgar/data/1574085/000157408526000123/bhr2026q2earningsreleas]"
+  },
+  {
+   "scope": "deal:the-wade-chicago",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: +2.87% (read, ~Jun 25, 2026) — value not on the cited page [https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf]"
+  },
+  {
+   "scope": "deal:the-wade-chicago",
+   "q": "Why did this grade the way it did?",
+   "reason": "number-truth gate: number-truth: +2.87% (read, ~Jun 25, 2026) — value not on the cited page [https://cdn.choosechicago.com/uploads/2026/06/cc_2025_economic_impact_midyear_v.2.pdf]"
+  },
+  {
+   "scope": "deal:tideline-palm-beach",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: +7.72% (read, ~Jun 11, 2026) — value not on the cited page [https://web.archive.org/web/20260611013017/https://discover.pbc.gov/touristdevelopment/PDF]"
+  },
+  {
    "scope": "deal:tideline-palm-beach",
    "q": "What's demand doing in this market?",
    "reason": "0 key reads"
   },
   {
+   "scope": "deal:embassy-suites-dulles-airport",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: +4.86% (read, ~Jul 24, 2025) — period not on the cited page (row date Jul 24, 2025) [https://www.fairfaxcounty.gov/budget/sites/budget/files/Assets/Documents/fy2025/carryover/]"
+  },
+  {
+   "scope": "deal:embassy-suites-dulles-airport",
+   "q": "Why did this grade the way it did?",
+   "reason": "number-truth gate: number-truth: +4.86% (read, ~Jul 24, 2025) — period not on the cited page (row date Jul 24, 2025) [https://www.fairfaxcounty.gov/budget/sites/budget/files/Assets/Documents/fy2025/carryover/]"
+  },
+  {
+   "scope": "deal:embassy-suites-dulles-airport",
+   "q": "What's demand doing in this market?",
+   "reason": "number-truth gate: number-truth: 19 (lead, FY2027) — period not on the cited page (year 2027 only in the file name; page dates the value 2026/2027) [https://eventsdc.com/sites/default/files/2026-07/FY2027%20Events%20DC%20Revenue%20Sufficie]"
+  },
+  {
+   "scope": "deal:embassy-suites-philadelphia-airport",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: +0.63% (read, ~Jul 2, 2026) — value not on the cited page [https://www.phila.gov/media/20260702130259/City-revenue-collections-May-2026-report.pdf]"
+  },
+  {
+   "scope": "deal:embassy-suites-philadelphia-airport",
+   "q": "Why did this grade the way it did?",
+   "reason": "number-truth gate: number-truth: +0.63% (read, ~Jul 2, 2026) — value not on the cited page [https://www.phila.gov/media/20260702130259/City-revenue-collections-May-2026-report.pdf]"
+  },
+  {
    "scope": "deal:embassy-suites-philadelphia-airport",
    "q": "What's demand doing in this market?",
    "reason": "0 key reads"
+  },
+  {
+   "scope": "deal:grande-lakes-orlando",
+   "q": "What did the buyer pay per key, and how does that compare?",
+   "reason": "number-truth gate: number-truth: 1,592 (lead, ~Aug 10, 2026) — value not on the cited page [https://www.sec.gov/Archives/edgar/data/1040829/000110465926092958/tm2622522d4_8k.htm]"
   },
   {
    "scope": "deal:grande-lakes-orlando",
