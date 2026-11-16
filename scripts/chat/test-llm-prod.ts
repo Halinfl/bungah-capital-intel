@@ -30,7 +30,7 @@ import { isLicensedLink, creditsLicensedSource, stripLicensed, withoutLicensedSo
 import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFactsFor } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "../../src/lib/chat-str";
-import { buildGdeltQuery } from "../../src/lib/chat-web-search";
+import { buildGdeltQuery, isCurrentEventsQuestion, needsCurrentFacts } from "../../src/lib/chat-web-search";
 import { CITED_SOURCE_MISS, isNoMarketMemo } from "../../src/lib/chat-llm";
 import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
 import { classifyIntent } from "../../src/lib/chat-intent";
@@ -594,6 +594,15 @@ test("Host Q2 2026 $251.53 citations point at exhibit 99.1, not the 8-K cover", 
   assert.ok(facts.links.some((l) => l.url === exhibit));
 });
 
+test("news and sports questions are current-events, not hotel-figure questions", () => {
+  assert.equal(isCurrentEventsQuestion("What are the top U.S. news headlines today?"), true);
+  assert.equal(needsCurrentFacts("What are the top U.S. news headlines today?"), true);
+  assert.equal(isCurrentEventsQuestion("Who won last night's World Cup qualifying match that everyone is talking about?"), true);
+  assert.equal(needsCurrentFacts("Who won last night's World Cup qualifying match that everyone is talking about?"), true);
+  assert.equal(isCurrentEventsQuestion("What is RevPAR doing in Miami?"), false);
+  assert.equal(isCurrentEventsQuestion("How did the World Cup affect Dallas hotels?"), false);
+});
+
 test("Boston occupancy-excise and hotel-tax wording route to tax_collections, not RevPAR", () => {
   assert.equal(classifyIntent("What's Boston's occupancy-excise?"), "tax_collections");
   assert.equal(classifyIntent("Boston occupancy excise rate"), "tax_collections");
@@ -721,6 +730,24 @@ async function runMarketMetricGapTests() {
       assert.equal(out.marketSlug, slug, `${slug} routed to ${out.marketSlug}: ${head}`);
       assert.doesNotMatch(blobOf(out), banned, `${slug} leaked licensed figures: ${head}`);
       assert.doesNotMatch(blobOf(out), /I couldn't find a cited source right now/i);
+    }
+  });
+
+  await test("A sports current-events question does not return the World Cup hotel memo", async () => {
+    const prevSearch = process.env.BUNGAH_USE_WEB_SEARCH;
+    const prevLlm = process.env.BUNGAH_USE_LLM;
+    process.env.BUNGAH_USE_WEB_SEARCH = "false";
+    process.env.BUNGAH_USE_LLM = "true";
+    try {
+      const out = await answerChat("Who won last night's World Cup qualifying match that everyone is talking about?");
+      assert.equal(out.mode, "deterministic");
+      assert.doesNotMatch(out.content, /underwriting|30[–-]70 bp|FY headwind|host-city ADR|normalize Jun/i);
+      assert.match(out.content, /couldn't find a cited source right now/i);
+    } finally {
+      if (prevSearch === undefined) delete process.env.BUNGAH_USE_WEB_SEARCH;
+      else process.env.BUNGAH_USE_WEB_SEARCH = prevSearch;
+      if (prevLlm === undefined) delete process.env.BUNGAH_USE_LLM;
+      else process.env.BUNGAH_USE_LLM = prevLlm;
     }
   });
 

@@ -44,10 +44,21 @@ export function isBlockedSearchHost(url: string): boolean {
 }
 
 const CURRENT_FACT =
-  /\b(today|tonight|yesterday|this (week|month|year)|latest|breaking|news|current|recent|right now|as of|what happened|ground stop|FAA|interest rates?|who is|when (were|was)|elected|headline)\b/i;
+  /\b(today|tonight|yesterday|last night|this (week|month|year)|latest|breaking|news|current|recent|right now|as of|what happened|ground stop|FAA|interest rates?|who (is|won|won'?s)|when (were|was)|elected|headlines?|qualifying match)\b/i;
 
 export function needsCurrentFacts(question: string): boolean {
   return CURRENT_FACT.test(question);
+}
+
+const HOTEL_FIGURE = /\b(hotel|hotels|revpar|occupancy|adr|underwriting|pipeline|lodging tax|supply-pressure|room rates?)\b/i;
+const NEWS_OR_SPORT =
+  /\b(news headlines?|top .{0,40}headlines?|breaking news|who won|last night'?s|qualifying match|sports? (score|headline|news)|match that everyone)\b/i;
+
+/** General news or sports questions that should use free open search, not a hotel World Cup memo. */
+export function isCurrentEventsQuestion(question: string): boolean {
+  if (NEWS_OR_SPORT.test(question)) return true;
+  if (needsCurrentFacts(question) && /\b(news|headlines?|breaking|elected|who won|last night|qualifying)\b/i.test(question) && !HOTEL_FIGURE.test(question)) return true;
+  return false;
 }
 
 export const SEARCH_DAILY_CAP = Number(process.env.BUNGAH_SEARCH_DAILY_CAP || 40);
@@ -339,7 +350,7 @@ async function govRssFacts(question: string): Promise<LiveSourceFact[]> {
 export async function freeLiveSearch(question: string): Promise<LiveSearchHit | null> {
   const [wiki, news, gov] = await Promise.all([
     wikipediaFacts(question).catch(() => [] as LiveSourceFact[]),
-    needsCurrentFacts(question) || /\bnews\b/i.test(question)
+    needsCurrentFacts(question) || isCurrentEventsQuestion(question) || /\bnews\b/i.test(question)
       ? gdeltFacts(question).catch(() => [] as LiveSourceFact[])
       : Promise.resolve([] as LiveSourceFact[]),
     govRssFacts(question).catch(() => [] as LiveSourceFact[]),

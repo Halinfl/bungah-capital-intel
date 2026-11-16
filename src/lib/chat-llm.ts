@@ -101,7 +101,7 @@ import { serializeLlmPack } from "./chat-llm-pack";
 import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
 import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citations";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
-import { checkSearchCap, freeLiveSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
+import { checkSearchCap, freeLiveSearch, isCurrentEventsQuestion, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
 import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "./chat-str";
 import { UNCITABLE_REFUSAL, asksForUncitableSource } from "./chat-uncitable";
 
@@ -131,6 +131,46 @@ export const CITED_SOURCE_MISS = "I couldn't find a cited source right now.";
 
 export function isNoMarketMemo(content: string): boolean {
   return /didn't match a market we cover/i.test(content);
+}
+
+async function currentEventsAnswer(question: string, subject: string): Promise<FinalAnswer> {
+  let live: Awaited<ReturnType<typeof freeLiveSearch>> = null;
+  if (isWebSearchEnabled()) {
+    const capS = checkSearchCap(subject);
+    if (capS.ok) {
+      reserveSearch(subject);
+      live = await freeLiveSearch(question);
+    }
+  }
+  if (live?.facts.length) {
+    const lines = live.facts.map((f) => {
+      const title = f.text.replace(/\s+/g, " ").trim();
+      return `- ${title} — [${f.label}](${f.url}) (${f.asOf})`;
+    });
+    const sources = live.facts.map((f) => ({ url: f.url, label: f.label, secondary: false, signal: f.text }));
+    return finalize(
+      {
+        content: ["From cited open sources:", "", ...lines, "", "Sources include the GDELT Project (https://www.gdeltproject.org/) and official public feeds.", "", decisionSupportFooter()].join("\n"),
+        citations: live.citations,
+        sources,
+        intent: "unknown",
+        marketSlug: null,
+        mode: "deterministic",
+      },
+      true
+    );
+  }
+  return finalize(
+    {
+      content: softCitedMiss(),
+      citations: [],
+      sources: [],
+      intent: "unknown",
+      marketSlug: null,
+      mode: "deterministic",
+    },
+    false
+  );
 }
 
 function softCitedMiss(background?: string): string {
@@ -663,6 +703,12 @@ async function answerChatIn(
     );
   }
 
+
+  // News / sports current-events: run the free GDELT / Wikimedia / gov path (no paid Groq browser_search,
+  // and no Groq spend for the compose). Do not fall through to a World Cup hotel digest.
+  if (isCurrentEventsQuestion(question) && !ctx.matched && !isMarketFigureQuestion(question, ctx.intent)) {
+    return withNote(await currentEventsAnswer(question, opts.llmSubject ?? "anon"));
+  }
 
   // Covered-market figure questions (RevPAR / OCC / ADR / supply / tax / visitation and other
   // market intents): use the deterministic brief or tax memo. When licensed or unverified strips

@@ -761,14 +761,11 @@ export function askedMarketMetric(question: string | undefined, intent?: ChatInt
  * nothing public remains). Covers tax collections, visitation, and the RevPAR / OCC / ADR / supply metrics.
  */
 export function askedMarketFigure(question: string | undefined, intent?: ChatIntent | null): MarketFigure | null {
-  const metric = askedMarketMetric(question, intent);
-  if (metric) return metric;
-  if (intent === "tax_collections") return "tax";
-  if (intent === "demand_visitation") return "visitation";
   const q = question ?? "";
-  if (/\b(hotel|occupancy|lodging|room|bed|tourist|transient|accommodations?|excise).{0,24}(tax|excise)|\b(HOT|TOT|TAT|TDT)\b|\btax (collections?|receipts?|revenue)\b/i.test(q)) return "tax";
-  if (/\b(visitors?|visitation)\b/i.test(q)) return "visitation";
-  return null;
+  // Tax / excise wording beats a bare "occupancy" match, so occupancy-excise stays on the tax path.
+  if (intent === "tax_collections" || /\b(hotel|occupancy|lodging|room|bed|tourist|transient|accommodations?|excise).{0,24}(tax|excise)|\b(HOT|TOT|TAT|TDT)\b|\btax (collections?|receipts?|revenue)\b|\b(occupancy|room|hotel|lodging|local room)[- ]?excise\b/i.test(q)) return "tax";
+  if (intent === "demand_visitation" || /\b(visitors?|visitation)\b/i.test(q)) return "visitation";
+  return askedMarketMetric(question, intent);
 }
 
 /** Covered-market figure questions never fall through to Groq. */
