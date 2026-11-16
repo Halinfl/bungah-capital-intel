@@ -31,7 +31,7 @@ import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFacts
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
 import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "../../src/lib/chat-str";
 import { buildGdeltQuery, isCurrentEventsQuestion, needsCurrentFacts } from "../../src/lib/chat-web-search";
-import { CITED_SOURCE_MISS, isNoMarketMemo } from "../../src/lib/chat-llm";
+import { CITED_SOURCE_MISS, isNoMarketMemo, stripLeadingPunctuation } from "../../src/lib/chat-llm";
 import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
 import { classifyIntent } from "../../src/lib/chat-intent";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "../../src/lib/chat-named-asset";
@@ -419,6 +419,14 @@ test("the canned no-market memo is recognized, and the soft fallback never uses 
   assert.equal(isNoMarketMemo(CITED_SOURCE_MISS), false);
   assert.match(CITED_SOURCE_MISS, /couldn't find a cited source right now/i);
   assert.ok(LLM_TIMEOUT_MS >= 12000, `timeout floor should be >= 12s, got ${LLM_TIMEOUT_MS}`);
+});
+
+test("r10d: stripLeadingPunctuation drops a leftover leading comma from LLM text", () => {
+  assert.equal(stripLeadingPunctuation(", the FAA issued a nationwide ground stop"), "the FAA issued a nationwide ground stop");
+  assert.equal(stripLeadingPunctuation("  ;:…  Recovery was slow"), "Recovery was slow");
+  assert.equal(stripLeadingPunctuation("ADR is the average revenue earned per occupied room per day."), "ADR is the average revenue earned per occupied room per day.");
+  assert.equal(stripLeadingPunctuation("From cited open sources:, the FAA issued a nationwide ground stop"), "From cited open sources: the FAA issued a nationwide ground stop");
+  assert.equal(stripLeadingPunctuation(""), "");
 });
 
 test("r10d: the chat route caches deterministic answers even when Groq is on, never LLM or personal content", () => {

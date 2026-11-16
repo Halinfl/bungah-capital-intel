@@ -130,6 +130,14 @@ Rules (non-negotiable):
 
 export const CITED_SOURCE_MISS = "I couldn't find a cited source right now.";
 
+/** Drop leftover leading commas/colons/dots (e.g. the FAA answer that started with ","). */
+export function stripLeadingPunctuation(text: string): string {
+  return text
+    .replace(/^[\s,;:.·•…]+/u, "")
+    .replace(/^(From (?:our cited data|cited open sources):\s*)[,;:.·•…]+/i, "$1")
+    .trimStart();
+}
+
 export function isNoMarketMemo(content: string): boolean {
   return /didn't match a market we cover/i.test(content);
 }
@@ -289,6 +297,10 @@ function finalize(answer0: ChatAnswer & { brief?: ChatBrief }, answeredWell: boo
   // "From our cited data" is only honest when the figures come from the brief.
   if (!answer0.brief?.answer && typeof answer0.content === "string" && /from our cited data/i.test(answer0.content)) {
     answer0 = { ...answer0, content: answer0.content.replace(/^\s*From our cited data:?\s*/i, "").trimStart() };
+  }
+  // LLM answers: drop a leftover leading comma/colon after a prefix strip or a model stutter.
+  if (answer0.mode === "llm" && typeof answer0.content === "string") {
+    answer0 = { ...answer0, content: stripLeadingPunctuation(answer0.content) };
   }
   // Render-time leak guard (public-text.ts guardPublic): no file path, dataset ID label or internal code in any string.
   const answer = guardPublic(answer0);
@@ -855,7 +867,7 @@ async function answerChatIn(
       });
       const used = Number(usage?.totalTokens ?? 0);
       if (used) reconcileLlmTokens(used, estimated);
-      let content = stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim()));
+      let content = stripLeadingPunctuation(stripCitationBrackets(scrubShowboatForeclosure((text ?? "").trim())));
       let citations = citationsUsedInAnswer(content, sourceList);
       const packHasAnswer = packHasFacts && citations.length > 0 && !live;
       // If the pack-first call (no pre-search) still lacks a cited current-fact answer, search now and retry once.
@@ -879,7 +891,7 @@ async function answerChatIn(
             });
             const usedLive = Number(liveUsage?.totalTokens ?? 0);
             if (usedLive) reconcileLlmTokens(usedLive, usedLive);
-            const liveContent = stripCitationBrackets(scrubShowboatForeclosure((liveText ?? "").trim()));
+            const liveContent = stripLeadingPunctuation(stripCitationBrackets(scrubShowboatForeclosure((liveText ?? "").trim())));
             const liveFail = inspectLlmAnswer(liveContent);
             if (liveContent && !liveFail) {
               content = /^from cited open sources/i.test(liveContent) ? liveContent : `From cited open sources:\n\n${liveContent}`;
@@ -921,7 +933,7 @@ async function answerChatIn(
         maxOutputTokens: 400,
         abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
-      const bgContent = stripCitationBrackets(scrubShowboatForeclosure((bg ?? "").trim()));
+      const bgContent = stripLeadingPunctuation(stripCitationBrackets(scrubShowboatForeclosure((bg ?? "").trim())));
       // Last-resort background must not invent figures (cap rates, percents, dollar amounts).
       const inventedBg = /\$[\d,]+|\b\d+(?:\.\d+)?\s*%|\bcap rates?\b|\bprice per key\b|\bmid-single digits?\b/i.test(bgContent);
       if (bgContent && !inspectLlmAnswer(bgContent) && !isNoMarketMemo(bgContent) && !inventedBg) {
