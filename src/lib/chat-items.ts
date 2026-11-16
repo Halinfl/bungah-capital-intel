@@ -98,7 +98,7 @@ function txSource(t: Transaction): string {
 
 function txLine(t: Transaction): string {
   const where = [t.city, t.state].filter(Boolean).join(", ");
-  return `${t.kind === "acquisition" ? "Bought" : "Sold"} ${t.hotel}${where ? ` (${where})` : ""}${t.priceUsdM != null ? ` for ${money(t.priceUsdM)}M` : ""}${t.rooms ? `, ${t.rooms.toLocaleString("en-US")} rooms` : ""}${t.pending ? ", pending" : ""}`;
+  return `${t.kind === "acquisition" ? "Bought" : "Sold"} ${t.hotel}${where ? ` (${where})` : ""}${t.priceUsdM != null ? ` for ${money(t.priceUsdM)}M` : ""}${t.pending ? ", pending" : ""}`;
 }
 
 /** Within the capital lens: what the question is really about, so the headline leads with it. */
@@ -175,7 +175,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     const latestTx = tx[0];
     const focus = capitalFocus(question);
     answer = `${r.name} (${r.ticker}) capital moves on file: ${tx.length} hotel transaction${tx.length === 1 ? "" : "s"}${bb ? `, ${money(bb.value)}M of buybacks ${bb.label}` : ""} (SEC filings).`;
-    const countLead = () => lead(`${tx.length} hotel transactions on file (count computed from the filings listed)`, null, null, true);
+    const countLead = () => lead(`${tx.length} hotel transactions (computed count of the filings listed)`, null, null, true);
     countLead();
     if (bb) lead(`${money(bb.value)}M of buybacks · ${bb.label}`, bb, bb.label);
     const txRead = latestTx ? read(`${txLine(latestTx)}`, latestTx.date, { kind: "Filing", label: `${r.ticker} ${txSource(latestTx)}`, url: latestTx.url, title: `${r.name}: ${txSource(latestTx)}` }) : null;
@@ -275,7 +275,10 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     const f = factors.find((x) => x.factor === id);
     if (!f) return null;
     const label = short(f.factor);
-    const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${fitFact(f.input_text!) ?? shortInput(f.input_text!)}`;
+    // r10: a "$48k per key vs $467k replacement cost" input leads with the deal's own per-key price (price ÷ keys,
+    // computed), which is not on the HVS page; only the replacement-cost figure is checked there.
+    const fact = (fitFact(f.input_text!) ?? shortInput(f.input_text!)).replace(/^(\$[\d.,]+[kKM]? per key)(?= vs )/, "$1 (computed)");
+    const text = `${withScore ? `${label} ${f.score}/5: ` : ""}${fact}`;
     return read(text, f.as_of, { kind: chipFor(f.source_uri!), label: publisherName(f.source_uri!) || label, url: f.source_uri!, title: `${label}: ${shortInput(f.input_text!)}`.slice(0, 200) });
   };
   for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
@@ -298,7 +301,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
     if (!grade || grade.overall == null) return null;
     answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
     // r10: the grade and its headline are Bungah's own rubric output (computed from the cited factor inputs below).
-    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)}`.replace(/\$?\d[\d,.]*\s?(?:%|[KMB]\b)?/g, (m) => `${m} (computed)`), label: "Bungah", period: null, derived: true });
+    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)}`.replace(/\$?\d[\d,.]*(?:%|[KMB]\b)?(?![\d,.-])/g, (m) => `${m} (computed)`), label: "Bungah", period: null, derived: true });
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);
