@@ -432,6 +432,24 @@
     "match": "Hotel minimum steps (Ord. 188944",
     "why": "r10b: value not on the cited page (Ord. 188944 not on the cited clerk motion PDF)"
    }
+  ],
+  "w1t-atlanta-1-wage-floor": [
+   {
+    "match": "Georgia / Atlanta minimum wage: $7.25/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (dol.gov)"
+   }
+  ],
+  "w1t-nashville-1-wage-floor": [
+   {
+    "match": "Tennessee / federal minimum: $7.25/hr",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (dol.gov)"
+   }
+  ],
+  "w1c-nashville-debt-cmbs-sasb-balance-sheet-loans": [
+   {
+    "match": "Unnamed \"recently upgraded Nashville hotel\"",
+    "why": "r10b: cited page has no saved copy (403 / 520; no archive copy) (greenstreetnews.com 405)"
+   }
   ]
  },
  "edits": {
