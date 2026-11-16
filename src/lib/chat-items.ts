@@ -20,6 +20,7 @@ import {
   type ChipKind,
 } from "./chat-brief";
 import { publisherName } from "./public-text";
+import type { LeadSource } from "./chat-brief-build";
 
 export type ItemAnswer = { brief: ChatBrief; citations: string[]; intent: "reit_reported" | "reit_call" | "deal_sale" | "deal_grade" | "advice_declined"; marketSlug: string | null };
 
@@ -115,6 +116,11 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
   const cites: Citation[] = [];
   const sections: BriefSection[] = [];
   let answer = "";
+  // r10 (Eric r9): the filing and period behind every figure in the answer line, for the number-truth gate.
+  const leads: LeadSource[] = [];
+  const lead = (text: string, c: { url: string; source: string } | null | undefined, period: string | null, derived = false) => {
+    leads.push({ text, label: c ? `${r.ticker} ${c.source}` : "Bungah", ...(c?.url ? { url: c.url } : {}), period, ...(derived ? { derived } : {}) });
+  };
   const lq = r.latestQuarter ? fmtQuarter(r.latestQuarter) : null;
   const L = r.latest ?? ({} as Reit["latest"]);
 
@@ -123,6 +129,9 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     const src = L.revpar ?? L.adr ?? L.occupancy;
     if (!head.length || !src || !lq) return null;
     answer = `${r.name} (${r.ticker}) ${lq}: ${head.join(", ")} (${src.source}).`;
+    if (L.revpar) lead(`RevPAR ${money(L.revpar.value, 2)} · ${lq}`, L.revpar, lq);
+    if (L.adr) lead(`ADR ${money(L.adr.value, 2)} · ${lq}`, L.adr, lq);
+    if (L.occupancy) lead(`occupancy ${L.occupancy.value.toFixed(1)}% · ${lq}`, L.occupancy, lq);
     const lqRaw = r.latestQuarter;
     const yearAgo = lqRaw ? r.quarters.find((q) => q.quarter === `${Number(lqRaw.slice(0, 4)) - 1}${lqRaw.slice(4)}`) : undefined;
     const add = (x: BriefRead | null, c: Citation) => {
@@ -142,6 +151,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     answer = g.period
       ? `${r.name} (${r.ticker}): latest guidance is ${g.period}, in the earnings release of ${d} (${g.source}).`
       : `${r.name} (${r.ticker}): latest guidance is in the earnings release of ${d} (${g.source}).`;
+    lead(`latest guidance ${g.period ?? ""} · ${d}`.trim(), g, d);
     for (const i of g.items.slice(0, 3)) {
       const x = read(`${g.period ? `${g.period} ` : ""}${i.label} ${fmtRange(i)}${i.change ? `, ${i.change}` : ""}`, g.date, reitSrc(g, r));
       if (x) reads.push(x);
@@ -162,10 +172,13 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     const bb = [...r.buybacks].reverse().find((b) => b.value >= 0.05) ?? null;
     const nextMat = r.debt?.items.find((i) => i.value != null && i.value >= 0.05 && i.label);
     if (!tx.length && !bb && !nextMat) return null;
-    const lead = tx[0];
+    const latestTx = tx[0];
     const focus = capitalFocus(question);
     answer = `${r.name} (${r.ticker}) capital moves on file: ${tx.length} hotel transaction${tx.length === 1 ? "" : "s"}${bb ? `, ${money(bb.value)}M of buybacks ${bb.label}` : ""} (SEC filings).`;
-    const txRead = lead ? read(`${txLine(lead)}`, lead.date, { kind: "Filing", label: `${r.ticker} ${txSource(lead)}`, url: lead.url, title: `${r.name}: ${txSource(lead)}` }) : null;
+    const countLead = () => lead(`${tx.length} hotel transactions on file (count computed from the filings listed)`, null, null, true);
+    countLead();
+    if (bb) lead(`${money(bb.value)}M of buybacks · ${bb.label}`, bb, bb.label);
+    const txRead = latestTx ? read(`${txLine(latestTx)}`, latestTx.date, { kind: "Filing", label: `${r.ticker} ${txSource(latestTx)}`, url: latestTx.url, title: `${r.name}: ${txSource(latestTx)}` }) : null;
     const bbRead = bb ? read(`Share buybacks ${money(bb.value)}M, ${bb.label}`, filedDate(bb.source), reitSrc(bb, r)) : null;
     if (bb) cites.push(cite(bb.url, `${r.ticker} ${bb.source}`, filedDate(bb.source)));
     const debtRead = nextMat && r.debt ? read(`Debt maturing ${nextMat.label}: ${money(nextMat.value!)}M`, r.debt.asOf, reitSrc(r.debt, r)) : null;
@@ -177,12 +190,17 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
     if (focus === "debt" && debtRead && nextMat && r.debt && debtLater.length) {
       const first = r.debt.items.find((i) => i.label) === nextMat;
       answer = `${r.name} (${r.ticker}) debt maturities on file: ${money(nextMat.value!)}M due ${nextMat.label}, the nearest year ${first ? "on the schedule" : "with scheduled debt"} (${r.debt.source}).`;
+      leads.length = 0;
+      lead(`${money(nextMat.value!)}M due ${nextMat.label}`, r.debt, r.debt.asOf);
       // The key reads are the rest of the schedule (the next years with debt), not the capital card's reads.
       const debt = r.debt;
       const later = debt.items.filter((i) => i !== nextMat && i.label && i.value != null && i.value >= 0.05).slice(0, 3);
       order = later.map((i) => read(`Debt maturing ${i.label}: ${moneyM(i.value!)}`, debt.asOf, reitSrc(debt, r)));
-    } else if (focus === "deals" && txRead && lead && tx.length > 1) {
-      answer = `${r.name} (${r.ticker}) hotel deals on file: ${tx.length} transaction${tx.length === 1 ? "" : "s"}; latest: ${txLine(lead)} (${txSource(lead)}).`;
+    } else if (focus === "deals" && txRead && latestTx && tx.length > 1) {
+      answer = `${r.name} (${r.ticker}) hotel deals on file: ${tx.length} transaction${tx.length === 1 ? "" : "s"}; latest: ${txLine(latestTx)} (${txSource(latestTx)}).`;
+      leads.length = 0;
+      countLead();
+      leads.push({ text: txLine(latestTx), label: `${r.ticker} ${txSource(latestTx)}`, url: latestTx.url, period: latestTx.date });
       // The key reads are the deals before it, each with its own filing.
       const prior = tx.slice(1, 4);
       order = prior.map((t) => read(txLine(t), t.date, { kind: "Filing", label: `${r.ticker} ${txSource(t)}`, url: t.url, title: `${r.name}: ${txSource(t)}` }));
@@ -209,6 +227,7 @@ export function reitBrief(ticker: string, lens: ReitLens, question = ""): ItemAn
   sections.push({ id: "further", title: "Further reading", count: 1, markdown: `- [${r.name} (${r.ticker}): every filing on file](/reits/${r.ticker.toLowerCase()})` });
   const brief = makeBrief({
     answer,
+    leadSources: leads,
     reads,
     coverage: coverageLine({ cites, notes: ["Company-reported figures from SEC filings; no licensed data."] }),
     window: { range: "all", filterable: false },
@@ -262,8 +281,14 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   for (const f of factors) cites.push(cite(f.source_uri!, `${factorMeta(f.factor)?.label ?? f.factor}: ${publisherName(f.source_uri!)}`, f.as_of));
 
   let answer: string;
+  const dealLeads: LeadSource[] = [];
   if (lens === "price") {
     if (sale.price == null) return null;
+    // r10: the price is checked on the filing / report that confirmed it; per key is computed (price ÷ keys).
+    const confirmUrl = sale.price_confirmed_on && sale.close_report?.date === sale.price_confirmed_on ? sale.close_report.url : undefined;
+    const priceUrl = confirmUrl ?? mainUrl;
+    dealLeads.push({ text: `${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys` : ""}`, label: main ? `${main.publisher}: ${main.title}` : "Sale filing", ...(priceUrl ? { url: priceUrl } : {}), period: dealDate(sale.price_confirmed_on ?? sale.announced_on) });
+    if (sale.keys) dealLeads.push({ text: `${fmtPerKey(sale.price_per_key)} (computed: price ÷ keys)`, label: "Bungah", period: null, derived: true });
     answer = `${dealShort(sale)}: ${sale.price_qualifier?.startsWith("approximately") ? "about " : ""}${fmtPrice(sale.price)}${sale.keys ? ` for ${sale.keys.toLocaleString("en-US")} keys, ${fmtPerKey(sale.price_per_key)}` : ""}, announced ${dealDate(sale.announced_on)}${sale.price_confirmed_on ? `, price first confirmed ${dealDate(sale.price_confirmed_on)}` : ""} (${main ? `${main.title.split(":")[0]}` : "sale filing"}).`;
     for (const id of ["replacement_cost", "spread", "demand"]) {
       const x = factorRead(id, false);
@@ -272,6 +297,8 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   } else {
     if (!grade || grade.overall == null) return null;
     answer = `${dealShort(sale)}: graded ${grade.overall_label} (rubric ${grade.rubric_version}, ${dealDate(grade.graded_on)}). ${headlineFor(grade)}`;
+    // r10: the grade and its headline are Bungah's own rubric output (computed from the cited factor inputs below).
+    dealLeads.push({ text: `Bungah grade ${grade.overall_label}; ${headlineFor(grade)} (computed from the graded factor inputs)`, label: "Bungah", period: null, derived: true });
     const byWeight = [...factors].sort((a, b) => (b.effective_weight ?? 0) - (a.effective_weight ?? 0));
     for (const f of byWeight.slice(0, 3)) {
       const x = factorRead(f.factor, true);
@@ -305,6 +332,7 @@ export function dealBrief(slug: string, lens: DealLens): ItemAnswer | null {
   const build = (n: number) =>
     makeBrief({
       answer,
+      leadSources: dealLeads,
       reads: reads.slice(0, n),
       coverage: coverageLine({ cites, notes: [...ungraded, "Public sources only; no licensed data."] }),
       window: { range: "all", filterable: false },

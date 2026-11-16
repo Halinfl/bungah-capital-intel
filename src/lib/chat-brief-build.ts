@@ -1171,6 +1171,8 @@ export function nationalDebtBrief(
   return makeBrief({
     decline: opts.decline,
     answer,
+    // r10: the national debt answer line's figure, its source URL and period (number-truth gate).
+    leadSources: head ? [{ text: cleanFactText(head.text), label: flatSource(head.source.label), ...(head.source.url ? { url: head.source.url } : {}), period: head.period?.label ?? head.source.date ?? null }] : [],
     reads: reads.map(toRead),
     coverage: coverageLine({
       // Radar findings carry no data date of their own: they count as undated sources.
