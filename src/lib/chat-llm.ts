@@ -98,7 +98,7 @@ import { inspectLlmAnswer, scrubShowboatForeclosure } from "./chat-llm-guard";
 import { citationsUsedInAnswer, stripCitationBrackets } from "./chat-llm-citations";
 import { NO_PROPERTY_FACTS, resolveNamedAsset } from "./chat-named-asset";
 import { checkSearchCap, freeLiveSearch, isWebSearchEnabled, needsCurrentFacts, reserveSearch } from "./chat-web-search";
-import { STR_TABLE_REFUSAL, asksForStrTable } from "./chat-str";
+import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "./chat-str";
 import { UNCITABLE_REFUSAL, asksForUncitableSource } from "./chat-uncitable";
 
 /** Confirmed via `vercel ai-gateway models ls` (meta/llama family). */
@@ -558,16 +558,20 @@ async function answerChatIn(
     );
   }
 
-  if (asksForStrTable(question)) {
+  if (asksForStrTable(question) || asksForLicensedData(question)) {
     const marketName = ctx.matched?.name ?? null;
     const publicHint = places.length
       ? uncoveredMarketLines(places, ctx.markets).join("\n")
       : marketName
         ? `For ${marketName}, we can cite public sources on file instead — airport traffic, CVB or hotel-tax releases, and company filings. Ask about one of those and I'll cite it.`
         : "When we have public sources on file for the market you asked about — airports, CVBs, government releases, or company filings — we can share those instead.";
+    const refusal = asksForStrTable(question) ? STR_TABLE_REFUSAL : LICENSED_DATA_REFUSAL;
+    const extra = asksForStrTable(question)
+      ? "We do not provide STR tables or workbooks."
+      : "We do not provide licensed comps, cap rates, or price-per-key figures.";
     return finalize(
       {
-        content: [STR_TABLE_REFUSAL, "", publicHint.trim(), "", "We do not provide STR tables or workbooks.", "", decisionSupportFooter()].join("\n"),
+        content: [refusal, "", publicHint.trim(), "", extra, "", decisionSupportFooter()].join("\n"),
         citations: [],
         sources: [],
         intent: ctx.intent ?? "revpar_metrics",
@@ -804,7 +808,9 @@ async function answerChatIn(
         abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       });
       const bgContent = stripCitationBrackets(scrubShowboatForeclosure((bg ?? "").trim()));
-      if (bgContent && !inspectLlmAnswer(bgContent) && !isNoMarketMemo(bgContent)) {
+      // Last-resort background must not invent figures (cap rates, percents, dollar amounts).
+      const inventedBg = /\$[\d,]+|\b\d+(?:\.\d+)?\s*%|\bcap rates?\b|\bprice per key\b|\bmid-single digits?\b/i.test(bgContent);
+      if (bgContent && !inspectLlmAnswer(bgContent) && !isNoMarketMemo(bgContent) && !inventedBg) {
         const content = bgContent.toLowerCase().includes("couldn't find a cited source") ? bgContent : softCitedMiss(bgContent);
         return withNote(
           finalize(

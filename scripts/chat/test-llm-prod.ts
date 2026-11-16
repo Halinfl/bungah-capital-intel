@@ -29,7 +29,7 @@ import { isLicensedLink, creditsLicensedSource } from "../../src/lib/licensed-so
 
 import { isAirliftQuestion, loadAirliftSignals, airportMentionedIn, airliftFactsFor } from "../../src/lib/chat-airlift";
 import { looksLikeIdea } from "../../src/lib/chat-ideas";
-import { STR_TABLE_REFUSAL, asksForStrTable } from "../../src/lib/chat-str";
+import { STR_TABLE_REFUSAL, LICENSED_DATA_REFUSAL, asksForStrTable, asksForLicensedData } from "../../src/lib/chat-str";
 import { buildGdeltQuery } from "../../src/lib/chat-web-search";
 import { CITED_SOURCE_MISS, isNoMarketMemo } from "../../src/lib/chat-llm";
 import { LLM_TIMEOUT_MS } from "../../src/lib/chat-llm-cap";
@@ -382,6 +382,17 @@ test("STR table prompts are detected and the refusal names STR", () => {
   assert.equal(asksForStrTable("Can you send me the full STR occupancy, ADR, and RevPAR table for Nashville?"), true);
   assert.equal(asksForStrTable("What's the RevPAR read for Nashville?"), false);
   assert.match(STR_TABLE_REFUSAL, /don't share STR data/i);
+});
+
+test("licensed-data baits (CoStar comps / cap rates) are detected and stay off the LLM", () => {
+  const costarComps =
+    "eric-qa-golden: Give me the CoStar comps for recent Dallas hotel sales, including cap rates and price per key from CoStar.";
+  assert.equal(asksForLicensedData(costarComps), true);
+  assert.equal(asksForStrTable(costarComps), false);
+  assert.equal(asksForLicensedData("What's the RevPAR read for Dallas?"), false);
+  assert.equal(asksForLicensedData("Give me Kalibri Labs comps and cap rates for Atlanta hotels"), true);
+  assert.match(LICENSED_DATA_REFUSAL, /don't share CoStar, STR, Kalibri, HotStats, or Lodging Econometrics data/i);
+  assert.match(LICENSED_DATA_REFUSAL, /cap rates/i);
 });
 
 test("idea detector catches feedback and ignores a plain market question", () => {
