@@ -31,7 +31,8 @@ export function withVerifiedYoY<T extends Row>(rows: T[]): T[] {
   for (const r of rows) byKey.set(r.title, r);
   return rows.map((r) => {
     const mag0 = r.magnitude ?? "";
-    if (!mag0) return r;
+    // Idempotent: cached graph rows can pass through here on every request.
+    if (!mag0 || /Bungah calc\./.test(mag0)) return r;
     let mag = mag0
       .replace(/[;,]\s*base\s+[+\-−]?\d+(?:\.\d+)?%/gi, "")
       .replace(/rate-driven\s+\d+(?:\.\d+)?%\s*→\s*\d+(?:\.\d+)?%/g, "rate-driven (2026 TAT rate step)")

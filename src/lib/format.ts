@@ -6,6 +6,7 @@ import { withBungahSupplyScores } from "@/lib/chat-supply-score";
 import { withoutUnverifiedFigures } from "@/lib/licensed-attribution";
 import { withoutOrphanedFigures } from "@/lib/source-provenance";
 import { withVerifiedYoY } from "@/lib/tax-yoy";
+import { withNumberTruth } from "@/lib/number-truth";
 
 export function fmtPct(n: number | null | undefined, digits = 1): string {
   if (n == null) return "—";
@@ -119,7 +120,7 @@ export function citedOnly<T extends SeedCheckable>(rows: T[]): T[] {
 export function publicRows<T extends SeedCheckable & { kind?: string | null; sourceLabel?: string | null }>(rows: T[]): T[] {
   // No STR/CoStar-cited figure and no brand-vs-brand loan framing on a public page (Hal, Nov 13 2026).
   const base = withoutRules(citedOnly(rows));
-  return withVerifiedYoY(withoutOrphanedFigures(
+  return withNumberTruth(withVerifiedYoY(withoutOrphanedFigures(
     base as never,
     withYellowBuckets(
       withNeutralBrands(
@@ -128,7 +129,7 @@ export function publicRows<T extends SeedCheckable & { kind?: string | null; sou
         )
       )
     ) as never
-  ) as never) as never;
+  ) as never)) as never;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

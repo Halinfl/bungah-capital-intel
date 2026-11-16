@@ -1,0 +1,378 @@
+{
+ "_note": "Builds src/data/number-truth-r9.json (r9 number-truth overlay). Every entry: a figure the gate could not\nfind (value + period) on a saved snapshot of the page it cites. Default action: drop. No retargets. Applied by src/lib/number-truth.ts after the licensed / provenance / YoY passes.",
+ "rows": {
+  "tax-orlando-202509-fy": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202509-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202510-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202511-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202512-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202601-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202602-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202603-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202604-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202605-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202606-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202607-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202608-m": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-orlando-202608-ytd": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "sweep-20261011-orl-aug-operating": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (occompt.com 403)",
+  "tax-chicago-202602-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202603-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202604-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202605-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202606-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202607-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202608-city": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202608-city2": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)",
+  "tax-chicago-202306-fy": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (mpea.com FY2023–FY2025 PDF: bot wall)",
+  "tax-chicago-202406-fy": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (mpea.com FY2023–FY2025 PDF: bot wall)",
+  "tax-chicago-202511-m": "value not on the cited page (Nov 2025 derived from the Dec report; the Dec PDF does not print $8.13M)",
+  "tax-seattle-202412-cy": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (seattlecc.com 2024 audit PDF)",
+  "tax-seattle-202312-cy": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (seattlecc.com 2024 audit PDF)",
+  "tax-phoenix-202605-fy": "value not on the cited page",
+  "tax-phoenix-202605-fy2": "value not on the cited page",
+  "tax-miami-202409-tdt": "value not on the cited page",
+  "tax-san-diego-201706-sco": "value not on the cited page (FY2017 row not in the State Controller export)",
+  "tax-san-francisco-bay-201706-sco": "value not on the cited page (FY2017 row not in the State Controller export)",
+  "w1x-la-super-bowl-2027": "value not on the cited page",
+  "w1x-fll-spirit": "period not on the cited page (mixes the ~May 2 shutdown date with Aug pax)",
+  "w1-mia-grand-hyatt-mb": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (miamibeachconvention.com 403)"
+ },
+ "items": {
+  "w1c-chicago-tax-lodging-tax-stack": [
+   {
+    "match": "Chicago Tourism Improvement District (CTID)",
+    "why": "value not on the cited page (16 ZIPs / 7520)"
+   }
+  ],
+  "w1c-seattle-tax-lodging-tax-stack": [
+   {
+    "match": "Seattle Tourism Improvement Area (STIA)",
+    "why": "value not on the cited page (71 hotels)"
+   },
+   {
+    "match": "State + local sales tax on lodging (WA DOR lodging component)",
+    "why": "value not on the cited page (8.7% / 15.70%)"
+   }
+  ],
+  "w1c-dallas-tax-lodging-tax-stack": [
+   {
+    "match": "Venue HOT (Prop A, Nov 2022; Brimer Bill)",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1c-atlanta-tax-lodging-tax-stack": [
+   {
+    "match": "Sales & use tax, Fulton (Atlanta) code 060A",
+    "why": "value not on the cited page (8.9%)"
+   },
+   {
+    "match": "City hotel-motel tax: 8% (raised from 7% by Ord. 2011-32)",
+    "why": "value not on the cited page (39.3% / $200M / 80%)"
+   },
+   {
+    "match": "Total: 16.9% + $5/night",
+    "why": "arithmetic total of dropped components"
+   }
+  ],
+  "w1c-new-york-city-tax-lodging-tax-stack": [
+   {
+    "match": "NYS hotel unit fee (Convention Center Hotel Unit Fee)",
+    "why": "period not on the cited page (2025 form; Feb 2026 not printed)"
+   },
+   {
+    "match": "Total: 14.75% + $3.50/room/night",
+    "why": "arithmetic total includes the dropped unit fee"
+   }
+  ],
+  "w1c-washington-dc-tax-lodging-tax-stack": [
+   {
+    "match": "DC sales tax on transient accommodations (all-in)",
+    "why": "value not on the cited page (14.95% / 10.2% / 4.45% / 1.3% / 0.3% split)"
+   }
+  ],
+  "w1c-san-francisco-bay-tax-lodging-tax-stack": [
+   {
+    "match": "Moscone Expansion District (MED)",
+    "why": "value not on the cited page (0.3125%)"
+   }
+  ],
+  "w1c-phoenix-tax-lodging-tax-stack": [
+   {
+    "match": "Maricopa County (general excise + hotel",
+    "why": "value not on the cited page (1.77%)"
+   },
+   {
+    "match": "Total, City of Phoenix: 13.07%",
+    "why": "value not on the cited page"
+   },
+   {
+    "match": "TIA (Tourism Improvement Area)",
+    "why": "value not on the cited page (HB 2950 / 5%)"
+   }
+  ],
+  "w1c-los-angeles-tax-lodging-tax-stack": [
+   {
+    "match": "LA Tourism Marketing District (LATMD)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (discoverlosangeles.com 403)"
+   }
+  ],
+  "w1c-houston-tax-lodging-tax-stack": [
+   {
+    "match": "Texas state HOT: 6% · 0.5 pt tourism",
+    "why": "period not on the cited page (0.5 pt split has no period)"
+   }
+  ],
+  "w1c-seattle-tax-collections-and-dmo-budget": [
+   {
+    "match": "WSCC PFD regular lodging tax (Seattle 7%)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (seattlecc.com financial-reports: thin)"
+   },
+   {
+    "match": "Prior year (regular / extended)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy)"
+   }
+  ],
+  "w1c-chicago-tax-collections-dmo-funding": [
+   {
+    "match": "Special Events & Municipal HOOT Fund",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (chicago.gov 403)"
+   }
+  ],
+  "w1c-dallas-tax-collections-and-dmo-budget": [
+   {
+    "match": "VisitDallas allocation",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (wfaa.com 403)"
+   }
+  ],
+  "w1c-dallas-debt-market-level-reads": [
+   {
+    "match": "Sheraton Dallas appraisal",
+    "why": "value not on the cited page ($321.2M KBRA)"
+   }
+  ],
+  "w1s-houston-snapshot": [
+   {
+    "match": "Metro inventory: \">100,000 rooms\"",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-atlanta-d3": [
+   {
+    "match": "Atlanta visitors 2024 (latest ACVB)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (discoveratlanta.com 403)"
+   },
+   {
+    "match": "World Cup room nights: ~442,000",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-atlanta-d6": [
+   {
+    "match": "Jul 2026 total pax: 9,760,810",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (atl.com 403)"
+   }
+  ],
+  "w1p-atlanta-named-projects": [
+   {
+    "match": "Hotel Phoenix @ Centennial Yards",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (groundbreak.city 429)"
+   }
+  ],
+  "w1d-nashville-d6": [
+   {
+    "match": "FY26 (Jul 2025–Jun 2026): 26.7M pax",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (flynashville.com: thin)"
+   }
+  ],
+  "w1d-boston-d6": [
+   {
+    "match": "Massport cruise pax: 480,000",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-boston-d8": [
+   {
+    "match": "Cruise: Flynn Cruiseport; 480,000 cruise pax",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-honolulu-d8": [
+   {
+    "match": "Cruise: Aug 2026: 4,312 visitors",
+    "why": "value not on the cited page (cited page is a AAA gas-price release)"
+   }
+  ],
+  "w1d-washington-dc-d7": [
+   {
+    "match": "Citywides 2026 / 2027 booked (DDC)",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-chicago-d6": [
+   {
+    "match": "MDW July 2026 pax",
+    "why": "value not on the cited page (cited ORD summary)"
+   }
+  ],
+  "w1p-san-francisco-bay-stage-rollup": [
+   {
+    "match": "Bay Area UC (2025)",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (hotel-online.com 403)"
+   }
+  ],
+  "w1s-san-francisco-bay-snapshot": [
+   {
+    "match": "Bay Area rooms UC: 15 hotels",
+    "why": "no snapshot of the cited page (403 / bot wall / thin; no cached copy) (hotel-online.com 403)"
+   }
+  ],
+  "w1p-boston-named-projects": [
+   {
+    "match": "The Atlas Hotel, 40 Western Ave",
+    "why": "value not on the cited page"
+   }
+  ],
+  "w1d-miami-d6": [
+   {
+    "match": "FLL Aug 2026 total pax",
+    "why": "shown against the MIA report (not its own source)"
+   },
+   {
+    "match": "FLL international: Aug 425,608",
+    "why": "shown against the MIA report (not its own source)"
+   }
+  ]
+ },
+ "edits": {
+  "tax-san-diego-202509-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202510-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202511-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202512-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202601-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202602-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202603-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202604-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "tax-san-diego-202605-ytd": [
+   {
+    "find": " (base 10.5%)",
+    "replace": "",
+    "why": "value not on the cited page (the Charter 39 report does not print the 10.5% base rate)"
+   }
+  ],
+  "w1c-honolulu-tax-lodging-tax-stack": [
+   {
+    "find": " (was 10.25%; Act 96 \"green fee\")",
+    "replace": "",
+    "why": "value not on the cited page (10.25% / Act 96)"
+   }
+  ],
+  "w1c-new-york-city-tax-lodging-tax-stack": [
+   {
+    "find": " (room ≥$40/night)",
+    "replace": "",
+    "why": "heading figure with no cited link"
+   }
+  ],
+  "w1c-phoenix-tax-lodging-tax-stack": [
+   {
+    "find": " (stays of ≤29 nights)",
+    "replace": "",
+    "why": "heading figure with no cited link"
+   }
+  ],
+  "w1c-nashville-tax-lodging-tax-stack": [
+   {
+    "find": " (6% + 1% added 2023-07-01, tied to the new enclosed Titans stadium bonds)",
+    "replace": "",
+    "why": "value not on the cited page (6% + 1% split)"
+   }
+  ],
+  "w1d-boston-d6": [
+   {
+    "find": " (~23%)",
+    "replace": "",
+    "why": "value not on the cited page (computed share)"
+   }
+  ],
+  "w1p-nashville-named-projects": [
+   {
+    "find": "; was listed at 245 by NCVC/NDP",
+    "replace": "",
+    "why": "value not on the cited page (245)"
+   }
+  ],
+  "w1d-miami-d6": [
+   {
+    "find": " = 47.7% of pax",
+    "replace": "",
+    "why": "value not on the cited page (computed share)"
+   },
+   {
+    "find": " = 45.4%",
+    "replace": "",
+    "why": "value not on the cited page (computed share)"
+   }
+  ]
+ },
+ "snapshotUrls": {
+  "las-vegas": {
+   "url": "https://www.lvcva.com/research/faqs/",
+   "label": "LVCVA FAQ",
+   "checked": "2026-11-16: 'based on 2025 data' · total hotel occupancy 80.3% · average nightly room rate $184"
+  },
+  "orlando": {
+   "url": "https://www.visitorlando.org/about/resources/data-trends/",
+   "label": "Visit Orlando Data & Trends",
+   "checked": "2026-11-16: '2025 Year End Results' · 132,685 rooms · OCC 71.4% · ADR $202.71"
+  }
+ }
+}

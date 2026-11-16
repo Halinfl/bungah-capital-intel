@@ -1,6 +1,7 @@
 /**
  * Brief builders per answer path (deterministic; see chat-brief.ts for the format and rules).
  */
+import { numberTruthSnapshotUrl } from "./number-truth";
 import { isBareRates, ROOM_RATE_WORDS, type ChatIntent } from "./chat-intent";
 import type { MarketRow } from "./chat";
 import type { DigestHit } from "./chat-retrieve";
@@ -98,6 +99,9 @@ function snapshotDate(m: MarketRow): string | null {
  * Hotel Performance 2025 PDF"). Null when nothing on file matches; never a guessed link.
  */
 function snapshotUrl(m: MarketRow): string | undefined {
+  // r9 number-truth: the snapshot's own cited page, when its OCC / ADR / period were checked on that page.
+  const verified = numberTruthSnapshotUrl(m.slug, m.sourceLabel);
+  if (verified) return verified;
   const reg = getMsaRegistryEntry(m.slug);
   const url = reg?.lodging_report_url;
   if (!url) return undefined;
@@ -1324,7 +1328,7 @@ export function ratesBrief(signals: SignalLike[], question: string, opts: BriefO
 
 const PIPELINE_Q = /\b(pipeline|net unit growth|nug|development|openings|signings)\b/i;
 
-export function digestReads(d: DigestHit, question: string): { answer: string; reads: Fact[]; sections: BriefSection[]; links: { url: string; label: string }[]; date: string | null; period: ReturnType<typeof periodOf>; cites: Citation[] } {
+export function digestReads(d: DigestHit, question: string): { answer: string; reads: Fact[]; sections: BriefSection[]; links: { url: string; label: string }[]; date: string | null; period: ReturnType<typeof periodOf>; cites: Citation[]; lead: LeadSource | null } {
   const f = digestFacts(d, d.raw ?? d.excerpt);
   const asked = PIPELINE_Q.test(question);
   // REIT call rule: guidance, capital allocation, market color (pipeline questions: NUG guide and pipeline).
@@ -1346,7 +1350,9 @@ export function digestReads(d: DigestHit, question: string): { answer: string; r
   }
   if (f.supplyMd) sections.push({ id: `sup-${d.slug}`, title: `${f.name}: supply & pipeline`, count: rowsIn(f.supplyMd), markdown: f.supplyMd });
   if (f.segmentMd) sections.push({ id: `seg-${d.slug}`, title: `${f.name}: segment & geography mix`, count: rowsIn(f.segmentMd), markdown: f.segmentMd });
-  return { answer, reads, sections, links: f.links, date: f.guidance?.asOf ?? null, period: f.dataPeriod, cites: f.links.map((l) => ({ key: l.url, url: l.url, label: l.label, text: l.label, asOf: digestDate(d), period: f.dataPeriod })) };
+  // r9 number-truth: the answer line's headline figure cites the filing (exhibit 99.1) it came from.
+  const lead: LeadSource | null = f.headline ? { text: f.headline, label: flatSource(f.source.label), ...(f.source.url ? { url: f.source.url } : {}), period: f.period ?? null } : null;
+  return { lead, answer, reads, sections, links: f.links, date: f.guidance?.asOf ?? null, period: f.dataPeriod, cites: f.links.map((l) => ({ key: l.url, url: l.url, label: l.label, text: l.label, asOf: digestDate(d), period: f.dataPeriod })) };
 }
 
 export function digestBrief(digests: DigestHit[], question: string, opts: BriefOpts & { range?: DateRange } = {}): ChatBrief {
@@ -1368,10 +1374,12 @@ export function digestBrief(digests: DigestHit[], question: string, opts: BriefO
   // it, so the date chip is hidden unless the digests span more than one reporting period.
   const periods = new Set(parts.map((p) => (p.period ? `${p.period.start}-${p.period.end}` : "")));
   const filterable = periods.size > 1;
+  const digestLeads = parts.length === 1 && parts[0].lead ? [parts[0].lead] : [];
   return makeBrief({
     decline: opts.decline,
     answer,
     reads: readList,
+    ...(digestLeads.length ? { leadSources: digestLeads } : {}),
     coverage: coverageLine({
       // Each digest's source links, dated by that digest's release date.
       // Each digest's source links, dated by the quarter the digest reports.
