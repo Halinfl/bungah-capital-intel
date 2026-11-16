@@ -594,6 +594,14 @@ test("Host Q2 2026 $251.53 citations point at exhibit 99.1, not the 8-K cover", 
   assert.ok(facts.links.some((l) => l.url === exhibit));
 });
 
+test("Boston occupancy-excise and hotel-tax wording route to tax_collections, not RevPAR", () => {
+  assert.equal(classifyIntent("What's Boston's occupancy-excise?"), "tax_collections");
+  assert.equal(classifyIntent("Boston occupancy excise rate"), "tax_collections");
+  assert.equal(classifyIntent("What is the NYC hotel occupancy-tax rate?"), "tax_collections");
+  assert.equal(classifyIntent("How is Dallas visitation and hotel occupancy tax collections?"), "tax_collections");
+  assert.equal(classifyIntent("What's RevPAR in Boston?"), "revpar_metrics");
+});
+
 test("Chat typography, tap target, and visitor-facing copy meet the QA bar", () => {
   const client = readFileSync(resolve("src/app/chat/ChatClient.tsx"), "utf8");
   const page = readFileSync(resolve("src/app/chat/page.tsx"), "utf8");

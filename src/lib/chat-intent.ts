@@ -53,6 +53,8 @@ const RULES: Rule[] = [
     weight: 9,
     test: (q) =>
       /\b(hotel|occupancy|lodging|room|bed|tourist|transient|accommodations?|excise)[- ]+(occupancy |development |accommodations? )?tax(es)?\b/.test(q) ||
+      /\b(occupancy|room|hotel|lodging|local room)[- ]?excise\b/.test(q) ||
+      /\bexcise tax\b/.test(q) ||
       /\b(hot|tot|tat|tdt|cdt|hmt)\b/.test(q) && /\btax|collections?|revenue|receipts?|series\b/.test(q) ||
       /\btax (collections?|receipts?|revenue|series)\b/.test(q) ||
       /\bhotel[- ]motel tax\b/.test(q) ||
