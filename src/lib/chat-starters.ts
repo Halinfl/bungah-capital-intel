@@ -151,3 +151,14 @@ export function startersFor(scope: ChatScope | null): Starter[] {
 export function marketLabel(slug: string): string | null {
   return V.marketLabels?.[slug] ?? null;
 }
+
+/**
+ * r10: is this exact question an offered starter for this chat (the general four on plain /chat, or one of the
+ * item's own)? Offered starters were verified on the deterministic path, so they are answered on it (no Groq).
+ */
+export function isOfferedStarter(question: string, scope: ChatScope | null): boolean {
+  const q = question.trim();
+  if (!q) return false;
+  return startersFor(scope).some((s) => s.q === q);
+}
+

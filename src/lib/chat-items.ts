@@ -417,3 +417,29 @@ export function reitName(ticker: string): string | null {
   const r = reitByTicker(ticker);
   return r ? r.name : null;
 }
+
+/**
+ * r10: an unscoped question that names a covered hotel REIT ("What did Host Hotels guide on the Q2 2026 call?",
+ * "Park Hotels outlook?", "How did PK do last quarter?"). Names match case-insensitively; tickers only in
+ * capitals (so "park", "inn", "host" in ordinary wording never match). Returns the ticker, upper case.
+ */
+const REIT_NAME_RE: [string, RegExp][] = [
+  ["HST", /\bhost hotels?\b|\bhost hotels (&|and) resorts\b/i],
+  ["RHP", /\bryman( hospitality)?\b/i],
+  ["PK", /\bpark hotels?\b/i],
+  ["APLE", /\bapple hospitality\b/i],
+  ["DRH", /\bdiamond ?rock\b/i],
+  ["SHO", /\bsunstone( hotel)?\b/i],
+  ["XHR", /\bxenia\b/i],
+  ["PEB", /\bpebblebrook\b/i],
+  ["RLJ", /\brlj\b/i],
+  ["INN", /\bsummit hotel( properties)?\b/i],
+  ["CLDT", /\bchatham lodging\b/i],
+  ["AHT", /\bashford hospitality\b/i],
+  ["BHR", /\bbraemar\b/i],
+];
+export function matchReitTicker(question: string): string | null {
+  for (const [t, re] of REIT_NAME_RE) if (re.test(question) && reitByTicker(t)) return t;
+  const m = /\b(HST|RHP|PK|APLE|DRH|SHO|XHR|PEB|RLJ|INN|CLDT|AHT|BHR)\b/.exec(question);
+  return m && reitByTicker(m[1]) ? m[1] : null;
+}

@@ -81,7 +81,8 @@ import {
   type BriefOpts,
 } from "./chat-brief-build";
 import { matchProperty } from "./chat-property";
-import { dealAdviceBrief, dealBrief, dealLens, dealMarketSlug, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
+import { dealAdviceBrief, dealBrief, dealLens, dealMarketSlug, matchReitTicker, reitBrief, reitLens, reitName, type ItemAnswer } from "./chat-items";
+import { isOfferedStarter } from "./chat-starters";
 import type { ChatScope } from "./chat-scope";
 import { digestTickers } from "./chat-retrieve";
 import { MARKET_TOPIC, matchDealName } from "./chat-deal-match";
@@ -436,7 +437,25 @@ export type AnswerChatOpts = {
   llmSubject?: string | null;
   /** Prior turns in this owned thread (follow-ups). */
   history?: { role: "user" | "assistant"; content: string }[];
+  /** r10: answer from cited rows / filings only (no Groq). Set for offered starters and named-REIT questions. */
+  noLlm?: boolean;
+  /** Internal: already routed through a REIT item (no second REIT redirect). */
+  reitRouted?: boolean;
 };
+
+/** r10: a filing / digest brief's citations are its cited sources (label + URL), never an internal file path. */
+function citedOf(brief: ChatBrief): { citations: string[]; sources: NonNullable<ChatAnswer["sources"]> } {
+  const cited = brief.cited ?? [];
+  const citations = [...new Set(cited.map((c) => (c.url ? `${c.label} ${c.url}` : c.label)).filter((c) => c.trim()))];
+  const seen = new Set<string>();
+  const sources: NonNullable<ChatAnswer["sources"]> = [];
+  for (const c of cited) {
+    if (!c.url || seen.has(c.url)) continue;
+    seen.add(c.url);
+    sources.push({ url: c.url, label: c.text ?? c.label, secondary: false, signal: c.label });
+  }
+  return { citations, sources };
+}
 
 export async function answerChat(
   question: string,
@@ -481,13 +500,14 @@ export async function answerChat(
       if (own.length) {
         const brief = digestBrief(own, question, { range: "all" });
         if (brief.reads.length) {
-          return finalize({ content: "", brief, citations: own.map((d) => d.citePath), sources: [], intent: "reit_call", marketSlug: null, mode: "deterministic" }, true);
+          return finalize({ content: "", brief, ...citedOf(brief), intent: "reit_call", marketSlug: null, mode: "deterministic" }, true);
         }
       }
     }
     const item = lens ? reitBrief(scope.id, lens, question) ?? (lens !== "reported" ? reitBrief(scope.id, "reported") : null) : null;
     if (item) return finalizeItem(item);
-    return answerChat(name ? `${question} (${name})` : question, { range, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject });
+    // r10: a REIT item never hands its question to Groq.
+    return answerChat(name ? `${question} (${name})` : question, { range, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, noLlm: true, reitRouted: true });
   }
   // Unscoped deal name ("Tell me about The Wade"): answer with the deal card, unless it's an advice question or a
   // market-metric question that only mentions the deal.
@@ -503,14 +523,26 @@ export async function answerChat(
       if (item) return finalizeItem(item);
     }
   }
+  // r10 (Eric r9 must-fix): an unscoped question naming a covered hotel REIT ("What did Host Hotels guide on the
+  // Q2 2026 call?", "What's Park's outlook?") takes the same deterministic REIT path as the REIT's own chip:
+  // the issuer's call digest / 8-K exhibit, cited by URL. Never Groq. Advice and market-figure questions that only
+  // mention a REIT keep their own routes.
+  if (!scope && !opts?.marketSlug && !opts?.reitRouted && !classifyAdviceRequest(question)) {
+    const ticker = matchReitTicker(question);
+    if (ticker && (reitLens(question) || !MARKET_TOPIC.test(question))) {
+      return answerChat(question, { ...opts, scope: { kind: "reit", id: ticker } });
+    }
+  }
   const marketSlug = scope?.kind === "market" ? scope.id : opts?.marketSlug;
   const intent = opts?.intent ?? null;
-  const res = await answerChatIn(question, { marketSlug, range, intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history });
+  // r10: an offered /chat starter is answered exactly the way verify-starters.ts verified it (no Groq).
+  const noLlm = Boolean(opts?.noLlm) || isOfferedStarter(question, scope);
+  const res = await answerChatIn(question, { marketSlug, range, intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history, noLlm });
   if (range === "all") return res;
   if (!res.brief?.window?.filterable) {
     // Either an intent that can't filter by date (answered in full, no chip), or the window
     // removed everything the answer was built on (say so plainly, keep the chip).
-    const full = await answerChatIn(question, { marketSlug, range: "all", intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history });
+    const full = await answerChatIn(question, { marketSlug, range: "all", intent, isPrivate: opts?.isPrivate, llmSubject: opts?.llmSubject, history: opts?.history, noLlm });
     return full.brief?.window?.filterable ? emptyWindowAnswer(full, range) : full;
   }
   if (!res.brief.span?.sources) return emptyWindowAnswer(res, range);
@@ -555,7 +587,7 @@ function windowContext(ctx: GraphContext, range: DateRange): GraphContext {
 
 async function answerChatIn(
   question: string,
-  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null; isPrivate?: boolean; llmSubject?: string | null; history?: { role: "user" | "assistant"; content: string }[] }
+  opts: { marketSlug?: string | null; range: DateRange; intent?: ChatIntent | null; isPrivate?: boolean; llmSubject?: string | null; history?: { role: "user" | "assistant"; content: string }[]; noLlm?: boolean }
 ): Promise<FinalAnswer> {
   const range = opts.range;
   const advice = classifyAdviceRequest(question);
@@ -755,8 +787,15 @@ async function answerChatIn(
   const hadCorpus = corpus.digests.length > 0 || corpus.ideology.length > 0;
   const digestCitesForPack = issuerDigests(question, corpus).map((d) => d.citePath);
 
+  // r10: figure questions we can answer from cited filings / graph rows never go to Groq: a named issuer's call,
+  // guidance or earnings (digest / 8-K exhibit), national debt or benchmark rates with no market, and a covered
+  // market's debt / labor / rates overlay. Groq is for general questions only.
+  const issuerLed = !ctx.matched && issuerDigests(question, corpus).some((d) => d.score >= 5);
+  const nationalFigures = !ctx.matched && (ctx.intent === "debt_overlay" || ctx.intent === "rates");
+  const marketOverlay = Boolean(ctx.matched) && (ctx.intent === "debt_overlay" || ctx.intent === "talent_greenlight" || ctx.intent === "rates");
+  const deterministicOnly = Boolean(opts.noLlm) || issuerLed || nationalFigures || marketOverlay;
   // Private threads, date windows, missing Production model, caps, or a 429 cooldown: no Groq call.
-  const allowLlm = range === "all";
+  const allowLlm = range === "all" && !deterministicOnly;
   const model = allowLlm ? resolveModel() : null;
   const cap = model ? checkLlmCap(opts.llmSubject ?? "anon") : { ok: false as const, reason: "disabled" as const };
   if (model && cap.ok) {
@@ -911,15 +950,15 @@ async function answerChatIn(
   // REITs / earnings — never as a soft pull onto market, supply or uncovered questions.
   const digests = issuerDigests(question, corpus);
   const digestMemo = formatDigestFallbackMemo(digests);
-  const digestCites = digests.map((d) => d.citePath);
   // National debt questions answer from cited graph rows, not REIT digest soft-pulls.
   const nationalDebtFromGraph =
     ctx.intent === "debt_overlay" && !corpusAll.digests.some((d) => d.score >= 5);
   if (digestMemo && !ctx.matched && !nationalDebtFromGraph) {
+    const dBrief = digestBrief(digests, question, { range });
     const answer: ChatAnswer & { brief?: ChatBrief } = {
       content: digestMemo,
-      brief: digestBrief(digests, question, { range }),
-      citations: digestCites,
+      brief: dBrief,
+      ...citedOf(dBrief),
       // Earnings-call / REIT digest answer (a question naming Pebblebrook classifies as unknown otherwise).
       intent: ctx.intent === "unknown" || ctx.intent === "general_thesis" || ctx.intent === "revpar_metrics" ? "reit_call" : ctx.intent,
       marketSlug: opts?.marketSlug ?? null,
@@ -944,7 +983,7 @@ async function answerChatIn(
         "",
         digestMemo,
       ].join("\n"),
-      citations: [...new Set([...fallback.citations, ...digestCites])],
+      citations: [...new Set([...fallback.citations, ...citedOf(digestBrief(digests, question, { range })).citations])],
       intent: fallback.intent ?? ctx.intent,
       marketSlug:
         fallback.marketSlug ?? ctx.matched?.slug ?? opts?.marketSlug ?? null,
