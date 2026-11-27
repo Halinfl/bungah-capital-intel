@@ -44,7 +44,16 @@ import { MarketSectionChips } from "@/components/MarketSectionChips";
 import { HotelPerformanceBlock } from "@/components/HotelPerformanceBlock";
 import { hotelPerf, hotelPerfLicensedHidden } from "@/lib/hotel-performance";
 
-export const dynamic = "force-dynamic";
+/**
+ * ISR instead of per-request SSR (Vercel Hobby Active CPU cap, Nov 2026). Rebuilt at most hourly, the same
+ * window as GRAPH_REFRESH_S in db-safe; radar runs and /api/revalidate purge it at once via revalidateTag("db").
+ */
+export const revalidate = 3600;
+
+/** No slugs at build time (no DB needed to build); each market page is rendered on its first visit, then cached. */
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return [];
+}
 
 function shortMarketLabel(name: string, slug: string): string {
   if (slug === "orlando") return "Orlando";
