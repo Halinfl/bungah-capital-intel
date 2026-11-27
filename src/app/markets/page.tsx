@@ -12,7 +12,11 @@ import { MarketsHistoryIndex } from "@/components/MarketHistory";
 import { headlinePerf } from "@/lib/hotel-performance";
 import { isLicensedText, withoutLicensedSnapshot } from "@/lib/licensed-sources";
 
-export const dynamic = "force-dynamic";
+/**
+ * ISR instead of per-request SSR (Vercel Hobby Active CPU cap, Nov 2026). Rebuilt at most hourly, the same
+ * window as GRAPH_REFRESH_S in db-safe; radar runs and /api/revalidate purge it at once via revalidateTag("db").
+ */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Markets · Bungah Capital Intel",

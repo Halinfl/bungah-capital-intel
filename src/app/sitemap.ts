@@ -7,7 +7,11 @@ import { reits } from "@/lib/reits";
 import { TT_CAPTURE_DATE, ttIssues } from "@/lib/tuesday-trends";
 import reitSnapshot from "@/data/reits/snapshot.json";
 
-export const dynamic = "force-dynamic";
+/**
+ * ISR instead of per-request SSR (Vercel Hobby Active CPU cap, Nov 2026). Rebuilt at most hourly, the same
+ * window as GRAPH_REFRESH_S in db-safe; radar runs and /api/revalidate purge it at once via revalidateTag("db").
+ */
+export const revalidate = 3600;
 
 const BASE = "https://bungah.io";
 const CORE = ["/", "/markets", "/tuesday-trends", "/tuesday-trends/methodology", "/chat", "/radars", "/sound-money-lodging", "/hard-assets", "/hard-assets/scorecard", "/hard-assets/evidence", "/hard-assets/methodology", "/markets/ledger", "/errata", "/sponsorship-policy", "/podcast", "/trust", "/login", "/signup"];

@@ -1,6 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
@@ -20,8 +21,15 @@ const links = [
   { href: "/podcast", label: "Podcast" },
 ];
 
-export async function Nav() {
-  const { userId } = await auth();
+/**
+ * Client component (Nov 2026): a server auth() call here sat in the root layout and made every page on the site
+ * render per request on Vercel (Active CPU on the Hobby cap). Reading the session in the browser lets public pages
+ * be static/ISR. The cached HTML shows the signed-out nav; signed-in visitors get Workspace/Account and the
+ * UserButton as soon as Clerk loads. Access control is unchanged (middleware + server auth() on protected routes).
+ */
+export function Nav() {
+  const { isLoaded, userId: clerkUserId } = useAuth();
+  const userId = isLoaded ? clerkUserId : null;
   // Mobile sheet only: Tuesday Trends as an indented child of Markets, with the latest capture date. The 7
   // top-level items and their order are unchanged (desktop shows it as a Markets sub-tab).
   const ttChild = { href: "/tuesday-trends", label: "Tuesday Trends", meta: TT_LATEST_DATE ? shortDate(TT_LATEST_DATE) : undefined };

@@ -2,8 +2,7 @@ import Link from "next/link";
 import { withoutLicensedSnapshot } from "@/lib/licensed-sources";
 import { withoutSocial } from "@/lib/social-sources";
 import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
-import { chatLabel } from "@/lib/chat-label";
+import { AuthChatLabel } from "@/components/AuthChatLabel";
 import { prisma } from "@/lib/prisma";
 import { cachedQuery } from "@/lib/db-safe";
 import DataUnavailableNotice from "@/components/DataUnavailableNotice";
@@ -24,7 +23,12 @@ import { ThisTuesdayCard } from "@/components/tuesday-trends/ThisTuesdayCard";
  */
 const HIT_AREA = "relative after:absolute after:-inset-x-1 after:-inset-y-[13px] after:content-[''] md:after:content-none";
 
-export const dynamic = "force-dynamic";
+/**
+ * ISR, not per-request SSR (Vercel Hobby Active CPU cap, Nov 2026): the page is rebuilt at most once an hour
+ * (same window as GRAPH_REFRESH_S in db-safe) and radar runs purge it at once via revalidateTag("db").
+ * The only per-user bit, the chat label, is the client component AuthChatLabel.
+ */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Hotel capital intelligence · Bungah Capital Intel",
@@ -62,9 +66,6 @@ const primaryBtn =
   "inline-flex items-center justify-center rounded-lg bg-slate-100 px-5 py-3 text-base font-medium text-slate-900 hover:bg-white";
 
 export default async function HomePage() {
-  // Server-side auth: the chat label is right in the first HTML (no flash of "Private" when signed out).
-  const { userId } = await auth();
-  const signedIn = Boolean(userId);
   const marketsQ = await cachedQuery(["home-markets"], () =>
     prisma.market.findMany({
       orderBy: { name: "asc" },
@@ -278,7 +279,7 @@ export default async function HomePage() {
             </figure>
           ) : null}
           <p className="text-sm text-slate-300">
-            {chatLabel(signedIn)} ·{" "}
+            <AuthChatLabel /> ·{" "}
             <Link href="/trust" className="text-slate-100 underline decoration-white/30 underline-offset-4 hover:decoration-white">
               Read the Trust Contract
             </Link>

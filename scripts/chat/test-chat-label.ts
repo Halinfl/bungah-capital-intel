@@ -28,8 +28,12 @@ const hard = walk("src").filter((f) => !f.endsWith("chat-label.ts") && /Private\
 check("no hardcoded 'Private · Cited' outside src/lib/chat-label.ts", hard.length === 0, hard.join(", "));
 
 // Render sites: server pages read auth() and pass signedIn; the client component defaults to signed-out.
+// Home is ISR (no per-request auth): it renders <AuthChatLabel />, which shows the signed-out label until Clerk
+// confirms a session in the browser, so signed-out visitors never see "Private".
 const home = readFileSync("src/app/page.tsx", "utf8");
-check("home: server auth() + chatLabel(signedIn)", /await auth\(\)/.test(home) && /chatLabel\(signedIn\)/.test(home));
+check("home: <AuthChatLabel /> (client, signed-out by default)", /<AuthChatLabel \/>/.test(home) && !/await auth\(\)/.test(home));
+const homeLabel = readFileSync("src/components/AuthChatLabel.tsx", "utf8");
+check("AuthChatLabel: signed-in only when Clerk is loaded and signed in", /chatLabel\(Boolean\(isLoaded && isSignedIn\)\)/.test(homeLabel));
 const chatPage = readFileSync("src/app/chat/page.tsx", "utf8");
 check("/chat page: server auth() passed as signedIn", /await auth\(\)/.test(chatPage) && /signedIn=\{Boolean\(userId\)\}/.test(chatPage));
 const client = readFileSync("src/app/chat/ChatClient.tsx", "utf8");
